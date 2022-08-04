@@ -25,10 +25,10 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.database.utils.jdbc.NamedJdbcTemplate;
 import org.wso2.carbon.database.utils.jdbc.exceptions.DataAccessException;
 import org.wso2.carbon.database.utils.jdbc.exceptions.TransactionException;
-import org.wso2.carbon.identity.core.model.ExpressionNode;
 import org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
+import org.wso2.carbon.identity.organization.management.service.filter.ExpressionNode;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.FilterQueryBuilder;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
@@ -55,6 +55,8 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.EQ;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.EW;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_ADDING_ORGANIZATION;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_ADDING_ORGANIZATION_ATTRIBUTE;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_ADDING_ORGANIZATION_HIERARCHY_DATA;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_ACTIVE_CHILD_ORGANIZATIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_IF_CHILD_OF_PARENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_IF_IMMEDIATE_CHILD_OF_PARENT;
@@ -207,33 +209,42 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         }
     }
 
-    private void addOrganizationAttributes(Organization organization) throws TransactionException {
+    private void addOrganizationAttributes(Organization organization) throws OrganizationManagementServerException {
 
         String organizationId = organization.getId();
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
-        namedJdbcTemplate.withTransaction(template -> {
-            template.executeBatchInsert(INSERT_ATTRIBUTE, (namedPreparedStatement -> {
-                for (OrganizationAttribute attribute : organization.getAttributes()) {
-                    namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, organizationId);
-                    namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_KEY, attribute.getKey());
-                    namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_VALUE, attribute.getValue());
-                    namedPreparedStatement.addBatch();
-                }
-            }), organizationId);
-            return null;
-        });
+        try {
+            namedJdbcTemplate.withTransaction(template -> {
+                template.executeBatchInsert(INSERT_ATTRIBUTE, (namedPreparedStatement -> {
+                    for (OrganizationAttribute attribute : organization.getAttributes()) {
+                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, organizationId);
+                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_KEY, attribute.getKey());
+                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_VALUE, attribute.getValue());
+                        namedPreparedStatement.addBatch();
+                    }
+                }), organizationId);
+                return null;
+            });
+        } catch (TransactionException e) {
+            throw handleServerException(ERROR_CODE_ERROR_ADDING_ORGANIZATION_ATTRIBUTE, e);
+        }
     }
 
-    private void addOrganizationHierarchy(String query, Organization organization) throws TransactionException {
+    private void addOrganizationHierarchy(String query, Organization organization)
+            throws OrganizationManagementServerException {
 
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
-        namedJdbcTemplate.withTransaction(template -> {
-            template.executeInsert(query, namedPreparedStatement -> {
-                namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, organization.getId());
-                namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_PARENT_ID, organization.getParent().getId());
-            }, null, false);
-            return null;
-        });
+        try {
+            namedJdbcTemplate.withTransaction(template -> {
+                template.executeInsert(query, namedPreparedStatement -> {
+                    namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, organization.getId());
+                    namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_PARENT_ID, organization.getParent().getId());
+                }, null, false);
+                return null;
+            });
+        } catch (TransactionException e) {
+            throw handleServerException(ERROR_CODE_ERROR_ADDING_ORGANIZATION_HIERARCHY_DATA, e);
+        }
     }
 
     @Override

@@ -22,12 +22,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.model.ExpressionNode;
-import org.wso2.carbon.identity.core.model.FilterTreeBuilder;
-import org.wso2.carbon.identity.core.model.Node;
-import org.wso2.carbon.identity.core.model.OperationNode;
-import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.organization.management.authz.service.OrganizationManagementAuthorizationManager;
 import org.wso2.carbon.identity.organization.management.authz.service.exception.OrganizationManagementAuthzServiceServerException;
 import org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants;
@@ -36,6 +30,10 @@ import org.wso2.carbon.identity.organization.management.service.dao.impl.Organiz
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementClientException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
+import org.wso2.carbon.identity.organization.management.service.filter.ExpressionNode;
+import org.wso2.carbon.identity.organization.management.service.filter.FilterTreeBuilder;
+import org.wso2.carbon.identity.organization.management.service.filter.Node;
+import org.wso2.carbon.identity.organization.management.service.filter.OperationNode;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.ChildOrganizationDO;
@@ -366,14 +364,15 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
         if (StringUtils.equals(ACTIVE.toString(), status)) {
             try {
-                getTenantMgtService().activateTenant(IdentityTenantUtil.getTenantId(organizationId));
-            } catch (TenantMgtException e) {
+                getTenantMgtService().activateTenant(getRealmService().getTenantManager().getTenantId(organizationId));
+            } catch (TenantMgtException | UserStoreException e) {
                 throw handleServerException(ERROR_CODE_ERROR_ACTIVATING_ORGANIZATION_TENANT, e, organizationId);
             }
         } else {
             try {
-                getTenantMgtService().deactivateTenant(IdentityTenantUtil.getTenantId(organizationId));
-            } catch (TenantMgtException e) {
+                getTenantMgtService().deactivateTenant(getRealmService().getTenantManager()
+                        .getTenantId(organizationId));
+            } catch (TenantMgtException | UserStoreException e) {
                 throw handleServerException(ERROR_CODE_ERROR_DEACTIVATING_ORGANIZATION_TENANT, e, organizationId);
             }
         }
@@ -713,7 +712,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 Node rootNode = filterTreeBuilder.buildTree();
                 setExpressionNodeList(rootNode, expressionNodes);
             }
-        } catch (IOException | IdentityException e) {
+        } catch (IOException e) {
             throw handleClientException(ERROR_CODE_INVALID_FILTER_FORMAT);
         }
         return expressionNodes;

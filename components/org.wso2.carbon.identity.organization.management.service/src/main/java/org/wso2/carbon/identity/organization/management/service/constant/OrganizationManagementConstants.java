@@ -91,6 +91,16 @@ public class OrganizationManagementConstants {
     private static final Map<String, String> attributeColumnMap = new HashMap<>();
     public static final Map<String, String> ATTRIBUTE_COLUMN_MAP = Collections.unmodifiableMap(attributeColumnMap);
 
+    /**
+     * Contains constants related to filter operations.
+     */
+    public static class Filter {
+
+        public static final String AND = "and";
+        public static final String OR = "or";
+        public static final String NOT = "not";
+    }
+
     static {
 
         attributeColumnMap.put(ORGANIZATION_NAME_FIELD, VIEW_NAME_COLUMN);
@@ -235,6 +245,12 @@ public class OrganizationManagementConstants {
         ERROR_CODE_UNABLE_TO_CREATE_CHILD_ORGANIZATION_IN_ROOT("60057", "Unable to create the organization.",
                 "To create a child organization in root, the request should be invoked from the root " +
                         "organization."),
+        ERROR_CODE_UNSUPPORTED_FILTER_OPERATION("60058", "Given filter operator is not supported.",
+                "Given filter operator is not supported. Filter attribute: %s"),
+        ERROR_CODE_EMPTY_FILTER_VALUE("60059", "Provided filter value is empty.",
+                "Provided filter value is empty. attributeValue: %s  operation: %s"),
+        ERROR_CODE_INVALID_FILTER_ARGUMENT("60060", "Invalid filter argument",
+                "Invalid argument: Identity Provider filter name value is empty or invalid symbol: %s"),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -276,8 +292,6 @@ public class OrganizationManagementConstants {
                 "Server encountered an error while creating the organization."),
         ERROR_CODE_ERROR_BUILDING_RESPONSE_HEADER_URL("65017", "Unable to build created organization URL.",
                 "Server encountered an error while building URL for response header."),
-        ERROR_CODE_ERROR_BUILDING_URL_FOR_RESPONSE_BODY("65018", "Unable to build the URL.",
-                "Server encountered an error while building URL for response body."),
         ERROR_CODE_ERROR_EVALUATING_ADD_ORGANIZATION_AUTHORIZATION("65019", "Unable to create the organization.",
                 "Server encountered an error while evaluating authorization of user to create the " +
                         "organization in parent organization with ID: %s."),
@@ -415,7 +429,13 @@ public class OrganizationManagementConstants {
                         "organization: %s."),
         ERROR_CODE_ERROR_REMOVING_OAUTH_APP("65076", "Unable to share the application",
                 "Server encountered an error when removing oauth consumer app: % for fragment application: %s in " +
-                        "organization: %s.");
+                        "organization: %s."),
+        ERROR_CODE_ERROR_RETRIEVING_UM_DATASOURCE("65077", "Error while retrieving user management data source.",
+                "Server encountered an error while retrieving user management data source."),
+        ERROR_CODE_ERROR_ADDING_ORGANIZATION_ATTRIBUTE("65078", "Unable to add organization attribute.",
+                "Server encountered an error while adding organization attribute."),
+        ERROR_CODE_ERROR_ADDING_ORGANIZATION_HIERARCHY_DATA("65079", "Unable to add organization hierarchy data.",
+                "Server encountered an error while adding organization hierarchy data.");
 
         private final String code;
         private final String message;

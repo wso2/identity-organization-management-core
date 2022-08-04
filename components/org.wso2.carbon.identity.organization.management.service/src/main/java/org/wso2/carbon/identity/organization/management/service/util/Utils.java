@@ -20,20 +20,20 @@ package org.wso2.carbon.identity.organization.management.service.util;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.database.utils.jdbc.NamedJdbcTemplate;
 import org.wso2.carbon.database.utils.jdbc.exceptions.DataAccessException;
-import org.wso2.carbon.identity.core.ServiceURLBuilder;
-import org.wso2.carbon.identity.core.URLBuilderException;
-import org.wso2.carbon.identity.core.persistence.UmPersistenceManager;
 import org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementClientException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.util.DatabaseUtil;
 
 import java.util.UUID;
 
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_BUILDING_URL_FOR_RESPONSE_BODY;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_DB_METADATA;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_UM_DATASOURCE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_CONTEXT_PATH_COMPONENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_PATH;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATH_SEPARATOR;
@@ -86,9 +86,13 @@ public class Utils {
      *
      * @return a new Jdbc Template.
      */
-    public static NamedJdbcTemplate getNewTemplate() {
-
-        return new NamedJdbcTemplate(UmPersistenceManager.getInstance().getDataSource());
+    public static NamedJdbcTemplate getNewTemplate() throws OrganizationManagementServerException {
+        try {
+        return new NamedJdbcTemplate(DatabaseUtil.getRealmDataSource(CarbonContext.getThreadLocalCarbonContext()
+                .getUserRealm().getRealmConfiguration()));
+        } catch (UserStoreException e) {
+            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_UM_DATASOURCE, e);
+        }
     }
 
     /**
@@ -163,16 +167,12 @@ public class Utils {
      * @param organizationId The organization ID.
      * @return Relative URI.
      */
-    public static String buildURIForBody(String organizationId) throws OrganizationManagementServerException {
+    public static String buildURIForBody(String organizationId) {
 
         String context = getContext(V1_API_PATH_COMPONENT + PATH_SEPARATOR + ORGANIZATION_PATH
                 + PATH_SEPARATOR + organizationId);
 
-        try {
-            return ServiceURLBuilder.create().addPath(context).build().getRelativePublicURL();
-        } catch (URLBuilderException e) {
-            throw handleServerException(ERROR_CODE_ERROR_BUILDING_URL_FOR_RESPONSE_BODY, e);
-        }
+        return context;
     }
 
     /**
