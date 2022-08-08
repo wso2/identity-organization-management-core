@@ -39,6 +39,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATH_SEPARATOR;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SERVER_API_PATH_COMPONENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.V1_API_PATH_COMPONENT;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.MICROSOFT;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.ORACLE;
 
 /**
@@ -102,10 +103,33 @@ public class Utils {
      * @throws OrganizationManagementServerException If error occurred while checking the DB metadata.
      */
     public static boolean isOracleDB() throws OrganizationManagementServerException {
+
+        return isDBTypeOf(ORACLE);
+    }
+
+    /**
+     * Check whether the string, "microsoft", contains in the driver name or db product name.
+     *
+     * @return true if the database type matches the driver type, false otherwise.
+     * @throws OrganizationManagementServerException If error occurred while checking the DB metadata.
+     */
+    public static boolean isMSSqlDB() throws OrganizationManagementServerException {
+
+        return isDBTypeOf(MICROSOFT);
+    }
+
+    /**
+     * Check whether the DB type string contains in the driver name or db product name.
+     *
+     * @param dbType database type string.
+     * @return true if the database type matches the driver type, false otherwise.
+     * @throws OrganizationManagementServerException If error occurred while checking the DB metadata.
+     */
+    private static boolean isDBTypeOf(String dbType) throws OrganizationManagementServerException {
         try {
             NamedJdbcTemplate jdbcTemplate = getNewTemplate();
-            return jdbcTemplate.getDriverName().toLowerCase().contains(ORACLE) ||
-                    jdbcTemplate.getDatabaseProductName().toLowerCase().contains(ORACLE);
+            return jdbcTemplate.getDriverName().toLowerCase().contains(dbType) ||
+                    jdbcTemplate.getDatabaseProductName().toLowerCase().contains(dbType);
         } catch (DataAccessException e) {
             throw handleServerException(ERROR_CODE_ERROR_CHECKING_DB_METADATA, e);
         }

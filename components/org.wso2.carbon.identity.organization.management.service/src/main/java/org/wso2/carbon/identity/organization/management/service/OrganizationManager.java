@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com).
+ * Copyright (c) 2021, WSO2 LLC. (http://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -89,6 +89,27 @@ public interface OrganizationManager {
             throws OrganizationManagementException;
 
     /**
+     * Returns the list of child organizations for a given organization.
+     *
+     * @param organizationId The organization ID.
+     * @param recursive      Determines whether records should be retrieved in a recursive manner.
+     * @return the list of Child organizations ({@link BasicOrganization}).
+     * @throws OrganizationManagementException exception is thrown when listing organizations.
+     */
+    List<BasicOrganization> getChildOrganizations(String organizationId, boolean recursive)
+            throws OrganizationManagementException;
+
+    /**
+     * Returns the unique identifiers of the child organizations for a given organization.
+     *
+     * @param organizationId The organization ID.
+     * @return the list of Child organization IDs.
+     * @throws OrganizationManagementException exception is thrown when listing organizations.
+     */
+    List<String> getChildOrganizationsIds(String organizationId)
+            throws OrganizationManagementException;
+
+    /**
      * List or search organizations.
      *
      * @param limit     The maximum number of records to be returned.
@@ -97,7 +118,7 @@ public interface OrganizationManager {
      * @param sortOrder The sort order, ascending or descending.
      * @param filter    The filter string.
      * @param recursive Determines whether records should be retrieved in a recursive manner.
-     * @return the list of organization IDs.
+     * @return the list of {@link BasicOrganization}s.
      * @throws OrganizationManagementException The exception thrown when listing organizations.
      */
     List<BasicOrganization> getOrganizations(Integer limit, String after, String before, String sortOrder,

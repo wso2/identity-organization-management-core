@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com).
+ * Copyright (c) 2021, WSO2 LLC. (http://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,6 +25,8 @@ public class SQLConstants {
 
     // Database types
     public static final String ORACLE = "oracle";
+
+    public static final String MICROSOFT = "microsoft";
 
     public static final String PERMISSION_LIST_PLACEHOLDER = "_PERMISSION_LIST_";
 
@@ -99,6 +101,13 @@ public class SQLConstants {
             "AND OH.DEPTH %s) ORDER BY UM_ORG.UM_CREATED_TIME %s FETCH FIRST :" + SQLPlaceholders.DB_SCHEMA_LIMIT +
             "; ROWS ONLY";
 
+    public static final String GET_ORGANIZATIONS_TAIL_MSSQL = "UM_ORG_ROLE_USER.UM_USER_ID = :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_ID + "; AND UM_ORG_PERMISSION.UM_RESOURCE_ID IN (" +
+            PERMISSION_LIST_PLACEHOLDER + ") AND UM_ORG.UM_ID IN (SELECT O.UM_ID FROM UM_ORG O JOIN " +
+            "UM_ORG_HIERARCHY OH ON O.UM_ID = OH.UM_ID WHERE OH.UM_PARENT_ID = (SELECT UM_ID FROM UM_ORG WHERE %s) " +
+            "AND OH.DEPTH %s) ORDER BY UM_ORG.UM_CREATED_TIME %s OFFSET 0 ROWS FETCH NEXT :" +
+            SQLPlaceholders.DB_SCHEMA_LIMIT + "; ROWS ONLY";
+
     public static final String SET_ID = "UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";";
 
     public static final String DELETE_ORGANIZATION_BY_ID = "DELETE FROM UM_ORG WHERE UM_ID = :" +
@@ -146,7 +155,12 @@ public class SQLConstants {
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + "; AND UM_ATTRIBUTE_KEY = :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_KEY + ";";
 
-    public static final String GET_CHILD_ORGANIZATIONS = "SELECT UM_ID FROM UM_ORG WHERE UM_PARENT_ID = :" +
+    public static final String GET_CHILD_ORGANIZATIONS = "SELECT UM_ORG.UM_ID, UM_ORG.UM_ORG_NAME, " +
+            "UM_ORG.UM_CREATED_TIME FROM UM_ORG JOIN UM_ORG_HIERARCHY ON UM_ORG.UM_ID = UM_ORG_HIERARCHY.UM_ID " +
+            "WHERE UM_ORG_HIERARCHY.UM_PARENT_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID +
+            "; AND UM_ORG_HIERARCHY.DEPTH %s ;";
+
+    public static final String GET_CHILD_ORGANIZATION_IDS = "SELECT UM_ID FROM UM_ORG WHERE UM_PARENT_ID = :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID + ";";
 
     public static final String CHECK_CHILD_ORGANIZATIONS_STATUS = "SELECT COUNT(1) FROM UM_ORG WHERE UM_PARENT_ID = :" +

@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com).
+ * Copyright (c) 2021, WSO2 LLC. (http://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -223,6 +223,20 @@ public class OrganizationManagerImpl implements OrganizationManager {
             }
         }
         return organization;
+    }
+
+    @Override
+    public List<BasicOrganization> getChildOrganizations(String organizationId, boolean recursive)
+            throws OrganizationManagementException {
+
+        return organizationManagementDAO.getChildOrganizations(organizationId, recursive);
+    }
+
+    @Override
+    public List<String> getChildOrganizationsIds(String organizationId)
+            throws OrganizationManagementException {
+
+        return organizationManagementDAO.getChildOrganizationIds(organizationId);
     }
 
     @Override
@@ -471,25 +485,27 @@ public class OrganizationManagerImpl implements OrganizationManager {
     private void validateOrganizationAttributes(List<OrganizationAttribute> organizationAttributes) throws
             OrganizationManagementClientException {
 
-        for (OrganizationAttribute attribute : organizationAttributes) {
-            String attributeKey = attribute.getKey();
-            String attributeValue = attribute.getValue();
+        if (organizationAttributes != null) {
+            for (OrganizationAttribute attribute : organizationAttributes) {
+                String attributeKey = attribute.getKey();
+                String attributeValue = attribute.getValue();
 
-            if (StringUtils.isBlank(attributeKey)) {
-                throw handleClientException(ERROR_CODE_ATTRIBUTE_KEY_MISSING);
+                if (StringUtils.isBlank(attributeKey)) {
+                    throw handleClientException(ERROR_CODE_ATTRIBUTE_KEY_MISSING);
+                }
+                if (StringUtils.isBlank(attributeValue)) {
+                    throw handleClientException(ERROR_CODE_ATTRIBUTE_VALUE_MISSING);
+                }
+                attribute.setKey(attributeKey.trim());
+                attribute.setValue(attributeValue.trim());
             }
-            if (StringUtils.isBlank(attributeValue)) {
-                throw handleClientException(ERROR_CODE_ATTRIBUTE_VALUE_MISSING);
-            }
-            attribute.setKey(attributeKey.trim());
-            attribute.setValue(attributeValue.trim());
-        }
 
-        // Check if attribute keys are duplicated.
-        Set<String> tempSet = organizationAttributes.stream().map(OrganizationAttribute::getKey)
-                .collect(Collectors.toSet());
-        if (organizationAttributes.size() > tempSet.size()) {
-            throw handleClientException(ERROR_CODE_DUPLICATE_ATTRIBUTE_KEYS);
+            // Check if attribute keys are duplicated.
+            Set<String> tempSet = organizationAttributes.stream().map(OrganizationAttribute::getKey)
+                    .collect(Collectors.toSet());
+            if (organizationAttributes.size() > tempSet.size()) {
+                throw handleClientException(ERROR_CODE_DUPLICATE_ATTRIBUTE_KEYS);
+            }
         }
     }
 

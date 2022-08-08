@@ -450,9 +450,8 @@ public class OrganizationManagerImplTest {
                 STRUCTURAL.toString());
         Organization updatedOrganization = organizationManager.updateOrganization(ORG1_ID, ORG1_NAME,
                 sampleOrganization);
-        assertEquals(NEW_ORG_DESCRIPTION, updatedOrganization.getDescription());
-        assertEquals(ROOT_ORG_ID, updatedOrganization.getParent().getId());
-
+        assertEquals(updatedOrganization.getDescription(), NEW_ORG_DESCRIPTION);
+        assertEquals(updatedOrganization.getParent().getId(), ROOT_ORG_ID);
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)

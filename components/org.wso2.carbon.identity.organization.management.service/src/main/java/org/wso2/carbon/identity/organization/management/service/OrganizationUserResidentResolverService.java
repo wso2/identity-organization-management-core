@@ -39,4 +39,16 @@ public interface OrganizationUserResidentResolverService {
      */
     Optional<User> resolveUserFromResidentOrganization(String userName, String userId, String accessedOrganizationId)
             throws OrganizationManagementException;
+
+    /**
+     * Retrieve user's resident organization by traversing through the ancestor organizations from a given child
+     * organization.
+     *
+     * @param userId         The user ID.
+     * @param organizationId The given child organization in the hierarchy.
+     * @return user's resident organization.
+     * @throws OrganizationManagementException Error occurred while resolving resident org of the user.
+     */
+    Optional<String> resolveResidentOrganization(String userId, String organizationId)
+            throws OrganizationManagementException;
 }

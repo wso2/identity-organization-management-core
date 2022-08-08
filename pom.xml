@@ -316,6 +316,8 @@
         <carbon.user.api.imp.pkg.version.range>[1.0.1, 2.0.0)</carbon.user.api.imp.pkg.version.range>
         <carbon.user.core.imp.pkg.version.range>[4.7.0, 4.8.0)</carbon.user.core.imp.pkg.version.range>
 
+        <carbon.identity.package.import.version.range>[5.20.0, 6.0.0)</carbon.identity.package.import.version.range>
+
         <carbon.database.utils.version>2.0.13</carbon.database.utils.version>
         <org.wso2.carbon.database.utils.version.range>[2.0.0,3.0.0)</org.wso2.carbon.database.utils.version.range>
 

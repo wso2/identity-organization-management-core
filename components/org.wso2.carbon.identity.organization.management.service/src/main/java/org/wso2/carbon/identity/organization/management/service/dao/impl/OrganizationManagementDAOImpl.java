@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com).
+ * Copyright (c) 2021, WSO2 LLC. (http://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -124,9 +124,11 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.DELETE_ORGANIZATION_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ANCESTORS_OF_GIVEN_ORG_INCLUDING_ITSELF;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATIONS;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATION_IDS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_BY_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_MSSQL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_ORACLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_NAME_BY_ID;
@@ -164,6 +166,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.UPDATE_ORGANIZATION_LAST_MODIFIED;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getUserId;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleServerException;
+import static org.wso2.carbon.identity.organization.management.service.util.Utils.isMSSqlDB;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.isOracleDB;
 
 /**
@@ -355,7 +358,13 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         String parentIdFilterQuery = parentIdFilterQueryBuilder.getFilterQuery();
 
         String sqlStmt;
-        String getOrgSqlStmtTail = isOracleDB() ? GET_ORGANIZATIONS_TAIL_ORACLE : GET_ORGANIZATIONS_TAIL;
+        String getOrgSqlStmtTail = GET_ORGANIZATIONS_TAIL;
+
+        if (isOracleDB()) {
+            getOrgSqlStmtTail = GET_ORGANIZATIONS_TAIL_ORACLE;
+        } else if (isMSSqlDB()) {
+            getOrgSqlStmtTail = GET_ORGANIZATIONS_TAIL_MSSQL;
+        }
 
         if (StringUtils.isBlank(parentIdFilterQuery)) {
             sqlStmt = GET_ORGANIZATIONS + filterQueryBuilder.getFilterQuery() +
@@ -505,19 +514,39 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
     }
 
     @Override
+    public List<BasicOrganization> getChildOrganizations(String organizationId, boolean recursive)
+            throws OrganizationManagementServerException {
+
+        NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
+        String sqlStmt = String.format(GET_CHILD_ORGANIZATIONS, recursive ? "> 0" : "= 1");
+        try {
+            return namedJdbcTemplate.executeQuery(sqlStmt,
+                    (resultSet, rowNumber) -> {
+                        BasicOrganization organization = new BasicOrganization();
+                        organization.setId(resultSet.getString(1));
+                        organization.setName(resultSet.getString(2));
+                        organization.setCreated(resultSet.getTimestamp(3).toString());
+                        return organization;
+                    },
+                    namedPreparedStatement ->
+                            namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_PARENT_ID, organizationId));
+        } catch (DataAccessException e) {
+            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_CHILD_ORGANIZATIONS, e, organizationId);
+        }
+    }
+
+    @Override
     public List<String> getChildOrganizationIds(String organizationId) throws OrganizationManagementServerException {
 
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
-        List<String> childOrganizationIds;
         try {
-            childOrganizationIds = namedJdbcTemplate.executeQuery(GET_CHILD_ORGANIZATIONS,
+            return namedJdbcTemplate.executeQuery(GET_CHILD_ORGANIZATION_IDS,
                     (resultSet, rowNumber) -> resultSet.getString(1),
                     namedPreparedStatement ->
                             namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_PARENT_ID, organizationId));
         } catch (DataAccessException e) {
             throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_CHILD_ORGANIZATIONS, e, organizationId);
         }
-        return childOrganizationIds;
     }
 
     @Override

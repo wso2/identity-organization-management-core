@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com).
+ * Copyright (c) 2021, WSO2 LLC. (http://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -157,6 +157,17 @@ public interface OrganizationManagementDAO {
             throws OrganizationManagementServerException;
 
     /**
+     * Retrieve the list of child organizations of a given organization.
+     *
+     * @param organizationId The organization ID.
+     * @return the list of the child organizations.
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the child
+     *                                               organizations.
+     */
+    List<BasicOrganization> getChildOrganizations(String organizationId, boolean recursive)
+            throws OrganizationManagementServerException;
+
+    /**
      * Retrieve the list of child organization IDs of a given organization.
      *
      * @param organizationId The organization ID.
@@ -164,7 +175,8 @@ public interface OrganizationManagementDAO {
      * @throws OrganizationManagementServerException The server exception thrown when retrieving the child
      *                                               organizations.
      */
-    List<String> getChildOrganizationIds(String organizationId) throws OrganizationManagementServerException;
+    List<String> getChildOrganizationIds(String organizationId)
+            throws OrganizationManagementServerException;
 
     /**
      * Check if the organization has any child organizations with the status as 'ACTIVE'.

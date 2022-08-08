@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com).
+ * Copyright (c) 2021, WSO2 LLC. (http://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -200,8 +200,6 @@ public class OrganizationManagementConstants {
         ERROR_CODE_INVALID_ORGANIZATION_TYPE("60034", "Invalid organization type.", "The organization " +
                 "type should be 'TENANT' or 'STRUCTURAL'."),
         ERROR_CODE_INVALID_APPLICATION("60035", "Invalid application", "The requested application %s is invalid."),
-        ERROR_CODE_ORG_PARAMETER_NOT_FOUND("60036", "Organization parameter could not be found.", "The organization " +
-                "parameter for shared application authentication is not found."),
         ERROR_CODE_APPLICATION_NOT_SHARED("60037", "Application not shared with organization.", "The " +
                 "application %s is not shared with organization with ID %s."),
         ERROR_CODE_REMOVING_REQUIRED_ATTRIBUTE("60038", "Unable to remove a required attribute.",
@@ -245,11 +243,13 @@ public class OrganizationManagementConstants {
         ERROR_CODE_UNABLE_TO_CREATE_CHILD_ORGANIZATION_IN_ROOT("60057", "Unable to create the organization.",
                 "To create a child organization in root, the request should be invoked from the root " +
                         "organization."),
-        ERROR_CODE_UNSUPPORTED_FILTER_OPERATION("60058", "Given filter operator is not supported.",
+        ERROR_CODE_USER_ROOT_ORGANIZATION_NOT_FOUND("60058", "Unable to retrieve the root organization.",
+                "A root organization is not found for the authenticated user with ID: %s."),
+        ERROR_CODE_UNSUPPORTED_FILTER_OPERATION("60059", "Given filter operator is not supported.",
                 "Given filter operator is not supported. Filter attribute: %s"),
-        ERROR_CODE_EMPTY_FILTER_VALUE("60059", "Provided filter value is empty.",
+        ERROR_CODE_EMPTY_FILTER_VALUE("60060", "Provided filter value is empty.",
                 "Provided filter value is empty. attributeValue: %s  operation: %s"),
-        ERROR_CODE_INVALID_FILTER_ARGUMENT("60060", "Invalid filter argument",
+        ERROR_CODE_INVALID_FILTER_ARGUMENT("60061", "Invalid filter argument",
                 "Invalid argument: Identity Provider filter name value is empty or invalid symbol: %s"),
 
         // Server errors.
@@ -427,14 +427,20 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ERROR_CREATING_OAUTH_APP("65075", "Unable create oauth consumer app for fragment application",
                 "Server encountered an error when creating oauth consumer app for fragment application: %s in " +
                         "organization: %s."),
-        ERROR_CODE_ERROR_REMOVING_OAUTH_APP("65076", "Unable to share the application",
-                "Server encountered an error when removing oauth consumer app: % for fragment application: %s in " +
+        ERROR_CODE_ERROR_REMOVING_OAUTH_APP("65076", "Unable to remove the oauth consumer app for fragment application",
+                "Server encountered an error when removing oauth consumer app: %s for fragment application: %s in " +
                         "organization: %s."),
-        ERROR_CODE_ERROR_RETRIEVING_UM_DATASOURCE("65077", "Error while retrieving user management data source.",
+        ERROR_CODE_ORG_PARAMETERS_NOT_RESOLVED("65077", "Organization name or organization id is not " +
+                "resolved.", "The organization information has not resolved before the authentication."),
+        ERROR_CODE_ERROR_WHILE_RESOLVING_ROOT_ORG("65078", "Unable to resolve user's root organization.",
+                "Error while resolving root organization of user with ID: %s."),
+        ERROR_CODE_ERROR_REMOVING_FRAGMENT_APP("65079", "Unable to remove the fragment application",
+                "Server encountered an error when removing fragment app: %s in organization: %s."),
+        ERROR_CODE_ERROR_RETRIEVING_UM_DATASOURCE("65080", "Error while retrieving user management data source.",
                 "Server encountered an error while retrieving user management data source."),
-        ERROR_CODE_ERROR_ADDING_ORGANIZATION_ATTRIBUTE("65078", "Unable to add organization attribute.",
+        ERROR_CODE_ERROR_ADDING_ORGANIZATION_ATTRIBUTE("65081", "Unable to add organization attribute.",
                 "Server encountered an error while adding organization attribute."),
-        ERROR_CODE_ERROR_ADDING_ORGANIZATION_HIERARCHY_DATA("65079", "Unable to add organization hierarchy data.",
+        ERROR_CODE_ERROR_ADDING_ORGANIZATION_HIERARCHY_DATA("65082", "Unable to add organization hierarchy data.",
                 "Server encountered an error while adding organization hierarchy data.");
 
         private final String code;
