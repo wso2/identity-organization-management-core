@@ -95,6 +95,7 @@ public class Utils {
      * @return a new Jdbc Template.
      */
     public static NamedJdbcTemplate getNewTemplate() throws OrganizationManagementServerException {
+
         try {
             if (dataSource == null) {
                 dataSource = DatabaseUtil.getRealmDataSource(CarbonContext.getThreadLocalCarbonContext().getUserRealm()
@@ -136,6 +137,7 @@ public class Utils {
      * @throws OrganizationManagementServerException If error occurred while checking the DB metadata.
      */
     private static boolean isDBTypeOf(String dbType) throws OrganizationManagementServerException {
+
         try {
             NamedJdbcTemplate jdbcTemplate = getNewTemplate();
             return jdbcTemplate.getDriverName().toLowerCase().contains(dbType) ||
