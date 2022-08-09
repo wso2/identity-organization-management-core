@@ -55,7 +55,7 @@ public class OrganizationManagementDAOImplTest {
     private static final String ATTRIBUTE_VALUE = "Sri Lanka";
     private static final String ORG_NAME = "XYZ builders";
     private static final String INVALID_DATA = "invalid data";
-    private static final String ROOT_ORG_ID = "10084a8d-113f-4211-a0d5-efe36b082211";
+    private static final String SUPER_ORG_ID = "10084a8d-113f-4211-a0d5-efe36b082211";
     private String orgId;
 
     @BeforeClass
@@ -63,7 +63,7 @@ public class OrganizationManagementDAOImplTest {
 
         initiateH2Base();
         mockDataSource();
-        storeChildOrganization(ROOT_ORG_ID);
+        storeChildOrganization(SUPER_ORG_ID);
     }
 
     @AfterClass
@@ -87,7 +87,7 @@ public class OrganizationManagementDAOImplTest {
         organization.setType(STRUCTURAL.toString());
 
         ParentOrganizationDO parentOrganizationDO = new ParentOrganizationDO();
-        parentOrganizationDO.setId(ROOT_ORG_ID);
+        parentOrganizationDO.setId(SUPER_ORG_ID);
         organization.setParent(parentOrganizationDO);
 
         List<OrganizationAttribute> attributes = new ArrayList<>();
@@ -153,7 +153,7 @@ public class OrganizationManagementDAOImplTest {
 
         Organization organization = organizationManagementDAO.getOrganization(orgId);
         Assert.assertEquals(organization.getName(), ORG_NAME);
-        Assert.assertEquals(organization.getParent().getId(), ROOT_ORG_ID);
+        Assert.assertEquals(organization.getParent().getId(), SUPER_ORG_ID);
     }
 
     @DataProvider(name = "dataForHasChildOrganizations")
@@ -161,7 +161,7 @@ public class OrganizationManagementDAOImplTest {
 
         return new Object[][]{
 
-                {ROOT_ORG_ID},
+                {SUPER_ORG_ID},
                 {orgId},
         };
     }
@@ -172,7 +172,7 @@ public class OrganizationManagementDAOImplTest {
         boolean hasChildOrganizations = organizationManagementDAO.hasChildOrganizations(id);
         if (StringUtils.equals(id, orgId)) {
             Assert.assertFalse(hasChildOrganizations);
-        } else if (StringUtils.equals(id, ROOT_ORG_ID)) {
+        } else if (StringUtils.equals(id, SUPER_ORG_ID)) {
             Assert.assertTrue(hasChildOrganizations);
         }
     }
@@ -203,7 +203,7 @@ public class OrganizationManagementDAOImplTest {
 
         String id = generateUniqueID();
         storeOrganization(id, "Dummy organization",
-                "This is a sample organization to test the delete functionality.", ROOT_ORG_ID);
+                "This is a sample organization to test the delete functionality.", SUPER_ORG_ID);
         organizationManagementDAO.deleteOrganization(id);
         Assert.assertNull(organizationManagementDAO.getOrganization(id));
     }

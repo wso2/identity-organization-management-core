@@ -35,6 +35,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import javax.sql.DataSource;
+
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_DB_METADATA;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_UM_DATASOURCE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_CONTEXT_PATH_COMPONENT;
@@ -49,6 +51,8 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
  * This class provides utility functions for the Organization Management.
  */
 public class Utils {
+
+    private static DataSource dataSource;
 
     /**
      * Throw an OrganizationManagementClientException upon client side error in organization management.
@@ -92,8 +96,11 @@ public class Utils {
      */
     public static NamedJdbcTemplate getNewTemplate() throws OrganizationManagementServerException {
         try {
-        return new NamedJdbcTemplate(DatabaseUtil.getRealmDataSource(CarbonContext.getThreadLocalCarbonContext()
-                .getUserRealm().getRealmConfiguration()));
+            if (dataSource == null) {
+                dataSource = DatabaseUtil.getRealmDataSource(CarbonContext.getThreadLocalCarbonContext().getUserRealm()
+                        .getRealmConfiguration());
+            }
+        return new NamedJdbcTemplate(dataSource);
         } catch (UserStoreException e) {
             throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_UM_DATASOURCE, e);
         }

@@ -40,10 +40,10 @@ public interface OrganizationManagementAuthzDAO {
     boolean hasUserOrgAssociation(String userId, String orgId) throws OrganizationManagementServerException;
 
     /**
-     * Resolve root organization id.
+     * Resolve super organization id.
      *
-     * @return Root organization id.
-     * @throws OrganizationManagementServerException if error occurred when retrieving root org id.
+     * @return Super organization id.
+     * @throws OrganizationManagementServerException if error occurred when retrieving super org id.
      */
-    String getRootOrganizationId() throws OrganizationManagementServerException;
+    String getSuperOrganizationId() throws OrganizationManagementServerException;
 }

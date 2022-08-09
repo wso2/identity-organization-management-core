@@ -29,8 +29,8 @@ import java.util.Map;
  */
 public class OrganizationManagementConstants {
 
-    public static final String ROOT = "ROOT";
-    public static final String ROOT_ORG_ID = "10084a8d-113f-4211-a0d5-efe36b082211";
+    public static final String SUPER = "Super";
+    public static final String SUPER_ORG_ID = "10084a8d-113f-4211-a0d5-efe36b082211";
     public static final String PATH_SEPARATOR = "/";
     public static final String V1_API_PATH_COMPONENT = "v1";
     public static final String ORGANIZATION_PATH = "organizations";
@@ -223,9 +223,9 @@ public class OrganizationManagementConstants {
                 "Invalid attribute to assign for a role."),
         ERROR_CODE_ROLE_LIST_INVALID_CURSOR("60049", "Cursor decoding failed.",
                 "Malformed cursor %s cannot be processed."),
-        ERROR_CODE_ROOT_ORG_DELETE_OR_DISABLE("60050", "ROOT organization can't be disabled or deleted.",
+        ERROR_CODE_SUPER_ORG_DELETE_OR_DISABLE("60050", "Super organization can't be disabled or deleted.",
                 "Organization %s can't be disabled or deleted."),
-        ERROR_CODE_ROOT_ORG_RENAME("60051", "ROOT organization can't be renamed.",
+        ERROR_CODE_SUPER_ORG_RENAME("60051", "Super organization can't be renamed.",
                 "Organization %s can't be renamed."),
         ERROR_CODE_ROLE_IS_UNMODIFIABLE("60052", "Role can't be modified.",
                 "Role %s cannot be updated or deleted."),
@@ -240,8 +240,8 @@ public class OrganizationManagementConstants {
                 "Organizations not found by name: %s"),
         ERROR_CODE_INVALID_ORGANIZATION_ID("65056", "Unable to retrieve the organization name",
                 "Organization not found with organization with ID: %s."),
-        ERROR_CODE_UNABLE_TO_CREATE_CHILD_ORGANIZATION_IN_ROOT("60057", "Unable to create the organization.",
-                "To create a child organization in root, the request should be invoked from the root " +
+        ERROR_CODE_UNABLE_TO_CREATE_CHILD_ORGANIZATION_IN_SUPER("60057", "Unable to create the organization.",
+                "To create a child organization in super, the request should be invoked from the super " +
                         "organization."),
         ERROR_CODE_USER_ROOT_ORGANIZATION_NOT_FOUND("60058", "Unable to retrieve the root organization.",
                 "A root organization is not found for the authenticated user with ID: %s."),
@@ -297,11 +297,11 @@ public class OrganizationManagementConstants {
                         "organization in parent organization with ID: %s."),
         ERROR_CODE_ERROR_BUILDING_PAGINATED_RESPONSE_URL("65020", "Unable to retrieve the organizations.",
                 "Server encountered an error while building paginated response URL."),
-        ERROR_CODE_ERROR_MISSING_ROOT("65021", "Unable to create the organization.",
-                "Server encountered an error while retrieving the ROOT organization"),
-        ERROR_CODE_ERROR_EVALUATING_ADD_ORGANIZATION_TO_ROOT_AUTHORIZATION("65022", "Unable to create the " +
+        ERROR_CODE_ERROR_MISSING_SUPER("65021", "Unable to create the organization.",
+                "Server encountered an error while retrieving the super organization."),
+        ERROR_CODE_ERROR_EVALUATING_ADD_ORGANIZATION_TO_SUPER_AUTHORIZATION("65022", "Unable to create the " +
                 "organization.", "Server encountered an error while evaluating authorization of user to create " +
-                "a child organization in root."),
+                "a child organization in super organization."),
         ERROR_CODE_ERROR_CHECKING_ACTIVE_CHILD_ORGANIZATIONS("65023", "Unable to retrieve active child " +
                 "organizations.", "Server encountered an error while retrieving the active child organizations " +
                 "of organization with ID: %s."),
@@ -414,8 +414,8 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ERROR_VALIDATING_USER_ASSOCIATION("65070", "Error while validating user association " +
                 "for organization.", "Server encountered when authorizing user against the associated " +
                 "organization."),
-        ERROR_CODE_ERROR_VALIDATING_USER_ROOT_ASSOCIATION("65071", "Error while validating user " +
-                "association with root organization.", "Server encountered when authorizing user against the root " +
+        ERROR_CODE_ERROR_VALIDATING_USER_SUPER_ASSOCIATION("65071", "Error while validating user " +
+                "association with super organization.", "Server encountered when authorizing user against the super " +
                 "organization."),
         ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_NAME_BY_ID("65072", "Unable to retrieve the organization.",
                 "Server encountered an error while retrieving organization with ID: %s."),
@@ -434,17 +434,23 @@ public class OrganizationManagementConstants {
                 "resolved.", "The organization information has not resolved before the authentication."),
         ERROR_CODE_ERROR_WHILE_RESOLVING_ROOT_ORG("65078", "Unable to resolve user's root organization.",
                 "Error while resolving root organization of user with ID: %s."),
-        ERROR_CODE_ERROR_REMOVING_FRAGMENT_APP("65079", "Unable to remove the fragment application",
+        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_IDP_LIST("65079", "Unable to retrieve organization IDP list.",
+                "Error while retrieving the IDP list of the organization: %s"),
+        ERROR_CODE_ERROR_REMOVING_FRAGMENT_APP("65080", "Unable to remove the fragment application",
                 "Server encountered an error when removing fragment app: %s in organization: %s."),
-        ERROR_CODE_ERROR_RETRIEVING_UM_DATASOURCE("65080", "Error while retrieving user management data source.",
+        ERROR_CODE_ERROR_CREATING_ORG_LOGIN_IDP("65081", "Unable to create organization IDP.",
+                "Error while creating the Organization Login IDP in organization: %s"),
+        ERROR_CODE_ERROR_UPDATING_APPLICATION("65082", "Unable to update the application authentication steps.",
+                "Error while updating the authentication details of the application: %s"),
+        ERROR_CODE_ERROR_RETRIEVING_UM_DATASOURCE("65083", "Error while retrieving user management data source.",
                 "Server encountered an error while retrieving user management data source."),
-        ERROR_CODE_ERROR_ADDING_ORGANIZATION_ATTRIBUTE("65081", "Unable to add organization attribute.",
+        ERROR_CODE_ERROR_ADDING_ORGANIZATION_ATTRIBUTE("65084", "Unable to add organization attribute.",
                 "Server encountered an error while adding organization attribute."),
-        ERROR_CODE_ERROR_ADDING_ORGANIZATION_HIERARCHY_DATA("65082", "Unable to add organization hierarchy data.",
+        ERROR_CODE_ERROR_ADDING_ORGANIZATION_HIERARCHY_DATA("65085", "Unable to add organization hierarchy data.",
                 "Server encountered an error while adding organization hierarchy data."),
-        ERROR_CODE_ERROR_CHECKING_IF_USER_AUTHORIZED("65083", "Error while checking whether user is authorized.",
+        ERROR_CODE_ERROR_CHECKING_IF_USER_AUTHORIZED("65086", "Error while checking whether user is authorized.",
                 "Error while checking whether user with ID: %s is authorized in organization with ID: %s"),
-        ERROR_CODE_ERROR_CHECKING_USER_ASSOCIATION_WITH_ORGANIZATION("65084", "Error while checking whether user " +
+        ERROR_CODE_ERROR_CHECKING_USER_ASSOCIATION_WITH_ORGANIZATION("65087", "Error while checking whether user " +
                 "association with organization.", "Error while checking whether user with ID: %s is associated with " +
                 "organization with ID: %s");
 

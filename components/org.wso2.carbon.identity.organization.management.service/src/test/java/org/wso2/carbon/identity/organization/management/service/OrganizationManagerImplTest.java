@@ -71,7 +71,7 @@ import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.SUPER_TENA
 @WithAxisConfiguration
 public class OrganizationManagerImplTest {
 
-    private static final String ROOT = "ROOT";
+    private static final String SUPER = "Super";
     private static final String ORG1_NAME = "ABC Builders";
     private static final String ORG2_NAME = "XYZ Builders";
     private static final String ORG_DESCRIPTION = "This is a construction company.";
@@ -79,7 +79,7 @@ public class OrganizationManagerImplTest {
     private static final String NEW_ORG_DESCRIPTION = "new sample description.";
     private static final String ORG_ATTRIBUTE_KEY = "country";
     private static final String ORG_ATTRIBUTE_VALUE = "Sri Lanka";
-    private static final String ROOT_ORG_ID = "10084a8d-113f-4211-a0d5-efe36b082211";
+    private static final String SUPER_ORG_ID = "10084a8d-113f-4211-a0d5-efe36b082211";
     private static final String ORG1_ID = "org_id_1";
     private static final String ORG2_ID = "org_id_2";
     private static final String INVALID_PARENT_ID = "invalid_parent_id";
@@ -113,7 +113,7 @@ public class OrganizationManagerImplTest {
         TestUtils.initiateH2Base();
         TestUtils.mockDataSource();
 
-        Organization organization1 = getOrganization(ORG1_ID, ORG1_NAME, ORG_DESCRIPTION, ROOT_ORG_ID,
+        Organization organization1 = getOrganization(ORG1_ID, ORG1_NAME, ORG_DESCRIPTION, SUPER_ORG_ID,
                     STRUCTURAL.toString());
         Organization organization2 = getOrganization(ORG2_ID, ORG2_NAME, ORG_DESCRIPTION, ORG1_ID,
                 STRUCTURAL.toString());
@@ -131,7 +131,7 @@ public class OrganizationManagerImplTest {
     public void testAddOrganization() throws Exception {
 
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), NEW_ORG_NAME, ORG_DESCRIPTION,
-                ROOT_ORG_ID, STRUCTURAL.toString());
+                SUPER_ORG_ID, STRUCTURAL.toString());
         mockCarbonContext();
         mockAuthorizationManager();
         when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(true);
@@ -161,7 +161,7 @@ public class OrganizationManagerImplTest {
     @Test(expectedExceptions = OrganizationManagementClientException.class)
     public void testAddOrganizationWithReservedName() throws Exception {
 
-        Organization organization = getOrganization(UUID.randomUUID().toString(), ROOT, ORG_DESCRIPTION, ORG1_NAME,
+        Organization organization = getOrganization(UUID.randomUUID().toString(), SUPER, ORG_DESCRIPTION, ORG1_NAME,
                 TENANT.toString());
         organizationManager.addOrganization(organization);
     }
@@ -210,7 +210,7 @@ public class OrganizationManagerImplTest {
 
         mockCarbonContext();
         Organization organization = getOrganization(UUID.randomUUID().toString(), NEW_ORG_NAME, ORG_DESCRIPTION,
-                ROOT_ORG_ID, STRUCTURAL.toString());
+                SUPER_ORG_ID, STRUCTURAL.toString());
         List<OrganizationAttribute> organizationAttributeList = new ArrayList<>();
         OrganizationAttribute organizationAttribute = new OrganizationAttribute(attributeKey, attributeValue);
         organizationAttributeList.add(organizationAttribute);
@@ -222,7 +222,7 @@ public class OrganizationManagerImplTest {
     public void testAddOrganizationDuplicateAttributeKeys() throws Exception {
 
         Organization organization = getOrganization(UUID.randomUUID().toString(), NEW_ORG_NAME, ORG_DESCRIPTION,
-                ROOT_ORG_ID, STRUCTURAL.toString());
+                SUPER_ORG_ID, STRUCTURAL.toString());
         mockCarbonContext();
         List<OrganizationAttribute> organizationAttributeList = new ArrayList<>();
         OrganizationAttribute organizationAttribute1 = new OrganizationAttribute(ORG_ATTRIBUTE_KEY,
@@ -239,7 +239,7 @@ public class OrganizationManagerImplTest {
     public void testAddOrganizationUserNotAuthorized() throws Exception {
 
         Organization organization = getOrganization(UUID.randomUUID().toString(), NEW_ORG_NAME, ORG_DESCRIPTION,
-                ROOT_ORG_ID, STRUCTURAL.toString());
+                SUPER_ORG_ID, STRUCTURAL.toString());
         mockCarbonContext();
         mockAuthorizationManager();
         when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(false);
@@ -257,7 +257,7 @@ public class OrganizationManagerImplTest {
 
         Organization organization = organizationManager.getOrganization(ORG1_ID, false, false);
         assertEquals(organization.getName(), ORG1_NAME);
-        assertEquals(organization.getParent().getId(), ROOT_ORG_ID);
+        assertEquals(organization.getParent().getId(), SUPER_ORG_ID);
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
@@ -277,7 +277,7 @@ public class OrganizationManagerImplTest {
 
         Organization organization = organizationManager.getOrganization(ORG1_ID, true, false);
         assertEquals(organization.getName(), ORG1_NAME);
-        assertEquals(organization.getParent().getId(), ROOT_ORG_ID);
+        assertEquals(organization.getParent().getId(), SUPER_ORG_ID);
         assertEquals(organization.getChildOrganizations().size(), 1);
     }
 
@@ -446,26 +446,27 @@ public class OrganizationManagerImplTest {
     @Test
     public void testUpdateOrganization() throws Exception {
 
-        Organization sampleOrganization = getOrganization(ORG1_ID, ORG1_NAME, NEW_ORG_DESCRIPTION, ROOT_ORG_ID,
+        Organization sampleOrganization = getOrganization(ORG1_ID, ORG1_NAME, NEW_ORG_DESCRIPTION, SUPER_ORG_ID,
                 STRUCTURAL.toString());
         Organization updatedOrganization = organizationManager.updateOrganization(ORG1_ID, ORG1_NAME,
                 sampleOrganization);
-        assertEquals(updatedOrganization.getDescription(), NEW_ORG_DESCRIPTION);
-        assertEquals(updatedOrganization.getParent().getId(), ROOT_ORG_ID);
+        assertEquals(NEW_ORG_DESCRIPTION, updatedOrganization.getDescription());
+        assertEquals(SUPER_ORG_ID, updatedOrganization.getParent().getId());
+
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
     public void testUpdateOrganizationWithEmptyOrganizationId() throws Exception {
 
         organizationManager.updateOrganization(StringUtils.EMPTY, ORG1_NAME,
-                getOrganization(ORG1_ID, ORG1_NAME, NEW_ORG_DESCRIPTION, ROOT_ORG_ID, STRUCTURAL.toString()));
+                getOrganization(ORG1_ID, ORG1_NAME, NEW_ORG_DESCRIPTION, SUPER_ORG_ID, STRUCTURAL.toString()));
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
     public void testUpdateOrganizationWithInvalidOrganizationId() throws Exception {
 
         organizationManager.updateOrganization(INVALID_ORG_ID, ORG1_NAME, getOrganization(INVALID_ORG_ID, ORG1_NAME,
-                NEW_ORG_DESCRIPTION, ROOT_ORG_ID, STRUCTURAL.toString()));
+                NEW_ORG_DESCRIPTION, SUPER_ORG_ID, STRUCTURAL.toString()));
     }
 
     private void mockCarbonContext() {

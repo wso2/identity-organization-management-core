@@ -45,7 +45,7 @@ import static org.wso2.carbon.identity.organization.management.service.authz.con
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_IF_USER_AUTHORIZED;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_USER_ASSOCIATION_WITH_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_ID_BY_NAME;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ROOT;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUPER;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getAllowedPermissions;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getNewTemplate;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleServerException;
@@ -186,15 +186,15 @@ public class OrganizationManagementAuthzDAOImpl implements OrganizationManagemen
     }
 
     @Override
-    public String getRootOrganizationId() throws OrganizationManagementServerException {
+    public String getSuperOrganizationId() throws OrganizationManagementServerException {
 
         NamedJdbcTemplate namedJdbcTemplate = getNewTemplate();
         try {
             return namedJdbcTemplate.fetchSingleRecord(GET_ORGANIZATION_ID_BY_NAME,
                     (resultSet, rowNumber) -> resultSet.getString(VIEW_ID_COLUMN), namedPreparedStatement ->
-                            namedPreparedStatement.setString(DB_SCHEMA_COLUMN_ORGANIZATION_NAME, ROOT));
+                            namedPreparedStatement.setString(DB_SCHEMA_COLUMN_ORGANIZATION_NAME, SUPER));
         } catch (DataAccessException e) {
-            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_ID_BY_NAME, e, ROOT);
+            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_ID_BY_NAME, e, SUPER);
         }
     }
 
