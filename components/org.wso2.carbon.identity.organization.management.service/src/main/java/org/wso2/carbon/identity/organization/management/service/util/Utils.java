@@ -30,6 +30,9 @@ import org.wso2.carbon.identity.organization.management.service.exception.Organi
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_DB_METADATA;
@@ -224,5 +227,34 @@ public class Utils {
     public static String generateUniqueID() {
 
         return UUID.randomUUID().toString();
+    }
+
+    /**
+     * Create a List containing allowed permissions.
+     *
+     * @param resourceId permission provided
+     * @return List of allowed permissions.
+     */
+    public static List<String> getAllowedPermissions(String resourceId) {
+
+        String[] permissionParts = resourceId.split(PATH_SEPARATOR);
+        List<String> allowedPermissions = new ArrayList<>();
+        for (int i = 0; i < permissionParts.length - 1; i++) {
+            allowedPermissions.add(String.join(PATH_SEPARATOR,
+                    subArray(permissionParts, permissionParts.length - i)));
+        }
+        return allowedPermissions;
+    }
+
+    /**
+     * Create a subArray by slicing array from start to specified end.
+     *
+     * @param array original array with element to be sliced
+     * @param end index of final element to create subArray
+     * @return Array.
+     */
+    private static <T> T[] subArray(T[] array, int end) {
+
+        return Arrays.copyOfRange(array, 0, end);
     }
 }

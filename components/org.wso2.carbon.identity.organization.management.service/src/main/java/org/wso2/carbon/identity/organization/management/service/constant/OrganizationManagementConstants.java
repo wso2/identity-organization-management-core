@@ -441,7 +441,12 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ERROR_ADDING_ORGANIZATION_ATTRIBUTE("65081", "Unable to add organization attribute.",
                 "Server encountered an error while adding organization attribute."),
         ERROR_CODE_ERROR_ADDING_ORGANIZATION_HIERARCHY_DATA("65082", "Unable to add organization hierarchy data.",
-                "Server encountered an error while adding organization hierarchy data.");
+                "Server encountered an error while adding organization hierarchy data."),
+        ERROR_CODE_ERROR_CHECKING_IF_USER_AUTHORIZED("65083", "Error while checking whether user is authorized.",
+                "Error while checking whether user with ID: %s is authorized in organization with ID: %s"),
+        ERROR_CODE_ERROR_CHECKING_USER_ASSOCIATION_WITH_ORGANIZATION("65084", "Error while checking whether user " +
+                "association with organization.", "Error while checking whether user with ID: %s is associated with " +
+                "organization with ID: %s");
 
         private final String code;
         private final String message;

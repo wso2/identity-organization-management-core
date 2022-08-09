@@ -22,8 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.organization.management.authz.service.OrganizationManagementAuthorizationManager;
-import org.wso2.carbon.identity.organization.management.authz.service.exception.OrganizationManagementAuthzServiceServerException;
+import org.wso2.carbon.identity.organization.management.service.authz.OrganizationManagementAuthorizationManager;
 import org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
 import org.wso2.carbon.identity.organization.management.service.dao.impl.OrganizationManagementDAOImpl;
@@ -578,7 +577,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         try {
             return OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(getUserId(),
                     CREATE_ORGANIZATION_PERMISSION, parentId);
-        } catch (OrganizationManagementAuthzServiceServerException e) {
+        } catch (OrganizationManagementServerException e) {
             throw handleServerException(ERROR_CODE_ERROR_EVALUATING_ADD_ORGANIZATION_AUTHORIZATION, e, parentId);
         }
     }

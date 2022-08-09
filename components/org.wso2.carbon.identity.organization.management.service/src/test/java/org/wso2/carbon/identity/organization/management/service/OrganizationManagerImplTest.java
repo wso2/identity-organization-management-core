@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.common.testng.WithAxisConfiguration;
-import org.wso2.carbon.identity.organization.management.authz.service.OrganizationManagementAuthorizationManager;
+import org.wso2.carbon.identity.organization.management.service.authz.OrganizationManagementAuthorizationManager;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
 import org.wso2.carbon.identity.organization.management.service.dao.impl.OrganizationManagementDAOImpl;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementClientException;

@@ -46,8 +46,7 @@ import java.util.Optional;
 import java.util.TimeZone;
 
 import static java.time.ZoneOffset.UTC;
-import static org.wso2.carbon.identity.organization.management.authz.service.constant.SQLConstants.GET_ORGANIZATION_ID_BY_NAME;
-import static org.wso2.carbon.identity.organization.management.authz.service.util.OrganizationManagementAuthzUtil.getAllowedPermissions;
+import static org.wso2.carbon.identity.organization.management.service.authz.constant.SQLConstants.GET_ORGANIZATION_ID_BY_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ALL_ORGANIZATION_PERMISSIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ATTRIBUTE_COLUMN_MAP;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.BASE_ORGANIZATION_PERMISSION;
@@ -164,6 +163,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.UPDATE_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.UPDATE_ORGANIZATION_ATTRIBUTE_VALUE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.UPDATE_ORGANIZATION_LAST_MODIFIED;
+import static org.wso2.carbon.identity.organization.management.service.util.Utils.getAllowedPermissions;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getUserId;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleServerException;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.isMSSqlDB;

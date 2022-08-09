@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com).
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.organization.management.authz.service.dao;
+package org.wso2.carbon.identity.organization.management.service.authz.dao;
 
-import org.wso2.carbon.identity.organization.management.authz.service.exception.OrganizationManagementAuthzServiceServerException;
+import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 
 /**
  * DAO to validate authorization capabilities of organization management.
@@ -26,7 +26,7 @@ import org.wso2.carbon.identity.organization.management.authz.service.exception.
 public interface OrganizationManagementAuthzDAO {
 
     boolean isUserAuthorized(String userId, String resourceId, String orgId)
-            throws OrganizationManagementAuthzServiceServerException;
+            throws OrganizationManagementServerException;
 
     /**
      * Check whether user has any permission/association for the given organization.
@@ -34,16 +34,16 @@ public interface OrganizationManagementAuthzDAO {
      * @param userId User id.
      * @param orgId  Organization id.
      * @return True if user has at least single permission against organization.
-     * @throws OrganizationManagementAuthzServiceServerException Error occurred while retrieving user
-     *                                                           association to org.
+     * @throws OrganizationManagementServerException Error occurred while retrieving user
+     *                                               association to org.
      */
-    boolean hasUserOrgAssociation(String userId, String orgId) throws OrganizationManagementAuthzServiceServerException;
+    boolean hasUserOrgAssociation(String userId, String orgId) throws OrganizationManagementServerException;
 
     /**
      * Resolve root organization id.
      *
      * @return Root organization id.
-     * @throws OrganizationManagementAuthzServiceServerException if error occurred when retrieving root org id.
+     * @throws OrganizationManagementServerException if error occurred when retrieving root org id.
      */
-    String getRootOrganizationId() throws OrganizationManagementAuthzServiceServerException;
+    String getRootOrganizationId() throws OrganizationManagementServerException;
 }

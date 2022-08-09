@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com).
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,13 +16,13 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.organization.management.authz.service.dao;
+package org.wso2.carbon.identity.organization.management.service.authz.dao;
 
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.database.utils.jdbc.NamedJdbcTemplate;
 import org.wso2.carbon.database.utils.jdbc.exceptions.DataAccessException;
-import org.wso2.carbon.identity.organization.management.authz.service.exception.OrganizationManagementAuthzServiceServerException;
-import org.wso2.carbon.identity.organization.management.authz.service.internal.OrganizationManagementAuthzServiceHolder;
+import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
+import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
@@ -32,19 +32,23 @@ import org.wso2.carbon.user.core.service.RealmService;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.wso2.carbon.identity.organization.management.authz.service.constant.AuthorizationConstants.ROOT;
-import static org.wso2.carbon.identity.organization.management.authz.service.constant.SQLConstants.CHECK_USER_HAS_PERMISSION_TO_ORG_THROUGH_GROUPS_ASSIGNED_TO_ROLES;
-import static org.wso2.carbon.identity.organization.management.authz.service.constant.SQLConstants.CHECK_USER_HAS_PERMISSION_TO_ORG_THROUGH_USER_ROLE_ASSIGNMENT;
-import static org.wso2.carbon.identity.organization.management.authz.service.constant.SQLConstants.GET_ORGANIZATION_ID_BY_NAME;
-import static org.wso2.carbon.identity.organization.management.authz.service.constant.SQLConstants.IS_GROUP_AUTHORIZED;
-import static org.wso2.carbon.identity.organization.management.authz.service.constant.SQLConstants.IS_USER_AUTHORIZED;
-import static org.wso2.carbon.identity.organization.management.authz.service.constant.SQLConstants.PERMISSION_LIST_PLACEHOLDER;
-import static org.wso2.carbon.identity.organization.management.authz.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_ORGANIZATION_ID;
-import static org.wso2.carbon.identity.organization.management.authz.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_ORGANIZATION_NAME;
-import static org.wso2.carbon.identity.organization.management.authz.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_USER_ID;
-import static org.wso2.carbon.identity.organization.management.authz.service.constant.SQLConstants.VIEW_ID_COLUMN;
-import static org.wso2.carbon.identity.organization.management.authz.service.util.OrganizationManagementAuthzUtil.getAllowedPermissions;
-import static org.wso2.carbon.identity.organization.management.authz.service.util.OrganizationManagementAuthzUtil.getNewTemplate;
+import static org.wso2.carbon.identity.organization.management.service.authz.constant.SQLConstants.CHECK_USER_HAS_PERMISSION_TO_ORG_THROUGH_GROUPS_ASSIGNED_TO_ROLES;
+import static org.wso2.carbon.identity.organization.management.service.authz.constant.SQLConstants.CHECK_USER_HAS_PERMISSION_TO_ORG_THROUGH_USER_ROLE_ASSIGNMENT;
+import static org.wso2.carbon.identity.organization.management.service.authz.constant.SQLConstants.GET_ORGANIZATION_ID_BY_NAME;
+import static org.wso2.carbon.identity.organization.management.service.authz.constant.SQLConstants.IS_GROUP_AUTHORIZED;
+import static org.wso2.carbon.identity.organization.management.service.authz.constant.SQLConstants.IS_USER_AUTHORIZED;
+import static org.wso2.carbon.identity.organization.management.service.authz.constant.SQLConstants.PERMISSION_LIST_PLACEHOLDER;
+import static org.wso2.carbon.identity.organization.management.service.authz.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_ORGANIZATION_ID;
+import static org.wso2.carbon.identity.organization.management.service.authz.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_ORGANIZATION_NAME;
+import static org.wso2.carbon.identity.organization.management.service.authz.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_USER_ID;
+import static org.wso2.carbon.identity.organization.management.service.authz.constant.SQLConstants.VIEW_ID_COLUMN;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_IF_USER_AUTHORIZED;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_USER_ASSOCIATION_WITH_ORGANIZATION;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_ID_BY_NAME;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ROOT;
+import static org.wso2.carbon.identity.organization.management.service.util.Utils.getAllowedPermissions;
+import static org.wso2.carbon.identity.organization.management.service.util.Utils.getNewTemplate;
+import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleServerException;
 
 /**
  * Implementation of {@link OrganizationManagementAuthzDAO}.
@@ -53,7 +57,7 @@ public class OrganizationManagementAuthzDAOImpl implements OrganizationManagemen
 
     @Override
     public boolean isUserAuthorized(String userId, String resourceId, String orgId)
-            throws OrganizationManagementAuthzServiceServerException {
+            throws OrganizationManagementServerException {
 
         String permissionPlaceholder = "PERMISSION_";
         List<String> permissions = getAllowedPermissions(resourceId);
@@ -84,7 +88,7 @@ public class OrganizationManagementAuthzDAOImpl implements OrganizationManagemen
                 return true;
             }
         } catch (DataAccessException e) {
-            throw new OrganizationManagementAuthzServiceServerException(e);
+            throw handleServerException(ERROR_CODE_ERROR_CHECKING_IF_USER_AUTHORIZED, e, userId, orgId);
         }
 
         try {
@@ -122,7 +126,7 @@ public class OrganizationManagementAuthzDAOImpl implements OrganizationManagemen
                 }
             }
         } catch (UserStoreException | DataAccessException e) {
-            throw new OrganizationManagementAuthzServiceServerException(e);
+            throw handleServerException(ERROR_CODE_ERROR_CHECKING_IF_USER_AUTHORIZED, e, userId, orgId);
         }
 
         return false;
@@ -130,7 +134,7 @@ public class OrganizationManagementAuthzDAOImpl implements OrganizationManagemen
 
     @Override
     public boolean hasUserOrgAssociation(String userId, String orgId)
-            throws OrganizationManagementAuthzServiceServerException {
+            throws OrganizationManagementServerException {
 
         NamedJdbcTemplate namedJdbcTemplate = getNewTemplate();
         boolean hasOrgAssociation;
@@ -146,7 +150,7 @@ public class OrganizationManagementAuthzDAOImpl implements OrganizationManagemen
                 return true;
             }
         } catch (DataAccessException e) {
-            throw new OrganizationManagementAuthzServiceServerException(e);
+            throw handleServerException(ERROR_CODE_ERROR_CHECKING_USER_ASSOCIATION_WITH_ORGANIZATION, e, userId, orgId);
         }
 
         try {
@@ -176,13 +180,13 @@ public class OrganizationManagementAuthzDAOImpl implements OrganizationManagemen
                 }
             }
         } catch (UserStoreException | DataAccessException e) {
-            throw new OrganizationManagementAuthzServiceServerException(e);
+            throw handleServerException(ERROR_CODE_ERROR_CHECKING_USER_ASSOCIATION_WITH_ORGANIZATION, e, userId, orgId);
         }
         return false;
     }
 
     @Override
-    public String getRootOrganizationId() throws OrganizationManagementAuthzServiceServerException {
+    public String getRootOrganizationId() throws OrganizationManagementServerException {
 
         NamedJdbcTemplate namedJdbcTemplate = getNewTemplate();
         try {
@@ -190,13 +194,13 @@ public class OrganizationManagementAuthzDAOImpl implements OrganizationManagemen
                     (resultSet, rowNumber) -> resultSet.getString(VIEW_ID_COLUMN), namedPreparedStatement ->
                             namedPreparedStatement.setString(DB_SCHEMA_COLUMN_ORGANIZATION_NAME, ROOT));
         } catch (DataAccessException e) {
-            throw new OrganizationManagementAuthzServiceServerException(e);
+            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_ID_BY_NAME, e, ROOT);
         }
     }
 
     private AbstractUserStoreManager getUserStoreManager(int tenantId) throws UserStoreException {
 
-        RealmService realmService = OrganizationManagementAuthzServiceHolder.getInstance().getRealmService();
+        RealmService realmService = OrganizationManagementDataHolder.getInstance().getRealmService();
         UserRealm tenantUserRealm = realmService.getTenantUserRealm(tenantId);
 
         return (AbstractUserStoreManager) tenantUserRealm.getUserStoreManager();

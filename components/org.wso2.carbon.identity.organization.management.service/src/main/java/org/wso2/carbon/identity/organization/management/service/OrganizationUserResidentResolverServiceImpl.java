@@ -19,8 +19,7 @@
 package org.wso2.carbon.identity.organization.management.service;
 
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.identity.organization.management.authz.service.OrganizationManagementAuthorizationManager;
-import org.wso2.carbon.identity.organization.management.authz.service.exception.OrganizationManagementAuthzServiceServerException;
+import org.wso2.carbon.identity.organization.management.service.authz.OrganizationManagementAuthorizationManager;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
 import org.wso2.carbon.identity.organization.management.service.dao.impl.OrganizationManagementDAOImpl;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
@@ -87,7 +86,7 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                     }
                 }
             }
-        } catch (UserStoreException | OrganizationManagementAuthzServiceServerException e) {
+        } catch (UserStoreException | OrganizationManagementServerException e) {
             throw handleServerException(ERROR_CODE_ERROR_WHILE_RESOLVING_USER_FROM_RESIDENT_ORG, e, userName,
                     accessedOrganizationId);
         }

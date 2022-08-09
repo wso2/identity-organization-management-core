@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com).
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,10 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.organization.management.authz.service.constant;
-
-import static org.wso2.carbon.identity.organization.management.authz.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_ORGANIZATION_ID;
-import static org.wso2.carbon.identity.organization.management.authz.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_USER_ID;
+package org.wso2.carbon.identity.organization.management.service.authz.constant;
 
 /**
  * This class contains database queries related to organization management authorization.
@@ -31,21 +28,21 @@ public class SQLConstants {
             "SELECT COUNT(1) FROM UM_ORG_ROLE_PERMISSION WHERE UM_ORG_ROLE_PERMISSION.UM_ROLE_ID IN ( " +
             "SELECT UM_ORG_ROLE_USER.UM_ROLE_ID FROM UM_ORG_ROLE_USER LEFT JOIN UM_ORG_ROLE ON " +
             "UM_ORG_ROLE_USER.UM_ROLE_ID = UM_ORG_ROLE.UM_ROLE_ID " +
-            "WHERE UM_USER_ID = :" + DB_SCHEMA_COLUMN_USER_ID + "; AND " +
-            "UM_ORG_ID = :" + DB_SCHEMA_COLUMN_ORGANIZATION_ID + ";)";
+            "WHERE UM_USER_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_USER_ID + "; AND " +
+            "UM_ORG_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_ORGANIZATION_ID + ";)";
     public static final String CHECK_USER_HAS_PERMISSION_TO_ORG_THROUGH_GROUPS_ASSIGNED_TO_ROLES =
             "SELECT COUNT(1) FROM UM_ORG_ROLE_PERMISSION WHERE UM_ORG_ROLE_PERMISSION.UM_ROLE_ID IN ( " +
             "SELECT UM_ORG_ROLE_GROUP.UM_ROLE_ID FROM UM_ORG_ROLE_GROUP LEFT JOIN UM_ORG_ROLE ON " +
             "UM_ORG_ROLE_GROUP.UM_ROLE_ID = UM_ORG_ROLE.UM_ROLE_ID " +
             "WHERE UM_GROUP_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_GROUP_ID + "; AND " +
-            "UM_ORG_ID = :" + DB_SCHEMA_COLUMN_ORGANIZATION_ID + ";) ";
+            "UM_ORG_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_ORGANIZATION_ID + ";) ";
     public static final String IS_USER_AUTHORIZED = "SELECT COUNT(1) FROM UM_ORG_PERMISSION WHERE " +
             "UM_ORG_PERMISSION.UM_ID IN ( " +
             "SELECT UM_PERMISSION_ID FROM UM_ORG_ROLE_PERMISSION WHERE UM_ORG_ROLE_PERMISSION.UM_ROLE_ID IN ( " +
             "SELECT UM_ORG_ROLE_USER.UM_ROLE_ID FROM UM_ORG_ROLE_USER LEFT JOIN UM_ORG_ROLE ON " +
             "UM_ORG_ROLE_USER.UM_ROLE_ID = UM_ORG_ROLE.UM_ROLE_ID " +
-            "WHERE UM_USER_ID = :" + DB_SCHEMA_COLUMN_USER_ID + "; AND " +
-            "UM_ORG_ID = :" + DB_SCHEMA_COLUMN_ORGANIZATION_ID + ";) " +
+            "WHERE UM_USER_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_USER_ID + "; AND " +
+            "UM_ORG_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_ORGANIZATION_ID + ";) " +
             ") AND UM_RESOURCE_ID IN (" + PERMISSION_LIST_PLACEHOLDER + ")";
 
     public static final String IS_GROUP_AUTHORIZED = "SELECT COUNT(1) FROM UM_ORG_PERMISSION WHERE " +
@@ -54,7 +51,7 @@ public class SQLConstants {
             "SELECT UM_ORG_ROLE_GROUP.UM_ROLE_ID FROM UM_ORG_ROLE_GROUP LEFT JOIN UM_ORG_ROLE ON " +
             "UM_ORG_ROLE_GROUP.UM_ROLE_ID = UM_ORG_ROLE.UM_ROLE_ID " +
             "WHERE UM_GROUP_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_GROUP_ID + "; AND " +
-            "UM_ORG_ID = :" + DB_SCHEMA_COLUMN_ORGANIZATION_ID + ";) " +
+            "UM_ORG_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_ORGANIZATION_ID + ";) " +
             ") AND UM_RESOURCE_ID IN (" + PERMISSION_LIST_PLACEHOLDER + ")";
 
     public static final String GET_ORGANIZATION_ID_BY_NAME = "SELECT UM_ID FROM UM_ORG WHERE UM_ORG_NAME = :" +

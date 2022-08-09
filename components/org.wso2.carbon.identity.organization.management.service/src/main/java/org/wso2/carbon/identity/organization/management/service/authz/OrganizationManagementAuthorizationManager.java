@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com).
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.organization.management.authz.service;
+package org.wso2.carbon.identity.organization.management.service.authz;
 
-import org.wso2.carbon.identity.organization.management.authz.service.dao.OrganizationManagementAuthzDAO;
-import org.wso2.carbon.identity.organization.management.authz.service.dao.OrganizationManagementAuthzDAOImpl;
-import org.wso2.carbon.identity.organization.management.authz.service.exception.OrganizationManagementAuthzServiceServerException;
+import org.wso2.carbon.identity.organization.management.service.authz.dao.OrganizationManagementAuthzDAO;
+import org.wso2.carbon.identity.organization.management.service.authz.dao.OrganizationManagementAuthzDAOImpl;
+import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 
 /**
  * Manager for organization management related authorization.
@@ -42,11 +42,10 @@ public class OrganizationManagementAuthorizationManager {
      * @param resourceId Required permission.
      * @param orgId      Organization id.
      * @return Whether the user is authorized or not.
-     * @throws OrganizationManagementAuthzServiceServerException The server exception thrown when evaluating user's
-     *                                                           authorization.
+     * @throws OrganizationManagementServerException The server exception thrown when evaluating user's authorization.
      */
     public boolean isUserAuthorized(String userId, String resourceId, String orgId)
-            throws OrganizationManagementAuthzServiceServerException {
+            throws OrganizationManagementServerException {
 
         OrganizationManagementAuthzDAO organizationMgtAuthzDAO = new OrganizationManagementAuthzDAOImpl();
         return organizationMgtAuthzDAO.isUserAuthorized(userId, resourceId, orgId);
@@ -58,11 +57,10 @@ public class OrganizationManagementAuthorizationManager {
      * @param userId User id.
      * @param orgId  Organization id.
      * @return True if user has at least single permission against organization.
-     * @throws OrganizationManagementAuthzServiceServerException Error occurred while retrieving user
-     *                                                           association to organization.
+     * @throws OrganizationManagementServerException Error occurred while retrieving user association to organization.
      */
     public boolean hasUserOrgAssociation(String userId, String orgId)
-            throws OrganizationManagementAuthzServiceServerException {
+            throws OrganizationManagementServerException {
 
         OrganizationManagementAuthzDAO organizationMgtAuthzDAO = new OrganizationManagementAuthzDAOImpl();
         return organizationMgtAuthzDAO.hasUserOrgAssociation(userId, orgId);
@@ -72,9 +70,9 @@ public class OrganizationManagementAuthorizationManager {
      * Resolve root organization id.
      *
      * @return Root organization id.
-     * @throws OrganizationManagementAuthzServiceServerException if error occurred when retrieving root org id.
+     * @throws OrganizationManagementServerException if error occurred when retrieving root org id.
      */
-    public String getRootOrganizationId() throws OrganizationManagementAuthzServiceServerException {
+    public String getRootOrganizationId() throws OrganizationManagementServerException {
 
         OrganizationManagementAuthzDAO organizationMgtAuthzDAO = new OrganizationManagementAuthzDAOImpl();
         return organizationMgtAuthzDAO.getRootOrganizationId();
