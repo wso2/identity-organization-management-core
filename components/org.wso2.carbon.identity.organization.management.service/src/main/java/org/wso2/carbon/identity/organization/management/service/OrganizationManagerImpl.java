@@ -791,6 +791,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 !attributeValue.equalsIgnoreCase(ORGANIZATION_DESCRIPTION_FIELD) &&
                 !attributeValue.equalsIgnoreCase(ORGANIZATION_CREATED_TIME_FIELD) &&
                 !attributeValue.equalsIgnoreCase(ORGANIZATION_LAST_MODIFIED_FIELD) &&
+                !attributeValue.equalsIgnoreCase(ORGANIZATION_STATUS_FIELD) &&
                 !attributeValue.equalsIgnoreCase(PARENT_ID_FIELD) &&
                 !attributeValue.equalsIgnoreCase(PAGINATION_AFTER) &&
                 !attributeValue.equalsIgnoreCase(PAGINATION_BEFORE);

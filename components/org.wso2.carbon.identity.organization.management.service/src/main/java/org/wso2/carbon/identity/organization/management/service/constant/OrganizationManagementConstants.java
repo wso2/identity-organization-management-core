@@ -108,6 +108,7 @@ public class OrganizationManagementConstants {
         attributeColumnMap.put(ORGANIZATION_DESCRIPTION_FIELD, VIEW_DESCRIPTION_COLUMN);
         attributeColumnMap.put(ORGANIZATION_CREATED_TIME_FIELD, VIEW_CREATED_TIME_COLUMN);
         attributeColumnMap.put(ORGANIZATION_LAST_MODIFIED_FIELD, VIEW_LAST_MODIFIED_COLUMN);
+        attributeColumnMap.put(ORGANIZATION_STATUS_FIELD, VIEW_STATUS_COLUMN);
         attributeColumnMap.put(PAGINATION_AFTER, VIEW_CREATED_TIME_COLUMN);
         attributeColumnMap.put(PAGINATION_BEFORE, VIEW_CREATED_TIME_COLUMN);
     }
@@ -452,7 +453,10 @@ public class OrganizationManagementConstants {
                 "Error while checking whether user with ID: %s is authorized in organization with ID: %s"),
         ERROR_CODE_ERROR_CHECKING_USER_ASSOCIATION_WITH_ORGANIZATION("65087", "Error while checking whether user " +
                 "association with organization.", "Error while checking whether user with ID: %s is associated with " +
-                "organization with ID: %s");
+                "organization with ID: %s"),
+        ERROR_CODE_ERROR_CHECKING_APPLICATION_HAS_FRAGMENTS("65088",
+                "Unable to check whether the application has fragments.",
+                "Server encountered an error when checking whether the application: %s already has fragments.");
 
         private final String code;
         private final String message;

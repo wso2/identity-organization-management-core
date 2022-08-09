@@ -26,6 +26,7 @@ public class BasicOrganization {
 
     private String id;
     private String name;
+    private String status;
     private String created;
 
     public String getId() {
@@ -56,5 +57,15 @@ public class BasicOrganization {
     public void setName(String name) {
 
         this.name = name;
+    }
+
+    public String getStatus() {
+
+        return status;
+    }
+
+    public void setStatus(String status) {
+
+        this.status = status;
     }
 }

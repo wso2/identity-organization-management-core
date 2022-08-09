@@ -394,6 +394,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                         organization.setId(resultSet.getString(1));
                         organization.setName(resultSet.getString(2));
                         organization.setCreated(resultSet.getTimestamp(3).toString());
+                        organization.setStatus(resultSet.getString(4));
                         return organization;
                     },
                     namedPreparedStatement -> {
