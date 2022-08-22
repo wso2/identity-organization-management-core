@@ -252,6 +252,8 @@ public class OrganizationManagementConstants {
                 "Provided filter value is empty. attributeValue: %s  operation: %s"),
         ERROR_CODE_INVALID_FILTER_ARGUMENT("60061", "Invalid filter argument",
                 "Invalid argument: Identity Provider filter name value is empty or invalid symbol: %s"),
+        ERROR_CODE_SUPER_ORG_ROLE_CREATE("60062", "Organization roles can't be created in Super organization.",
+                "Organization %s can't manage organization roles."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
