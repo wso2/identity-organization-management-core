@@ -254,6 +254,10 @@ public class OrganizationManagementConstants {
                 "Invalid argument: Identity Provider filter name value is empty or invalid symbol: %s"),
         ERROR_CODE_SUPER_ORG_ROLE_CREATE("60062", "Organization roles can't be created in Super organization.",
                 "Organization %s can't manage organization roles."),
+        ERROR_CODE_UNAUTHORIZED_ORG_ROLE_ACCESS("60063", "Organization roles can't be managed from a another " +
+                "organization.", "Organization roles of organization %s can't manage from organization %s."),
+        ERROR_CODE_UNAUTHORIZED_ORG_ACCESS("60064", "Organization can only be managed from immediate parent " +
+                "organization.", "Organization %s can't manage from organization %s."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -458,7 +462,10 @@ public class OrganizationManagementConstants {
                 "organization with ID: %s"),
         ERROR_CODE_ERROR_CHECKING_APPLICATION_HAS_FRAGMENTS("65088",
                 "Unable to check whether the application has fragments.",
-                "Server encountered an error when checking whether the application: %s already has fragments.");
+                "Server encountered an error when checking whether the application: %s already has fragments."),
+        ERROR_CODE_ERROR_RESOLVING_MAIN_APPLICATION("65089", "Unable to resolve the main application",
+                "Server encountered an error while resolving the main application for " +
+                        "shared application: %s in shared organization: %s.");
 
         private final String code;
         private final String message;

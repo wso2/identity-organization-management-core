@@ -255,9 +255,18 @@ public class OrganizationManagerImplTest {
     @Test
     public void testGetOrganization() throws Exception {
 
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
         Organization organization = organizationManager.getOrganization(ORG1_ID, false, false);
         assertEquals(organization.getName(), ORG1_NAME);
         assertEquals(organization.getParent().getId(), SUPER_ORG_ID);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(null);
+    }
+
+    @Test(expectedExceptions = OrganizationManagementClientException.class)
+    public void testGetOrganization2() throws Exception {
+
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
+        organizationManager.getOrganization(ORG2_ID, false, false);
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
