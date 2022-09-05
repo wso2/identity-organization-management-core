@@ -191,7 +191,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         if (StringUtils.isBlank(organizationId)) {
             throw handleClientException(ERROR_CODE_ORGANIZATION_ID_UNDEFINED);
         }
-        validateOrganizationAllowedToAccess(organizationId);
+        validateOrganizationAllowedToAccess(organizationId, true);
         Organization organization = organizationManagementDAO.getOrganization(organizationId.trim());
 
         if (organization == null) {
@@ -269,7 +269,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         if (StringUtils.isBlank(organizationId)) {
             throw handleClientException(ERROR_CODE_ORGANIZATION_ID_UNDEFINED);
         }
-        validateOrganizationAllowedToAccess(organizationId);
+        validateOrganizationAllowedToAccess(organizationId, false);
         validateOrganizationDelete(organizationId);
         Organization organization = organizationManagementDAO.getOrganization(organizationId);
         if (organization == null) {
@@ -296,7 +296,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
             throw handleClientException(ERROR_CODE_ORGANIZATION_ID_UNDEFINED);
         }
         organizationId = organizationId.trim();
-        validateOrganizationAllowedToAccess(organizationId);
+        validateOrganizationAllowedToAccess(organizationId, false);
         if (!isOrganizationExistById(organizationId)) {
             throw handleClientException(ERROR_CODE_INVALID_ORGANIZATION, organizationId);
         }
@@ -321,7 +321,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
             throw handleClientException(ERROR_CODE_ORGANIZATION_ID_UNDEFINED);
         }
         organizationId = organizationId.trim();
-        validateOrganizationAllowedToAccess(organizationId);
+        validateOrganizationAllowedToAccess(organizationId, false);
         if (!isOrganizationExistById(organizationId)) {
             throw handleClientException(ERROR_CODE_INVALID_ORGANIZATION, organizationId);
         }
@@ -855,10 +855,15 @@ public class OrganizationManagerImpl implements OrganizationManager {
         return OrganizationManagementDataHolder.getInstance().getTenantMgtService();
     }
 
-    private void validateOrganizationAllowedToAccess(String organizationId) throws OrganizationManagementException {
+    private void validateOrganizationAllowedToAccess(String organizationId, boolean allowSameOrg)
+            throws OrganizationManagementException {
 
         String authorizedOrganizationId = getOrganizationId(); // The organization that the user is authorized to access
-        if (!organizationManagementDAO.isImmediateChildOfParent(organizationId, authorizedOrganizationId)) {
+        if (authorizedOrganizationId == null) {
+            authorizedOrganizationId = SUPER_ORG_ID;
+        }
+        if (!(allowSameOrg && StringUtils.equals(authorizedOrganizationId, organizationId)) &&
+                !organizationManagementDAO.isChildOfParent(organizationId, authorizedOrganizationId)) {
             throw handleClientException(ERROR_CODE_UNAUTHORIZED_ORG_ACCESS, organizationId, authorizedOrganizationId);
         }
     }
