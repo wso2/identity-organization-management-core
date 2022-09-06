@@ -260,8 +260,9 @@ public class OrganizationManagementConstants {
                 "organization.", "Organization %s can't manage from organization %s."),
         ERROR_CODE_UNAUTHORIZED_APPLICATION_SHARE("60065", "Applications can be shared only from the " +
                 "organization that application resides.", "Application %s can't be shared from organization %s."),
-        ERROR_CODE_UNAUTHORIZED_FRAGMENT_APP_ACCESS("60066", "Fragment applications can be managed only from the " +
-                "organization that fragment application resides.", "Application %s can't be managed from organization %s."),
+        ERROR_CODE_UNAUTHORIZED_FRAGMENT_APP_ACCESS("60066", "Fragment applications can be managed only " +
+                "from the organization that fragment application resides.", "Application %s can't be managed " +
+                "from organization %s."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
