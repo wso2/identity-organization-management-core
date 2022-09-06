@@ -191,7 +191,11 @@ public class OrganizationManagerImpl implements OrganizationManager {
         if (StringUtils.isBlank(organizationId)) {
             throw handleClientException(ERROR_CODE_ORGANIZATION_ID_UNDEFINED);
         }
-        validateOrganizationAllowedToAccess(organizationId);
+        String requestInvokingOrganizationId = getOrganizationId();
+        if (requestInvokingOrganizationId == null) {
+            requestInvokingOrganizationId = SUPER_ORG_ID;
+        }
+        validateOrganizationAccess(requestInvokingOrganizationId, organizationId, true);
         Organization organization = organizationManagementDAO.getOrganization(organizationId.trim());
 
         if (organization == null) {
@@ -269,7 +273,11 @@ public class OrganizationManagerImpl implements OrganizationManager {
         if (StringUtils.isBlank(organizationId)) {
             throw handleClientException(ERROR_CODE_ORGANIZATION_ID_UNDEFINED);
         }
-        validateOrganizationAllowedToAccess(organizationId);
+        String requestInvokingOrganizationId = getOrganizationId();
+        if (requestInvokingOrganizationId == null) {
+            requestInvokingOrganizationId = SUPER_ORG_ID;
+        }
+        validateOrganizationAccess(requestInvokingOrganizationId, organizationId, false);
         validateOrganizationDelete(organizationId);
         Organization organization = organizationManagementDAO.getOrganization(organizationId);
         if (organization == null) {
@@ -296,7 +304,11 @@ public class OrganizationManagerImpl implements OrganizationManager {
             throw handleClientException(ERROR_CODE_ORGANIZATION_ID_UNDEFINED);
         }
         organizationId = organizationId.trim();
-        validateOrganizationAllowedToAccess(organizationId);
+        String requestInvokingOrganizationId = getOrganizationId();
+        if (requestInvokingOrganizationId == null) {
+            requestInvokingOrganizationId = SUPER_ORG_ID;
+        }
+        validateOrganizationAccess(requestInvokingOrganizationId, organizationId, false);
         if (!isOrganizationExistById(organizationId)) {
             throw handleClientException(ERROR_CODE_INVALID_ORGANIZATION, organizationId);
         }
@@ -321,7 +333,11 @@ public class OrganizationManagerImpl implements OrganizationManager {
             throw handleClientException(ERROR_CODE_ORGANIZATION_ID_UNDEFINED);
         }
         organizationId = organizationId.trim();
-        validateOrganizationAllowedToAccess(organizationId);
+        String requestInvokingOrganizationId = getOrganizationId();
+        if (requestInvokingOrganizationId == null) {
+            requestInvokingOrganizationId = SUPER_ORG_ID;
+        }
+        validateOrganizationAccess(requestInvokingOrganizationId, organizationId, false);
         if (!isOrganizationExistById(organizationId)) {
             throw handleClientException(ERROR_CODE_INVALID_ORGANIZATION, organizationId);
         }
@@ -855,11 +871,23 @@ public class OrganizationManagerImpl implements OrganizationManager {
         return OrganizationManagementDataHolder.getInstance().getTenantMgtService();
     }
 
-    private void validateOrganizationAllowedToAccess(String organizationId) throws OrganizationManagementException {
+    /**
+     * Allow management access of sub organization from an ancestor organization unless the self-manage is allowed
+     * where the requesting organization can manage itself.
+     *
+     * @param requestInvokingOrganizationId The organization qualifier id where the request is authorized to access.
+     * @param accessedOrganizationId        The id of the organization trying to access.
+     * @param isSelfOrgManageAllowed        Whether the request invoked organization can manage itself.
+     * @throws OrganizationManagementException The exception is thrown when the request invoked organization doesn't
+     *                                         have manage access to the organization which is going to access.
+     */
+    private void validateOrganizationAccess(String requestInvokingOrganizationId, String accessedOrganizationId,
+                                            boolean isSelfOrgManageAllowed) throws OrganizationManagementException {
 
-        String authorizedOrganizationId = getOrganizationId(); // The organization that the user is authorized to access
-        if (!organizationManagementDAO.isImmediateChildOfParent(organizationId, authorizedOrganizationId)) {
-            throw handleClientException(ERROR_CODE_UNAUTHORIZED_ORG_ACCESS, organizationId, authorizedOrganizationId);
+        if (!(isSelfOrgManageAllowed && StringUtils.equals(requestInvokingOrganizationId, accessedOrganizationId)) &&
+                !organizationManagementDAO.isChildOfParent(accessedOrganizationId, requestInvokingOrganizationId)) {
+            throw handleClientException(ERROR_CODE_UNAUTHORIZED_ORG_ACCESS, accessedOrganizationId,
+                    requestInvokingOrganizationId);
         }
     }
 }

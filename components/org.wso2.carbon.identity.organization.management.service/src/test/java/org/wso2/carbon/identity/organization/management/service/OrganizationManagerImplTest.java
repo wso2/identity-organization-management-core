@@ -263,10 +263,10 @@ public class OrganizationManagerImplTest {
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
-    public void testGetOrganization2() throws Exception {
+    public void testGetParentOrganizationFromChildOrganization() throws Exception {
 
-        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
-        organizationManager.getOrganization(ORG2_ID, false, false);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG2_ID);
+        organizationManager.getOrganization(ORG1_ID, false, false);
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
@@ -340,6 +340,7 @@ public class OrganizationManagerImplTest {
         PatchOperation patchOperation = new PatchOperation(PATCH_OP_ADD, PATCH_PATH_ORG_DESCRIPTION,
                 NEW_ORG_DESCRIPTION);
         patchOperations.add(patchOperation);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
         Organization patchedOrganization = organizationManager.patchOrganization(ORG1_ID, patchOperations);
         assertNotNull(patchedOrganization);
         assertEquals(patchedOrganization.getDescription(), NEW_ORG_DESCRIPTION);
