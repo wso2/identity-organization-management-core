@@ -354,6 +354,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         FilterQueryBuilder filterQueryBuilder = new FilterQueryBuilder();
         appendFilterQuery(expressionNodes, filterQueryBuilder);
         Map<String, String> filterAttributeValue = filterQueryBuilder.getFilterAttributeValue();
+        List<String> timestampTypeAttributes = filterQueryBuilder.getTimestampFilterAttributes();
 
         FilterQueryBuilder parentIdFilterQueryBuilder = new FilterQueryBuilder();
         appendFilterQueryForParentId(parentIdFilterQueryBuilder, parentIdExpressionNodes);
@@ -409,7 +410,12 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                             namedPreparedStatement.setString(entry.getKey(), entry.getValue());
                         }
                         for (Map.Entry<String, String> entry : filterAttributeValue.entrySet()) {
-                            namedPreparedStatement.setString(entry.getKey(), entry.getValue());
+                            if (timestampTypeAttributes.contains(entry.getKey())) {
+                                namedPreparedStatement.setTimeStamp(entry.getKey(), Timestamp.valueOf(entry.getValue()),
+                                        null);
+                            } else {
+                                namedPreparedStatement.setString(entry.getKey(), entry.getValue());
+                            }
                         }
                         int index = 1;
                         for (String permission : permissions) {
@@ -864,9 +870,14 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             for (ExpressionNode expressionNode : expressionNodes) {
                 String operation = expressionNode.getOperation();
                 String value = expressionNode.getValue();
-                String attributeName = ATTRIBUTE_COLUMN_MAP.get(expressionNode.getAttributeValue());
+                String attributeValue = expressionNode.getAttributeValue();
+                String attributeName = ATTRIBUTE_COLUMN_MAP.get(attributeValue);
                 if (StringUtils.isNotBlank(attributeName) && StringUtils.isNotBlank(value) && StringUtils
                         .isNotBlank(operation)) {
+                    if (VIEW_CREATED_TIME_COLUMN.equals(attributeName) ||
+                            VIEW_LAST_MODIFIED_COLUMN.equals(attributeName)) {
+                        filterQueryBuilder.addTimestampFilterAttributes(FILTER_PLACEHOLDER_PREFIX);
+                    }
                     switch (operation) {
                         case EQ: {
                             equalFilterBuilder(count, value, attributeName, filter, filterQueryBuilder);

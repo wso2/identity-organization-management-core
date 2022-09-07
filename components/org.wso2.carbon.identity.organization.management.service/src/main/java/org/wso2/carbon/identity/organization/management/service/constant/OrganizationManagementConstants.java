@@ -276,6 +276,10 @@ public class OrganizationManagementConstants {
         ERROR_CODE_SAME_ORG_NAME_ON_IMMEDIATE_SUB_ORGANIZATIONS_OF_PARENT_ORG("60070",
                 "Given organization name is taken from a sibling organization.", "Given organization " +
                 "name: %s is taken from a sibling organization of parent organization id %s"),
+        ERROR_CODE_INVALID_FILTER_TIMESTAMP_FORMAT("60071", "Unable to retrieve organizations.", "Invalid " +
+                "timestamp format used for filtering."),
+        ERROR_CODE_UNSUPPORTED_FILTER_OPERATION_FOR_ATTRIBUTE("60072", "Unsupported filter operation on attribute.",
+                "The filter operation '%s' on attribute '%s' is not supported."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
