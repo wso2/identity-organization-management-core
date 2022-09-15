@@ -192,4 +192,13 @@ public interface OrganizationManager {
      */
     List<Organization> getOrganizationsByName(String organizationName) throws OrganizationManagementException;
 
+    /**
+     * Return whether the given organization is an immediate child of the super organization.
+     *
+     * @param organizationId Checking organization id.
+     * @return True if the given organization is an immediate child of super organization.
+     * @throws OrganizationManagementServerException Error occurred while checking whether the organization is an
+     *                                               immediate child of the super organization.
+     */
+    boolean isImmediateChildOfSuperOrganization(String organizationId) throws OrganizationManagementServerException;
 }

@@ -396,6 +396,13 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
     }
 
+    @Override
+    public boolean isImmediateChildOfSuperOrganization(String organizationId)
+            throws OrganizationManagementServerException {
+
+        return organizationManagementDAO.isImmediateChildOfParent(organizationId, SUPER_ORG_ID);
+    }
+
     private void updateTenantStatus(String status, String organizationId) throws OrganizationManagementServerException {
 
         if (StringUtils.equals(ACTIVE.toString(), status)) {
