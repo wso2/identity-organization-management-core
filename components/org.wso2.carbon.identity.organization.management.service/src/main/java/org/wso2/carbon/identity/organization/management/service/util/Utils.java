@@ -104,8 +104,11 @@ public class Utils {
 
         try {
             if (dataSource == null) {
-                dataSource = DatabaseUtil.getRealmDataSource(CarbonContext.getThreadLocalCarbonContext().getUserRealm()
-                        .getRealmConfiguration());
+                if (CarbonContext.getThreadLocalCarbonContext().getUserRealm() == null) {
+                    throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_UM_DATASOURCE, null);
+                }
+                dataSource = DatabaseUtil.getRealmDataSource(CarbonContext.getThreadLocalCarbonContext()
+                        .getUserRealm().getRealmConfiguration());
             }
         return new NamedJdbcTemplate(dataSource);
         } catch (UserStoreException e) {
