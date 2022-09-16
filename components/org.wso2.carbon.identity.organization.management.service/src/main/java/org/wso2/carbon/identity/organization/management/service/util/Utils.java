@@ -75,6 +75,18 @@ public class Utils {
      * Throw an OrganizationManagementServerException upon server side error in organization management.
      *
      * @param error The error enum.
+     * @return OrganizationManagementServerException
+     */
+    public static OrganizationManagementServerException handleServerException(
+            OrganizationManagementConstants.ErrorMessages error) {
+
+        return new OrganizationManagementServerException(error.getMessage(), error.getCode());
+    }
+
+    /**
+     * Throw an OrganizationManagementServerException upon server side error in organization management.
+     *
+     * @param error The error enum.
      * @param e     The error.
      * @param data  The error message data.
      * @return OrganizationManagementServerException
@@ -98,8 +110,11 @@ public class Utils {
 
         try {
             if (dataSource == null) {
-                dataSource = DatabaseUtil.getRealmDataSource(CarbonContext.getThreadLocalCarbonContext().getUserRealm()
-                        .getRealmConfiguration());
+                if (CarbonContext.getThreadLocalCarbonContext().getUserRealm() == null) {
+                    throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_UM_DATASOURCE);
+                }
+                dataSource = DatabaseUtil.getRealmDataSource(CarbonContext.getThreadLocalCarbonContext()
+                        .getUserRealm().getRealmConfiguration());
             }
         return new NamedJdbcTemplate(dataSource);
         } catch (UserStoreException e) {
