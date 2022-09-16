@@ -583,7 +583,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         parentOrganization.setRef(buildURIForBody(parentId));
     }
 
-    private boolean isUserAuthorizedToCreateChildOrganizationInSuper() throws OrganizationManagementServerException {
+    private boolean isUserAuthorizedToCreateChildOrganizationInSuper() throws OrganizationManagementException {
 
         String username = getAuthenticatedUsername();
         try {

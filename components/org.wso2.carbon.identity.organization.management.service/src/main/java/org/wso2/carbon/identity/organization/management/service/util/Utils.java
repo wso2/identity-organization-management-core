@@ -24,15 +24,20 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.database.utils.jdbc.NamedJdbcTemplate;
 import org.wso2.carbon.database.utils.jdbc.exceptions.DataAccessException;
+import org.wso2.carbon.identity.organization.management.service.OrganizationUserResidentResolverService;
+import org.wso2.carbon.identity.organization.management.service.OrganizationUserResidentResolverServiceImpl;
 import org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementClientException;
+import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.sql.DataSource;
@@ -53,6 +58,8 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 public class Utils {
 
     private static DataSource dataSource;
+    private static final OrganizationUserResidentResolverService organizationUserResidentResolverService =
+            new OrganizationUserResidentResolverServiceImpl();
 
     /**
      * Throw an OrganizationManagementClientException upon client side error in organization management.
@@ -182,9 +189,17 @@ public class Utils {
      *
      * @return the username of the authenticated user.
      */
-    public static String getAuthenticatedUsername() {
+    public static String getAuthenticatedUsername() throws OrganizationManagementException {
 
-        return PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
+        String username = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
+        if (username == null) {
+            Optional<User> maybeUser = organizationUserResidentResolverService.resolveUserFromResidentOrganization(null,
+                    getUserId(), getOrganizationId());
+            if (maybeUser.isPresent()) {
+                return maybeUser.get().getUsername();
+            }
+        }
+        return username;
     }
 
     /**
