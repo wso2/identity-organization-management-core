@@ -31,6 +31,7 @@ import org.wso2.carbon.identity.organization.management.service.OrganizationMana
 import org.wso2.carbon.identity.organization.management.service.OrganizationManagerImpl;
 import org.wso2.carbon.identity.organization.management.service.OrganizationUserResidentResolverService;
 import org.wso2.carbon.identity.organization.management.service.OrganizationUserResidentResolverServiceImpl;
+import org.wso2.carbon.identity.organization.management.service.listener.OrganizationManagerListener;
 import org.wso2.carbon.tenant.mgt.services.TenantMgtService;
 import org.wso2.carbon.user.core.service.RealmService;
 
@@ -117,5 +118,22 @@ public class OrganizationManagementServiceComponent {
             LOG.debug("Unsetting the Tenant Management Service.");
         }
         OrganizationManagementDataHolder.getInstance().setTenantMgtService(null);
+    }
+
+    @Reference(
+            name = "identity.org.mgt.listener",
+            service = OrganizationManagerListener.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetOrganizationManagerListener"
+    )
+    protected void setOrganizationManagerListener(OrganizationManagerListener organizationManagerListener) {
+
+        OrganizationManagementDataHolder.getInstance().setOrganizationManagerListener(organizationManagerListener);
+    }
+
+    protected void unsetOrganizationManagerListener(OrganizationManagerListener organizationManagerListener) {
+
+        OrganizationManagementDataHolder.getInstance().setOrganizationManagerListener(null);
     }
 }

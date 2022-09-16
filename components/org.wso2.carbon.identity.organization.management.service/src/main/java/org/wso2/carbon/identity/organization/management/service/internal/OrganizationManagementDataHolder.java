@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.organization.management.service.internal;
 
+import org.wso2.carbon.identity.organization.management.service.listener.OrganizationManagerListener;
 import org.wso2.carbon.tenant.mgt.services.TenantMgtService;
 import org.wso2.carbon.user.core.service.RealmService;
 
@@ -29,6 +30,7 @@ public class OrganizationManagementDataHolder {
     private static final OrganizationManagementDataHolder instance = new OrganizationManagementDataHolder();
     private RealmService realmService;
     private TenantMgtService tenantMgtService;
+    private OrganizationManagerListener organizationManagerListener;
 
     public static OrganizationManagementDataHolder getInstance() {
 
@@ -53,5 +55,26 @@ public class OrganizationManagementDataHolder {
     public void setTenantMgtService(TenantMgtService tenantMgtService) {
 
         this.tenantMgtService = tenantMgtService;
+    }
+
+
+    /**
+     * Get {@link OrganizationManagerListener}.
+     *
+     * @return IdentityEventService.
+     */
+    public OrganizationManagerListener getOrganizationManagerListener() {
+
+        return organizationManagerListener;
+    }
+
+    /**
+     * Set {@link OrganizationManagerListener}.
+     *
+     * @param organizationManagerListener Instance of {@link OrganizationManagerListener}.
+     */
+    public void setOrganizationManagerListener(OrganizationManagerListener organizationManagerListener) {
+
+        this.organizationManagerListener = organizationManagerListener;
     }
 }

@@ -32,6 +32,7 @@ import org.wso2.carbon.identity.organization.management.service.dao.Organization
 import org.wso2.carbon.identity.organization.management.service.dao.impl.OrganizationManagementDAOImpl;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementClientException;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
+import org.wso2.carbon.identity.organization.management.service.listener.OrganizationManagerListener;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
@@ -109,6 +110,8 @@ public class OrganizationManagerImplTest {
     public void setUp() throws Exception {
 
         organizationManager = new OrganizationManagerImpl();
+        OrganizationManagementDataHolder.getInstance().setOrganizationManagerListener(mock(
+                OrganizationManagerListener.class));
 
         TestUtils.initiateH2Base();
         TestUtils.mockDataSource();
