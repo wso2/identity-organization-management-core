@@ -37,7 +37,6 @@ import org.wso2.carbon.user.core.util.DatabaseUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import javax.sql.DataSource;
@@ -193,11 +192,8 @@ public class Utils {
 
         String username = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         if (username == null) {
-            Optional<User> maybeUser = organizationUserResidentResolverService.resolveUserFromResidentOrganization(null,
-                    getUserId(), getOrganizationId());
-            if (maybeUser.isPresent()) {
-                return maybeUser.get().getUsername();
-            }
+            return organizationUserResidentResolverService.resolveUserFromResidentOrganization(null,
+                    getUserId(), getOrganizationId()).map(User::getUsername).orElse(null);
         }
         return username;
     }
