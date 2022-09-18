@@ -202,9 +202,8 @@ public class Utils {
                 username = organizationUserResidentResolverService.resolveUserFromResidentOrganization(null,
                         getUserId(), getOrganizationId()).map(User::getUsername).orElse(null);
             } catch (OrganizationManagementException e) {
-                LOG.debug("Authenticated user name could not resolved.", e);
+                LOG.debug("Authenticated user's username could not be resolved.", e);
             }
-
         }
         return username;
     }
