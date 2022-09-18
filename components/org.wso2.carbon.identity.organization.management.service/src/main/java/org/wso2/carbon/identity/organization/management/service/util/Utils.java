@@ -20,6 +20,8 @@ package org.wso2.carbon.identity.organization.management.service.util;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.database.utils.jdbc.NamedJdbcTemplate;
@@ -56,6 +58,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
  */
 public class Utils {
 
+    private static final Log LOG = LogFactory.getLog(Utils.class);
     private static DataSource dataSource;
     private static final OrganizationUserResidentResolverService organizationUserResidentResolverService =
             new OrganizationUserResidentResolverServiceImpl();
@@ -188,12 +191,17 @@ public class Utils {
      *
      * @return the username of the authenticated user.
      */
-    public static String getAuthenticatedUsername() throws OrganizationManagementException {
+    public static String getAuthenticatedUsername() {
 
         String username = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         if (username == null) {
-            return organizationUserResidentResolverService.resolveUserFromResidentOrganization(null,
-                    getUserId(), getOrganizationId()).map(User::getUsername).orElse(null);
+            try {
+                username = organizationUserResidentResolverService.resolveUserFromResidentOrganization(null,
+                        getUserId(), getOrganizationId()).map(User::getUsername).orElse(null);
+            } catch (OrganizationManagementException e) {
+                LOG.debug("Authenticated user name could not resolved.", e);
+            }
+
         }
         return username;
     }
