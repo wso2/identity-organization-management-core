@@ -848,7 +848,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
                     .SUPER_TENANT_DOMAIN_NAME);
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(orgCreatorName);
-            getTenantMgtService().addTenant(createTenantInfoBean(domain, orgCreatorID, orgCreatorName, orgCreatorEmail));
+            getTenantMgtService().addTenant(
+                    createTenantInfoBean(domain, orgCreatorID, orgCreatorName, orgCreatorEmail));
         } catch (TenantMgtException e) {
             // Rollback created organization.
             deleteOrganization(domain);
@@ -862,7 +863,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
     }
 
-    private Tenant createTenantInfoBean(String domain, String orgCreatorID, String orgCreatorName, String orgCreatorEmail) {
+    private Tenant createTenantInfoBean(String domain, String orgCreatorID, String orgCreatorName,
+                                        String orgCreatorEmail) {
 
         Tenant tenant = new Tenant();
         tenant.setActive(true);
