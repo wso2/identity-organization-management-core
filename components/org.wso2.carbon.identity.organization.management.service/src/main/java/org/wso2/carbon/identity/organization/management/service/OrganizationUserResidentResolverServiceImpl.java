@@ -29,6 +29,7 @@ import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.User;
+import org.wso2.carbon.user.core.jdbc.UniqueIDJDBCUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -70,6 +71,10 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                         User user;
                         if (userName != null && userStoreManager.isExistingUser(userName)) {
                             user = userStoreManager.getUser(null, userName);
+                        } else if (userName != null && userStoreManager.getSecondaryUserStoreManager()
+                                .isExistingUser(userName)) {
+                            user = ((UniqueIDJDBCUserStoreManager) userStoreManager.getSecondaryUserStoreManager())
+                                    .getUser(null, userName);
                         } else if (userId != null && userStoreManager.isExistingUserWithID(userId)) {
                             user = userStoreManager.getUser(userId, null);
                         } else {
