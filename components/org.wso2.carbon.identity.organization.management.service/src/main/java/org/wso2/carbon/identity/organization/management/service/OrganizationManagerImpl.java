@@ -842,7 +842,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
                     .SUPER_TENANT_DOMAIN_NAME);
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(orgCreatorName);
-            getTenantMgtService().addTenant(createTenantInfoBean(domain, orgCreatorID, orgCreatorName));
+            getTenantMgtService().addTenant(createTenantInfoBean(domain, orgCreatorID));
         } catch (TenantMgtException e) {
             // Rollback created organization.
             deleteOrganization(domain);
@@ -856,12 +856,16 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
     }
 
-    private Tenant createTenantInfoBean(String domain, String orgCreatorID, String orgCreatorName) {
+    private Tenant createTenantInfoBean(String domain, String orgCreatorID) {
 
         Tenant tenant = new Tenant();
         tenant.setActive(true);
         tenant.setDomain(domain);
-        tenant.setAdminName(orgCreatorName);
+        /*
+        Set the creator's UUID as the tenant admin name because tenant data model doesn't store the admin uuid,
+        and it is required when creating the org-user association.
+         */
+        tenant.setAdminName(orgCreatorID);
         tenant.setAdminUserId(orgCreatorID);
         tenant.setEmail("dummyadmin@email.com");
         tenant.setAssociatedOrganizationUUID(domain);
