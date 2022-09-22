@@ -215,7 +215,17 @@ public class Utils {
      */
     public static String getUserId() {
 
-        return PrivilegedCarbonContext.getThreadLocalCarbonContext().getUserId();
+        String userId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUserId();
+        if (userId == null && PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername() != null) {
+            try {
+                userId = organizationUserResidentResolverService.resolveUserFromResidentOrganization(null,
+                        PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername(),
+                        getOrganizationId()).map(User::getUserID).orElse(null);
+            } catch (OrganizationManagementException e) {
+                LOG.debug("Authenticated user's id could not be resolved.", e);
+            }
+        }
+        return userId;
     }
 
     /**
