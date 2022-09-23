@@ -153,10 +153,16 @@ public class OrganizationManagerImpl implements OrganizationManager {
         setCreatedAndLastModifiedTime(organization);
         getListener().preAddOrganization(organization);
         organizationManagementDAO.addOrganization(organization);
-        String orgCreatorID = getUserId();
-        String orgCreatorName = getAuthenticatedUsername();
+        String orgCreatorID =
+                StringUtils.isNotBlank(organization.getCreatorId()) ? organization.getCreatorId() : getUserId();
+        String orgCreatorName =
+                StringUtils.isNotBlank(organization.getCreatorUsername()) ? organization.getCreatorUsername() :
+                        getAuthenticatedUsername();
+        String orgCreatorEmail =
+                StringUtils.isNotBlank(organization.getCreatorEmail()) ? organization.getCreatorEmail() :
+                        "dummyadmin@email.com";
         if (StringUtils.equals(TENANT.toString(), organization.getType())) {
-            createTenant(organization.getId(), orgCreatorID, orgCreatorName);
+            createTenant(organization.getId(), orgCreatorID, orgCreatorName, orgCreatorEmail);
         }
         getListener().postAddOrganization(organization);
         return organization;
@@ -833,7 +839,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 !attributeValue.equalsIgnoreCase(PAGINATION_BEFORE);
     }
 
-    private void createTenant(String domain, String orgCreatorID, String orgCreatorName)
+    private void createTenant(String domain, String orgCreatorID, String orgCreatorName, String orgCreatorEmail)
             throws OrganizationManagementException {
 
         try {
@@ -842,7 +848,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
                     .SUPER_TENANT_DOMAIN_NAME);
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(orgCreatorName);
-            getTenantMgtService().addTenant(createTenantInfoBean(domain, orgCreatorID, orgCreatorName));
+            getTenantMgtService().addTenant(
+                    createTenantInfoBean(domain, orgCreatorID, orgCreatorName, orgCreatorEmail));
         } catch (TenantMgtException e) {
             // Rollback created organization.
             deleteOrganization(domain);
@@ -856,14 +863,15 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
     }
 
-    private Tenant createTenantInfoBean(String domain, String orgCreatorID, String orgCreatorName) {
+    private Tenant createTenantInfoBean(String domain, String orgCreatorID, String orgCreatorName,
+                                        String orgCreatorEmail) {
 
         Tenant tenant = new Tenant();
         tenant.setActive(true);
         tenant.setDomain(domain);
         tenant.setAdminName(orgCreatorName);
         tenant.setAdminUserId(orgCreatorID);
-        tenant.setEmail("dummyadmin@email.com");
+        tenant.setEmail(orgCreatorEmail);
         tenant.setAssociatedOrganizationUUID(domain);
         tenant.setProvisioningMethod(StringUtils.EMPTY);
         return tenant;
