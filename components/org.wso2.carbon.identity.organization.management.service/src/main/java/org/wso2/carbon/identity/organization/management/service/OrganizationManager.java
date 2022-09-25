@@ -193,12 +193,12 @@ public interface OrganizationManager {
     List<Organization> getOrganizationsByName(String organizationName) throws OrganizationManagementException;
 
     /**
-     * Return whether the given organization is an immediate child of the super organization.
+     * Return the depth of the given organization in organization hierarchy.
+     * Return -1 if the organization is not found in the tree.
      *
      * @param organizationId Checking organization id.
-     * @return True if the given organization is an immediate child of super organization.
-     * @throws OrganizationManagementServerException Error occurred while checking whether the organization is an
-     *                                               immediate child of the super organization.
+     * @return Depth from super organization.
+     * @throws OrganizationManagementServerException Error occurred while checking depth of the organization.
      */
-    boolean isImmediateChildOfSuperOrganization(String organizationId) throws OrganizationManagementServerException;
+    int getOrganizationDepthInHierarchy(String organizationId) throws OrganizationManagementServerException;
 }
