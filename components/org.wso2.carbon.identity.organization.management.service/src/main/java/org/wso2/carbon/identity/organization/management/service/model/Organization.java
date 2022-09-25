@@ -32,6 +32,9 @@ public class Organization {
     private String description;
     private String status;
     private String type;
+    private String creatorId;
+    private String creatorUsername;
+    private String creatorEmail;
     private ParentOrganizationDO parent = new ParentOrganizationDO();
     private Instant lastModified;
     private Instant created;
@@ -97,6 +100,36 @@ public class Organization {
     public void setCreated(Instant created) {
 
         this.created = created;
+    }
+
+    public String getCreatorId() {
+
+        return creatorId;
+    }
+
+    public void setCreatorId(String creatorId) {
+
+        this.creatorId = creatorId;
+    }
+
+    public String getCreatorUsername() {
+
+        return creatorUsername;
+    }
+
+    public void setCreatorUsername(String creatorUsername) {
+
+        this.creatorUsername = creatorUsername;
+    }
+
+    public String getCreatorEmail() {
+
+        return creatorEmail;
+    }
+
+    public void setCreatorEmail(String creatorEmail) {
+
+        this.creatorEmail = creatorEmail;
     }
 
     public List<OrganizationAttribute> getAttributes() {

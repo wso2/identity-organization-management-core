@@ -20,14 +20,20 @@ package org.wso2.carbon.identity.organization.management.service.util;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.database.utils.jdbc.NamedJdbcTemplate;
 import org.wso2.carbon.database.utils.jdbc.exceptions.DataAccessException;
+import org.wso2.carbon.identity.organization.management.service.OrganizationUserResidentResolverService;
+import org.wso2.carbon.identity.organization.management.service.OrganizationUserResidentResolverServiceImpl;
 import org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementClientException;
+import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 
 import java.util.ArrayList;
@@ -52,7 +58,10 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
  */
 public class Utils {
 
+    private static final Log LOG = LogFactory.getLog(Utils.class);
     private static DataSource dataSource;
+    private static final OrganizationUserResidentResolverService organizationUserResidentResolverService =
+            new OrganizationUserResidentResolverServiceImpl();
 
     /**
      * Throw an OrganizationManagementClientException upon client side error in organization management.
@@ -98,8 +107,11 @@ public class Utils {
 
         try {
             if (dataSource == null) {
-                dataSource = DatabaseUtil.getRealmDataSource(CarbonContext.getThreadLocalCarbonContext().getUserRealm()
-                        .getRealmConfiguration());
+                if (CarbonContext.getThreadLocalCarbonContext().getUserRealm() == null) {
+                    throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_UM_DATASOURCE, null);
+                }
+                dataSource = DatabaseUtil.getRealmDataSource(CarbonContext.getThreadLocalCarbonContext()
+                        .getUserRealm().getRealmConfiguration());
             }
         return new NamedJdbcTemplate(dataSource);
         } catch (UserStoreException e) {
@@ -184,7 +196,16 @@ public class Utils {
      */
     public static String getAuthenticatedUsername() {
 
-        return PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
+        String username = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
+        if (username == null) {
+            try {
+                username = organizationUserResidentResolverService.resolveUserFromResidentOrganization(null,
+                        getUserId(), getOrganizationId()).map(User::getUsername).orElse(null);
+            } catch (OrganizationManagementException e) {
+                LOG.debug("Authenticated user's username could not be resolved.", e);
+            }
+        }
+        return username;
     }
 
     /**

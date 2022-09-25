@@ -470,7 +470,9 @@ public class OrganizationManagementConstants {
                 "Server encountered an error when checking whether the application: %s already has fragments."),
         ERROR_CODE_ERROR_RESOLVING_MAIN_APPLICATION("65089", "Unable to resolve the main application",
                 "Server encountered an error while resolving the main application for " +
-                        "shared application: %s in shared organization: %s.");
+                        "shared application: %s in shared organization: %s."),
+        ERROR_CODE_ERROR_FIRING_EVENTS("65090", "Error while firing the events",
+                "Server encountered an error while firing the events");
 
         private final String code;
         private final String message;

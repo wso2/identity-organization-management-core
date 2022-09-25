@@ -34,6 +34,7 @@ import org.wso2.carbon.identity.organization.management.service.filter.FilterTre
 import org.wso2.carbon.identity.organization.management.service.filter.Node;
 import org.wso2.carbon.identity.organization.management.service.filter.OperationNode;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
+import org.wso2.carbon.identity.organization.management.service.listener.OrganizationManagerListener;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.ChildOrganizationDO;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
@@ -150,12 +151,20 @@ public class OrganizationManagerImpl implements OrganizationManager {
         validateAddOrganizationRequest(organization);
         setParentOrganization(organization);
         setCreatedAndLastModifiedTime(organization);
+        getListener().preAddOrganization(organization);
         organizationManagementDAO.addOrganization(organization);
-        String orgCreatorID = getUserId();
-        String orgCreatorName = getAuthenticatedUsername();
+        String orgCreatorID =
+                StringUtils.isNotBlank(organization.getCreatorId()) ? organization.getCreatorId() : getUserId();
+        String orgCreatorName =
+                StringUtils.isNotBlank(organization.getCreatorUsername()) ? organization.getCreatorUsername() :
+                        getAuthenticatedUsername();
+        String orgCreatorEmail =
+                StringUtils.isNotBlank(organization.getCreatorEmail()) ? organization.getCreatorEmail() :
+                        "dummyadmin@email.com";
         if (StringUtils.equals(TENANT.toString(), organization.getType())) {
-            createTenant(organization.getId(), orgCreatorID, orgCreatorName);
+            createTenant(organization.getId(), orgCreatorID, orgCreatorName, orgCreatorEmail);
         }
+        getListener().postAddOrganization(organization);
         return organization;
     }
 
@@ -196,6 +205,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
             requestInvokingOrganizationId = SUPER_ORG_ID;
         }
         validateOrganizationAccess(requestInvokingOrganizationId, organizationId, true);
+        getListener().preGetOrganization(organizationId.trim());
         Organization organization = organizationManagementDAO.getOrganization(organizationId.trim());
 
         if (organization == null) {
@@ -229,6 +239,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 organization.setPermissions(permissions);
             }
         }
+
+        getListener().postGetOrganization(organizationId.trim(), organization);
         return organization;
     }
 
@@ -283,6 +295,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         if (organization == null) {
             return;
         }
+        getListener().preDeleteOrganization(organizationId);
         if (StringUtils.equals(TENANT.toString(), organization.getType())) {
             String tenantID = organizationManagementDAO.getAssociatedTenantUUIDForOrganization(organizationId);
             if (StringUtils.isNotBlank(tenantID)) {
@@ -294,6 +307,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
             }
         }
         organizationManagementDAO.deleteOrganization(organizationId);
+        getListener().postDeleteOrganization(organizationId);
     }
 
     @Override
@@ -314,8 +328,11 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
         validateOrganizationPatchOperations(patchOperations, organizationId);
 
+        getListener().prePatchOrganization(organizationId, patchOperations);
         organizationManagementDAO.patchOrganization(organizationId, Instant.now(), patchOperations);
         patchTenantStatus(patchOperations, organizationId);
+
+        getListener().postPatchOrganization(organizationId, patchOperations);
 
         Organization organization = organizationManagementDAO.getOrganization(organizationId);
         if (!SUPER.equals(organization.getName())) {
@@ -344,6 +361,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
         validateUpdateOrganizationRequest(currentOrganizationName, organization);
         updateLastModifiedTime(organization);
+
+        getListener().preUpdateOrganization(organizationId, organization);
         organizationManagementDAO.updateOrganization(organizationId, organization);
 
         Organization updatedOrganization = organizationManagementDAO.getOrganization(organizationId);
@@ -354,6 +373,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         if (StringUtils.equals(TENANT.toString(), organization.getType())) {
             updateTenantStatus(organization.getStatus(), organizationId);
         }
+        getListener().postUpdateOrganization(organizationId, organization);
         return updatedOrganization;
     }
 
@@ -590,7 +610,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         parentOrganization.setRef(buildURIForBody(parentId));
     }
 
-    private boolean isUserAuthorizedToCreateChildOrganizationInSuper() throws OrganizationManagementServerException {
+    private boolean isUserAuthorizedToCreateChildOrganizationInSuper() throws OrganizationManagementException {
 
         String username = getAuthenticatedUsername();
         try {
@@ -826,7 +846,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 !attributeValue.equalsIgnoreCase(PAGINATION_BEFORE);
     }
 
-    private void createTenant(String domain, String orgCreatorID, String orgCreatorName)
+    private void createTenant(String domain, String orgCreatorID, String orgCreatorName, String orgCreatorEmail)
             throws OrganizationManagementException {
 
         try {
@@ -835,7 +855,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
                     .SUPER_TENANT_DOMAIN_NAME);
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(orgCreatorName);
-            getTenantMgtService().addTenant(createTenantInfoBean(domain, orgCreatorID));
+            getTenantMgtService().addTenant(
+                    createTenantInfoBean(domain, orgCreatorID, orgCreatorName, orgCreatorEmail));
         } catch (TenantMgtException e) {
             // Rollback created organization.
             deleteOrganization(domain);
@@ -849,20 +870,15 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
     }
 
-    private Tenant createTenantInfoBean(String domain, String orgCreatorID) {
+    private Tenant createTenantInfoBean(String domain, String orgCreatorID, String orgCreatorName,
+                                        String orgCreatorEmail) {
 
         Tenant tenant = new Tenant();
         tenant.setActive(true);
         tenant.setDomain(domain);
-        /*
-        Set the creator's UUID as the tenant admin name because tenant data model doesn't store the admin uuid,
-        and it is required when creating the org-user association.
-         */
-        tenant.setAdminName(orgCreatorID);
+        tenant.setAdminName(orgCreatorName);
         tenant.setAdminUserId(orgCreatorID);
-        tenant.setEmail("dummyadmin@email.com");
-        // set the password as domain for now to avoid findbugs detecting it as a hardcoded value.
-        tenant.setAdminPassword(domain);
+        tenant.setEmail(orgCreatorEmail);
         tenant.setAssociatedOrganizationUUID(domain);
         tenant.setProvisioningMethod(StringUtils.EMPTY);
         return tenant;
@@ -896,5 +912,10 @@ public class OrganizationManagerImpl implements OrganizationManager {
             throw handleClientException(ERROR_CODE_UNAUTHORIZED_ORG_ACCESS, accessedOrganizationId,
                     requestInvokingOrganizationId);
         }
+    }
+
+    private OrganizationManagerListener getListener() {
+
+        return OrganizationManagementDataHolder.getInstance().getOrganizationManagerListener();
     }
 }
