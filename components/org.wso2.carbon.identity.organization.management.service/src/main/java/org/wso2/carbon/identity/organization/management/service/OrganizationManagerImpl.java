@@ -41,6 +41,7 @@ import org.wso2.carbon.identity.organization.management.service.model.Organizati
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
 import org.wso2.carbon.identity.organization.management.service.model.ParentOrganizationDO;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
+import org.wso2.carbon.identity.organization.management.service.model.TenantTypeOrganization;
 import org.wso2.carbon.stratos.common.exception.TenantManagementClientException;
 import org.wso2.carbon.stratos.common.exception.TenantMgtException;
 import org.wso2.carbon.tenant.mgt.services.TenantMgtService;
@@ -161,8 +162,10 @@ public class OrganizationManagerImpl implements OrganizationManager {
         String orgCreatorEmail =
                 StringUtils.isNotBlank(organization.getCreatorEmail()) ? organization.getCreatorEmail() :
                         "dummyadmin@email.com";
-        if (StringUtils.equals(TENANT.toString(), organization.getType())) {
-            createTenant(organization.getId(), orgCreatorID, orgCreatorName, orgCreatorEmail);
+        // Create a tenant for tenant type organization.
+        if (organization instanceof TenantTypeOrganization) {
+            String tenantDomainName = ((TenantTypeOrganization) organization).getDomainName();
+            createTenant(tenantDomainName, orgCreatorID, orgCreatorName, orgCreatorEmail);
         }
         getListener().postAddOrganization(organization);
         return organization;
