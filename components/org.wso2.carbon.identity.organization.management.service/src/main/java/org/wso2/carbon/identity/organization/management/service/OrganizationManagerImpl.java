@@ -416,6 +416,12 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
     }
 
+    @Override
+    public int getOrganizationDepthInHierarchy(String organizationId) throws OrganizationManagementServerException {
+
+        return organizationManagementDAO.getOrganizationDepthInHierarchy(organizationId);
+    }
+
     private void updateTenantStatus(String status, String organizationId) throws OrganizationManagementServerException {
 
         if (StringUtils.equals(ACTIVE.toString(), status)) {

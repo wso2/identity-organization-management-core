@@ -192,4 +192,13 @@ public interface OrganizationManager {
      */
     List<Organization> getOrganizationsByName(String organizationName) throws OrganizationManagementException;
 
+    /**
+     * Return the depth of the given organization in organization hierarchy.
+     * Return -1 if the organization is not found in the tree.
+     *
+     * @param organizationId Checking organization id.
+     * @return Depth from super organization.
+     * @throws OrganizationManagementServerException Error occurred while checking depth of the organization.
+     */
+    int getOrganizationDepthInHierarchy(String organizationId) throws OrganizationManagementServerException;
 }

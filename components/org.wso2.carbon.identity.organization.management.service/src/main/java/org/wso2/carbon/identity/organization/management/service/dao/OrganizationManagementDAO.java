@@ -299,4 +299,13 @@ public interface OrganizationManagementDAO {
      *                                               organization by name.
      */
     List<Organization> getOrganizationsByName(String organizationName) throws OrganizationManagementServerException;
+
+    /**
+     * Retrieve the depth of the given organization.
+     *
+     * @param organizationId Organization id.
+     * @return The depth of the organization from super organization.
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the depth.
+     */
+    int getOrganizationDepthInHierarchy(String organizationId) throws OrganizationManagementServerException;
 }

@@ -482,6 +482,22 @@ public class OrganizationManagerImplTest {
                 NEW_ORG_DESCRIPTION, SUPER_ORG_ID, STRUCTURAL.toString()));
     }
 
+    @DataProvider(name = "dataForGetOrganizationDepth")
+    public Object[][] dataForGetOrganizationDepth() {
+
+        return new Object[][]{
+                {ORG1_ID, 1},
+                {INVALID_ORG_ID, -1}
+       };
+    }
+
+    @Test(dataProvider = "dataForGetOrganizationDepth")
+    public void testGetOrganizationDepthInHierarchy(String organizationId, int depth) throws Exception {
+
+        int organizationDepthInHierarchy = organizationManager.getOrganizationDepthInHierarchy(organizationId);
+        assertEquals(depth, organizationDepthInHierarchy);
+    }
+
     private void mockCarbonContext() {
 
         String carbonHome = Paths.get(System.getProperty("user.dir"), "target", "test-classes").toString();

@@ -472,7 +472,9 @@ public class OrganizationManagementConstants {
                 "Server encountered an error while resolving the main application for " +
                         "shared application: %s in shared organization: %s."),
         ERROR_CODE_ERROR_FIRING_EVENTS("65090", "Error while firing the events",
-                "Server encountered an error while firing the events");
+                "Server encountered an error while firing the events"),
+        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_DEPTH("65091", "Unable to retrieve the organization depth.",
+                "Server encountered an error while retrieving depth of organization with ID: %s.");
 
         private final String code;
         private final String message;
