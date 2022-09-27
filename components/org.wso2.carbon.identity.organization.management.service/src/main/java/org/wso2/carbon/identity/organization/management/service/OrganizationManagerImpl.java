@@ -165,7 +165,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
         // Create a tenant for tenant type organization.
         if (organization instanceof TenantTypeOrganization) {
             String tenantDomainName = ((TenantTypeOrganization) organization).getDomainName();
-            createTenant(tenantDomainName, orgCreatorID, orgCreatorName, orgCreatorEmail);
+            String organizationId = organization.getId();
+            createTenant(tenantDomainName, organizationId, orgCreatorID, orgCreatorName, orgCreatorEmail);
         }
         getListener().postAddOrganization(organization);
         return organization;
@@ -848,8 +849,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 !attributeValue.equalsIgnoreCase(PAGINATION_BEFORE);
     }
 
-    private void createTenant(String domain, String orgCreatorID, String orgCreatorName, String orgCreatorEmail)
-            throws OrganizationManagementException {
+    private void createTenant(String domain, String organizationId, String orgCreatorID, String orgCreatorName,
+                              String orgCreatorEmail) throws OrganizationManagementException {
 
         try {
             PrivilegedCarbonContext.startTenantFlow();
@@ -858,7 +859,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(orgCreatorName);
             getTenantMgtService().addTenant(
-                    createTenantInfoBean(domain, orgCreatorID, orgCreatorName, orgCreatorEmail));
+                    createTenantInfoBean(domain, organizationId, orgCreatorID, orgCreatorName, orgCreatorEmail));
         } catch (TenantMgtException e) {
             // Rollback created organization.
             deleteOrganization(domain);
@@ -872,8 +873,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
     }
 
-    private Tenant createTenantInfoBean(String domain, String orgCreatorID, String orgCreatorName,
-                                        String orgCreatorEmail) {
+    private Tenant createTenantInfoBean(String domain, String organizationId, String orgCreatorID,
+                                        String orgCreatorName, String orgCreatorEmail) {
 
         Tenant tenant = new Tenant();
         tenant.setActive(true);
@@ -881,7 +882,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         tenant.setAdminName(orgCreatorName);
         tenant.setAdminUserId(orgCreatorID);
         tenant.setEmail(orgCreatorEmail);
-        tenant.setAssociatedOrganizationUUID(domain);
+        tenant.setAssociatedOrganizationUUID(organizationId);
         tenant.setProvisioningMethod(StringUtils.EMPTY);
         return tenant;
     }
