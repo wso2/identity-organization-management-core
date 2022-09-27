@@ -57,6 +57,7 @@ public class OrganizationManagementServiceComponent {
             bundleContext.registerService(OrganizationManager.class.getName(), new OrganizationManagerImpl(), null);
             bundleContext.registerService(OrganizationUserResidentResolverService.class.getName(),
                     new OrganizationUserResidentResolverServiceImpl(), null);
+            OrganizationManagementDataHolder.getInstance().initDataSource();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Organization Management component activated successfully.");
             }
