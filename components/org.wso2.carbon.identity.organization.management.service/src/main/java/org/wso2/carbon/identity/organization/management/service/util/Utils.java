@@ -22,7 +22,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.database.utils.jdbc.NamedJdbcTemplate;
 import org.wso2.carbon.database.utils.jdbc.exceptions.DataAccessException;
@@ -33,9 +32,7 @@ import org.wso2.carbon.identity.organization.management.service.exception.Organi
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
-import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.common.User;
-import org.wso2.carbon.user.core.util.DatabaseUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +42,6 @@ import java.util.UUID;
 import javax.sql.DataSource;
 
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_DB_METADATA;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_UM_DATASOURCE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_CONTEXT_PATH_COMPONENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_PATH;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATH_SEPARATOR;
@@ -104,18 +100,12 @@ public class Utils {
      *
      * @return a new Jdbc Template.
      */
-    public static NamedJdbcTemplate getNewTemplate() throws OrganizationManagementServerException {
+    public static NamedJdbcTemplate getNewTemplate() {
 
-        try {
-            if (dataSource == null) {
-                dataSource = DatabaseUtil.getRealmDataSource(OrganizationManagementDataHolder.getInstance()
-                        .getRealmService().getTenantUserRealm(MultitenantConstants.SUPER_TENANT_ID)
-                        .getRealmConfiguration());
-            }
-        return new NamedJdbcTemplate(dataSource);
-        } catch (UserStoreException e) {
-            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_UM_DATASOURCE, e);
+        if (dataSource == null) {
+            dataSource = OrganizationManagementDataHolder.getInstance().getDataSource();
         }
+        return new NamedJdbcTemplate(dataSource);
     }
 
     /**
