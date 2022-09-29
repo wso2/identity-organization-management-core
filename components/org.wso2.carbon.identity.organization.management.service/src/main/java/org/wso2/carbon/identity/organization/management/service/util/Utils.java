@@ -204,7 +204,22 @@ public class Utils {
      */
     public static String getUserId() {
 
-        return PrivilegedCarbonContext.getThreadLocalCarbonContext().getUserId();
+        String userId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUserId();
+        /*
+            The federated users with organization management permissions do not have user id set in the carbon
+            context but the user id is set against the username. Therefore the user is resolved by the user id
+            information saved in the username.
+         */
+        if (userId == null && PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername() != null) {
+            try {
+                userId = organizationUserResidentResolverService.resolveUserFromResidentOrganization(null,
+                        PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername(),
+                        getOrganizationId()).map(User::getUserID).orElse(null);
+            } catch (OrganizationManagementException e) {
+                LOG.debug("Authenticated user's id could not be resolved.", e);
+            }
+        }
+        return userId;
     }
 
     /**
