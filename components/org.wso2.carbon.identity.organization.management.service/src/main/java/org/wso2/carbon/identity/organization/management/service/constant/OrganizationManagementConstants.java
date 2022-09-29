@@ -263,6 +263,13 @@ public class OrganizationManagementConstants {
         ERROR_CODE_UNAUTHORIZED_FRAGMENT_APP_ACCESS("60066", "Fragment applications can be managed only " +
                 "from the organization that fragment application resides.", "Application %s can't be managed " +
                 "from organization %s."),
+        ERROR_CODE_INVALID_SHARE_APPLICATION_EMPTY_REQUEST_BODY("60067", "Invalid request.",
+                "At least one of the attributes from shareWithAllChildren and sharedOrganizations should be present."),
+        ERROR_CODE_INVALID_SHARE_APPLICATION_REQUEST_BODY("60068", "Invalid request.", "Cannot share " +
+                "the application with a set of child organizations when shareWithAllChildren is set."),
+        ERROR_CODE_INVALID_DELETE_SHARE_REQUEST("60069", "Invalid request.", "Cannot delete " +
+                "sharing the application of id: %s to organization of id: %s when it is shared with all child " +
+                "organizations."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -475,16 +482,12 @@ public class OrganizationManagementConstants {
                 "Server encountered an error while firing the events"),
         ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_DEPTH("65091", "Unable to retrieve the organization depth.",
                 "Server encountered an error while retrieving depth of organization with ID: %s."),
-        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_APPLICATIONS("65092", "Error while retrieving applications",
-                "Encountered an error while retrieving applications in organization id %s"),
-        ERROR_CODE_ERROR_CHECKING_APPLICATION_IS_A_FRAGMENT("65093", "Error while checking whether fragment app",
-                "Encountered an error while checking whether application %s is a fragment application"),
-        ERROR_CODE_INVALID_SHARE_APPLICATION_EMPTY_REQUEST_BODY("65094", "Invalid request",
-                "At least one of the attributes from shareWithAllChildren and sharedOrganizations should be present."),
-        ERROR_CODE_INVALID_SHARE_APPLICATION_REQUEST_BODY("65095", "Invalid request", "Cannot share application " +
-                "with a set of child organizations when shareWithAllChildren is set"),
-        ERROR_CODE_ERROR_UPDATING_APPLICATION_ATTRIBUTE("65096", "Error when updating the main application",
-        "Encountered an error when updating the main application of id: %s with property share with all children.");
+        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_APPLICATIONS("65092", "Error while retrieving applications.",
+                "Encountered an error while retrieving applications in organization id %s."),
+        ERROR_CODE_ERROR_CHECKING_APPLICATION_IS_A_FRAGMENT("65093", "Error while checking whether fragment app.",
+                "Encountered an error while checking whether application %s is a fragment application."),
+        ERROR_CODE_ERROR_UPDATING_APPLICATION_ATTRIBUTE("65094", "Error when updating application.",
+        "Encountered an error when updating application of id: %s with property share with all children.");
 
         private final String code;
         private final String message;
