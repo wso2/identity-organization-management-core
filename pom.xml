@@ -302,6 +302,7 @@
         <org.apache.commons.logging.imp.pkg.version.range>[1.2,2)</org.apache.commons.logging.imp.pkg.version.range>
         <org.apache.commons.collections.imp.pkg.version.range>[3.2.0,4.0.0)
         </org.apache.commons.collections.imp.pkg.version.range>
+        <commons.io.wso2.osgi.version.range>[2.4.0,3.0.0)</commons.io.wso2.osgi.version.range>
 
         <mockito-core.version>4.6.1</mockito-core.version>
         <jacoco.version>0.8.2</jacoco.version>
@@ -318,5 +319,8 @@
         <compiler-source.version>1.8</compiler-source.version>
         <compiler-target.version>1.8</compiler-target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <axiom.osgi.version.range>[1.2.11, 2.0.0)</axiom.osgi.version.range>
+        <equinox.osgi.stax-api.imp.pkg.version.range>[1.0.1,2.0.0)</equinox.osgi.stax-api.imp.pkg.version.range>
     </properties>
 </project>

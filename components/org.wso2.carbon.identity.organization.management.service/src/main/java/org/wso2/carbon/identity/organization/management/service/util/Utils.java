@@ -25,6 +25,8 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.database.utils.jdbc.NamedJdbcTemplate;
 import org.wso2.carbon.database.utils.jdbc.exceptions.DataAccessException;
+import org.wso2.carbon.identity.organization.management.service.OrganizationManager;
+import org.wso2.carbon.identity.organization.management.service.OrganizationManagerImpl;
 import org.wso2.carbon.identity.organization.management.service.OrganizationUserResidentResolverService;
 import org.wso2.carbon.identity.organization.management.service.OrganizationUserResidentResolverServiceImpl;
 import org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants;
@@ -42,6 +44,7 @@ import java.util.UUID;
 import javax.sql.DataSource;
 
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_DB_METADATA;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_CARBON_ROLE_VALIDATION_ENABLED_FOR_LEVEL_ONE_ORGS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_CONTEXT_PATH_COMPONENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_PATH;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATH_SEPARATOR;
@@ -59,6 +62,7 @@ public class Utils {
     private static DataSource dataSource;
     private static final OrganizationUserResidentResolverService organizationUserResidentResolverService =
             new OrganizationUserResidentResolverServiceImpl();
+    private static final OrganizationManager organizationManager = new OrganizationManagerImpl();
 
     /**
      * Throw an OrganizationManagementClientException upon client side error in organization management.
@@ -290,5 +294,37 @@ public class Utils {
     private static <T> T[] subArray(T[] array, int end) {
 
         return Arrays.copyOfRange(array, 0, end);
+    }
+
+    /**
+     * Is carbon role based validation enabled for first level organizations in the deployment.
+     *
+     * @return True if carbon role based validation enabled for first level organizations.
+     */
+    public static boolean isCarbonRoleValidationEnabledForLevelOneOrgs() {
+
+        return Boolean.parseBoolean(
+                OrganizationManagementConfigUtil.getProperty(IS_CARBON_ROLE_VALIDATION_ENABLED_FOR_LEVEL_ONE_ORGS));
+    }
+
+    /**
+     * Return whether organization role based validation is used.
+     *
+     * @param organizationId Organization id.
+     * @return False if the organization is a first level organization in the deployment and
+     * IS_CARBON_ROLE_VALIDATION_ENABLED_FOR_LEVEL_ONE_ORGS config is enabled. Otherwise, true.
+     */
+    public static boolean useOrganizationRolesForValidation(String organizationId) {
+
+        if (!Utils.isCarbonRoleValidationEnabledForLevelOneOrgs()) {
+            return true;
+        }
+        try {
+            // Return false if the organization is in depth 1.
+            return organizationManager.getOrganizationDepthInHierarchy(organizationId) != 1;
+        } catch (OrganizationManagementServerException e) {
+            LOG.error("Error while checking the depth of the given organization.");
+        }
+        return true;
     }
 }

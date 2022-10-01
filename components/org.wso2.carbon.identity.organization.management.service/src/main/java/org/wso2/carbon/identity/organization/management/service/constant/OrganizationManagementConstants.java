@@ -90,7 +90,9 @@ public class OrganizationManagementConstants {
     private static final String ORGANIZATION_MANAGEMENT_ERROR_CODE_PREFIX = "ORG-";
     private static final Map<String, String> attributeColumnMap = new HashMap<>();
     public static final Map<String, String> ATTRIBUTE_COLUMN_MAP = Collections.unmodifiableMap(attributeColumnMap);
-
+    public static final String ORG_MGT_CONFIG_FILE = "org-mgt.xml";
+    public static final String IS_CARBON_ROLE_VALIDATION_ENABLED_FOR_LEVEL_ONE_ORGS =
+            "LevelOneOrganizationConfigs.EnableCarbonRoleBasedValidation";
     /**
      * Contains constants related to filter operations.
      */

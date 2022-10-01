@@ -42,6 +42,7 @@ import org.wso2.carbon.identity.organization.management.service.model.Organizati
 import org.wso2.carbon.identity.organization.management.service.model.ParentOrganizationDO;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
 import org.wso2.carbon.identity.organization.management.service.model.TenantTypeOrganization;
+import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.stratos.common.exception.TenantManagementClientException;
 import org.wso2.carbon.stratos.common.exception.TenantMgtException;
 import org.wso2.carbon.tenant.mgt.services.TenantMgtService;
@@ -629,9 +630,20 @@ public class OrganizationManagerImpl implements OrganizationManager {
     private boolean isUserAuthorizedToCreateOrganization(String parentId) throws OrganizationManagementServerException {
 
         try {
+            if (!Utils.useOrganizationRolesForValidation(parentId)) {
+                String username = getAuthenticatedUsername();
+                UserRealm tenantUserRealm = getRealmService().getTenantUserRealm(getTenantId());
+                AuthorizationManager authorizationManager = tenantUserRealm.getAuthorizationManager();
+                /*
+                 If the carbon role validation happens, '/permission/admin/' permission level is required to create
+                 an organization(to compatible with super org behaviour).
+                 */
+                return authorizationManager.isUserAuthorized(username, CREATE_ORGANIZATION_ADMIN_PERMISSION,
+                        CarbonConstants.UI_PERMISSION_ACTION);
+            }
             return OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(getUserId(),
                     CREATE_ORGANIZATION_PERMISSION, parentId);
-        } catch (OrganizationManagementServerException e) {
+        } catch (OrganizationManagementServerException | UserStoreException e) {
             throw handleServerException(ERROR_CODE_ERROR_EVALUATING_ADD_ORGANIZATION_AUTHORIZATION, e, parentId);
         }
     }

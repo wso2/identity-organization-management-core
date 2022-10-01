@@ -32,6 +32,7 @@ import org.wso2.carbon.identity.organization.management.service.OrganizationMana
 import org.wso2.carbon.identity.organization.management.service.OrganizationUserResidentResolverService;
 import org.wso2.carbon.identity.organization.management.service.OrganizationUserResidentResolverServiceImpl;
 import org.wso2.carbon.identity.organization.management.service.listener.OrganizationManagerListener;
+import org.wso2.carbon.identity.organization.management.service.util.OrganizationManagementConfigUtil;
 import org.wso2.carbon.tenant.mgt.services.TenantMgtService;
 import org.wso2.carbon.user.core.service.RealmService;
 
@@ -57,6 +58,7 @@ public class OrganizationManagementServiceComponent {
             bundleContext.registerService(OrganizationManager.class.getName(), new OrganizationManagerImpl(), null);
             bundleContext.registerService(OrganizationUserResidentResolverService.class.getName(),
                     new OrganizationUserResidentResolverServiceImpl(), null);
+            OrganizationManagementConfigUtil.loadOrgMgtConfigurations();
             OrganizationManagementDataHolder.getInstance().initDataSource();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Organization Management component activated successfully.");
