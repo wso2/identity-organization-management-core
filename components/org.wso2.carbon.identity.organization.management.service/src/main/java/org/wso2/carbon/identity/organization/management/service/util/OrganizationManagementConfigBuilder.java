@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.organization.management.service.util;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.io.FilenameUtils;
@@ -75,17 +76,21 @@ public class OrganizationManagementConfigBuilder {
     /**
      * Read the organization-mgt.xml file and build the configuration map.
      */
+    @SuppressWarnings(value = "PATH_TRAVERSAL_IN", justification = "Don't use any user input file.")
     private void loadConfigurations() {
 
         String configDirPath = CarbonUtils.getCarbonConfigDirPath();
-        File configFile = new File(configDirPath, FilenameUtils.getName((ORGANIZATION_MGT_CONFIG_FILE)));
+        File configFile = new File(configDirPath, FilenameUtils.getName(ORGANIZATION_MGT_CONFIG_FILE));
         if (!configFile.exists()) {
             return;
         }
         try (InputStream stream = Files.newInputStream(configFile.toPath())) {
             XMLInputFactory factory = XMLInputFactory.newFactory();
+            // Prevents using external resources when parsing xml.
+            factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+            // Prevents using external document type definition when parsing xml.
+            factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
             XMLStreamReader parser = factory.createXMLStreamReader(stream);
-
             StAXOMBuilder builder = new StAXOMBuilder(parser);
             OMElement documentElement = builder.getDocumentElement();
             Stack<String> nameStack = new Stack<>();
