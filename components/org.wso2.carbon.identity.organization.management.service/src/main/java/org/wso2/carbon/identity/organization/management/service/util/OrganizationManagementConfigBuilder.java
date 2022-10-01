@@ -40,10 +40,10 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORG_MGT_CONFIG_FILE;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_MGT_CONFIG_FILE;
 
 /**
- * Config builder class for organization management related configs in org-mgt.xml file.
+ * Config builder class for organization management related configs in organization-mgt.xml file.
  */
 public class OrganizationManagementConfigBuilder {
 
@@ -73,18 +73,16 @@ public class OrganizationManagementConfigBuilder {
     }
 
     /**
-     * Read the org-mgt.xml file and build the configuration map.
+     * Read the organization-mgt.xml file and build the configuration map.
      */
     private void loadConfigurations() {
 
         String configDirPath = CarbonUtils.getCarbonConfigDirPath();
-//        String confXml = Paths.get(configDirPath, ORG_MGT_CONFIG_FILE).toString();
-        File configFile = new File(configDirPath, FilenameUtils.getName((ORG_MGT_CONFIG_FILE)));
+        File configFile = new File(configDirPath, FilenameUtils.getName((ORGANIZATION_MGT_CONFIG_FILE)));
         if (!configFile.exists()) {
             return;
         }
         try (InputStream stream = Files.newInputStream(configFile.toPath())) {
-//            XMLStreamReader parser = XMLInputFactory.newInstance().createXMLStreamReader(stream);
             XMLInputFactory factory = XMLInputFactory.newFactory();
             XMLStreamReader parser = factory.createXMLStreamReader(stream);
 
