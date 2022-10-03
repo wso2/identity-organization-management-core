@@ -154,6 +154,10 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
         } catch (UserStoreException e) {
             throw handleServerException(ERROR_CODE_ERROR_WHILE_RESOLVING_ROOT_ORG, e, userId);
         }
+        /*
+        Organizations will be sorted starting from resident organization (higher level) and ended up with
+        the accessed organization (lower level)
+         */
         Collections.reverse(basicOrganizationList);
         return basicOrganizationList;
     }
