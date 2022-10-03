@@ -267,9 +267,9 @@ public class OrganizationManagementConstants {
                 "At least one of the attributes from shareWithAllChildren and sharedOrganizations should be present."),
         ERROR_CODE_INVALID_SHARE_APPLICATION_REQUEST_BODY("60068", "Invalid request.", "Cannot share " +
                 "the application with a set of child organizations when shareWithAllChildren is set."),
-        ERROR_CODE_INVALID_DELETE_SHARE_REQUEST("60069", "Invalid request.", "Cannot delete " +
-                "sharing the application of id: %s to organization of id: %s when it is shared with all child " +
-                "organizations."),
+        ERROR_CODE_INVALID_DELETE_SHARE_REQUEST("60069", "Invalid request.", "Cannot unshare " +
+                "the application with ID %s from the organization with ID %s if the application is shared with all " +
+                "children organizations."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -487,7 +487,7 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ERROR_CHECKING_APPLICATION_IS_A_FRAGMENT("65093", "Error while checking whether fragment app.",
                 "Encountered an error while checking whether application %s is a fragment application."),
         ERROR_CODE_ERROR_UPDATING_APPLICATION_ATTRIBUTE("65094", "Error when updating application.",
-        "Encountered an error when updating application of id: %s with property share with all children.");
+                "Encountered an error when updating application of id: %s with property share with all children.");
 
         private final String code;
         private final String message;
