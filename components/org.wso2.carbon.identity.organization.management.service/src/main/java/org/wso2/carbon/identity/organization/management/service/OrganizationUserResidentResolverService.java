@@ -61,6 +61,6 @@ public interface OrganizationUserResidentResolverService {
      * @return user's organization hierarchy until resident organization
      * @throws OrganizationManagementException Error occurred while resolving org hierarchy of the user.
      */
-    Optional<List<BasicOrganization>> resolveResidentOrganizationHierarchy(String userId, String organizationId)
+    Optional<List<BasicOrganization>> getHierarchyUptoResidentOrganization(String userId, String organizationId)
             throws OrganizationManagementException;
 }
