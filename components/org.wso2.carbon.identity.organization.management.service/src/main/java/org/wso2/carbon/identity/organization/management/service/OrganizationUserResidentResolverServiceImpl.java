@@ -124,7 +124,7 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
     }
 
     @Override
-    public Optional<List<BasicOrganization>> resolveResidentOrganizationHierarchy
+    public List<BasicOrganization> getHierarchyUptoResidentOrganization
             (String userId, String accessedOrganizationId) throws OrganizationManagementException {
 
         List<BasicOrganization> basicOrganizationList = new ArrayList<>();
@@ -155,7 +155,7 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
             throw handleServerException(ERROR_CODE_ERROR_WHILE_RESOLVING_ROOT_ORG, e, userId);
         }
         Collections.reverse(basicOrganizationList);
-        return Optional.of(basicOrganizationList);
+        return basicOrganizationList;
     }
 
     private String resolveTenantDomainForOrg(String organizationId) throws OrganizationManagementServerException {

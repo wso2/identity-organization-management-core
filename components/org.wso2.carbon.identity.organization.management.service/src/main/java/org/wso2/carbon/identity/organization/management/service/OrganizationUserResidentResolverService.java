@@ -55,12 +55,13 @@ public interface OrganizationUserResidentResolverService {
             throws OrganizationManagementException;
 
     /**
+     * Retrieve organization hierarchy from the accessed child organization to the user's resident organization.
      *
      * @param userId The user ID.
      * @param organizationId The given child organization in the hierarchy.
      * @return The organization hierarchy from the accessed child organization to the user's resident organization.
      * @throws OrganizationManagementException Error occurred while resolving org hierarchy of the user.
      */
-    Optional<List<BasicOrganization>> getHierarchyUptoResidentOrganization(String userId, String organizationId)
+    List<BasicOrganization> getHierarchyUptoResidentOrganization(String userId, String organizationId)
             throws OrganizationManagementException;
 }
