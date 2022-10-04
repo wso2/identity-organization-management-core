@@ -183,17 +183,32 @@ public class Utils {
     }
 
     /**
-     * Get the username of the authenticated user.
+     * Get the username from the carbon context. Try to resolve user by username. The username can be null for cross
+     * tenant flows hence try to resolve user by the user ID and get the username. Also for the federated users,
+     * the username field contains a user ID and hence try to resolve user by username which contains the correct user
+     * ID.
      *
-     * @return the username of the authenticated user.
+     * @return the domain qualified username of the authenticated user.
      */
     public static String getAuthenticatedUsername() {
 
         String username = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
-        if (username == null) {
+        String accessedOrganizationId = getOrganizationId();
+        if (accessedOrganizationId != null) {
             try {
-                username = organizationUserResidentResolverService.resolveUserFromResidentOrganization(null,
-                        getUserId(), getOrganizationId()).map(User::getUsername).orElse(null);
+                username = organizationUserResidentResolverService.resolveUserFromResidentOrganization(
+                        PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername(), null,
+                        accessedOrganizationId).map(User::getDomainQualifiedUsername).orElse(null);
+                if (username == null && PrivilegedCarbonContext.getThreadLocalCarbonContext().getUserId() != null) {
+                    username = organizationUserResidentResolverService.resolveUserFromResidentOrganization(null,
+                            PrivilegedCarbonContext.getThreadLocalCarbonContext().getUserId(),
+                            accessedOrganizationId).map(User::getDomainQualifiedUsername).orElse(null);
+                }
+                if (username == null) {
+                    username = organizationUserResidentResolverService.resolveUserFromResidentOrganization(null,
+                            PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername(),
+                            accessedOrganizationId).map(User::getDomainQualifiedUsername).orElse(null);
+                }
             } catch (OrganizationManagementException e) {
                 LOG.debug("Authenticated user's username could not be resolved.", e);
             }
@@ -202,23 +217,29 @@ public class Utils {
     }
 
     /**
-     * Get the user ID.
+     * Get the user ID from the carbon context. Except for the federated users, the user ID field consists of valid user
+     * ID. But for the federated users, the user ID can be either null or randomly generated value. Also, the
+     * username field of the carbon context consist of the valid user ID. Hence, when user not resolved by user ID, the
+     * username is used as the ID and try to resolve user.
      *
      * @return the user ID.
      */
     public static String getUserId() {
 
         String userId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUserId();
-        /*
-            The federated users with organization management permissions do not have user id set in the carbon
-            context but the user id is set against the username. Therefore the user is resolved by the user id
-            information saved in the username.
-         */
-        if (userId == null && PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername() != null) {
+        String accessedOrganizationId = getOrganizationId();
+        if (accessedOrganizationId != null) {
             try {
-                userId = organizationUserResidentResolverService.resolveUserFromResidentOrganization(null,
-                        PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername(),
-                        getOrganizationId()).map(User::getUserID).orElse(null);
+                if (PrivilegedCarbonContext.getThreadLocalCarbonContext().getUserId() != null) {
+                    userId = organizationUserResidentResolverService.resolveUserFromResidentOrganization(null,
+                            PrivilegedCarbonContext.getThreadLocalCarbonContext().getUserId(),
+                            accessedOrganizationId).map(User::getUserID).orElse(null);
+                }
+                if (userId == null && PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername() != null) {
+                    userId = organizationUserResidentResolverService.resolveUserFromResidentOrganization(null,
+                                    PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername(),
+                                    accessedOrganizationId).map(User::getUserID).orElse(null);
+                }
             } catch (OrganizationManagementException e) {
                 LOG.debug("Authenticated user's id could not be resolved.", e);
             }
@@ -288,7 +309,7 @@ public class Utils {
      * Create a subArray by slicing array from start to specified end.
      *
      * @param array original array with element to be sliced
-     * @param end index of final element to create subArray
+     * @param end   index of final element to create subArray
      * @return Array.
      */
     private static <T> T[] subArray(T[] array, int end) {

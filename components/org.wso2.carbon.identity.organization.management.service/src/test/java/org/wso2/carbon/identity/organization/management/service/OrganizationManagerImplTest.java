@@ -144,8 +144,8 @@ public class OrganizationManagerImplTest {
         setFinalStatic(OrganizationManagementAuthorizationManager.class.getDeclaredField("INSTANCE"),
                 authorizationManager);
 
-        when(OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(anyString(), anyString(),
-                anyString())).thenReturn(true);
+        when(OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(anyString(),
+                anyString(), anyString())).thenReturn(true);
 
         Organization addedOrganization = organizationManager.addOrganization(sampleOrganization);
         assertNotNull(addedOrganization.getId(), "Created organization id cannot be null");
@@ -250,7 +250,8 @@ public class OrganizationManagerImplTest {
                 mock(OrganizationManagementAuthorizationManager.class);
         setFinalStatic(OrganizationManagementAuthorizationManager.class.getDeclaredField("INSTANCE"),
                 orgAuthorizationManager);
-        when(orgAuthorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(false);
+        when(orgAuthorizationManager.isUserAuthorized(anyString(), anyString(), anyString()))
+                .thenReturn(false);
 
         organizationManager.addOrganization(organization);
     }
