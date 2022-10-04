@@ -26,6 +26,7 @@ import org.wso2.carbon.identity.organization.management.service.exception.Organi
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
+import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
@@ -77,6 +78,14 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                             user = userStoreManager.getUser(userId, null);
                         } else {
                             continue;
+                        }
+                        /*
+                            When user found from an organization where carbon roles are applied, the organization
+                            permission check has to be skipped
+                         */
+                        if (!Utils.useOrganizationRolesForValidation(organizationId)) {
+                            resolvedUser = user;
+                            break;
                         }
                         // Check whether user has any association against the org the user is trying to access.
                         boolean userHasAccessPermissions =
