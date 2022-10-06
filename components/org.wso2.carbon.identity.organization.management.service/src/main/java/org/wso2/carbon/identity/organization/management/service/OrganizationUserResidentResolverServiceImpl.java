@@ -25,6 +25,7 @@ import org.wso2.carbon.identity.organization.management.service.dao.impl.Organiz
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
+import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
@@ -32,6 +33,8 @@ import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -118,6 +121,45 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
             throw handleServerException(ERROR_CODE_ERROR_WHILE_RESOLVING_ROOT_ORG, e, userId);
         }
         return Optional.ofNullable(residentOrgId);
+    }
+
+    @Override
+    public List<BasicOrganization> getHierarchyUptoResidentOrganization
+            (String userId, String accessedOrganizationId) throws OrganizationManagementException {
+
+        List<BasicOrganization> basicOrganizationList = new ArrayList<>();
+        try {
+            List<String> ancestorOrganizationIds =
+                    organizationManagementDAO.getAncestorOrganizationIds(accessedOrganizationId);
+            if (ancestorOrganizationIds != null) {
+                for (String organizationId : ancestorOrganizationIds) {
+                    String associatedTenantDomainForOrg = resolveTenantDomainForOrg(organizationId);
+                    if (StringUtils.isBlank(associatedTenantDomainForOrg)) {
+                        continue;
+                    }
+                    Optional<String> organizationName = organizationManagementDAO
+                            .getOrganizationNameById(organizationId);
+                    if (organizationName.isPresent()) {
+                        BasicOrganization basicOrganization = new BasicOrganization();
+                        basicOrganization.setId(organizationId);
+                        basicOrganization.setName(organizationName.get());
+                        basicOrganizationList.add(basicOrganization);
+                    }
+                    AbstractUserStoreManager userStoreManager = getUserStoreManager(associatedTenantDomainForOrg);
+                    if (userStoreManager.isExistingUserWithID(userId)) {
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException e) {
+            throw handleServerException(ERROR_CODE_ERROR_WHILE_RESOLVING_ROOT_ORG, e, userId);
+        }
+        /*
+        Organizations will be sorted starting from resident organization (higher level) and ended up with
+        the accessed organization (lower level)
+         */
+        Collections.reverse(basicOrganizationList);
+        return basicOrganizationList;
     }
 
     private String resolveTenantDomainForOrg(String organizationId) throws OrganizationManagementServerException {

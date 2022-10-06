@@ -19,8 +19,10 @@
 package org.wso2.carbon.identity.organization.management.service;
 
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
+import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.user.core.common.User;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -50,5 +52,16 @@ public interface OrganizationUserResidentResolverService {
      * @throws OrganizationManagementException Error occurred while resolving resident org of the user.
      */
     Optional<String> resolveResidentOrganization(String userId, String organizationId)
+            throws OrganizationManagementException;
+
+    /**
+     * Retrieve organization hierarchy from the accessed child organization to the user's resident organization.
+     *
+     * @param userId The user ID.
+     * @param organizationId The given child organization in the hierarchy.
+     * @return The organization hierarchy from the accessed child organization to the user's resident organization.
+     * @throws OrganizationManagementException Error occurred while resolving org hierarchy of the user.
+     */
+    List<BasicOrganization> getHierarchyUptoResidentOrganization(String userId, String organizationId)
             throws OrganizationManagementException;
 }
