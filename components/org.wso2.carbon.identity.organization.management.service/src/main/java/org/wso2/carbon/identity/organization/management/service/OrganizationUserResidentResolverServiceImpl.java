@@ -45,6 +45,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUPER_ORG_ID;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleClientException;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleServerException;
+import static org.wso2.carbon.user.core.UserCoreConstants.DOMAIN_SEPARATOR;
 
 /**
  * Service implementation to resolve user's resident organization.
@@ -62,6 +63,9 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
         try {
             if (userName == null && userId == null) {
                 throw handleClientException(ERROR_CODE_NO_USERNAME_OR_ID_TO_RESOLVE_USER_FROM_RESIDENT_ORG);
+            }
+            if (userName != null && userId == null && userName.split(DOMAIN_SEPARATOR).length > 1) {
+                userId = userName.split(DOMAIN_SEPARATOR)[1];
             }
             List<String> ancestorOrganizationIds =
                     organizationManagementDAO.getAncestorOrganizationIds(accessedOrganizationId);
