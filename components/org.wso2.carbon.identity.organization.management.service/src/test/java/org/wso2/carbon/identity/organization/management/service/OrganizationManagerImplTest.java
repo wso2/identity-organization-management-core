@@ -75,6 +75,7 @@ public class OrganizationManagerImplTest {
     private static final String SUPER = "Super";
     private static final String ORG1_NAME = "ABC Builders";
     private static final String ORG2_NAME = "XYZ Builders";
+    private static final String NEW_ORG1_NAME = "ABC Builders New";
     private static final String ORG_DESCRIPTION = "This is a construction company.";
     private static final String NEW_ORG_NAME = "New Org";
     private static final String NEW_ORG_DESCRIPTION = "new sample description.";
@@ -101,6 +102,7 @@ public class OrganizationManagerImplTest {
 
     @BeforeClass
     public void init() {
+
         realmService = mock(RealmService.class);
         userRealm = mock(UserRealm.class);
         authorizationManager = mock(AuthorizationManager.class);
@@ -117,7 +119,7 @@ public class OrganizationManagerImplTest {
         TestUtils.mockDataSource();
 
         Organization organization1 = getOrganization(ORG1_ID, ORG1_NAME, ORG_DESCRIPTION, SUPER_ORG_ID,
-                    STRUCTURAL.toString());
+                STRUCTURAL.toString());
         Organization organization2 = getOrganization(ORG2_ID, ORG2_NAME, ORG_DESCRIPTION, ORG1_ID,
                 STRUCTURAL.toString());
         organizationManagementDAO.addOrganization(organization1);
@@ -459,7 +461,7 @@ public class OrganizationManagerImplTest {
     @Test
     public void testUpdateOrganization() throws Exception {
 
-        Organization sampleOrganization = getOrganization(ORG1_ID, ORG1_NAME, NEW_ORG_DESCRIPTION, SUPER_ORG_ID,
+        Organization sampleOrganization = getOrganization(ORG1_ID, NEW_ORG1_NAME, NEW_ORG_DESCRIPTION, SUPER_ORG_ID,
                 STRUCTURAL.toString());
         Organization updatedOrganization = organizationManager.updateOrganization(ORG1_ID, ORG1_NAME,
                 sampleOrganization);
@@ -488,7 +490,7 @@ public class OrganizationManagerImplTest {
         return new Object[][]{
                 {ORG1_ID, 1},
                 {INVALID_ORG_ID, -1}
-       };
+        };
     }
 
     @Test(dataProvider = "dataForGetOrganizationDepth")
@@ -532,6 +534,7 @@ public class OrganizationManagerImplTest {
     }
 
     private void setFinalStatic(Field field, Object newValue) throws Exception {
+
         field.setAccessible(true);
 
         Field modifiersField = Field.class.getDeclaredField("modifiers");

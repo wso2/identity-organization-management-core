@@ -101,6 +101,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_PATCH_REQUEST_VALUE_UNDEFINED;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_REQUIRED_FIELDS_MISSING;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_RETRIEVING_ORGANIZATIONS_BY_NAME;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_SAME_ORG_NAME_ON_IMMEDIATE_SUB_ORGANIZATIONS_OF_PARENT_ORG;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_SUPER_ORG_DELETE_OR_DISABLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_SUPER_ORG_RENAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_UNABLE_TO_CREATE_CHILD_ORGANIZATION_IN_SUPER;
@@ -152,6 +153,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
         validateAddOrganizationRequest(organization);
         setParentOrganization(organization);
+        validateOrgNameUniquenessAmongSiblings(organization.getParent().getId(), organization.getName());
         setCreatedAndLastModifiedTime(organization);
         getListener().preAddOrganization(organization);
         organizationManagementDAO.addOrganization(organization);
@@ -365,6 +367,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
 
         validateUpdateOrganizationRequest(currentOrganizationName, organization);
+        validateOrgNameUniquenessAmongSiblings(organization.getParent().getId(), organization.getName());
         updateLastModifiedTime(organization);
 
         getListener().preUpdateOrganization(organizationId, organization);
@@ -474,6 +477,18 @@ public class OrganizationManagerImpl implements OrganizationManager {
         validateOrganizationNameField(organization.getName());
         validateOrganizationAttributes(organization.getAttributes());
         validateAddOrganizationType(organization);
+    }
+
+    private void validateOrgNameUniquenessAmongSiblings(String parentOrgId, String organizationName)
+            throws OrganizationManagementException {
+
+        boolean hasSiblingWithSameName =
+                organizationManagementDAO.getChildOrganizations(parentOrgId.trim(), false).stream().anyMatch(
+                        basicOrganization -> StringUtils.equals(basicOrganization.getName(), organizationName.trim()));
+        if (hasSiblingWithSameName) {
+            throw handleClientException(ERROR_CODE_SAME_ORG_NAME_ON_IMMEDIATE_SUB_ORGANIZATIONS_OF_PARENT_ORG,
+                    organizationName, parentOrgId);
+        }
     }
 
     private void validateAddOrganizationType(Organization organization) throws OrganizationManagementClientException {
@@ -717,6 +732,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
                     throw handleClientException(ERROR_CODE_SUPER_ORG_RENAME, organizationId);
                 }
                 validateOrganizationNameField(value);
+                Organization organization = organizationManagementDAO.getOrganization(organizationId);
+                validateOrgNameUniquenessAmongSiblings(organization.getParent().getId(), value);
             }
 
             if (StringUtils.equals(PATCH_PATH_ORG_STATUS, path)) {
@@ -874,7 +891,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
                     createTenantInfoBean(domain, organizationId, orgCreatorID, orgCreatorName, orgCreatorEmail));
         } catch (TenantMgtException e) {
             // Rollback created organization.
-            deleteOrganization(domain);
+            deleteOrganization(organizationId);
             if (e instanceof TenantManagementClientException) {
                 throw handleClientException(ERROR_CODE_INVALID_TENANT_TYPE_ORGANIZATION);
             } else {
