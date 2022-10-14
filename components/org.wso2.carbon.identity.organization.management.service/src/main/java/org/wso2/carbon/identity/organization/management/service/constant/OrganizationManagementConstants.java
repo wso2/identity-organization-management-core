@@ -272,6 +272,9 @@ public class OrganizationManagementConstants {
         ERROR_CODE_INVALID_DELETE_SHARE_REQUEST("60069", "Invalid request.", "Cannot unshare " +
                 "the application with ID %s from the organization with ID %s if the application is shared with all " +
                 "children organizations."),
+        ERROR_CODE_SIMILAR_ORGANIZATION_FOUND_UNDER_PARENT_ORGANIZATION("60070", "Unable to create the " +
+                "organization due to similar organization found in the hierarchy.", "Organization with same " +
+                "organization name: %s and description: %s found in the organization hierarchy"),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",

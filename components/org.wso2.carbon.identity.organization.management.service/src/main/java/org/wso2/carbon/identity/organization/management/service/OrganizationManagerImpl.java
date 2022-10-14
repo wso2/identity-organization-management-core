@@ -101,6 +101,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_PATCH_REQUEST_VALUE_UNDEFINED;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_REQUIRED_FIELDS_MISSING;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_RETRIEVING_ORGANIZATIONS_BY_NAME;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_SIMILAR_ORGANIZATION_FOUND_UNDER_PARENT_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_SUPER_ORG_DELETE_OR_DISABLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_SUPER_ORG_RENAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_UNABLE_TO_CREATE_CHILD_ORGANIZATION_IN_SUPER;
@@ -152,6 +153,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
         validateAddOrganizationRequest(organization);
         setParentOrganization(organization);
+        validateSimilarOrganizationAlreadyExistUnderParent(organization);
         setCreatedAndLastModifiedTime(organization);
         getListener().preAddOrganization(organization);
         organizationManagementDAO.addOrganization(organization);
@@ -365,6 +367,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
 
         validateUpdateOrganizationRequest(currentOrganizationName, organization);
+        validateSimilarOrganizationAlreadyExistUnderParent(organization);
         updateLastModifiedTime(organization);
 
         getListener().preUpdateOrganization(organizationId, organization);
@@ -474,6 +477,22 @@ public class OrganizationManagerImpl implements OrganizationManager {
         validateOrganizationNameField(organization.getName());
         validateOrganizationAttributes(organization.getAttributes());
         validateAddOrganizationType(organization);
+    }
+
+    private void validateSimilarOrganizationAlreadyExistUnderParent(Organization organization)
+            throws OrganizationManagementException {
+
+        boolean foundSimilarOrganization =
+                organizationManagementDAO.getChildOrganizations(organization.getParent().getId().trim(), true).stream()
+                        .anyMatch(basicOrganization ->
+                                StringUtils.equals(basicOrganization.getName(), organization.getName().trim()) &&
+                                        StringUtils.equals(basicOrganization.getDescription(),
+                                                organization.getDescription().trim()));
+        if (foundSimilarOrganization) {
+            throw handleClientException(ERROR_CODE_SIMILAR_ORGANIZATION_FOUND_UNDER_PARENT_ORGANIZATION,
+                    organization.getName(), organization.getDescription());
+        }
+
     }
 
     private void validateAddOrganizationType(Organization organization) throws OrganizationManagementClientException {
@@ -670,6 +689,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
     private void validateOrganizationPatchOperations(List<PatchOperation> patchOperations, String organizationId)
             throws OrganizationManagementException {
 
+        String newOrgName = null;
+        String newOrgDescription = null;
         for (PatchOperation patchOperation : patchOperations) {
             // Validate requested patch operation.
             if (StringUtils.isBlank(patchOperation.getOp())) {
@@ -717,6 +738,11 @@ public class OrganizationManagerImpl implements OrganizationManager {
                     throw handleClientException(ERROR_CODE_SUPER_ORG_RENAME, organizationId);
                 }
                 validateOrganizationNameField(value);
+                newOrgName = value;
+            }
+
+            if (path.equals(PATCH_PATH_ORG_DESCRIPTION)) {
+                newOrgDescription = value;
             }
 
             if (StringUtils.equals(PATCH_PATH_ORG_STATUS, path)) {
@@ -746,6 +772,14 @@ public class OrganizationManagerImpl implements OrganizationManager {
             patchOperation.setPath(path);
             patchOperation.setValue(value);
         }
+
+        if (newOrgName != null && newOrgDescription != null) {
+            Organization organization = organizationManagementDAO.getOrganization(organizationId);
+            organization.setName(newOrgName);
+            organization.setDescription(newOrgDescription);
+            validateSimilarOrganizationAlreadyExistUnderParent(organization);
+        }
+
     }
 
     private void patchTenantStatus(List<PatchOperation> patchOperations, String organizationId)
@@ -874,7 +908,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
                     createTenantInfoBean(domain, organizationId, orgCreatorID, orgCreatorName, orgCreatorEmail));
         } catch (TenantMgtException e) {
             // Rollback created organization.
-            deleteOrganization(domain);
+            deleteOrganization(organizationId);
             if (e instanceof TenantManagementClientException) {
                 throw handleClientException(ERROR_CODE_INVALID_TENANT_TYPE_ORGANIZATION);
             } else {

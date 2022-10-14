@@ -529,7 +529,8 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                         BasicOrganization organization = new BasicOrganization();
                         organization.setId(resultSet.getString(1));
                         organization.setName(resultSet.getString(2));
-                        organization.setCreated(resultSet.getTimestamp(3).toString());
+                        organization.setDescription(resultSet.getString(3));
+                        organization.setCreated(resultSet.getTimestamp(4).toString());
                         return organization;
                     },
                     namedPreparedStatement ->
