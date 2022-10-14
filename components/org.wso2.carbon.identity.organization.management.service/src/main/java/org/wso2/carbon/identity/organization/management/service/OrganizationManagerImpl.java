@@ -685,7 +685,6 @@ public class OrganizationManagerImpl implements OrganizationManager {
     private void validateOrganizationPatchOperations(List<PatchOperation> patchOperations, String organizationId)
             throws OrganizationManagementException {
 
-        String newOrgName = null;
         for (PatchOperation patchOperation : patchOperations) {
             // Validate requested patch operation.
             if (StringUtils.isBlank(patchOperation.getOp())) {
@@ -733,7 +732,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
                     throw handleClientException(ERROR_CODE_SUPER_ORG_RENAME, organizationId);
                 }
                 validateOrganizationNameField(value);
-                newOrgName = value;
+                Organization organization = organizationManagementDAO.getOrganization(organizationId);
+                validateOrgNameUniquenessAmongSiblings(organization.getParent().getId(), value);
             }
 
             if (StringUtils.equals(PATCH_PATH_ORG_STATUS, path)) {
@@ -763,12 +763,6 @@ public class OrganizationManagerImpl implements OrganizationManager {
             patchOperation.setPath(path);
             patchOperation.setValue(value);
         }
-
-        if (newOrgName != null) {
-            Organization organization = organizationManagementDAO.getOrganization(organizationId);
-            validateOrgNameUniquenessAmongSiblings(organization.getParent().getId(), newOrgName);
-        }
-
     }
 
     private void patchTenantStatus(List<PatchOperation> patchOperations, String organizationId)
