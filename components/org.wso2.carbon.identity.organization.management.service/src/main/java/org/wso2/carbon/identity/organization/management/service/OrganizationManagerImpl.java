@@ -153,7 +153,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
         validateAddOrganizationRequest(organization);
         setParentOrganization(organization);
-        validateSameOrgNameExistOnImmediateSubOrganizationsOfParentOrg(organization);
+        validateOrgNameUniquenessAmongSiblings(organization.getParent().getId(), organization.getName());
         setCreatedAndLastModifiedTime(organization);
         getListener().preAddOrganization(organization);
         organizationManagementDAO.addOrganization(organization);
@@ -367,7 +367,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
 
         validateUpdateOrganizationRequest(currentOrganizationName, organization);
-        validateSameOrgNameExistOnImmediateSubOrganizationsOfParentOrg(organization);
+        validateOrgNameUniquenessAmongSiblings(organization.getParent().getId(), organization.getName());
         updateLastModifiedTime(organization);
 
         getListener().preUpdateOrganization(organizationId, organization);
@@ -479,18 +479,16 @@ public class OrganizationManagerImpl implements OrganizationManager {
         validateAddOrganizationType(organization);
     }
 
-    private void validateSameOrgNameExistOnImmediateSubOrganizationsOfParentOrg(Organization organization)
+    private void validateOrgNameUniquenessAmongSiblings(String parentOrgId, String organizationName)
             throws OrganizationManagementException {
 
-        boolean foundSimilarOrganization =
-                organizationManagementDAO.getChildOrganizations(organization.getParent().getId().trim(), false).stream()
-                        .anyMatch(basicOrganization ->
-                                StringUtils.equals(basicOrganization.getName(), organization.getName().trim()));
-        if (foundSimilarOrganization) {
+        boolean hasSiblingWithSameName =
+                organizationManagementDAO.getChildOrganizations(parentOrgId.trim(), false).stream().anyMatch(
+                        basicOrganization -> StringUtils.equals(basicOrganization.getName(), organizationName.trim()));
+        if (hasSiblingWithSameName) {
             throw handleClientException(ERROR_CODE_SAME_ORG_NAME_ON_IMMEDIATE_SUB_ORGANIZATIONS_OF_PARENT_ORG,
-                    organization.getName(), organization.getDescription());
+                    organizationName, parentOrgId);
         }
-
     }
 
     private void validateAddOrganizationType(Organization organization) throws OrganizationManagementClientException {
@@ -768,8 +766,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
         if (newOrgName != null) {
             Organization organization = organizationManagementDAO.getOrganization(organizationId);
-            organization.setName(newOrgName);
-            validateSameOrgNameExistOnImmediateSubOrganizationsOfParentOrg(organization);
+            validateOrgNameUniquenessAmongSiblings(organization.getParent().getId(), newOrgName);
         }
 
     }

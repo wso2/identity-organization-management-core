@@ -93,6 +93,7 @@ public class OrganizationManagementConstants {
     public static final String ORGANIZATION_MGT_CONFIG_FILE = "organization-mgt.xml";
     public static final String IS_CARBON_ROLE_VALIDATION_ENABLED_FOR_LEVEL_ONE_ORGS =
             "LevelOneOrganizationConfigs.EnableCarbonRoleBasedValidation";
+
     /**
      * Contains constants related to filter operations.
      */
@@ -273,8 +274,8 @@ public class OrganizationManagementConstants {
                 "the application with ID %s from the organization with ID %s if the application is shared with all " +
                 "children organizations."),
         ERROR_CODE_SAME_ORG_NAME_ON_IMMEDIATE_SUB_ORGANIZATIONS_OF_PARENT_ORG("60070",
-                "Unable to create the organization due to same organization name found on immediate sub organizations of parent organization",
-                "Organization with same organization name: %s found in the immediate sub organizations of parent organization"),
+                "Given organization name is taken from a sibling organization.", "Given organization " +
+                "name: %s is taken from a sibling organization of parent organization id %s"),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
