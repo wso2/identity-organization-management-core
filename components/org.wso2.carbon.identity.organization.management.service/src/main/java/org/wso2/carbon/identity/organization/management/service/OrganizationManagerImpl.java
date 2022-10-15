@@ -419,9 +419,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
         List<Organization> organizations = organizationManagementDAO.getOrganizationsByName(organizationName);
         if (CollectionUtils.isNotEmpty(organizations)) {
             return organizations;
-        } else {
-            throw handleClientException(ERROR_CODE_RETRIEVING_ORGANIZATIONS_BY_NAME, organizationName);
         }
+        throw handleClientException(ERROR_CODE_RETRIEVING_ORGANIZATIONS_BY_NAME, organizationName);
     }
 
     @Override
