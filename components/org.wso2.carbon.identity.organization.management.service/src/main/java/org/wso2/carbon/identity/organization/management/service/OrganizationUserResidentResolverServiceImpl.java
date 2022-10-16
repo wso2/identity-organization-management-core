@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_RESOLVING_ROOT_ORG;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_RESOLVING_USER_FROM_RESIDENT_ORG;
@@ -122,7 +123,11 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                     AbstractUserStoreManager userStoreManager = getUserStoreManager(associatedTenantDomainForOrg);
                     if (userStoreManager.isExistingUserWithID(userId)) {
                         residentOrgId = organizationId;
-                        break;
+                        /*
+                            User resident organization logic should be improved based on the user store configurations
+                            in the deployment. So commenting the flow break as a temporary fix
+                         */
+                        //break;
                     }
                 }
             }
@@ -136,6 +141,7 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
     public List<BasicOrganization> getHierarchyUptoResidentOrganization
             (String userId, String accessedOrganizationId) throws OrganizationManagementException {
 
+        String residentOrgId = null;
         List<BasicOrganization> basicOrganizationList = new ArrayList<>();
         try {
             List<String> ancestorOrganizationIds =
@@ -156,7 +162,12 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                     }
                     AbstractUserStoreManager userStoreManager = getUserStoreManager(associatedTenantDomainForOrg);
                     if (userStoreManager.isExistingUserWithID(userId)) {
-                        break;
+                        residentOrgId = organizationId;
+                        /*
+                            User resident organization logic should be improved based on the user store configurations
+                            in the deployment. So commenting the flow break as a temporary fix
+                         */
+                        //break;
                     }
                 }
             }
@@ -167,6 +178,12 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
         Organizations will be sorted starting from resident organization (higher level) and ended up with
         the accessed organization (lower level)
          */
+        if (residentOrgId == null) {
+            return new ArrayList<>();
+        }
+        int residentOrgIndex = basicOrganizationList.stream().map(BasicOrganization::getId)
+                .collect(Collectors.toList()).indexOf(residentOrgId);
+        basicOrganizationList = basicOrganizationList.subList(0, residentOrgIndex + 1);
         Collections.reverse(basicOrganizationList);
         return basicOrganizationList;
     }
