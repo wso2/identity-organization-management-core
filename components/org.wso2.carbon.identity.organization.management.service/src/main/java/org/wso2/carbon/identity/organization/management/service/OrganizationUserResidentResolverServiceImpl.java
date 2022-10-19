@@ -94,7 +94,11 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                                         .hasUserOrgAssociation(user.getUserID(), accessedOrganizationId);
                         if (userHasAccessPermissions) {
                             resolvedUser = user;
-                            break;
+                            /*
+                                User resident organization logic should be improved based on the user store
+                                configurations in the deployment. So commenting the flow break as a temporary fix.
+                             */
+                            //break;
                         }
                     }
                 }
@@ -125,7 +129,7 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                         residentOrgId = organizationId;
                         /*
                             User resident organization logic should be improved based on the user store configurations
-                            in the deployment. So commenting the flow break as a temporary fix
+                            in the deployment. So commenting the flow break as a temporary fix.
                          */
                         //break;
                     }
@@ -165,7 +169,7 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                         residentOrgId = organizationId;
                         /*
                             User resident organization logic should be improved based on the user store configurations
-                            in the deployment. So commenting the flow break as a temporary fix
+                            in the deployment. So commenting the flow break as a temporary fix.
                          */
                         //break;
                     }
