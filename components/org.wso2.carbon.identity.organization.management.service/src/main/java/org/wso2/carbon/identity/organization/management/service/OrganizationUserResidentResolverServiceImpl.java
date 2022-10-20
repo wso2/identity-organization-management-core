@@ -32,6 +32,7 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.ArrayList;
@@ -46,7 +47,6 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUPER_ORG_ID;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleClientException;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleServerException;
-import static org.wso2.carbon.user.core.UserCoreConstants.DOMAIN_SEPARATOR;
 
 /**
  * Service implementation to resolve user's resident organization.
@@ -61,13 +61,14 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
             throws OrganizationManagementException {
 
         User resolvedUser = null;
-        String userDomainQualifier = null;
+        String domain = null;
+
         try {
             if (userName == null && userId == null) {
                 throw handleClientException(ERROR_CODE_NO_USERNAME_OR_ID_TO_RESOLVE_USER_FROM_RESIDENT_ORG);
             }
-            if (userName != null && userName.split(DOMAIN_SEPARATOR).length > 1) {
-                userDomainQualifier = userName.split(DOMAIN_SEPARATOR)[0];
+            if (userName != null) {
+                domain = UserCoreUtil.extractDomainFromName(userName);
             }
             List<String> ancestorOrganizationIds =
                     organizationManagementDAO.getAncestorOrganizationIds(accessedOrganizationId);
@@ -77,24 +78,11 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                     if (associatedTenantDomainForOrg != null) {
                         AbstractUserStoreManager userStoreManager = getUserStoreManager(associatedTenantDomainForOrg);
                         User user;
-                        if (userName != null && userDomainQualifier != null &&
-                                userStoreManager.getSecondaryUserStoreManager(userDomainQualifier) != null &&
-                                userStoreManager.isExistingUser(userName)) {
-                            /*
-                                Domain qualified usernames should be verified whether that particular domain exists at
-                                each ancestor organizations.
-                            */
-                            user = userStoreManager.getUser(null, userName);
-                        } else if (userName != null && userDomainQualifier != null &&
-                                userStoreManager.getSecondaryUserStoreManager(userDomainQualifier) == null &&
-                                userStoreManager.isExistingUser(userName.split(DOMAIN_SEPARATOR)[1])) {
-                            /*
-                                Domain qualified usernames with invalid domains have to be checked removing domain
-                                qualifier.
-                            */
-                            user = userStoreManager.getUser(null, userName.split(DOMAIN_SEPARATOR)[1]);
-                        } else if (userName != null && userDomainQualifier == null &&
-                                userStoreManager.isExistingUser(userName)) {
+                        boolean isValidDomain = false;
+                        if (domain != null && userStoreManager.getSecondaryUserStoreManager(domain) != null) {
+                            isValidDomain = true;
+                        }
+                        if (userName != null && isValidDomain && userStoreManager.isExistingUser(userName)) {
                             user = userStoreManager.getUser(null, userName);
                         } else if (userId != null && userStoreManager.isExistingUserWithID(userId)) {
                             user = userStoreManager.getUser(userId, null);
