@@ -46,6 +46,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUPER_ORG_ID;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleClientException;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleServerException;
+import static org.wso2.carbon.user.core.UserCoreConstants.DOMAIN_SEPARATOR;
 
 /**
  * Service implementation to resolve user's resident organization.
@@ -60,9 +61,13 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
             throws OrganizationManagementException {
 
         User resolvedUser = null;
+        String userDomainQualifier = null;
         try {
             if (userName == null && userId == null) {
                 throw handleClientException(ERROR_CODE_NO_USERNAME_OR_ID_TO_RESOLVE_USER_FROM_RESIDENT_ORG);
+            }
+            if (userName != null && userName.split(DOMAIN_SEPARATOR).length > 1) {
+                userDomainQualifier = userName.split(DOMAIN_SEPARATOR)[0];
             }
             List<String> ancestorOrganizationIds =
                     organizationManagementDAO.getAncestorOrganizationIds(accessedOrganizationId);
@@ -70,10 +75,26 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                 for (String organizationId : ancestorOrganizationIds) {
                     String associatedTenantDomainForOrg = resolveTenantDomainForOrg(organizationId);
                     if (associatedTenantDomainForOrg != null) {
-                        AbstractUserStoreManager userStoreManager =
-                                getUserStoreManager(associatedTenantDomainForOrg);
+                        AbstractUserStoreManager userStoreManager = getUserStoreManager(associatedTenantDomainForOrg);
                         User user;
-                        if (userName != null && userStoreManager.isExistingUser(userName)) {
+                        if (userName != null && userDomainQualifier != null &&
+                                userStoreManager.getSecondaryUserStoreManager(userDomainQualifier) != null &&
+                                userStoreManager.isExistingUser(userName)) {
+                            /*
+                                Domain qualified usernames should be verified whether that particular domain exists at
+                                each ancestor organizations.
+                            */
+                            user = userStoreManager.getUser(null, userName);
+                        } else if (userName != null && userDomainQualifier != null &&
+                                userStoreManager.getSecondaryUserStoreManager(userDomainQualifier) == null &&
+                                userStoreManager.isExistingUser(userName.split(DOMAIN_SEPARATOR)[1])) {
+                            /*
+                                Domain qualified usernames with invalid domains have to be checked removing domain
+                                qualifier.
+                            */
+                            user = userStoreManager.getUser(null, userName.split(DOMAIN_SEPARATOR)[1]);
+                        } else if (userName != null && userDomainQualifier == null &&
+                                userStoreManager.isExistingUser(userName)) {
                             user = userStoreManager.getUser(null, userName);
                         } else if (userId != null && userStoreManager.isExistingUserWithID(userId)) {
                             user = userStoreManager.getUser(userId, null);
