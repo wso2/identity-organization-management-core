@@ -367,7 +367,10 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
 
         validateUpdateOrganizationRequest(currentOrganizationName, organization);
-        validateOrgNameUniquenessAmongSiblings(organization.getParent().getId(), organization.getName());
+        if (!currentOrganizationName.equals(organization.getName().trim())) {
+            // If the PUT request has a different organization name, need to check the availability.
+            validateOrgNameUniquenessAmongSiblings(organization.getParent().getId(), organization.getName());
+        }
         updateLastModifiedTime(organization);
 
         getListener().preUpdateOrganization(organizationId, organization);
@@ -733,7 +736,10 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 }
                 validateOrganizationNameField(value);
                 Organization organization = organizationManagementDAO.getOrganization(organizationId);
-                validateOrgNameUniquenessAmongSiblings(organization.getParent().getId(), value);
+                if (!organization.getName().equals(value)) {
+                    // If trying to patch a new name, need to check the availability.
+                    validateOrgNameUniquenessAmongSiblings(organization.getParent().getId(), value);
+                }
             }
 
             if (StringUtils.equals(PATCH_PATH_ORG_STATUS, path)) {
