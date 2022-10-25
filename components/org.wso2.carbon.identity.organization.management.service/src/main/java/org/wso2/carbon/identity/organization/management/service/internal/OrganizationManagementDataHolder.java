@@ -99,7 +99,7 @@ public class OrganizationManagementDataHolder {
             this.dataSource = DatabaseUtil.getRealmDataSource(CarbonContext.getThreadLocalCarbonContext().
                     getUserRealm().getRealmConfiguration());
         } catch (UserStoreException e) {
-            LOG.error("Error while retrieving user management data source", e);
+            LOG.error("Error while retrieving user management data source.", e);
         }
     }
 }
