@@ -18,7 +18,9 @@
 
 package org.wso2.carbon.identity.organization.management.service.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,6 +29,7 @@ import java.util.Map;
 public class FilterQueryBuilder {
 
     private Map<String, String> stringParameters = new HashMap<>();
+    private List<String> timestampParameters = new ArrayList<>();
     private int count = 1;
     private String filter;
 
@@ -39,6 +42,16 @@ public class FilterQueryBuilder {
 
         stringParameters.put(placeholder + count, value);
         count++;
+    }
+
+    public List<String> getTimestampFilterAttributes() {
+
+        return timestampParameters;
+    }
+
+    public void addTimestampFilterAttributes(String placeholder) {
+
+        timestampParameters.add(placeholder + count);
     }
 
     public void setFilterQuery(String filter) {
