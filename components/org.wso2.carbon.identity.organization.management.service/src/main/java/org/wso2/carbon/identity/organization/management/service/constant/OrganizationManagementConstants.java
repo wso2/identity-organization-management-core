@@ -280,6 +280,11 @@ public class OrganizationManagementConstants {
                 "timestamp format used for filtering."),
         ERROR_CODE_UNSUPPORTED_FILTER_OPERATION_FOR_ATTRIBUTE("60072", "Unsupported filter operation on attribute.",
                 "The filter operation '%s' on attribute '%s' is not supported."),
+        ERROR_CODE_ORG_ROLE_PATCH_REMOVE_OPERATION_INVALID_FILTER_FORMAT("60073", "Unable to update organization " +
+                "role.", "Invalid filter format provided in the remove operation's path of the patch request to " +
+                "organization role: %s ."),
+        ERROR_CODE_RETRIEVING_ORG_ROLES_INVALID_FILTER_FORMAT("60074", "Unable to get organization roles", "Invalid " +
+                "filter format provided when listing organization roles : %s ."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
