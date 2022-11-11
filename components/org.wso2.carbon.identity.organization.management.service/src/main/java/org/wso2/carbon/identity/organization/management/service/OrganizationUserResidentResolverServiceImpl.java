@@ -29,6 +29,7 @@ import org.wso2.carbon.identity.organization.management.service.model.BasicOrgan
 import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -47,6 +48,8 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUPER_ORG_ID;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleClientException;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleServerException;
+import static org.wso2.carbon.user.core.UserCoreConstants.DOMAIN_SEPARATOR;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME;
 
 /**
  * Service implementation to resolve user's resident organization.
@@ -77,7 +80,7 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                     String associatedTenantDomainForOrg = resolveTenantDomainForOrg(organizationId);
                     if (associatedTenantDomainForOrg != null) {
                         AbstractUserStoreManager userStoreManager = getUserStoreManager(associatedTenantDomainForOrg);
-                        User user;
+                        User user = null;
                         boolean isValidDomain = false;
                         if (domain != null && userStoreManager.getSecondaryUserStoreManager(domain) != null) {
                             isValidDomain = true;
@@ -86,6 +89,23 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                             user = userStoreManager.getUser(null, userName);
                         } else if (userId != null && userStoreManager.isExistingUserWithID(userId)) {
                             user = userStoreManager.getUser(userId, null);
+                        } else if (userName != null) {
+                            boolean userFound = false;
+                            UserStoreManager secondaryUserStoreManager =
+                                    userStoreManager.getSecondaryUserStoreManager();
+                            while (secondaryUserStoreManager != null) {
+                                domain = secondaryUserStoreManager.getRealmConfiguration().getUserStoreProperties()
+                                        .get(PROPERTY_DOMAIN_NAME);
+                                if (userStoreManager.isExistingUser(domain + DOMAIN_SEPARATOR + userName)) {
+                                    user = userStoreManager.getUser(null, domain + DOMAIN_SEPARATOR + userName);
+                                    userFound = true;
+                                    break;
+                                }
+                                secondaryUserStoreManager = secondaryUserStoreManager.getSecondaryUserStoreManager();
+                            }
+                            if (!userFound) {
+                                continue;
+                            }
                         } else {
                             continue;
                         }
