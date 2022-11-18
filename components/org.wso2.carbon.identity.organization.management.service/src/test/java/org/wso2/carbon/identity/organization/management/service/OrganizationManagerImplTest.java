@@ -112,7 +112,7 @@ public class OrganizationManagerImplTest {
     public void setUp() throws Exception {
 
         organizationManager = new OrganizationManagerImpl();
-        OrganizationManagementDataHolder.getInstance().setOrganizationManagerListener(mock(
+        OrganizationManagementDataHolder.getInstance().getOrganizationMgtListeners().add(mock(
                 OrganizationManagerListener.class));
 
         TestUtils.initiateH2Base();

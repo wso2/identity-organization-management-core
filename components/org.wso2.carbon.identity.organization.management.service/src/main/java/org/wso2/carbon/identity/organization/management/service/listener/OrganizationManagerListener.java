@@ -29,6 +29,27 @@ import java.util.List;
  */
 public interface OrganizationManagerListener {
 
+    /**
+     * Get the execution order identifier for this listener.
+     *
+     * @return The execution order identifier integer value.
+     */
+    int getExecutionOrderId();
+
+    /**
+     * Get the default order identifier for this listener.
+     *
+     * @return default order id
+     */
+    int getDefaultOrderId();
+
+    /**
+     * Check whether the listener is enabled or not
+     *
+     * @return true if enabled
+     */
+    boolean isEnable();
+
     void preAddOrganization(Organization organization) throws OrganizationManagementException;
     
     void postAddOrganization(Organization organization) throws OrganizationManagementException;

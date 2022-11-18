@@ -59,6 +59,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -160,7 +161,13 @@ public class OrganizationManagerImpl implements OrganizationManager {
         setParentOrganization(organization);
         validateOrgNameUniquenessAmongSiblings(organization.getParent().getId(), organization.getName());
         setCreatedAndLastModifiedTime(organization);
-        getListener().preAddOrganization(organization);
+        // Call pre listeners.
+        Collection<OrganizationManagerListener> listeners = getOrganizationMgtListeners();
+        for (OrganizationManagerListener listener : listeners) {
+            if (listener.isEnable()) {
+                listener.preAddOrganization(organization);
+            }
+        }
         organizationManagementDAO.addOrganization(organization);
         String orgCreatorID =
                 StringUtils.isNotBlank(organization.getCreatorId()) ? organization.getCreatorId() : getUserId();
@@ -176,7 +183,11 @@ public class OrganizationManagerImpl implements OrganizationManager {
             String organizationId = organization.getId();
             createTenant(tenantDomainName, organizationId, orgCreatorID, orgCreatorName, orgCreatorEmail);
         }
-        getListener().postAddOrganization(organization);
+        for (OrganizationManagerListener listener : listeners) {
+            if (listener.isEnable()) {
+                listener.postAddOrganization(organization);
+            }
+        }
         return organization;
     }
 
@@ -217,7 +228,13 @@ public class OrganizationManagerImpl implements OrganizationManager {
             requestInvokingOrganizationId = SUPER_ORG_ID;
         }
         validateOrganizationAccess(requestInvokingOrganizationId, organizationId, true);
-        getListener().preGetOrganization(organizationId.trim());
+        // Call pre listeners.
+        Collection<OrganizationManagerListener> listeners = getOrganizationMgtListeners();
+        for (OrganizationManagerListener listener : listeners) {
+            if (listener.isEnable()) {
+                listener.preGetOrganization(organizationId.trim());
+            }
+        }
         Organization organization = organizationManagementDAO.getOrganization(organizationId.trim());
 
         if (organization == null) {
@@ -252,7 +269,12 @@ public class OrganizationManagerImpl implements OrganizationManager {
             }
         }
 
-        getListener().postGetOrganization(organizationId.trim(), organization);
+        // Call pre listeners.
+        for (OrganizationManagerListener listener : listeners) {
+            if (listener.isEnable()) {
+                listener.postGetOrganization(organizationId.trim(), organization);
+            }
+        }
         return organization;
     }
 
@@ -320,7 +342,14 @@ public class OrganizationManagerImpl implements OrganizationManager {
         if (organization == null) {
             return;
         }
-        getListener().preDeleteOrganization(organizationId);
+
+        // Call pre listeners.
+        Collection<OrganizationManagerListener> listeners = getOrganizationMgtListeners();
+        for (OrganizationManagerListener listener : listeners) {
+            if (listener.isEnable()) {
+                listener.preDeleteOrganization(organizationId);
+            }
+        }
         if (StringUtils.equals(TENANT.toString(), organization.getType())) {
             String tenantID = organizationManagementDAO.getAssociatedTenantUUIDForOrganization(organizationId);
             if (StringUtils.isNotBlank(tenantID)) {
@@ -332,7 +361,11 @@ public class OrganizationManagerImpl implements OrganizationManager {
             }
         }
         organizationManagementDAO.deleteOrganization(organizationId);
-        getListener().postDeleteOrganization(organizationId);
+        for (OrganizationManagerListener listener : listeners) {
+            if (listener.isEnable()) {
+                listener.postDeleteOrganization(organizationId);
+            }
+        }
     }
 
     @Override
@@ -353,11 +386,21 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
         validateOrganizationPatchOperations(patchOperations, organizationId);
 
-        getListener().prePatchOrganization(organizationId, patchOperations);
+        // Call pre listeners.
+        Collection<OrganizationManagerListener> listeners = getOrganizationMgtListeners();
+        for (OrganizationManagerListener listener : listeners) {
+            if (listener.isEnable()) {
+                listener.prePatchOrganization(organizationId, patchOperations);
+            }
+        }
         organizationManagementDAO.patchOrganization(organizationId, Instant.now(), patchOperations);
         patchTenantStatus(patchOperations, organizationId);
 
-        getListener().postPatchOrganization(organizationId, patchOperations);
+        for (OrganizationManagerListener listener : listeners) {
+            if (listener.isEnable()) {
+                listener.postPatchOrganization(organizationId, patchOperations);
+            }
+        }
 
         Organization organization = organizationManagementDAO.getOrganization(organizationId);
         if (!SUPER.equals(organization.getName())) {
@@ -391,7 +434,13 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
         updateLastModifiedTime(organization);
 
-        getListener().preUpdateOrganization(organizationId, organization);
+        // Call pre listeners.
+        Collection<OrganizationManagerListener> listeners = getOrganizationMgtListeners();
+        for (OrganizationManagerListener listener : listeners) {
+            if (listener.isEnable()) {
+                listener.preUpdateOrganization(organizationId, organization);
+            }
+        }
         organizationManagementDAO.updateOrganization(organizationId, organization);
 
         Organization updatedOrganization = organizationManagementDAO.getOrganization(organizationId);
@@ -402,7 +451,11 @@ public class OrganizationManagerImpl implements OrganizationManager {
         if (StringUtils.equals(TENANT.toString(), organization.getType())) {
             updateTenantStatus(organization.getStatus(), organizationId);
         }
-        getListener().postUpdateOrganization(organizationId, organization);
+        for (OrganizationManagerListener listener : listeners) {
+            if (listener.isEnable()) {
+                listener.postUpdateOrganization(organizationId, organization);
+            }
+        }
         return updatedOrganization;
     }
 
@@ -969,8 +1022,13 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
     }
 
-    private OrganizationManagerListener getListener() {
+    /**
+     * Returns the Collection of OrganizationManagerListener, discovered via the component.
+     *
+     * @return Collection<OrganizationManagerListener>.
+     */
+    private Collection<OrganizationManagerListener> getOrganizationMgtListeners() {
 
-        return OrganizationManagementDataHolder.getInstance().getOrganizationManagerListener();
+        return OrganizationManagementDataHolder.getInstance().getOrganizationMgtListeners();
     }
 }

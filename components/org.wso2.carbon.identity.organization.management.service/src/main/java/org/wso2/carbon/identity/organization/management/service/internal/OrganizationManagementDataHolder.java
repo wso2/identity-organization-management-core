@@ -27,6 +27,9 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.sql.DataSource;
 
 /**
@@ -37,8 +40,8 @@ public class OrganizationManagementDataHolder {
     private static final OrganizationManagementDataHolder instance = new OrganizationManagementDataHolder();
     private RealmService realmService;
     private TenantMgtService tenantMgtService;
-    private OrganizationManagerListener organizationManagerListener;
     private DataSource dataSource;
+    private final List<OrganizationManagerListener> organizationMgtListeners = new ArrayList<>();
 
     private static final Log LOG = LogFactory.getLog(OrganizationManagementDataHolder.class);
 
@@ -67,27 +70,6 @@ public class OrganizationManagementDataHolder {
         this.tenantMgtService = tenantMgtService;
     }
 
-
-    /**
-     * Get {@link OrganizationManagerListener}.
-     *
-     * @return IdentityEventService.
-     */
-    public OrganizationManagerListener getOrganizationManagerListener() {
-
-        return organizationManagerListener;
-    }
-
-    /**
-     * Set {@link OrganizationManagerListener}.
-     *
-     * @param organizationManagerListener Instance of {@link OrganizationManagerListener}.
-     */
-    public void setOrganizationManagerListener(OrganizationManagerListener organizationManagerListener) {
-
-        this.organizationManagerListener = organizationManagerListener;
-    }
-
     public DataSource getDataSource() {
 
         return dataSource;
@@ -101,5 +83,15 @@ public class OrganizationManagementDataHolder {
         } catch (UserStoreException e) {
             LOG.error("Error while retrieving user management data source.", e);
         }
+    }
+
+    /**
+     * Get {@Link Lis<OrganizationManagerListener>}.
+     *
+     * @return List of OrganizationManagerListener.
+     */
+    public List<OrganizationManagerListener> getOrganizationMgtListeners() {
+
+        return organizationMgtListeners;
     }
 }

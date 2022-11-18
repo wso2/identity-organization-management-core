@@ -36,12 +36,17 @@ import org.wso2.carbon.identity.organization.management.service.util.Organizatio
 import org.wso2.carbon.tenant.mgt.services.TenantMgtService;
 import org.wso2.carbon.user.core.service.RealmService;
 
+import java.util.Comparator;
+
 /**
  * OSGi service component for organization management core bundle.
  */
 @Component(name = "identity.organization.management.component",
         immediate = true)
 public class OrganizationManagementServiceComponent {
+
+    private static final Comparator<OrganizationManagerListener> orgMgtListenerComparator =
+            Comparator.comparingInt(OrganizationManagerListener::getExecutionOrderId);
 
     private static final Log LOG = LogFactory.getLog(OrganizationManagementServiceComponent.class);
 
@@ -126,17 +131,22 @@ public class OrganizationManagementServiceComponent {
     @Reference(
             name = "identity.org.mgt.listener",
             service = OrganizationManagerListener.class,
-            cardinality = ReferenceCardinality.MANDATORY,
+            cardinality = ReferenceCardinality.MULTIPLE,
             policy = ReferencePolicy.DYNAMIC,
             unbind = "unsetOrganizationManagerListener"
     )
-    protected void setOrganizationManagerListener(OrganizationManagerListener organizationManagerListener) {
+    protected synchronized void setOrganizationMgtListenerService(
+            OrganizationManagerListener organizationMgtListenerService) {
 
-        OrganizationManagementDataHolder.getInstance().setOrganizationManagerListener(organizationManagerListener);
+        OrganizationManagementDataHolder.getInstance().getOrganizationMgtListeners()
+                .add(organizationMgtListenerService);
+        OrganizationManagementDataHolder.getInstance().getOrganizationMgtListeners().sort(orgMgtListenerComparator);
     }
 
-    protected void unsetOrganizationManagerListener(OrganizationManagerListener organizationManagerListener) {
+    protected synchronized void unsetOrganizationManagerListener(
+            OrganizationManagerListener organizationManagerListener) {
 
-        OrganizationManagementDataHolder.getInstance().setOrganizationManagerListener(null);
+        OrganizationManagementDataHolder.getInstance().getOrganizationMgtListeners()
+                .remove(organizationManagerListener);
     }
 }
