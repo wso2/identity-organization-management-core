@@ -20,7 +20,6 @@ package org.wso2.carbon.identity.organization.management.service.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.organization.management.service.listener.OrganizationManagerListener;
 import org.wso2.carbon.tenant.mgt.services.TenantMgtService;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -31,6 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
+
+import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.SUPER_TENANT_ID;
 
 /**
  * Organization management data holder.
@@ -78,8 +79,8 @@ public class OrganizationManagementDataHolder {
     public void initDataSource() {
 
         try {
-            this.dataSource = DatabaseUtil.getRealmDataSource(CarbonContext.getThreadLocalCarbonContext().
-                    getUserRealm().getRealmConfiguration());
+            this.dataSource = DatabaseUtil.getRealmDataSource(
+                    this.realmService.getTenantUserRealm(SUPER_TENANT_ID).getRealmConfiguration());
         } catch (UserStoreException e) {
             LOG.error("Error while retrieving user management data source.", e);
         }

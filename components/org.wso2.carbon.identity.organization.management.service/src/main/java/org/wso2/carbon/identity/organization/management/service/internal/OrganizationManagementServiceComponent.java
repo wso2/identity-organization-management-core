@@ -64,7 +64,6 @@ public class OrganizationManagementServiceComponent {
             bundleContext.registerService(OrganizationUserResidentResolverService.class.getName(),
                     new OrganizationUserResidentResolverServiceImpl(), null);
             OrganizationManagementConfigUtil.loadOrgMgtConfigurations();
-            OrganizationManagementDataHolder.getInstance().initDataSource();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Organization Management component activated successfully.");
             }
@@ -91,6 +90,7 @@ public class OrganizationManagementServiceComponent {
             LOG.debug("Setting the Realm Service.");
         }
         OrganizationManagementDataHolder.getInstance().setRealmService(realmService);
+        OrganizationManagementDataHolder.getInstance().initDataSource();
     }
 
     /**
