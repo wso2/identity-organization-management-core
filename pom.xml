@@ -285,11 +285,11 @@
 
         <identity.organization.management.exp.pkg.version>${project.version}
         </identity.organization.management.exp.pkg.version>
-        <org.wso2.identity.organization.mgt.imp.pkg.version.range>[1.0.0,2.0.0)
+        <org.wso2.identity.organization.mgt.imp.pkg.version.range>[2.0.0,3.0.0)
         </org.wso2.identity.organization.mgt.imp.pkg.version.range>
 
-        <carbon.multitenancy.version>4.10.1</carbon.multitenancy.version>
-        <carbon.multitenancy.package.import.version.range>[4.7.0,5.0.0)
+        <carbon.multitenancy.version>5.0.0</carbon.multitenancy.version>
+        <carbon.multitenancy.package.import.version.range>[5.0.0, 6.0.0)
         </carbon.multitenancy.package.import.version.range>
 
         <carbon.user.api.imp.pkg.version.range>[1.0.1, 2.0.0)</carbon.user.api.imp.pkg.version.range>
