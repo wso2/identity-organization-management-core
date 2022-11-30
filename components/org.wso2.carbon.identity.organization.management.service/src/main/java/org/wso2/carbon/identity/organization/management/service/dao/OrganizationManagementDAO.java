@@ -286,7 +286,7 @@ public interface OrganizationManagementDAO {
      * Derive the ID of an organization based on the given tenant ID.
      *
      * @param tenantId The tenant ID.
-     * @return organization ID.
+     * @return Organization ID.
      * @throws OrganizationManagementServerException The server exception thrown when retrieving the organization ID of
      *                                               a given tenant ID.
      */

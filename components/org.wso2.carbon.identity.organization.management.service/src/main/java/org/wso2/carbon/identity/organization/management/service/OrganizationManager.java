@@ -169,7 +169,7 @@ public interface OrganizationManager {
      * Derive the tenant id of an organization based on the given organization id.
      *
      * @param organizationId The organization ID.
-     * @return tenant id.
+     * @return Tenant id.
      * @throws OrganizationManagementException The exception thrown when retrieving the tenant id of an
      *                                         organization.
      */
@@ -188,7 +188,7 @@ public interface OrganizationManager {
      * Derive the organization id of the given tenant id.
      *
      * @param tenantId The tenant id.
-     * @return organization id.
+     * @return Organization id.
      * @throws OrganizationManagementException The exception thrown when retrieving the organization id of a tenant id.
      */
     String resolveOrganizationIdFromTenantId(String tenantId) throws OrganizationManagementException;
