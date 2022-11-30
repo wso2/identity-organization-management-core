@@ -92,6 +92,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_ID_UNDEFINED;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_NAME_RESERVED;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_NOT_FOUND_FOR_TENANT;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_NOT_FOUND_FOR_TENANT_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_TYPE_UNDEFINED;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_PARENT_ORGANIZATION_IS_DISABLED;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_PATCH_OPERATION_UNDEFINED;
@@ -417,6 +418,12 @@ public class OrganizationManagerImpl implements OrganizationManager {
     }
 
     @Override
+    public String resolveTenantId(String organizationId) throws OrganizationManagementException {
+
+        return organizationManagementDAO.getAssociatedTenantUUIDForOrganization(organizationId);
+    }
+
+    @Override
     public String resolveOrganizationId(String tenantDomain) throws OrganizationManagementException {
 
         if (StringUtils.equals(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME, tenantDomain)) {
@@ -425,6 +432,13 @@ public class OrganizationManagerImpl implements OrganizationManager {
             return organizationManagementDAO.resolveOrganizationId(tenantDomain).orElseThrow(
                     () -> handleClientException(ERROR_CODE_ORGANIZATION_NOT_FOUND_FOR_TENANT, tenantDomain));
         }
+    }
+
+    @Override
+    public String resolveOrganizationIdFromTenantId(String tenantId) throws OrganizationManagementException {
+
+        return organizationManagementDAO.resolveOrganizationIdFromTenantId(tenantId).orElseThrow(
+                    () -> handleClientException(ERROR_CODE_ORGANIZATION_NOT_FOUND_FOR_TENANT_ID, tenantId));
     }
 
     @Override

@@ -285,6 +285,8 @@ public class OrganizationManagementConstants {
                 "organization role: %s ."),
         ERROR_CODE_RETRIEVING_ORG_ROLES_INVALID_FILTER_FORMAT("60074", "Unable to get organization roles", "Invalid " +
                 "filter format provided when listing organization roles : %s ."),
+        ERROR_CODE_ORGANIZATION_NOT_FOUND_FOR_TENANT_ID("60075", "Organization not found for the tenant id",
+                "Organization for the tenant id %s not found."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -502,7 +504,10 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ERROR_CHECKING_APPLICATION_IS_A_FRAGMENT("65093", "Error while checking whether fragment app.",
                 "Encountered an error while checking whether application %s is a fragment application."),
         ERROR_CODE_ERROR_UPDATING_APPLICATION_ATTRIBUTE("65094", "Error when updating application.",
-                "Encountered an error when updating application of id: %s with property share with all children.");
+                "Encountered an error when updating application of id: %s with property share with all children."),
+        ERROR_CODE_ERROR_RESOLVING_ORGANIZATION_ID_FROM_TENANT_ID("65095", "Unable to retrieve the " +
+                "organization id for the tenant id.", "Server encountered an error while retrieving the " +
+                "organization id for the tenant id: %s."),;
 
         private final String code;
         private final String message;
