@@ -190,6 +190,9 @@ public class SQLConstants {
     public static final String GET_ORGANIZATION_UUID_FROM_TENANT_DOMAIN = "SELECT UM_ORG_UUID FROM UM_TENANT " +
             "WHERE UM_DOMAIN_NAME = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_TENANT_DOMAIN + ";";
 
+    public static final String GET_ORGANIZATION_UUID_FROM_TENANT_ID = "SELECT UM_ORG_UUID FROM UM_TENANT " +
+            "WHERE UM_TENANT_UUID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_TENANT_ID + ";";
+
     public static final String GET_TENANT_DOMAIN_FROM_ORGANIZATION_UUID = "SELECT UM_DOMAIN_NAME FROM UM_TENANT " +
             "WHERE UM_ORG_UUID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";";
 
@@ -217,6 +220,7 @@ public class SQLConstants {
         public static final String DB_SCHEMA_COLUMN_NAME_KEY = "KEY";
         public static final String DB_SCHEMA_COLUMN_NAME_VALUE = "VALUE";
         public static final String DB_SCHEMA_COLUMN_NAME_USER_ID = "USER_ID";
+        public static final String DB_SCHEMA_COLUMN_NAME_TENANT_ID = "TENANT_ID";
         public static final String DB_SCHEMA_COLUMN_NAME_TENANT_DOMAIN = "TENANT_DOMAIN";
         public static final String DB_SCHEMA_LIMIT = "LIMIT";
     }

@@ -283,6 +283,16 @@ public interface OrganizationManagementDAO {
     Optional<String> resolveOrganizationId(String tenantDomain) throws OrganizationManagementServerException;
 
     /**
+     * Derive the ID of an organization based on the given tenant ID.
+     *
+     * @param tenantId The tenant ID.
+     * @return Organization ID.
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the organization ID of
+     *                                               a given tenant ID.
+     */
+    Optional<String> resolveOrganizationIdFromTenantId(String tenantId) throws OrganizationManagementServerException;
+
+    /**
      * Get ancestor organization ids (including itself) of a given organization.
      *
      * @param organizationId Organization id.
