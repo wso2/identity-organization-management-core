@@ -89,7 +89,11 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                             user = userStoreManager.getUser(null, userName);
                         } else if (userId != null && userStoreManager.isExistingUserWithID(userId)) {
                             user = userStoreManager.getUser(userId, null);
-                        } else if (userName != null) {
+                        } else if (userName != null && UserCoreUtil.removeDomainFromName(userName).equals(userName)) {
+                            /**
+                             * Try to find the user from the secondary user stores when the username is not domain
+                             * qualified.
+                             */
                             boolean userFound = false;
                             UserStoreManager secondaryUserStoreManager =
                                     userStoreManager.getSecondaryUserStoreManager();
