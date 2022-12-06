@@ -45,6 +45,7 @@ import javax.sql.DataSource;
 
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_DB_METADATA;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_CARBON_ROLE_VALIDATION_ENABLED_FOR_LEVEL_ONE_ORGS;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_TENANT_QUALIFIED_PATHS_SUPPORTED_FOR_LEVEL_ONE_ORGS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_CONTEXT_PATH_COMPONENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_PATH;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATH_SEPARATOR;
@@ -326,5 +327,38 @@ public class Utils {
             LOG.error("Error while checking the depth of the given organization.");
         }
         return true;
+    }
+
+    /**
+     * Return whether tenant qualified paths are supported for first level organizations in the deployment.
+     *
+     * @return True if tenant qualified paths are supported for first level organizations.
+     */
+    public static boolean isTenantQualifiedPathsSupportedForLevelOneOrganizations() {
+
+        return Boolean.parseBoolean(
+                OrganizationManagementConfigUtil.getProperty(IS_TENANT_QUALIFIED_PATHS_SUPPORTED_FOR_LEVEL_ONE_ORGS));
+    }
+
+    /**
+     * Return whether tenant qualified URLs should be used for the organization.
+     *
+     * @param organizationId Organization id.
+     * @return True if the organization is a first level organization in the deployment and
+     * IS_TENANT_QUALIFIED_PATHS_SUPPORTED_FOR_LEVEL_ONE_ORGS config is enabled. Otherwise, false.
+     */
+    public static boolean useTenantQualifiedURLs(String organizationId) {
+
+        try {
+            if (organizationManager.getOrganizationDepthInHierarchy(organizationId) != 1) {
+                // Return false if the organization is not in depth 1.
+                return false;
+            } else {
+                return Utils.isTenantQualifiedPathsSupportedForLevelOneOrganizations();
+            }
+        } catch (OrganizationManagementServerException e) {
+            LOG.error("Error while checking the depth of the given organization.");
+        }
+        return false;
     }
 }

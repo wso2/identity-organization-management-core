@@ -93,6 +93,8 @@ public class OrganizationManagementConstants {
     public static final String ORGANIZATION_MGT_CONFIG_FILE = "organization-mgt.xml";
     public static final String IS_CARBON_ROLE_VALIDATION_ENABLED_FOR_LEVEL_ONE_ORGS =
             "LevelOneOrganizationConfigs.EnableCarbonRoleBasedValidation";
+    public static final String IS_TENANT_QUALIFIED_PATHS_SUPPORTED_FOR_LEVEL_ONE_ORGS =
+            "LevelOneOrganizationConfigs.SupportTenantQualifiedURLs";
 
     /**
      * Contains constants related to filter operations.
