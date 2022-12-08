@@ -289,6 +289,8 @@ public class OrganizationManagementConstants {
                 "filter format provided when listing organization roles : %s ."),
         ERROR_CODE_ORGANIZATION_NOT_FOUND_FOR_TENANT_ID("60075", "Organization not found for the tenant id",
                 "Organization for the tenant id %s not found."),
+        ERROR_CODE_TENANT_DOMAIN_NOT_FOUND_FOR_ORGANIZATION_ID("60076", "Tenant domain for organization id not found " +
+                "on organization switch grant", "Tenant domain for organization id %s not found."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
