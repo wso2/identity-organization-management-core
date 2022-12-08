@@ -45,7 +45,7 @@ import javax.sql.DataSource;
 
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_DB_METADATA;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_CARBON_ROLE_VALIDATION_ENABLED_FOR_LEVEL_ONE_ORGS;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_TENANT_QUALIFIED_PATHS_SUPPORTED_FOR_LEVEL_ONE_ORGS;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_ORG_QUALIFIED_URLS_SUPPORTED_FOR_LEVEL_ONE_ORGS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_CONTEXT_PATH_COMPONENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_PATH;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATH_SEPARATOR;
@@ -330,35 +330,35 @@ public class Utils {
     }
 
     /**
-     * Return whether tenant qualified paths are supported for first level organizations in the deployment.
+     * Return whether organization qualified URLs are supported for first level organizations in the deployment.
      *
-     * @return True if tenant qualified paths are supported for first level organizations.
+     * @return True if organization qualified URLs are supported for first level organizations.
      */
-    public static boolean isTenantQualifiedPathsSupportedForLevelOneOrganizations() {
+    public static boolean isOrgQualifiedURLsSupportedForLevelOneOrganizations() {
 
         return Boolean.parseBoolean(
-                OrganizationManagementConfigUtil.getProperty(IS_TENANT_QUALIFIED_PATHS_SUPPORTED_FOR_LEVEL_ONE_ORGS));
+                OrganizationManagementConfigUtil.getProperty(IS_ORG_QUALIFIED_URLS_SUPPORTED_FOR_LEVEL_ONE_ORGS));
     }
 
     /**
-     * Return whether tenant qualified URLs should be used for the organization.
+     * Return whether the given organization supports both o/ and t/ supported endpoints with organization qualified
+     * URLs. True if those endpoints are supported with o/ paths. False if those endpoints are supported with t/ paths.
      *
      * @param organizationId Organization id.
-     * @return True if the organization is a first level organization in the deployment and
-     * IS_TENANT_QUALIFIED_PATHS_SUPPORTED_FOR_LEVEL_ONE_ORGS config is enabled. Otherwise, false.
+     * @return False if the organization is a first level organization in the deployment and
+     * IS_ORG_QUALIFIED_URLS_SUPPORTED_FOR_LEVEL_ONE_ORGS config is disabled. Otherwise, true.
      */
-    public static boolean useTenantQualifiedURLs(String organizationId) {
+    public static boolean isOrganizationQualifiedURLsSupported(String organizationId) {
 
+        if (Utils.isOrgQualifiedURLsSupportedForLevelOneOrganizations()) {
+            return true;
+        }
         try {
-            if (organizationManager.getOrganizationDepthInHierarchy(organizationId) != 1) {
-                // Return false if the organization is not in depth 1.
-                return false;
-            } else {
-                return Utils.isTenantQualifiedPathsSupportedForLevelOneOrganizations();
-            }
+            // Return false if the organization is in depth 1.
+            return organizationManager.getOrganizationDepthInHierarchy(organizationId) != 1;
         } catch (OrganizationManagementServerException e) {
             LOG.error("Error while checking the depth of the given organization.");
         }
-        return false;
+        return true;
     }
 }
