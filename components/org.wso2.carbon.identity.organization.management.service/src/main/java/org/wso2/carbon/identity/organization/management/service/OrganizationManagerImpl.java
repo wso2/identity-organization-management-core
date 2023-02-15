@@ -25,6 +25,7 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.organization.management.service.authz.OrganizationManagementAuthorizationManager;
 import org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
+import org.wso2.carbon.identity.organization.management.service.dao.impl.CacheBackedOrganizationManagementDAO;
 import org.wso2.carbon.identity.organization.management.service.dao.impl.OrganizationManagementDAOImpl;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementClientException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
@@ -152,7 +153,8 @@ import static org.wso2.carbon.identity.organization.management.service.util.Util
  */
 public class OrganizationManagerImpl implements OrganizationManager {
 
-    private final OrganizationManagementDAO organizationManagementDAO = new OrganizationManagementDAOImpl();
+    private final OrganizationManagementDAO organizationManagementDAO =
+            new CacheBackedOrganizationManagementDAO(new OrganizationManagementDAOImpl());
 
     @Override
     public Organization addOrganization(Organization organization) throws OrganizationManagementException {
