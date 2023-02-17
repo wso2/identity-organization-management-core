@@ -18,8 +18,6 @@
 
 package org.wso2.carbon.identity.organization.management.service.cache;
 
-import org.wso2.carbon.identity.core.cache.BaseCache;
-
 /**
  * Cache for tenant information against organization Id.
  */

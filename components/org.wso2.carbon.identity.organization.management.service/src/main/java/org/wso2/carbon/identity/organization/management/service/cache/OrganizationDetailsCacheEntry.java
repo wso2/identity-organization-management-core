@@ -18,8 +18,6 @@
 
 package org.wso2.carbon.identity.organization.management.service.cache;
 
-import org.wso2.carbon.identity.core.cache.CacheEntry;
-
 import java.util.List;
 
 /**

@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.identity.organization.management.service.util;
 
+import org.wso2.carbon.identity.organization.management.service.cache.OrgMgtCacheConfig;
+import org.wso2.carbon.identity.organization.management.service.cache.OrgMgtCacheConfigKey;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,10 +31,13 @@ import java.util.Map;
 public class OrganizationManagementConfigUtil {
 
     private static Map<String, Object> orgMgtConfigurations = new HashMap<>();
+    private static Map<OrgMgtCacheConfigKey, OrgMgtCacheConfig> orgMgtCacheConfigurations = new HashMap();
 
     public static void loadOrgMgtConfigurations() {
 
         orgMgtConfigurations = OrganizationManagementConfigBuilder.getInstance().getOrgMgtConfigurations();
+        orgMgtCacheConfigurations = OrganizationManagementConfigBuilder.getInstance()
+                .getOrgMgtCacheConfigurations();
     }
 
     /**
@@ -57,5 +63,17 @@ public class OrganizationManagementConfigUtil {
             strValue = String.valueOf(value);
         }
         return strValue;
+    }
+
+    public static OrgMgtCacheConfig getOrgMgtCacheConfig(String cacheManagerName, String cacheName) {
+
+        OrgMgtCacheConfigKey configKey = new OrgMgtCacheConfigKey(cacheManagerName, cacheName);
+        OrgMgtCacheConfig orgMgtCacheConfig = (OrgMgtCacheConfig) orgMgtCacheConfigurations.get(configKey);
+        if (orgMgtCacheConfig == null && cacheName.startsWith("$__local__$.")) {
+            configKey = new OrgMgtCacheConfigKey(cacheManagerName, cacheName.replace("$__local__$.", ""));
+            orgMgtCacheConfig = (OrgMgtCacheConfig) orgMgtCacheConfigurations.get(configKey);
+        }
+
+        return orgMgtCacheConfig;
     }
 }

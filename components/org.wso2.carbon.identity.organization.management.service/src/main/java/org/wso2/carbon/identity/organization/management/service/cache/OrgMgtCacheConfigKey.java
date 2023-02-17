@@ -19,43 +19,35 @@
 package org.wso2.carbon.identity.organization.management.service.cache;
 
 /**
- * Organization Id cache key.
+ * Cache for identity cache configuration key.
  */
-public class OrganizationIdCacheKey extends CacheKey {
+public class OrgMgtCacheConfigKey {
 
-    private String orgId;
+    private String cacheManagerName;
+    private String cacheName;
 
-    public OrganizationIdCacheKey(String orgId) {
-        this.orgId = orgId;
+    public OrgMgtCacheConfigKey(String cacheManagerName, String cacheName) {
+
+        this.cacheManagerName = cacheManagerName;
+        this.cacheName = cacheName;
     }
 
-    public String getOrganizationId() {
-        return orgId;
-    }
-
-    @Override
     public boolean equals(Object o) {
 
         if (this == o) {
             return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
+        } else if (o != null && this.getClass() == o.getClass()) {
+            OrgMgtCacheConfigKey that = (OrgMgtCacheConfigKey) o;
+            return !this.cacheManagerName.equals(that.cacheManagerName) ? false : this.cacheName.equals(that.cacheName);
+        } else {
             return false;
         }
-        if (!super.equals(o)) {
-            return false;
-        }
-
-        OrganizationIdCacheKey that = (OrganizationIdCacheKey) o;
-
-        return orgId.equals(that.orgId);
     }
 
-    @Override
     public int hashCode() {
 
-        int result = super.hashCode();
-        result = 31 * result + orgId.hashCode();
+        int result = this.cacheManagerName.hashCode();
+        result = 31 * result + this.cacheName.hashCode();
         return result;
     }
 }

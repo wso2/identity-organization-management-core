@@ -18,22 +18,31 @@
 
 package org.wso2.carbon.identity.organization.management.service.cache;
 
+import java.io.Serializable;
+
 /**
- * Tenant domain cache entry.
+ * Cache key class. Any value that acts as a cache key must encapsulated with a class overriding
+ * from this class.
  */
-public class TenantDomainCacheEntry extends CacheEntry {
+public abstract class CacheKey implements Serializable {
 
-    private String tenantDomain;
+    private static final long serialVersionUID = -7198600199516906683L;
 
-    public TenantDomainCacheEntry(String tenantDomain) {
-        this.tenantDomain = tenantDomain;
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        return true;
     }
 
-    public String getTenantDomain() {
-        return tenantDomain;
-    }
+    @Override
+    public int hashCode() {
 
-    public void setTenantDomain(String tenantDomain) {
-        this.tenantDomain = tenantDomain;
+        return 0;
     }
 }

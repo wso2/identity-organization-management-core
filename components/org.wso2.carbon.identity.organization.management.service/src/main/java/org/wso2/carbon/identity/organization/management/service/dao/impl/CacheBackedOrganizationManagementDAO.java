@@ -81,6 +81,9 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
             throws OrganizationManagementServerException {
 
         String tenantDomain = resolveTenantDomain(organizationId);
+        if (tenantDomain == null) {
+            return organizationMgtDAO.getOrganizationNameById(organizationId);
+        }
         OrganizationDetailsCacheEntry cachedOrgDetails = getOrganizationDetailsFromCache(organizationId, tenantDomain);
         if (cachedOrgDetails != null && cachedOrgDetails.getOrgName() != null) {
             return Optional.ofNullable(cachedOrgDetails.getOrgName());
@@ -115,7 +118,9 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
 
         String tenantDomain = resolveTenantDomain(organizationId);
         organizationMgtDAO.deleteOrganization(organizationId);
-        clearOrganizationDetailsCache(organizationId, tenantDomain);
+        if (tenantDomain != null) {
+            clearOrganizationDetailsCache(organizationId, tenantDomain);
+        }
         clearTenantDomainCache(organizationId);
     }
 
@@ -131,7 +136,9 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
 
         String tenantDomain = resolveTenantDomain(organizationId);
         organizationMgtDAO.patchOrganization(organizationId, lastModifiedInstant, patchOperations);
-        clearOrganizationDetailsCache(organizationId, tenantDomain);
+        if (tenantDomain != null) {
+            clearOrganizationDetailsCache(organizationId, tenantDomain);
+        }
     }
 
     @Override
@@ -140,7 +147,9 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
 
         String tenantDomain = resolveTenantDomain(organizationId);
         organizationMgtDAO.updateOrganization(organizationId, organization);
-        clearOrganizationDetailsCache(organizationId, tenantDomain);
+        if (tenantDomain != null) {
+            clearOrganizationDetailsCache(organizationId, tenantDomain);
+        }
     }
 
     @Override
@@ -247,6 +256,9 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
     public List<String> getAncestorOrganizationIds(String organizationId) throws OrganizationManagementServerException {
 
         String tenantDomain = resolveTenantDomain(organizationId);
+        if (tenantDomain == null) {
+            return organizationMgtDAO.getAncestorOrganizationIds(organizationId);
+        }
         OrganizationDetailsCacheEntry cachedOrgDetails = getOrganizationDetailsFromCache(organizationId, tenantDomain);
         if (cachedOrgDetails != null && cachedOrgDetails.getAncestorOrganizationIds() != null) {
             return cachedOrgDetails.getAncestorOrganizationIds();
@@ -271,6 +283,9 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
     public int getOrganizationDepthInHierarchy(String organizationId) throws OrganizationManagementServerException {
 
         String tenantDomain = resolveTenantDomain(organizationId);
+        if (tenantDomain == null) {
+            return organizationMgtDAO.getOrganizationDepthInHierarchy(organizationId);
+        }
         OrganizationDetailsCacheEntry cachedOrgDetails = getOrganizationDetailsFromCache(organizationId, tenantDomain);
         if (cachedOrgDetails != null && cachedOrgDetails.getOrganizationDepthInHierarchy() != null) {
             return cachedOrgDetails.getOrganizationDepthInHierarchy();

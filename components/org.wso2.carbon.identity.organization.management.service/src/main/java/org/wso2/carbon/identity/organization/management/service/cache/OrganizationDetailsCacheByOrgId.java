@@ -18,14 +18,12 @@
 
 package org.wso2.carbon.identity.organization.management.service.cache;
 
-import org.wso2.carbon.identity.core.cache.BaseCache;
-
 /**
  * Cache for organization information against organization Id.
  */
 public class OrganizationDetailsCacheByOrgId extends BaseCache<OrganizationIdCacheKey, OrganizationDetailsCacheEntry> {
 
-    private static final String CACHE_NAME = "OrganizationCacheByOrgId";
+    private static final String CACHE_NAME = "OrganizationDetailsCacheByOrgId";
 
     private static volatile OrganizationDetailsCacheByOrgId instance;
 
