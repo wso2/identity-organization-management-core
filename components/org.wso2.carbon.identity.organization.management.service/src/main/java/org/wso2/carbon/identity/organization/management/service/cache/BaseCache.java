@@ -72,40 +72,42 @@ public abstract class BaseCache<K extends Serializable, V extends Serializable> 
         }
     }
 
-    private Cache<K, V> getBaseCache() {
+    private synchronized Cache<K, V> getBaseCache() {
 
         Cache<K, V> cache;
         CacheManager cacheManager = Caching.getCacheManagerFactory()
                 .getCacheManager(CACHE_MANAGER_NAME);
 
-        if (getCacheTimeout() > 0 && cacheBuilder == null) {
-            synchronized (cacheName.intern()) {
-                if (cacheBuilder == null) {
-                    cacheManager.removeCache(cacheName);
-                    cacheBuilder = cacheManager.<K, V>createCacheBuilder(cacheName).
-                            setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
-                                    new CacheConfiguration.Duration(TimeUnit.SECONDS, getCacheTimeout())).
-                            setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
-                                    new CacheConfiguration.Duration(TimeUnit.SECONDS, getCacheTimeout())).
-                            setStoreByValue(false);
-                    cache = cacheBuilder.build();
+        if (cacheBuilder == null) {
+            cacheManager.removeCache(cacheName);
+            cacheBuilder = cacheManager.<K, V>createCacheBuilder(cacheName).
+                    setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
+                            new CacheConfiguration.Duration(TimeUnit.SECONDS, getCacheTimeout())).
+                    setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+                            new CacheConfiguration.Duration(TimeUnit.SECONDS, getCacheTimeout())).
+                    setStoreByValue(false);
+            cache = cacheBuilder.build();
 
-                    setCapacity((CacheImpl<K, V>) cache);
-                    if (log.isDebugEnabled()) {
-                        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-                        log.debug("Cache : " + cacheName + "  is built with timeout value : " +
-                                getCacheTimeout() + " and capacity : " + getCapacity() +
-                                " for tenant domain : " + tenantDomain);
-                    }
-                } else {
-                    cache = cacheManager.getCache(cacheName);
-                    setCapacity((CacheImpl<K, V>) cache);
-                }
+            setCapacity((CacheImpl<K, V>) cache);
+            if (log.isDebugEnabled()) {
+                String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                log.debug("Cache : " + cacheName + "  is built with timeout value : " +
+                        getCacheTimeout() + " and capacity : " + getCapacity() +
+                        " for tenant domain : " + tenantDomain);
             }
         } else {
             cache = cacheManager.getCache(cacheName);
             setCapacity((CacheImpl<K, V>) cache);
         }
+        return cache;
+    }
+
+    private Cache<K, V> getBaseCacheFromCacheManager() {
+
+        CacheManager cacheManager = Caching.getCacheManagerFactory()
+                .getCacheManager(CACHE_MANAGER_NAME);
+        Cache<K, V> cache = cacheManager.getCache(cacheName);
+        setCapacity((CacheImpl<K, V>) cache);
         return cache;
     }
 
@@ -124,7 +126,12 @@ public abstract class BaseCache<K extends Serializable, V extends Serializable> 
 
         try {
             startTenantFlow(tenantDomain);
-            Cache<K, V> cache = getBaseCache();
+            Cache<K, V> cache;
+            if (cacheBuilder == null) {
+                cache = getBaseCache();
+            } else {
+                cache = getBaseCacheFromCacheManager();
+            }
             if (cache != null) {
                 cache.put(key, entry);
             }
@@ -148,7 +155,12 @@ public abstract class BaseCache<K extends Serializable, V extends Serializable> 
 
         try {
             startTenantFlow(tenantId);
-            Cache<K, V> cache = getBaseCache();
+            Cache<K, V> cache;
+            if (cacheBuilder == null) {
+                cache = getBaseCache();
+            } else {
+                cache = getBaseCacheFromCacheManager();
+            }
             if (cache != null) {
                 cache.put(key, entry);
             }
@@ -176,7 +188,12 @@ public abstract class BaseCache<K extends Serializable, V extends Serializable> 
 
         try {
             startTenantFlow(tenantDomain);
-            Cache<K, V> cache = getBaseCache();
+            Cache<K, V> cache;
+            if (cacheBuilder == null) {
+                cache = getBaseCache();
+            } else {
+                cache = getBaseCacheFromCacheManager();
+            }
             if (cache != null && cache.get(key) != null) {
                 return cache.get(key);
             }
@@ -205,7 +222,12 @@ public abstract class BaseCache<K extends Serializable, V extends Serializable> 
 
         try {
             startTenantFlow(tenantId);
-            Cache<K, V> cache = getBaseCache();
+            Cache<K, V> cache;
+            if (cacheBuilder == null) {
+                cache = getBaseCache();
+            } else {
+                cache = getBaseCacheFromCacheManager();
+            }
             if (cache != null && cache.get(key) != null) {
                 return cache.get(key);
             }
@@ -229,7 +251,12 @@ public abstract class BaseCache<K extends Serializable, V extends Serializable> 
 
         try {
             startTenantFlow(tenantDomain);
-            Cache<K, V> cache = getBaseCache();
+            Cache<K, V> cache;
+            if (cacheBuilder == null) {
+                cache = getBaseCache();
+            } else {
+                cache = getBaseCacheFromCacheManager();
+            }
             if (cache != null) {
                 cache.remove(key);
             }
@@ -252,7 +279,12 @@ public abstract class BaseCache<K extends Serializable, V extends Serializable> 
 
         try {
             startTenantFlow(tenantId);
-            Cache<K, V> cache = getBaseCache();
+            Cache<K, V> cache;
+            if (cacheBuilder == null) {
+                cache = getBaseCache();
+            } else {
+                cache = getBaseCacheFromCacheManager();
+            }
             if (cache != null) {
                 cache.remove(key);
             }
@@ -274,7 +306,12 @@ public abstract class BaseCache<K extends Serializable, V extends Serializable> 
 
         try {
             startTenantFlow(tenantDomain);
-            Cache<K, V> cache = getBaseCache();
+            Cache<K, V> cache;
+            if (cacheBuilder == null) {
+                cache = getBaseCache();
+            } else {
+                cache = getBaseCacheFromCacheManager();
+            }
             if (cache != null) {
                 cache.removeAll();
             }
@@ -296,7 +333,12 @@ public abstract class BaseCache<K extends Serializable, V extends Serializable> 
 
         try {
             startTenantFlow(tenantId);
-            Cache<K, V> cache = getBaseCache();
+            Cache<K, V> cache;
+            if (cacheBuilder == null) {
+                cache = getBaseCache();
+            } else {
+                cache = getBaseCacheFromCacheManager();
+            }
             if (cache != null) {
                 cache.removeAll();
             }
@@ -318,7 +360,7 @@ public abstract class BaseCache<K extends Serializable, V extends Serializable> 
         if (orgMgtCacheConfig != null && orgMgtCacheConfig.getTimeout() > 0) {
             return orgMgtCacheConfig.getTimeout();
         }
-        return -1;
+        return 900;
     }
 
     public int getCapacity() {
