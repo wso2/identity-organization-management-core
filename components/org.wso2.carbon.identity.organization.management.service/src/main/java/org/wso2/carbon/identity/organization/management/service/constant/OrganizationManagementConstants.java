@@ -271,7 +271,7 @@ public class OrganizationManagementConstants {
         ERROR_CODE_INVALID_SHARE_APPLICATION_EMPTY_REQUEST_BODY("60067", "Invalid request.",
                 "At least one of the attributes from shareWithAllChildren and sharedOrganizations should be present."),
         ERROR_CODE_INVALID_SHARE_APPLICATION_REQUEST_BODY("60068", "Invalid request.", "Cannot share " +
-                "the application with a set of child organizations when shareWithAllChildren is set."),
+                "the application with a set of child organizations when shareWithAllChildren is set to true."),
         ERROR_CODE_INVALID_DELETE_SHARE_REQUEST("60069", "Invalid request.", "Cannot unshare " +
                 "the application with ID %s from the organization with ID %s if the application is shared with all " +
                 "children organizations."),
@@ -503,8 +503,8 @@ public class OrganizationManagementConstants {
                 "Server encountered an error while retrieving depth of organization with ID: %s."),
         ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_APPLICATIONS("65092", "Error while retrieving applications.",
                 "Encountered an error while retrieving applications in organization id %s."),
-        ERROR_CODE_ERROR_CHECKING_APPLICATION_IS_A_FRAGMENT("65093", "Error while checking whether fragment app.",
-                "Encountered an error while checking whether application %s is a fragment application."),
+        ERROR_CODE_ERROR_CHECKING_APPLICATION_IS_A_FRAGMENT("65093", "Error while checking whether app is " +
+                "a fragment.", "Encountered an error while checking whether application %s is a fragment application."),
         ERROR_CODE_ERROR_UPDATING_APPLICATION_ATTRIBUTE("65094", "Error when updating application.",
                 "Encountered an error when updating application of id: %s with property share with all children."),
         ERROR_CODE_ERROR_RESOLVING_ORGANIZATION_ID_FROM_TENANT_ID("65095", "Unable to retrieve the " +
