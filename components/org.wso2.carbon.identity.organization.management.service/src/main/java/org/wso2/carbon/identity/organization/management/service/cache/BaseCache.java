@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -38,7 +38,7 @@ import javax.cache.Caching;
 
 /**
  * A base class for all organization management cache implementations.
- * Duplicate of org.wso2.carbon.identity.core.cache.BaseCache class
+ * Duplicate of org.wso2.carbon.identity.core.cache.BaseCache class.
  *
  * @param <K> cache key type.
  * @param <V> cache value type.

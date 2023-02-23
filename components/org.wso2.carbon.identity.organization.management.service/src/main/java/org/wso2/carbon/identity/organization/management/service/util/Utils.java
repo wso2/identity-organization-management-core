@@ -364,6 +364,13 @@ public class Utils {
         return true;
     }
 
+    /**
+     * Retrieve tenant ID for a given tenant domain.
+     *
+     * @param tenantDomain  Tenant domain.
+     * @return the tenant ID.
+     * @throws RuntimeException If error occurred when retrieving tenant ID or when given tenant domain is invalid.
+     */
     public static int getTenantId(String tenantDomain) throws RuntimeException {
 
         int tenantId = MultitenantConstants.INVALID_TENANT_ID;
@@ -378,11 +385,17 @@ public class Utils {
         }
         if (tenantId == MultitenantConstants.INVALID_TENANT_ID) {
             throw new RuntimeException("Invalid tenant domain " + tenantDomain);
-        } else {
-            return tenantId;
         }
+        return tenantId;
     }
 
+    /**
+     * Retrieve tenant domain for a given tenant ID.
+     *
+     * @param tenantId  Tenant ID.
+     * @return the tenant domain.
+     * @throws RuntimeException If error occurred when retrieving tenant domain or when given tenant ID is invalid.
+     */
     public static String getTenantDomain(int tenantId) throws RuntimeException {
 
         String tenantDomain = null;
@@ -395,8 +408,7 @@ public class Utils {
         }
         if (tenantDomain == null) {
             throw new RuntimeException("Can not find the tenant domain for the tenant id " + tenantId);
-        } else {
-            return tenantDomain;
         }
+        return tenantDomain;
     }
 }

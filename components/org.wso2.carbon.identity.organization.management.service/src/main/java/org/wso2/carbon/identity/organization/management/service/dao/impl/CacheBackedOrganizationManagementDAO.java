@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -46,7 +46,6 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
 
     private final OrganizationManagementDAO organizationMgtDAO;
 
-
     public CacheBackedOrganizationManagementDAO(OrganizationManagementDAO organizationMgtDAO) {
 
         this.organizationMgtDAO = organizationMgtDAO;
@@ -67,6 +66,14 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
     @Override
     public boolean isOrganizationExistById(String organizationId) throws OrganizationManagementServerException {
 
+        String tenantDomain = resolveTenantDomain(organizationId);
+        if (tenantDomain == null) {
+            return organizationMgtDAO.isOrganizationExistById(organizationId);
+        }
+        OrganizationDetailsCacheEntry cachedOrgDetails = getOrganizationDetailsFromCache(organizationId, tenantDomain);
+        if (cachedOrgDetails != null) {
+            return true;
+        }
         return organizationMgtDAO.isOrganizationExistById(organizationId);
     }
 
@@ -89,10 +96,10 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
             return Optional.ofNullable(cachedOrgDetails.getOrgName());
         }
         Optional<String> orgName = organizationMgtDAO.getOrganizationNameById(organizationId);
-        if (cachedOrgDetails != null) {
+        if (cachedOrgDetails != null && orgName.isPresent()) {
             cachedOrgDetails.setOrgName(orgName.get());
         } else {
-            addOrganizationDetailsToCache(organizationId, orgName.get(), tenantDomain);
+            addOrganizationNameToCache(organizationId, orgName.isPresent() ? orgName.get() : null, tenantDomain);
         }
         return orgName;
     }
@@ -168,7 +175,8 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
 
     @Override
     public List<String> getChildOrganizationIds(String organizationId) throws OrganizationManagementServerException {
-        return null;
+
+        return organizationMgtDAO.getChildOrganizationIds(organizationId);
     }
 
     @Override
@@ -186,13 +194,41 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
     @Override
     public String getOrganizationStatus(String organizationId) throws OrganizationManagementServerException {
 
-        return organizationMgtDAO.getOrganizationStatus(organizationId);
+        String tenantDomain = resolveTenantDomain(organizationId);
+        if (tenantDomain == null) {
+            return organizationMgtDAO.getOrganizationStatus(organizationId);
+        }
+        OrganizationDetailsCacheEntry cachedOrgDetails = getOrganizationDetailsFromCache(organizationId, tenantDomain);
+        if (cachedOrgDetails != null && cachedOrgDetails.getStatus() != null) {
+            return cachedOrgDetails.getStatus();
+        }
+        String status = organizationMgtDAO.getOrganizationStatus(organizationId);
+        if (cachedOrgDetails != null) {
+            cachedOrgDetails.setStatus(status);
+        } else {
+            addOrganizationStatusToCache(organizationId, status, tenantDomain);
+        }
+        return status;
     }
 
     @Override
     public String getOrganizationType(String organizationId) throws OrganizationManagementServerException {
 
-        return organizationMgtDAO.getOrganizationType(organizationId);
+        String tenantDomain = resolveTenantDomain(organizationId);
+        if (tenantDomain == null) {
+            return organizationMgtDAO.getOrganizationType(organizationId);
+        }
+        OrganizationDetailsCacheEntry cachedOrgDetails = getOrganizationDetailsFromCache(organizationId, tenantDomain);
+        if (cachedOrgDetails != null && cachedOrgDetails.getType() != null) {
+            return cachedOrgDetails.getType();
+        }
+        String type = organizationMgtDAO.getOrganizationType(organizationId);
+        if (cachedOrgDetails != null) {
+            cachedOrgDetails.setStatus(type);
+        } else {
+            addOrganizationTypeToCache(organizationId, type, tenantDomain);
+        }
+        return type;
     }
 
     @Override
@@ -213,7 +249,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
     public String resolveTenantDomain(String organizationId) throws OrganizationManagementServerException {
 
         if (StringUtils.equals(SUPER_ORG_ID, organizationId)) {
-            // super tenant domain will be returned.
+            // Super tenant domain will be returned.
             return MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         }
         TenantDomainCacheEntry cachedTenantDomain = getTenantDomainFromCache(organizationId);
@@ -267,7 +303,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         if (cachedOrgDetails != null) {
             cachedOrgDetails.setAncestorOrganizationIds(ancestorOrganizationIds);
         } else {
-            addOrganizationDetailsToCache(organizationId, ancestorOrganizationIds, tenantDomain);
+            addAncestorOrganizationIdsToCache(organizationId, ancestorOrganizationIds, tenantDomain);
         }
         return ancestorOrganizationIds;
     }
@@ -290,11 +326,11 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         if (cachedOrgDetails != null && cachedOrgDetails.getOrganizationDepthInHierarchy() != null) {
             return cachedOrgDetails.getOrganizationDepthInHierarchy();
         }
-        Integer organizationDepthInHierarchy = organizationMgtDAO.getOrganizationDepthInHierarchy(organizationId);
+        int organizationDepthInHierarchy = organizationMgtDAO.getOrganizationDepthInHierarchy(organizationId);
         if (cachedOrgDetails != null) {
             cachedOrgDetails.setOrganizationDepthInHierarchy(organizationDepthInHierarchy);
         } else {
-            addOrganizationDetailsToCache(organizationId, organizationDepthInHierarchy, tenantDomain);
+            addOrganizationDepthInHierarchyToCache(organizationId, organizationDepthInHierarchy, tenantDomain);
         }
         return organizationDepthInHierarchy;
     }
@@ -321,26 +357,59 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         return cache.getValueFromCache(cacheKey, tenantDomain);
     }
 
-    private void addOrganizationDetailsToCache(String organizationId, String organizationName, String tenantDomain) {
+    private void addOrganizationNameToCache(String organizationId, String organizationName, String tenantDomain) {
 
-        OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
-        OrganizationDetailsCacheEntry cacheEntry = new OrganizationDetailsCacheEntry(organizationName);
-        OrganizationDetailsCacheByOrgId.getInstance().addToCache(cacheKey, cacheEntry, tenantDomain);
+        addOrganizationDetailsToCache(organizationId, organizationName, null, null,
+                null, null, tenantDomain);
     }
 
-    private void addOrganizationDetailsToCache(String organizationId, List<String> ancestorOrganizationIds,
-                                                   String tenantDomain) {
+    private void addOrganizationStatusToCache(String organizationId, String status, String tenantDomain) {
 
-        OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
-        OrganizationDetailsCacheEntry cacheEntry = new OrganizationDetailsCacheEntry(ancestorOrganizationIds);
-        OrganizationDetailsCacheByOrgId.getInstance().addToCache(cacheKey, cacheEntry, tenantDomain);
+        addOrganizationDetailsToCache(organizationId, null, status, null,
+                null, null, tenantDomain);
     }
 
-    private void addOrganizationDetailsToCache(String organizationId, Integer organizationDepthInHierarchy,
-                                            String tenantDomain) {
+    private void addOrganizationTypeToCache(String organizationId, String type, String tenantDomain) {
+
+        addOrganizationDetailsToCache(organizationId, null, null, type,
+                null, null, tenantDomain);
+    }
+
+    private void addOrganizationDepthInHierarchyToCache(String organizationId, Integer organizationDepthInHierarchy,
+                                                        String tenantDomain) {
+
+        addOrganizationDetailsToCache(organizationId, null, null, null,
+                organizationDepthInHierarchy, null, tenantDomain);
+    }
+
+    private void addAncestorOrganizationIdsToCache(String organizationId, List<String> ancestorOrganizationIds,
+                                                 String tenantDomain) {
+
+        addOrganizationDetailsToCache(organizationId, null, null, null,
+                null, ancestorOrganizationIds, tenantDomain);
+    }
+
+    private void addOrganizationDetailsToCache(String organizationId, String orgName, String status, String type,
+                                               Integer organizationDepthInHierarchy,
+                                               List<String> ancestorOrganizationIds, String tenantDomain) {
 
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
-        OrganizationDetailsCacheEntry cacheEntry = new OrganizationDetailsCacheEntry(organizationDepthInHierarchy);
+        OrganizationDetailsCacheEntry cacheEntry = new OrganizationDetailsCacheEntry();
+        if (orgName != null) {
+            cacheEntry.setOrgName(orgName);
+        }
+        if (status != null) {
+            cacheEntry.setStatus(status);
+        }
+        if (type != null) {
+            cacheEntry.setType(type);
+        }
+        if (organizationDepthInHierarchy != null) {
+            cacheEntry.setOrganizationDepthInHierarchy(organizationDepthInHierarchy);
+        }
+        if (ancestorOrganizationIds != null) {
+            cacheEntry.setAncestorOrganizationIds(ancestorOrganizationIds);
+        }
         OrganizationDetailsCacheByOrgId.getInstance().addToCache(cacheKey, cacheEntry, tenantDomain);
     }
 

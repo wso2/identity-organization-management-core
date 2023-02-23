@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.organization.management.service.util;
 
+import org.wso2.carbon.caching.impl.CachingConstants;
 import org.wso2.carbon.identity.organization.management.service.cache.OrgMgtCacheConfig;
 import org.wso2.carbon.identity.organization.management.service.cache.OrgMgtCacheConfigKey;
 
@@ -65,15 +66,19 @@ public class OrganizationManagementConfigUtil {
         return strValue;
     }
 
+    /**
+     * This reads the CacheConfig configuration in organization-mgt.xml.
+     * Since the name of the cache is different between the distributed mode and local mode, that is specially handled.
+     */
     public static OrgMgtCacheConfig getOrgMgtCacheConfig(String cacheManagerName, String cacheName) {
 
         OrgMgtCacheConfigKey configKey = new OrgMgtCacheConfigKey(cacheManagerName, cacheName);
         OrgMgtCacheConfig orgMgtCacheConfig = (OrgMgtCacheConfig) orgMgtCacheConfigurations.get(configKey);
-        if (orgMgtCacheConfig == null && cacheName.startsWith("$__local__$.")) {
-            configKey = new OrgMgtCacheConfigKey(cacheManagerName, cacheName.replace("$__local__$.", ""));
+        if (orgMgtCacheConfig == null && cacheName.startsWith(CachingConstants.LOCAL_CACHE_PREFIX)) {
+            configKey = new OrgMgtCacheConfigKey(cacheManagerName,
+                    cacheName.replace(CachingConstants.LOCAL_CACHE_PREFIX, ""));
             orgMgtCacheConfig = (OrgMgtCacheConfig) orgMgtCacheConfigurations.get(configKey);
         }
-
         return orgMgtCacheConfig;
     }
 }

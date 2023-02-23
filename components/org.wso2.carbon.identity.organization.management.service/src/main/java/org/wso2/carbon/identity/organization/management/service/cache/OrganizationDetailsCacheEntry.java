@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -26,22 +26,12 @@ import java.util.List;
 public class OrganizationDetailsCacheEntry extends CacheEntry {
 
     private String orgName;
+    private String status;
+    private String type;
     private List<String> ancestorOrganizationIds;
     private Integer organizationDepthInHierarchy;
 
-    public OrganizationDetailsCacheEntry(String orgName) {
-        this.orgName = orgName;
-    }
-
-    public OrganizationDetailsCacheEntry(List<String> ancestorOrganizationIds) {
-
-        this.ancestorOrganizationIds = ancestorOrganizationIds;
-    }
-
-    public OrganizationDetailsCacheEntry(Integer organizationDepthInHierarchy) {
-
-        this.organizationDepthInHierarchy = organizationDepthInHierarchy;
-    }
+    private static final long serialVersionUID = 6281482632454325986L;
 
     public String getOrgName() {
 
@@ -51,6 +41,26 @@ public class OrganizationDetailsCacheEntry extends CacheEntry {
     public void setOrgName(String orgName) {
 
         this.orgName = orgName;
+    }
+
+    public String getStatus() {
+
+        return status;
+    }
+
+    public void setStatus(String status) {
+
+        this.status = status;
+    }
+
+    public String getType() {
+
+        return type;
+    }
+
+    public void setType(String type) {
+
+        this.type = type;
     }
 
     public List<String> getAncestorOrganizationIds() {
@@ -68,7 +78,7 @@ public class OrganizationDetailsCacheEntry extends CacheEntry {
         return organizationDepthInHierarchy;
     }
 
-    public void setOrganizationDepthInHierarchy(int organizationDepthInHierarchy) {
+    public void setOrganizationDepthInHierarchy(Integer organizationDepthInHierarchy) {
 
         this.organizationDepthInHierarchy = organizationDepthInHierarchy;
     }

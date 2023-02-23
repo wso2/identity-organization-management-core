@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -25,11 +25,15 @@ public class OrganizationIdCacheKey extends CacheKey {
 
     private String orgId;
 
+    private static final long serialVersionUID = 6281482632454325986L;
+
     public OrganizationIdCacheKey(String orgId) {
+
         this.orgId = orgId;
     }
 
     public String getOrganizationId() {
+
         return orgId;
     }
 
