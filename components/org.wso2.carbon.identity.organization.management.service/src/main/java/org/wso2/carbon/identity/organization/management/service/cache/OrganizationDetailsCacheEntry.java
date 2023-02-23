@@ -20,8 +20,10 @@ package org.wso2.carbon.identity.organization.management.service.cache;
 
 import java.util.List;
 
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_ORGANIZATION_DEPTH_IN_HIERARCHY;
+
 /**
- * Organization cache entry.
+ * Organization details cache entry.
  */
 public class OrganizationDetailsCacheEntry extends CacheEntry {
 
@@ -29,9 +31,18 @@ public class OrganizationDetailsCacheEntry extends CacheEntry {
     private String status;
     private String type;
     private List<String> ancestorOrganizationIds;
-    private Integer organizationDepthInHierarchy;
+    private int organizationDepthInHierarchy;
 
     private static final long serialVersionUID = 6281482632454325986L;
+
+    public OrganizationDetailsCacheEntry(Builder builder) {
+
+        this.orgName = builder.orgName;
+        this.status = builder.status;
+        this.type = builder.type;
+        this.ancestorOrganizationIds = builder.ancestorOrganizationIds;
+        this.organizationDepthInHierarchy = builder.organizationDepthInHierarchy;
+    }
 
     public String getOrgName() {
 
@@ -73,13 +84,60 @@ public class OrganizationDetailsCacheEntry extends CacheEntry {
         this.ancestorOrganizationIds = ancestorOrganizationIds;
     }
 
-    public Integer getOrganizationDepthInHierarchy() {
+    public int getOrganizationDepthInHierarchy() {
 
         return organizationDepthInHierarchy;
     }
 
-    public void setOrganizationDepthInHierarchy(Integer organizationDepthInHierarchy) {
+    public void setOrganizationDepthInHierarchy(int organizationDepthInHierarchy) {
 
         this.organizationDepthInHierarchy = organizationDepthInHierarchy;
+    }
+
+    /**
+     * Builder class for OrganizationDetailsCacheEntry object.
+     */
+    public static class Builder {
+
+        private String orgName;
+        private String status;
+        private String type;
+        private List<String> ancestorOrganizationIds;
+        private int organizationDepthInHierarchy = DEFAULT_ORGANIZATION_DEPTH_IN_HIERARCHY;
+
+        public Builder setOrgName(String orgName) {
+
+            this.orgName = orgName;
+            return this;
+        }
+
+        public Builder setStatus(String status) {
+
+            this.status = status;
+            return this;
+        }
+
+        public Builder setType(String type) {
+
+            this.type = type;
+            return this;
+        }
+
+        public Builder setAncestorOrganizationIds(List<String> ancestorOrganizationIds) {
+
+            this.ancestorOrganizationIds = ancestorOrganizationIds;
+            return this;
+        }
+
+        public Builder setOrganizationDepthInHierarchy(int organizationDepthInHierarchy) {
+
+            this.organizationDepthInHierarchy = organizationDepthInHierarchy;
+            return this;
+        }
+
+        public OrganizationDetailsCacheEntry build() {
+
+            return new OrganizationDetailsCacheEntry(this);
+        }
     }
 }

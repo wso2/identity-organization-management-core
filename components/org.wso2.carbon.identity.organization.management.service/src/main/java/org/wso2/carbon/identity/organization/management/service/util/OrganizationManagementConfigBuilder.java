@@ -45,6 +45,16 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CACHE;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CACHE_CAPACITY;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CACHE_CONFIG;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CACHE_ENABLE;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CACHE_MANAGER;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CACHE_MANAGER_NAME;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CACHE_NAME;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CACHE_TIMEOUT;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_DISTRIBUTED_CACHE;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_TEMPORARY;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_MGT_CONFIG_FILE;
 
 /**
@@ -58,16 +68,6 @@ public class OrganizationManagementConfigBuilder {
     private static final OrganizationManagementConfigBuilder organizationManagementConfigBuilder =
             new OrganizationManagementConfigBuilder();
     private OMElement documentElement;
-    private static final String CACHE_CONFIG = "CacheConfig";
-    private static final String CACHE_MANAGER = "CacheManager";
-    private static final String CACHE_MANAGER_NAME = "name";
-    private static final String CACHE = "Cache";
-    private static final String CACHE_NAME = "name";
-    private static final String CACHE_ENABLE = "enable";
-    private static final String CACHE_TIMEOUT = "timeout";
-    private static final String CACHE_CAPACITY = "capacity";
-    private static final String IS_DISTRIBUTED_CACHE = "isDistributed";
-    private static final String IS_TEMPORARY = "isTemporary";
 
     public static OrganizationManagementConfigBuilder getInstance() {
 

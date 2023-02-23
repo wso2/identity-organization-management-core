@@ -96,6 +96,19 @@ public class OrganizationManagementConstants {
     public static final String IS_ORG_QUALIFIED_URLS_SUPPORTED_FOR_LEVEL_ONE_ORGS =
             "LevelOneOrganizationConfigs.SupportOrganizationQualifiedURLs";
 
+    // Organization management cache constants.
+    public static final String CACHE_CONFIG = "CacheConfig";
+    public static final String CACHE_MANAGER = "CacheManager";
+    public static final String CACHE_MANAGER_NAME = "name";
+    public static final String CACHE = "Cache";
+    public static final String CACHE_NAME = "name";
+    public static final String CACHE_ENABLE = "enable";
+    public static final String CACHE_TIMEOUT = "timeout";
+    public static final String CACHE_CAPACITY = "capacity";
+    public static final String IS_DISTRIBUTED_CACHE = "isDistributed";
+    public static final String IS_TEMPORARY = "isTemporary";
+    public static final int DEFAULT_ORGANIZATION_DEPTH_IN_HIERARCHY = -1;
+
     /**
      * Contains constants related to filter operations.
      */

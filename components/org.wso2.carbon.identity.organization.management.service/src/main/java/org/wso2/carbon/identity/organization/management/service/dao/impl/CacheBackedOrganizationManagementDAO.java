@@ -36,6 +36,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_ORGANIZATION_DEPTH_IN_HIERARCHY;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUPER_ORG_ID;
 
 /**
@@ -323,7 +324,8 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
             return organizationMgtDAO.getOrganizationDepthInHierarchy(organizationId);
         }
         OrganizationDetailsCacheEntry cachedOrgDetails = getOrganizationDetailsFromCache(organizationId, tenantDomain);
-        if (cachedOrgDetails != null && cachedOrgDetails.getOrganizationDepthInHierarchy() != null) {
+        if (cachedOrgDetails != null &&
+                cachedOrgDetails.getOrganizationDepthInHierarchy() != DEFAULT_ORGANIZATION_DEPTH_IN_HIERARCHY) {
             return cachedOrgDetails.getOrganizationDepthInHierarchy();
         }
         int organizationDepthInHierarchy = organizationMgtDAO.getOrganizationDepthInHierarchy(organizationId);
@@ -359,58 +361,47 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
 
     private void addOrganizationNameToCache(String organizationId, String organizationName, String tenantDomain) {
 
-        addOrganizationDetailsToCache(organizationId, organizationName, null, null,
-                null, null, tenantDomain);
+        OrganizationDetailsCacheEntry cacheEntry = new OrganizationDetailsCacheEntry.Builder()
+                .setOrgName(organizationName).build();
+        addOrganizationDetailsToCache(organizationId, cacheEntry, tenantDomain);
     }
 
     private void addOrganizationStatusToCache(String organizationId, String status, String tenantDomain) {
 
-        addOrganizationDetailsToCache(organizationId, null, status, null,
-                null, null, tenantDomain);
+        OrganizationDetailsCacheEntry cacheEntry = new OrganizationDetailsCacheEntry.Builder()
+                .setStatus(status).build();
+        addOrganizationDetailsToCache(organizationId, cacheEntry, tenantDomain);
     }
 
     private void addOrganizationTypeToCache(String organizationId, String type, String tenantDomain) {
 
-        addOrganizationDetailsToCache(organizationId, null, null, type,
-                null, null, tenantDomain);
+        OrganizationDetailsCacheEntry cacheEntry = new OrganizationDetailsCacheEntry.Builder()
+                .setType(type).build();
+        addOrganizationDetailsToCache(organizationId, cacheEntry, tenantDomain);
     }
 
-    private void addOrganizationDepthInHierarchyToCache(String organizationId, Integer organizationDepthInHierarchy,
+    private void addOrganizationDepthInHierarchyToCache(String organizationId, int organizationDepthInHierarchy,
                                                         String tenantDomain) {
 
-        addOrganizationDetailsToCache(organizationId, null, null, null,
-                organizationDepthInHierarchy, null, tenantDomain);
+        OrganizationDetailsCacheEntry cacheEntry = new OrganizationDetailsCacheEntry.Builder()
+                .setOrganizationDepthInHierarchy(organizationDepthInHierarchy).build();
+        addOrganizationDetailsToCache(organizationId, cacheEntry, tenantDomain);
     }
 
     private void addAncestorOrganizationIdsToCache(String organizationId, List<String> ancestorOrganizationIds,
                                                  String tenantDomain) {
 
-        addOrganizationDetailsToCache(organizationId, null, null, null,
-                null, ancestorOrganizationIds, tenantDomain);
+        OrganizationDetailsCacheEntry cacheEntry = new OrganizationDetailsCacheEntry.Builder()
+                .setAncestorOrganizationIds(ancestorOrganizationIds).build();
+        addOrganizationDetailsToCache(organizationId, cacheEntry, tenantDomain);
     }
 
-    private void addOrganizationDetailsToCache(String organizationId, String orgName, String status, String type,
-                                               Integer organizationDepthInHierarchy,
-                                               List<String> ancestorOrganizationIds, String tenantDomain) {
+    private void addOrganizationDetailsToCache(String organizationId,
+                                               OrganizationDetailsCacheEntry organizationDetailsCacheEntry,
+                                               String tenantDomain) {
 
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
-        OrganizationDetailsCacheEntry cacheEntry = new OrganizationDetailsCacheEntry();
-        if (orgName != null) {
-            cacheEntry.setOrgName(orgName);
-        }
-        if (status != null) {
-            cacheEntry.setStatus(status);
-        }
-        if (type != null) {
-            cacheEntry.setType(type);
-        }
-        if (organizationDepthInHierarchy != null) {
-            cacheEntry.setOrganizationDepthInHierarchy(organizationDepthInHierarchy);
-        }
-        if (ancestorOrganizationIds != null) {
-            cacheEntry.setAncestorOrganizationIds(ancestorOrganizationIds);
-        }
-        OrganizationDetailsCacheByOrgId.getInstance().addToCache(cacheKey, cacheEntry, tenantDomain);
+        OrganizationDetailsCacheByOrgId.getInstance().addToCache(cacheKey, organizationDetailsCacheEntry, tenantDomain);
     }
 
     private void clearTenantDomainCache(String organizationId) {
