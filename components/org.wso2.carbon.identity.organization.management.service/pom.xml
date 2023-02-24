@@ -49,6 +49,10 @@
             <artifactId>org.wso2.carbon.tenant.mgt</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-annotations</artifactId>
+        </dependency>
 
         <!--Test Dependencies-->
         <dependency>

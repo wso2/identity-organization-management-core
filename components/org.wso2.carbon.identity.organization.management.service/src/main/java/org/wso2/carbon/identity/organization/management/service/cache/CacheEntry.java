@@ -28,10 +28,10 @@ public abstract class CacheEntry implements Serializable {
 
     private static final long serialVersionUID = -7349132415139486164L;
 
+    private long validityPeriod;
+
     protected CacheEntry() {
     }
-
-    private long validityPeriod;
 
     public long getValidityPeriod() {
 

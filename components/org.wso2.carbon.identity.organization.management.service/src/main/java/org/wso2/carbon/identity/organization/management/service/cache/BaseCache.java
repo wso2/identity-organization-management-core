@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.organization.management.service.cache;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.caching.impl.CacheImpl;
@@ -72,6 +73,8 @@ public abstract class BaseCache<K extends Serializable, V extends Serializable> 
         }
     }
 
+    // TODO: Suppression can be removed after addressing https://github.com/wso2/product-is/issues/15553
+    @SuppressFBWarnings({"DC_DOUBLECHECK"})
     private Cache<K, V> getBaseCache() {
 
         Cache<K, V> cache;
