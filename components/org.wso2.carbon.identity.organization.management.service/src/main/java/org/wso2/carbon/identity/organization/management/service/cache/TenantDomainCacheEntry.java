@@ -23,9 +23,9 @@ package org.wso2.carbon.identity.organization.management.service.cache;
  */
 public class TenantDomainCacheEntry extends CacheEntry {
 
-    private String tenantDomain;
-
     private static final long serialVersionUID = 6281482632454325986L;
+
+    private String tenantDomain;
 
     public TenantDomainCacheEntry(String tenantDomain) {
 

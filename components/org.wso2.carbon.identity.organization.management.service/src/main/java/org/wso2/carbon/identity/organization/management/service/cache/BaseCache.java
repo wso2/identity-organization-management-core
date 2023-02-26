@@ -192,7 +192,7 @@ public abstract class BaseCache<K extends Serializable, V extends Serializable> 
     /**
      * Retrieves a cache entry.
      *
-     * @param key CacheKey
+     * @param key CacheKey.
      * @return Cached entry.
      * @param tenantId The tenant Id where the cache is maintained.
      */

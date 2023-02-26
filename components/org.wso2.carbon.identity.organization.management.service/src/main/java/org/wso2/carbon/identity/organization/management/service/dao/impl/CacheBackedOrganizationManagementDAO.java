@@ -30,7 +30,6 @@ import org.wso2.carbon.identity.organization.management.service.filter.Expressio
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.time.Instant;
 import java.util.List;
@@ -38,6 +37,7 @@ import java.util.Optional;
 
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_ORGANIZATION_DEPTH_IN_HIERARCHY;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUPER_ORG_ID;
+import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
 
 /**
  * Cached DAO of organization management. All the DAO access should happen through this layer to ensure single point
@@ -71,6 +71,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         if (tenantDomain == null) {
             return organizationMgtDAO.isOrganizationExistById(organizationId);
         }
+
         OrganizationDetailsCacheEntry cachedOrgDetails = getOrganizationDetailsFromCache(organizationId, tenantDomain);
         if (cachedOrgDetails != null) {
             return true;
@@ -92,10 +93,12 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         if (tenantDomain == null) {
             return organizationMgtDAO.getOrganizationNameById(organizationId);
         }
+
         OrganizationDetailsCacheEntry cachedOrgDetails = getOrganizationDetailsFromCache(organizationId, tenantDomain);
         if (cachedOrgDetails != null && cachedOrgDetails.getOrgName() != null) {
             return Optional.ofNullable(cachedOrgDetails.getOrgName());
         }
+
         Optional<String> orgName = organizationMgtDAO.getOrganizationNameById(organizationId);
         if (cachedOrgDetails != null && orgName.isPresent()) {
             cachedOrgDetails.setOrgName(orgName.get());
@@ -199,10 +202,12 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         if (tenantDomain == null) {
             return organizationMgtDAO.getOrganizationStatus(organizationId);
         }
+
         OrganizationDetailsCacheEntry cachedOrgDetails = getOrganizationDetailsFromCache(organizationId, tenantDomain);
         if (cachedOrgDetails != null && cachedOrgDetails.getStatus() != null) {
             return cachedOrgDetails.getStatus();
         }
+
         String status = organizationMgtDAO.getOrganizationStatus(organizationId);
         if (cachedOrgDetails != null) {
             cachedOrgDetails.setStatus(status);
@@ -219,10 +224,12 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         if (tenantDomain == null) {
             return organizationMgtDAO.getOrganizationType(organizationId);
         }
+
         OrganizationDetailsCacheEntry cachedOrgDetails = getOrganizationDetailsFromCache(organizationId, tenantDomain);
         if (cachedOrgDetails != null && cachedOrgDetails.getType() != null) {
             return cachedOrgDetails.getType();
         }
+
         String type = organizationMgtDAO.getOrganizationType(organizationId);
         if (cachedOrgDetails != null) {
             cachedOrgDetails.setStatus(type);
@@ -251,7 +258,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
 
         if (StringUtils.equals(SUPER_ORG_ID, organizationId)) {
             // Super tenant domain will be returned.
-            return MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+            return SUPER_TENANT_DOMAIN_NAME;
         }
         TenantDomainCacheEntry cachedTenantDomain = getTenantDomainFromCache(organizationId);
         if (cachedTenantDomain != null) {
@@ -296,10 +303,12 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         if (tenantDomain == null) {
             return organizationMgtDAO.getAncestorOrganizationIds(organizationId);
         }
+
         OrganizationDetailsCacheEntry cachedOrgDetails = getOrganizationDetailsFromCache(organizationId, tenantDomain);
         if (cachedOrgDetails != null && cachedOrgDetails.getAncestorOrganizationIds() != null) {
             return cachedOrgDetails.getAncestorOrganizationIds();
         }
+
         List<String> ancestorOrganizationIds = organizationMgtDAO.getAncestorOrganizationIds(organizationId);
         if (cachedOrgDetails != null) {
             cachedOrgDetails.setAncestorOrganizationIds(ancestorOrganizationIds);
@@ -323,11 +332,13 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         if (tenantDomain == null) {
             return organizationMgtDAO.getOrganizationDepthInHierarchy(organizationId);
         }
+
         OrganizationDetailsCacheEntry cachedOrgDetails = getOrganizationDetailsFromCache(organizationId, tenantDomain);
         if (cachedOrgDetails != null &&
                 cachedOrgDetails.getOrganizationDepthInHierarchy() != DEFAULT_ORGANIZATION_DEPTH_IN_HIERARCHY) {
             return cachedOrgDetails.getOrganizationDepthInHierarchy();
         }
+
         int organizationDepthInHierarchy = organizationMgtDAO.getOrganizationDepthInHierarchy(organizationId);
         if (cachedOrgDetails != null) {
             cachedOrgDetails.setOrganizationDepthInHierarchy(organizationDepthInHierarchy);
@@ -341,7 +352,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
 
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
         TenantDomainCacheByOrgId cache = TenantDomainCacheByOrgId.getInstance();
-        return cache.getValueFromCache(cacheKey, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+        return cache.getValueFromCache(cacheKey, SUPER_TENANT_DOMAIN_NAME);
     }
 
     private void addTenantDomainToCache(String organizationId, String tenantDomain) {
@@ -349,7 +360,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
         TenantDomainCacheEntry cacheEntry = new TenantDomainCacheEntry(tenantDomain);
         TenantDomainCacheByOrgId.getInstance()
-                .addToCache(cacheKey, cacheEntry, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+                .addToCache(cacheKey, cacheEntry, SUPER_TENANT_DOMAIN_NAME);
     }
 
     private OrganizationDetailsCacheEntry getOrganizationDetailsFromCache(String organizationId, String tenantDomain) {
@@ -407,7 +418,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
     private void clearTenantDomainCache(String organizationId) {
 
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
-        TenantDomainCacheByOrgId.getInstance().clearCacheEntry(cacheKey, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+        TenantDomainCacheByOrgId.getInstance().clearCacheEntry(cacheKey, SUPER_TENANT_DOMAIN_NAME);
     }
 
     private void clearOrganizationDetailsCache(String organizationId, String tenantDomain) {

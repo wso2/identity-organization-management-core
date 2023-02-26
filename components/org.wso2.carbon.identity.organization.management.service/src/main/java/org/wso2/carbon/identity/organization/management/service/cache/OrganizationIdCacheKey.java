@@ -23,9 +23,9 @@ package org.wso2.carbon.identity.organization.management.service.cache;
  */
 public class OrganizationIdCacheKey extends CacheKey {
 
-    private String orgId;
-
     private static final long serialVersionUID = 6281482632454325986L;
+
+    private String orgId;
 
     public OrganizationIdCacheKey(String orgId) {
 

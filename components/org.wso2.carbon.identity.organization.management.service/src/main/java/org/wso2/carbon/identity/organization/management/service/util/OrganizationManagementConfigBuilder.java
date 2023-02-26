@@ -67,6 +67,7 @@ public class OrganizationManagementConfigBuilder {
     private static final Map<OrgMgtCacheConfigKey, OrgMgtCacheConfig> orgMgtCacheConfigurations = new HashMap<>();
     private static final OrganizationManagementConfigBuilder organizationManagementConfigBuilder =
             new OrganizationManagementConfigBuilder();
+
     private OMElement documentElement;
 
     public static OrganizationManagementConfigBuilder getInstance() {
@@ -208,66 +209,73 @@ public class OrganizationManagementConfigBuilder {
     private void buildCacheConfig() {
 
         OMElement cacheConfig = this.documentElement.getFirstChildWithName(new QName(CACHE_CONFIG));
-        if (cacheConfig != null) {
-            Iterator<OMElement> cacheManagers = cacheConfig.getChildrenWithName(new QName(CACHE_MANAGER));
+        if (cacheConfig == null) {
+            return;
+        }
 
-            if (cacheManagers != null) {
-                while (cacheManagers.hasNext()) {
-                    OMElement cacheManager = cacheManagers.next();
+        Iterator<OMElement> cacheManagers = cacheConfig.getChildrenWithName(new QName(CACHE_MANAGER));
+        if (cacheManagers == null) {
+            return;
+        }
 
-                    String cacheManagerName = cacheManager.getAttributeValue(new QName(CACHE_MANAGER_NAME));
+        while (cacheManagers.hasNext()) {
+            OMElement cacheManager = cacheManagers.next();
 
-                    if (StringUtils.isBlank(cacheManagerName)) {
-                        LOG.warn("CacheManager name not defined correctly");
-                    }
+            String cacheManagerName = cacheManager.getAttributeValue(new QName(CACHE_MANAGER_NAME));
 
-                    Iterator<OMElement> caches = cacheManager.getChildrenWithName(new QName(CACHE));
+            if (StringUtils.isBlank(cacheManagerName)) {
+                LOG.warn("CacheManager name not defined correctly");
+            }
 
-                    if (caches != null) {
-                        while (caches.hasNext()) {
-                            OMElement cache = caches.next();
+            Iterator<OMElement> caches = cacheManager.getChildrenWithName(new QName(CACHE));
 
-                            String cacheName = cache.getAttributeValue(new QName(CACHE_NAME));
-
-                            if (StringUtils.isBlank(cacheName)) {
-                                LOG.warn("Cache name not defined correctly");
-                            }
-
-                            OrgMgtCacheConfigKey orgMgtCacheConfigKey = new OrgMgtCacheConfigKey(cacheManagerName,
-                                    cacheName);
-                            OrgMgtCacheConfig orgMgtCacheConfig = new OrgMgtCacheConfig(orgMgtCacheConfigKey);
-
-                            String enable = cache.getAttributeValue(new QName(CACHE_ENABLE));
-                            if (StringUtils.isNotBlank(enable)) {
-                                orgMgtCacheConfig.setEnabled(Boolean.parseBoolean(enable));
-                            }
-
-                            String timeout = cache.getAttributeValue(new QName(CACHE_TIMEOUT));
-                            if (StringUtils.isNotBlank(timeout)) {
-                                orgMgtCacheConfig.setTimeout(Integer.parseInt(timeout));
-                            }
-
-                            String capacity = cache.getAttributeValue(new QName(CACHE_CAPACITY));
-                            if (StringUtils.isNotBlank(capacity)) {
-                                orgMgtCacheConfig.setCapacity(Integer.parseInt(capacity));
-                            }
-
-                            String isDistributedCache = cache.getAttributeValue(new QName(IS_DISTRIBUTED_CACHE));
-                            if (StringUtils.isNotBlank(isDistributedCache)) {
-                                orgMgtCacheConfig.setDistributed(Boolean.parseBoolean(isDistributedCache));
-                            }
-
-                            String isTemporaryCache = cache.getAttributeValue(new QName(IS_TEMPORARY));
-                            if (StringUtils.isNotBlank(isTemporaryCache)) {
-                                orgMgtCacheConfig.setTemporary(Boolean.parseBoolean(isTemporaryCache));
-                            }
-
-                            // Add the config to container
-                            orgMgtCacheConfigurations.put(orgMgtCacheConfigKey, orgMgtCacheConfig);
-                        }
-                    }
+            if (caches != null) {
+                while (caches.hasNext()) {
+                    OMElement cache = caches.next();
+                    storeCacheConfiguration(cacheManagerName, cache);
                 }
             }
         }
+    }
+
+    private void storeCacheConfiguration(String cacheManagerName, OMElement cache) {
+
+        String cacheName = cache.getAttributeValue(new QName(CACHE_NAME));
+
+        if (StringUtils.isBlank(cacheName)) {
+            LOG.warn("Cache name not defined correctly");
+        }
+
+        OrgMgtCacheConfigKey orgMgtCacheConfigKey = new OrgMgtCacheConfigKey(cacheManagerName,
+                cacheName);
+        OrgMgtCacheConfig orgMgtCacheConfig = new OrgMgtCacheConfig(orgMgtCacheConfigKey);
+
+        String enable = cache.getAttributeValue(new QName(CACHE_ENABLE));
+        if (StringUtils.isNotBlank(enable)) {
+            orgMgtCacheConfig.setEnabled(Boolean.parseBoolean(enable));
+        }
+
+        String timeout = cache.getAttributeValue(new QName(CACHE_TIMEOUT));
+        if (StringUtils.isNotBlank(timeout)) {
+            orgMgtCacheConfig.setTimeout(Integer.parseInt(timeout));
+        }
+
+        String capacity = cache.getAttributeValue(new QName(CACHE_CAPACITY));
+        if (StringUtils.isNotBlank(capacity)) {
+            orgMgtCacheConfig.setCapacity(Integer.parseInt(capacity));
+        }
+
+        String isDistributedCache = cache.getAttributeValue(new QName(IS_DISTRIBUTED_CACHE));
+        if (StringUtils.isNotBlank(isDistributedCache)) {
+            orgMgtCacheConfig.setDistributed(Boolean.parseBoolean(isDistributedCache));
+        }
+
+        String isTemporaryCache = cache.getAttributeValue(new QName(IS_TEMPORARY));
+        if (StringUtils.isNotBlank(isTemporaryCache)) {
+            orgMgtCacheConfig.setTemporary(Boolean.parseBoolean(isTemporaryCache));
+        }
+
+        // Add the config to container
+        orgMgtCacheConfigurations.put(orgMgtCacheConfigKey, orgMgtCacheConfig);
     }
 }

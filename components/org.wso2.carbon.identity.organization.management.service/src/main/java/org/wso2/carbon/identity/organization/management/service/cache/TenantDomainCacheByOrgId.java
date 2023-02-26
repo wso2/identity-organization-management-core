@@ -25,7 +25,13 @@ public class TenantDomainCacheByOrgId extends BaseCache<OrganizationIdCacheKey, 
 
     private static final String CACHE_NAME = "TenantDomainCacheByOrgId";
 
-    private static volatile TenantDomainCacheByOrgId instance;
+    /**
+     * Tenant domain cache lazy loader.
+     */
+    private static class TenantDomainCacheByOrgIdSingleton {
+
+        private static final TenantDomainCacheByOrgId INSTANCE = new TenantDomainCacheByOrgId();
+    }
 
     private TenantDomainCacheByOrgId() {
 
@@ -34,13 +40,6 @@ public class TenantDomainCacheByOrgId extends BaseCache<OrganizationIdCacheKey, 
 
     public static TenantDomainCacheByOrgId getInstance() {
 
-        if (instance == null) {
-            synchronized (TenantDomainCacheByOrgId.class) {
-                if (instance == null) {
-                    instance = new TenantDomainCacheByOrgId();
-                }
-            }
-        }
-        return instance;
+        return TenantDomainCacheByOrgIdSingleton.INSTANCE;
     }
 }

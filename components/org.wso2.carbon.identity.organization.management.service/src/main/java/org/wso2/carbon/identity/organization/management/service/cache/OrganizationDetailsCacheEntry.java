@@ -27,13 +27,13 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
  */
 public class OrganizationDetailsCacheEntry extends CacheEntry {
 
+    private static final long serialVersionUID = 6281482632454325986L;
+
     private String orgName;
     private String status;
     private String type;
     private List<String> ancestorOrganizationIds;
     private int organizationDepthInHierarchy;
-
-    private static final long serialVersionUID = 6281482632454325986L;
 
     public OrganizationDetailsCacheEntry(Builder builder) {
 

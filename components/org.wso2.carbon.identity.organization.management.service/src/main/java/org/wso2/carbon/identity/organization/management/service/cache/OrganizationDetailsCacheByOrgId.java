@@ -25,7 +25,13 @@ public class OrganizationDetailsCacheByOrgId extends BaseCache<OrganizationIdCac
 
     private static final String CACHE_NAME = "OrganizationDetailsCacheByOrgId";
 
-    private static volatile OrganizationDetailsCacheByOrgId instance;
+    /**
+     * Organization details cache lazy loader.
+     */
+    private static class OrganizationDetailsCacheByOrgIdSingleton {
+
+        private static final OrganizationDetailsCacheByOrgId INSTANCE = new OrganizationDetailsCacheByOrgId();
+    }
 
     private OrganizationDetailsCacheByOrgId() {
 
@@ -34,13 +40,6 @@ public class OrganizationDetailsCacheByOrgId extends BaseCache<OrganizationIdCac
 
     public static OrganizationDetailsCacheByOrgId getInstance() {
 
-        if (instance == null) {
-            synchronized (OrganizationDetailsCacheByOrgId.class) {
-                if (instance == null) {
-                    instance = new OrganizationDetailsCacheByOrgId();
-                }
-            }
-        }
-        return instance;
+        return OrganizationDetailsCacheByOrgIdSingleton.INSTANCE;
     }
 }

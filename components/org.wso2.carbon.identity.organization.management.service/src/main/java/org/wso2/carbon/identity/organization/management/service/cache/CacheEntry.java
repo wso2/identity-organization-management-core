@@ -42,6 +42,4 @@ public abstract class CacheEntry implements Serializable {
 
         this.validityPeriod = validityPeriod;
     }
-
-
 }
