@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.identity.organization.management.service.listener;
 
-import org.wso2.carbon.identity.organization.management.service.exception.NotImplementedException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
@@ -47,7 +46,7 @@ public interface OrganizationManagerListener {
     default void postDeleteOrganization(String organizationId, int organizationDepthInHierarchy)
             throws OrganizationManagementException {
 
-        throw new NotImplementedException("This method is not implemented.");
+        // This default method is added to avoid breaking changes. This method will be removed in the next major release.
     }
 
     void prePatchOrganization(String organizationId, List<PatchOperation> patchOperations) throws
