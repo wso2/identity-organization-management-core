@@ -19,6 +19,9 @@
 package org.wso2.carbon.identity.organization.management.service;
 
 import org.apache.commons.lang.StringUtils;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -36,6 +39,7 @@ import org.wso2.carbon.identity.organization.management.service.listener.Organiz
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
+import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.identity.organization.management.util.TestUtils;
 import org.wso2.carbon.user.api.AuthorizationManager;
 import org.wso2.carbon.user.api.UserRealm;
@@ -100,12 +104,15 @@ public class OrganizationManagerImplTest {
 
     private AuthorizationManager authorizationManager;
 
+    private MockedStatic<Utils> mockedUtilities;
+
     @BeforeClass
     public void init() {
 
         realmService = mock(RealmService.class);
         userRealm = mock(UserRealm.class);
         authorizationManager = mock(AuthorizationManager.class);
+        mockUtils();
     }
 
     @BeforeMethod
@@ -130,6 +137,12 @@ public class OrganizationManagerImplTest {
     public void tearDown() throws Exception {
 
         TestUtils.closeH2Base();
+    }
+
+    @AfterClass
+    public void close() {
+
+        mockedUtilities.close();
     }
 
     @Test
@@ -517,6 +530,14 @@ public class OrganizationManagerImplTest {
         OrganizationManagementDataHolder.getInstance().setRealmService(realmService);
         when(realmService.getTenantUserRealm(anyInt())).thenReturn(userRealm);
         when(userRealm.getAuthorizationManager()).thenReturn(authorizationManager);
+    }
+
+    private void mockUtils() {
+
+        mockedUtilities = Mockito.mockStatic(Utils.class, Mockito.withSettings()
+                .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+        mockedUtilities.when(() -> Utils.getTenantId("carbon.super")).thenReturn(-1234);
+        mockedUtilities.when(() -> Utils.getTenantDomain(-1234)).thenReturn("carbon.super");
     }
 
     private Organization getOrganization(String id, String name, String description, String parent, String type) {

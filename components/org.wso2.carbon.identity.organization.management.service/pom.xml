@@ -49,6 +49,10 @@
             <artifactId>org.wso2.carbon.tenant.mgt</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-annotations</artifactId>
+        </dependency>
 
         <!--Test Dependencies-->
         <dependency>
@@ -100,6 +104,8 @@
                         </Export-Package>
                         <Import-Package>
                             javax.sql,
+                            javax.cache.*,
+                            org.wso2.carbon.caching.impl.*,
                             javax.xml.stream;version="${equinox.osgi.stax-api.imp.pkg.version.range}",
                             org.apache.axiom.om.*; version="${axiom.osgi.version.range}",
                             org.apache.commons.collections;version="${org.apache.commons.collections.imp.pkg.version.range}",

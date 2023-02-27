@@ -18,6 +18,10 @@
 
 package org.wso2.carbon.identity.organization.management.service.util;
 
+import org.wso2.carbon.caching.impl.CachingConstants;
+import org.wso2.carbon.identity.organization.management.service.cache.OrgMgtCacheConfig;
+import org.wso2.carbon.identity.organization.management.service.cache.OrgMgtCacheConfigKey;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,10 +32,13 @@ import java.util.Map;
 public class OrganizationManagementConfigUtil {
 
     private static Map<String, Object> orgMgtConfigurations = new HashMap<>();
+    private static Map<OrgMgtCacheConfigKey, OrgMgtCacheConfig> orgMgtCacheConfigurations = new HashMap();
 
     public static void loadOrgMgtConfigurations() {
 
         orgMgtConfigurations = OrganizationManagementConfigBuilder.getInstance().getOrgMgtConfigurations();
+        orgMgtCacheConfigurations = OrganizationManagementConfigBuilder.getInstance()
+                .getOrgMgtCacheConfigurations();
     }
 
     /**
@@ -57,5 +64,21 @@ public class OrganizationManagementConfigUtil {
             strValue = String.valueOf(value);
         }
         return strValue;
+    }
+
+    /**
+     * This reads the CacheConfig configuration in organization-mgt.xml.
+     * Since the name of the cache is different between the distributed mode and local mode, that is specially handled.
+     */
+    public static OrgMgtCacheConfig getOrgMgtCacheConfig(String cacheManagerName, String cacheName) {
+
+        OrgMgtCacheConfigKey configKey = new OrgMgtCacheConfigKey(cacheManagerName, cacheName);
+        OrgMgtCacheConfig orgMgtCacheConfig = (OrgMgtCacheConfig) orgMgtCacheConfigurations.get(configKey);
+        if (orgMgtCacheConfig == null && cacheName.startsWith(CachingConstants.LOCAL_CACHE_PREFIX)) {
+            configKey = new OrgMgtCacheConfigKey(cacheManagerName,
+                    cacheName.replace(CachingConstants.LOCAL_CACHE_PREFIX, ""));
+            orgMgtCacheConfig = (OrgMgtCacheConfig) orgMgtCacheConfigurations.get(configKey);
+        }
+        return orgMgtCacheConfig;
     }
 }

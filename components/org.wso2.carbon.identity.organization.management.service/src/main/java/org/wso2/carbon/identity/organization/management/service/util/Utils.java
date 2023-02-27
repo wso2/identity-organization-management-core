@@ -34,7 +34,9 @@ import org.wso2.carbon.identity.organization.management.service.exception.Organi
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.common.User;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -360,5 +362,53 @@ public class Utils {
             LOG.error("Error while checking the depth of the given organization.");
         }
         return true;
+    }
+
+    /**
+     * Retrieve tenant ID for a given tenant domain.
+     *
+     * @param tenantDomain  Tenant domain.
+     * @return the tenant ID.
+     * @throws RuntimeException If error occurred when retrieving tenant ID or when given tenant domain is invalid.
+     */
+    public static int getTenantId(String tenantDomain) throws RuntimeException {
+
+        int tenantId = MultitenantConstants.INVALID_TENANT_ID;
+        try {
+            if (OrganizationManagementDataHolder.getInstance().getRealmService() != null) {
+                tenantId = OrganizationManagementDataHolder.getInstance().getRealmService().getTenantManager()
+                        .getTenantId(tenantDomain);
+            }
+        } catch (UserStoreException e) {
+            throw new RuntimeException("Error occurred while retrieving tenantId for tenantDomain: " + tenantDomain +
+                    e.getMessage(), e);
+        }
+        if (tenantId == MultitenantConstants.INVALID_TENANT_ID) {
+            throw new RuntimeException("Invalid tenant domain " + tenantDomain);
+        }
+        return tenantId;
+    }
+
+    /**
+     * Retrieve tenant domain for a given tenant ID.
+     *
+     * @param tenantId  Tenant ID.
+     * @return the tenant domain.
+     * @throws RuntimeException If error occurred when retrieving tenant domain or when given tenant ID is invalid.
+     */
+    public static String getTenantDomain(int tenantId) throws RuntimeException {
+
+        String tenantDomain = null;
+        try {
+            tenantDomain = OrganizationManagementDataHolder.getInstance().getRealmService().getTenantManager()
+                    .getDomain(tenantId);
+        } catch (UserStoreException e) {
+            throw new RuntimeException("Error occurred while retrieving tenantDomain for tenantId: " + tenantId +
+                    e.getMessage(), e);
+        }
+        if (tenantDomain == null) {
+            throw new RuntimeException("Can not find the tenant domain for the tenant id " + tenantId);
+        }
+        return tenantDomain;
     }
 }
