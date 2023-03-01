@@ -522,7 +522,13 @@ public class OrganizationManagementConstants {
                 "Encountered an error when updating application of id: %s with property share with all children."),
         ERROR_CODE_ERROR_RESOLVING_ORGANIZATION_ID_FROM_TENANT_ID("65095", "Unable to retrieve the " +
                 "organization id for the tenant id.", "Server encountered an error while retrieving the " +
-                "organization id for the tenant id: %s."),;
+                "organization id for the tenant id: %s."),
+        ERROR_CODE_ERROR_CREATING_SHARED_APP_ROLES("65096", "Unable to create shared application roles.",
+                "Server encountered an error when creating shared application roles for shared application: %s " +
+                        " in sub-organization: %s."),
+        ERROR_CODE_ERROR_DELETING_SHARED_APP_ROLES("65097", "Unable to delete shared application roles.",
+                "Server encountered an error when deleting shared application roles related to" +
+                        " parent application: %s in organization: %s.");
 
         private final String code;
         private final String message;
