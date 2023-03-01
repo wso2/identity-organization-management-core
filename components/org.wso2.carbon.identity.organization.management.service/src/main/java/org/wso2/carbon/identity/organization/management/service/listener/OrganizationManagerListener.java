@@ -46,7 +46,7 @@ public interface OrganizationManagerListener {
     default void postDeleteOrganization(String organizationId, int organizationDepthInHierarchy)
             throws OrganizationManagementException {
 
-        // This method is added to avoid breaking changes.
+        // This method is not implemented.
     }
 
     void prePatchOrganization(String organizationId, List<PatchOperation> patchOperations) throws
