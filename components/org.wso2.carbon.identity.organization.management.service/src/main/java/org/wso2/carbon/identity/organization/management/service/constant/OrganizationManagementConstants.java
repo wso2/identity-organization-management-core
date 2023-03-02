@@ -109,6 +109,14 @@ public class OrganizationManagementConstants {
     public static final String IS_TEMPORARY = "isTemporary";
     public static final int DEFAULT_ORGANIZATION_DEPTH_IN_HIERARCHY = -1;
 
+    // Self-service constants.
+    public static final String USER_DOMAIN_SEPARATOR = "/";
+    public static final String SELF_SERVICE_SYSTEM_USER_NAME = "SelfService.SystemUserName";
+    public static final String USER_STORE_NAME_FOR_SYSTEM_USER = "SelfService.UserStoreNameForSystemUser";
+    public static final String SELF_SERVICE_INTERNAL_ROLE_NAME = "SelfService.InternalRoleName";
+    public static final String SELF_SERVICE_INTERNAL_ROLE_PERMISSIONS =
+            "SelfService.InternalRolePermissions.Permission";
+
     /**
      * Contains constants related to filter operations.
      */
@@ -520,6 +528,8 @@ public class OrganizationManagementConstants {
                 "a fragment.", "Encountered an error while checking whether application %s is a fragment application."),
         ERROR_CODE_ERROR_UPDATING_APPLICATION_ATTRIBUTE("65094", "Error when updating application.",
                 "Encountered an error when updating application of id: %s with property share with all children."),
+        ERROR_CODE_ERROR_CREATING_NEW_SYSTEM_ROLE("31701", "Please pick another role name",
+                "Role name already exists in the system. Please pick another role name."),
         ERROR_CODE_ERROR_RESOLVING_ORGANIZATION_ID_FROM_TENANT_ID("65095", "Unable to retrieve the " +
                 "organization id for the tenant id.", "Server encountered an error while retrieving the " +
                 "organization id for the tenant id: %s."),;
