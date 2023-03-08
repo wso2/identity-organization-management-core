@@ -528,7 +528,9 @@ public class OrganizationManagementConstants {
                         " in sub-organization: %s."),
         ERROR_CODE_ERROR_DELETING_SHARED_APP_ROLES("65097", "Unable to delete shared application roles.",
                 "Server encountered an error when deleting shared application roles related to" +
-                        " parent application: %s in organization: %s.");
+                        " parent application: %s in organization: %s."),
+        ERROR_CODE_ERROR_DELETING_USER_ROLE_ASSIGNMENTS("65098", "Unable to remove the user from the roles.",
+                "Server encountered an error while removing the user id: %s from the roles.");
 
         private final String code;
         private final String message;
