@@ -659,6 +659,10 @@ public class OrganizationManagerImpl implements OrganizationManager {
                     !isUserAuthorizedToCreateOrganization(parentId)) {
                 throw handleClientException(ERROR_CODE_USER_NOT_AUTHORIZED_TO_CREATE_ORGANIZATION, parentId);
             }
+        /*
+         For level-1 & below, having '/permission/admin/manage/identity/organizationmgt/create' would be sufficient
+         to create an organization as a child organization.
+        */
         } else if (!isUserAuthorizedToCreateOrganization(parentId)) {
             throw handleClientException(ERROR_CODE_USER_NOT_AUTHORIZED_TO_CREATE_ORGANIZATION, parentId);
         }
@@ -686,11 +690,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 String username = getAuthenticatedUsername();
                 UserRealm tenantUserRealm = getRealmService().getTenantUserRealm(getTenantId());
                 AuthorizationManager authorizationManager = tenantUserRealm.getAuthorizationManager();
-                /*
-                 If the carbon role validation happens, '/permission/admin/' permission level is required to create
-                 an organization(to compatible with super org behaviour).
-                 */
-                return authorizationManager.isUserAuthorized(username, CREATE_ORGANIZATION_ADMIN_PERMISSION,
+                return authorizationManager.isUserAuthorized(username, CREATE_ORGANIZATION_PERMISSION,
                         CarbonConstants.UI_PERMISSION_ACTION);
             }
             return OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(getUserId(),
