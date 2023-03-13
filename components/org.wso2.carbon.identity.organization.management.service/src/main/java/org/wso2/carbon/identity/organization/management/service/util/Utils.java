@@ -584,6 +584,7 @@ public class Utils {
     }
 
     private static String generatePassword() {
+
         UUID uuid = UUID.randomUUID();
         return uuid.toString().substring(0, 12);
     }
