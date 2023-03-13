@@ -22,6 +22,7 @@ import org.wso2.carbon.caching.impl.CachingConstants;
 import org.wso2.carbon.identity.organization.management.service.cache.OrgMgtCacheConfig;
 import org.wso2.carbon.identity.organization.management.service.cache.OrgMgtCacheConfigKey;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,5 +81,38 @@ public class OrganizationManagementConfigUtil {
             orgMgtCacheConfig = (OrgMgtCacheConfig) orgMgtCacheConfigurations.get(configKey);
         }
         return orgMgtCacheConfig;
+    }
+
+    /**
+     * Read configuration elements defined as lists.
+     *
+     * @param key Element Name as specified from the parent elements in the XML structure.
+     *            To read the element value of b in {@code <a><b>t1</b><b>t2</b></a>},
+     *            the property name should be passed as "a.b" to get a list of b
+     * @return String list from the config element passed in as key.
+     */
+    public static List<String> getPropertyAsList(String key) {
+
+        List<String> propertyList = new ArrayList<>();
+        Object value = orgMgtConfigurations.get(key);
+
+        if (value == null) {
+            return propertyList;
+        }
+        if (value instanceof List) {
+            List rawProps = (List) value;
+            for (Object rawProp: rawProps) {
+                if (rawProp instanceof String) {
+                    propertyList.add((String) rawProp);
+                } else {
+                    propertyList.add(String.valueOf(rawProp));
+                }
+            }
+        } else if (value instanceof String) {
+            propertyList.add((String) value);
+        } else {
+            propertyList.add(String.valueOf(value));
+        }
+        return propertyList;
     }
 }

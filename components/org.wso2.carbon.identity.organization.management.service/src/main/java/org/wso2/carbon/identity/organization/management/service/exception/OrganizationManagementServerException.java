@@ -38,4 +38,9 @@ public class OrganizationManagementServerException extends OrganizationManagemen
 
         super(message, description, errorCode, cause);
     }
+
+    public OrganizationManagementServerException(String message) {
+
+        super(message);
+    }
 }

@@ -26,6 +26,11 @@ public class OrganizationManagementException extends Exception {
     private String errorCode;
     private String description;
 
+    public OrganizationManagementException(String message) {
+
+        super(message);
+    }
+
     public OrganizationManagementException(String message, String errorCode) {
 
         super(message);
