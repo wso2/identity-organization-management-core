@@ -509,7 +509,23 @@ public class OrganizationManagementConstants {
                 "Encountered an error when updating application of id: %s with property share with all children."),
         ERROR_CODE_ERROR_RESOLVING_ORGANIZATION_ID_FROM_TENANT_ID("65095", "Unable to retrieve the " +
                 "organization id for the tenant id.", "Server encountered an error while retrieving the " +
-                "organization id for the tenant id: %s."),;
+                "organization id for the tenant id: %s."),
+        ERROR_CODE_ERROR_AUTHENTICATING_TENANT_DELETION_USER("65096", "Error while authenticating" +
+                " tenant deletion user",
+                "Error while sending request for generating authentication token for tenant deletion user"),
+        ERROR_CODE_ERROR_BUILDING_TENANT_DELETION_AUTH_REQUEST_BODY("65097", "Error while authenticating" +
+                " tenant deletion user",
+                "Error while sending request for generating authentication token for tenant deletion user"),
+        ERROR_CODE_ERROR_DELETING_SUB_ORGANIZATION_TENANT("65098", "Unable to delete the tenant of the " +
+                "sub organization.", "Server encountered an error while sending delete request to the " +
+                "tenant deletion micro service"),
+        ERROR_CODE_ERROR_WHILE_DELETING_TENANT_META_DATA("65099", "Unable to delete tenant meta data.",
+                "Encountered an error while attempting to delete tenant meta data"),
+        ERROR_CODE_ERROR_RETRIEVING_TENANT_DELETION_MICRO_SERVICE_HOST_URL("650100", "Tenant deletion micro " +
+                "service host url not found.", "Configuration could not be found for tenant deletion micro " +
+                "service host url"),
+        ERROR_CODE_ERROR_RETRIEVING_IDENTITY_SERVER_HOST_URL("65101", "Identity server host url not found.",
+                "Configuration could not be found for identity server host url"),;
 
         private final String code;
         private final String message;
