@@ -22,8 +22,11 @@ import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.organization.management.service.cache.OrgMgtCacheConfig;
+import org.wso2.carbon.identity.organization.management.service.cache.OrgMgtCacheConfigKey;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ServerConstants;
 
@@ -37,10 +40,21 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CACHE;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CACHE_CAPACITY;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CACHE_CONFIG;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CACHE_ENABLE;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CACHE_MANAGER;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CACHE_MANAGER_NAME;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CACHE_NAME;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CACHE_TIMEOUT;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_DISTRIBUTED_CACHE;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_TEMPORARY;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_MGT_CONFIG_FILE;
 
 /**
@@ -50,8 +64,11 @@ public class OrganizationManagementConfigBuilder {
 
     private static final Log LOG = LogFactory.getLog(OrganizationManagementConfigBuilder.class);
     private static final Map<String, Object> orgMgtConfigurations = new HashMap<>();
+    private static final Map<OrgMgtCacheConfigKey, OrgMgtCacheConfig> orgMgtCacheConfigurations = new HashMap<>();
     private static final OrganizationManagementConfigBuilder organizationManagementConfigBuilder =
             new OrganizationManagementConfigBuilder();
+
+    private OMElement documentElement;
 
     public static OrganizationManagementConfigBuilder getInstance() {
 
@@ -74,6 +91,16 @@ public class OrganizationManagementConfigBuilder {
     }
 
     /**
+     * Get organization management caching related configs.
+     *
+     * @return Map of org mgt cache configs.
+     */
+    public static Map<OrgMgtCacheConfigKey, OrgMgtCacheConfig> getOrgMgtCacheConfigurations() {
+
+        return orgMgtCacheConfigurations;
+    }
+
+    /**
      * Read the organization-mgt.xml file and build the configuration map.
      */
     @SuppressWarnings(value = "PATH_TRAVERSAL_IN", justification = "Don't use any user input file.")
@@ -92,9 +119,10 @@ public class OrganizationManagementConfigBuilder {
             factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
             XMLStreamReader parser = factory.createXMLStreamReader(stream);
             StAXOMBuilder builder = new StAXOMBuilder(parser);
-            OMElement documentElement = builder.getDocumentElement();
+            documentElement = builder.getDocumentElement();
             Stack<String> nameStack = new Stack<>();
             readChildElements(documentElement, nameStack);
+            buildCacheConfig();
         } catch (IOException e) {
             LOG.warn("Error while loading organization management configs.", e);
         } catch (XMLStreamException e) {
@@ -176,5 +204,78 @@ public class OrganizationManagementConfigBuilder {
             }
         }
         return textBuilder.toString();
+    }
+
+    private void buildCacheConfig() {
+
+        OMElement cacheConfig = this.documentElement.getFirstChildWithName(new QName(CACHE_CONFIG));
+        if (cacheConfig == null) {
+            return;
+        }
+
+        Iterator<OMElement> cacheManagers = cacheConfig.getChildrenWithName(new QName(CACHE_MANAGER));
+        if (cacheManagers == null) {
+            return;
+        }
+
+        while (cacheManagers.hasNext()) {
+            OMElement cacheManager = cacheManagers.next();
+
+            String cacheManagerName = cacheManager.getAttributeValue(new QName(CACHE_MANAGER_NAME));
+
+            if (StringUtils.isBlank(cacheManagerName)) {
+                LOG.warn("CacheManager name not defined correctly");
+            }
+
+            Iterator<OMElement> caches = cacheManager.getChildrenWithName(new QName(CACHE));
+
+            if (caches != null) {
+                while (caches.hasNext()) {
+                    OMElement cache = caches.next();
+                    storeCacheConfiguration(cacheManagerName, cache);
+                }
+            }
+        }
+    }
+
+    private void storeCacheConfiguration(String cacheManagerName, OMElement cache) {
+
+        String cacheName = cache.getAttributeValue(new QName(CACHE_NAME));
+
+        if (StringUtils.isBlank(cacheName)) {
+            LOG.warn("Cache name not defined correctly");
+        }
+
+        OrgMgtCacheConfigKey orgMgtCacheConfigKey = new OrgMgtCacheConfigKey(cacheManagerName,
+                cacheName);
+        OrgMgtCacheConfig orgMgtCacheConfig = new OrgMgtCacheConfig(orgMgtCacheConfigKey);
+
+        String enable = cache.getAttributeValue(new QName(CACHE_ENABLE));
+        if (StringUtils.isNotBlank(enable)) {
+            orgMgtCacheConfig.setEnabled(Boolean.parseBoolean(enable));
+        }
+
+        String timeout = cache.getAttributeValue(new QName(CACHE_TIMEOUT));
+        if (StringUtils.isNotBlank(timeout)) {
+            orgMgtCacheConfig.setTimeout(Integer.parseInt(timeout));
+        }
+
+        String capacity = cache.getAttributeValue(new QName(CACHE_CAPACITY));
+        if (StringUtils.isNotBlank(capacity)) {
+            orgMgtCacheConfig.setCapacity(Integer.parseInt(capacity));
+        }
+
+        String isDistributedCache = cache.getAttributeValue(new QName(IS_DISTRIBUTED_CACHE));
+        if (StringUtils.isNotBlank(isDistributedCache)) {
+            orgMgtCacheConfig.setDistributed(Boolean.parseBoolean(isDistributedCache));
+        }
+
+        String isTemporaryCache = cache.getAttributeValue(new QName(IS_TEMPORARY));
+        if (StringUtils.isNotBlank(isTemporaryCache)) {
+            orgMgtCacheConfig.setTemporary(Boolean.parseBoolean(isTemporaryCache));
+        }
+
+        // Add the config to container
+        orgMgtCacheConfigurations.put(orgMgtCacheConfigKey, orgMgtCacheConfig);
     }
 }

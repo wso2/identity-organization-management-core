@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity.organization.management.core</groupId>
         <artifactId>identity-organization-management-core</artifactId>
-        <version>1.0.35-SNAPSHOT</version>
+        <version>1.0.43-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -47,6 +47,11 @@
         <dependency>
             <groupId>org.wso2.carbon.multitenancy</groupId>
             <artifactId>org.wso2.carbon.tenant.mgt</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-annotations</artifactId>
         </dependency>
 
         <!--Test Dependencies-->
@@ -99,6 +104,8 @@
                         </Export-Package>
                         <Import-Package>
                             javax.sql,
+                            javax.cache.*,
+                            org.wso2.carbon.caching.impl.*,
                             javax.xml.stream;version="${equinox.osgi.stax-api.imp.pkg.version.range}",
                             org.apache.axiom.om.*; version="${axiom.osgi.version.range}",
                             org.apache.commons.collections;version="${org.apache.commons.collections.imp.pkg.version.range}",

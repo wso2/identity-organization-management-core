@@ -96,6 +96,27 @@ public class OrganizationManagementConstants {
     public static final String IS_ORG_QUALIFIED_URLS_SUPPORTED_FOR_LEVEL_ONE_ORGS =
             "LevelOneOrganizationConfigs.SupportOrganizationQualifiedURLs";
 
+    // Organization management cache constants.
+    public static final String CACHE_CONFIG = "CacheConfig";
+    public static final String CACHE_MANAGER = "CacheManager";
+    public static final String CACHE_MANAGER_NAME = "name";
+    public static final String CACHE = "Cache";
+    public static final String CACHE_NAME = "name";
+    public static final String CACHE_ENABLE = "enable";
+    public static final String CACHE_TIMEOUT = "timeout";
+    public static final String CACHE_CAPACITY = "capacity";
+    public static final String IS_DISTRIBUTED_CACHE = "isDistributed";
+    public static final String IS_TEMPORARY = "isTemporary";
+    public static final int DEFAULT_ORGANIZATION_DEPTH_IN_HIERARCHY = -1;
+
+    // Self-service constants.
+    public static final String USER_DOMAIN_SEPARATOR = "/";
+    public static final String SELF_SERVICE_SYSTEM_USER_NAME = "SelfService.SystemUserName";
+    public static final String USER_STORE_NAME_FOR_SYSTEM_USER = "SelfService.UserStoreNameForSystemUser";
+    public static final String SELF_SERVICE_INTERNAL_ROLE_NAME = "SelfService.InternalRoleName";
+    public static final String SELF_SERVICE_INTERNAL_ROLE_PERMISSIONS =
+            "SelfService.InternalRolePermissions.Permission";
+
     /**
      * Contains constants related to filter operations.
      */
@@ -271,7 +292,7 @@ public class OrganizationManagementConstants {
         ERROR_CODE_INVALID_SHARE_APPLICATION_EMPTY_REQUEST_BODY("60067", "Invalid request.",
                 "At least one of the attributes from shareWithAllChildren and sharedOrganizations should be present."),
         ERROR_CODE_INVALID_SHARE_APPLICATION_REQUEST_BODY("60068", "Invalid request.", "Cannot share " +
-                "the application with a set of child organizations when shareWithAllChildren is set."),
+                "the application with a set of child organizations when shareWithAllChildren is set to true."),
         ERROR_CODE_INVALID_DELETE_SHARE_REQUEST("60069", "Invalid request.", "Cannot unshare " +
                 "the application with ID %s from the organization with ID %s if the application is shared with all " +
                 "children organizations."),
@@ -503,29 +524,23 @@ public class OrganizationManagementConstants {
                 "Server encountered an error while retrieving depth of organization with ID: %s."),
         ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_APPLICATIONS("65092", "Error while retrieving applications.",
                 "Encountered an error while retrieving applications in organization id %s."),
-        ERROR_CODE_ERROR_CHECKING_APPLICATION_IS_A_FRAGMENT("65093", "Error while checking whether fragment app.",
-                "Encountered an error while checking whether application %s is a fragment application."),
+        ERROR_CODE_ERROR_CHECKING_APPLICATION_IS_A_FRAGMENT("65093", "Error while checking whether app is " +
+                "a fragment.", "Encountered an error while checking whether application %s is a fragment application."),
         ERROR_CODE_ERROR_UPDATING_APPLICATION_ATTRIBUTE("65094", "Error when updating application.",
                 "Encountered an error when updating application of id: %s with property share with all children."),
+        ERROR_CODE_ERROR_CREATING_NEW_SYSTEM_ROLE("31701", "Please pick another role name",
+                "Role name already exists in the system. Please pick another role name."),
         ERROR_CODE_ERROR_RESOLVING_ORGANIZATION_ID_FROM_TENANT_ID("65095", "Unable to retrieve the " +
                 "organization id for the tenant id.", "Server encountered an error while retrieving the " +
                 "organization id for the tenant id: %s."),
-        ERROR_CODE_ERROR_AUTHENTICATING_TENANT_DELETION_USER("65096", "Error while authenticating" +
-                " tenant deletion user",
-                "Error while sending request for generating authentication token for tenant deletion user"),
-        ERROR_CODE_ERROR_BUILDING_TENANT_DELETION_AUTH_REQUEST_BODY("65097", "Error while authenticating" +
-                " tenant deletion user",
-                "Error while sending request for generating authentication token for tenant deletion user"),
-        ERROR_CODE_ERROR_DELETING_SUB_ORGANIZATION_TENANT("65098", "Unable to delete the tenant of the " +
-                "sub organization.", "Server encountered an error while sending delete request to the " +
-                "tenant deletion micro service"),
-        ERROR_CODE_ERROR_WHILE_DELETING_TENANT_META_DATA("65099", "Unable to delete tenant meta data.",
-                "Encountered an error while attempting to delete tenant meta data"),
-        ERROR_CODE_ERROR_RETRIEVING_TENANT_DELETION_MICRO_SERVICE_HOST_URL("650100", "Tenant deletion micro " +
-                "service host url not found.", "Configuration could not be found for tenant deletion micro " +
-                "service host url"),
-        ERROR_CODE_ERROR_RETRIEVING_IDENTITY_SERVER_HOST_URL("65101", "Identity server host url not found.",
-                "Configuration could not be found for identity server host url"),;
+        ERROR_CODE_ERROR_CREATING_SHARED_APP_ROLES("65096", "Unable to create shared application roles.",
+                "Server encountered an error when creating shared application roles for shared application: %s " +
+                        " in sub-organization: %s."),
+        ERROR_CODE_ERROR_DELETING_SHARED_APP_ROLES("65097", "Unable to delete shared application roles.",
+                "Server encountered an error when deleting shared application roles related to" +
+                        " parent application: %s in organization: %s."),
+        ERROR_CODE_ERROR_DELETING_USER_ROLE_ASSIGNMENTS("65098", "Unable to remove the user from the roles.",
+                "Server encountered an error while removing the user id: %s from the roles.");
 
         private final String code;
         private final String message;

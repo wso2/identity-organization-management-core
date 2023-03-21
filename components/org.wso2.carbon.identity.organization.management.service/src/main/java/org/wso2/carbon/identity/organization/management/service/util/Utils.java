@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.organization.management.service.util;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -34,7 +35,16 @@ import org.wso2.carbon.identity.organization.management.service.exception.Organi
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
+import org.wso2.carbon.user.api.UserRealm;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.api.UserStoreManager;
+import org.wso2.carbon.user.core.Permission;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.User;
+import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.user.mgt.UserMgtConstants;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,6 +54,7 @@ import java.util.UUID;
 import javax.sql.DataSource;
 
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_DB_METADATA;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CREATING_NEW_SYSTEM_ROLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_CARBON_ROLE_VALIDATION_ENABLED_FOR_LEVEL_ONE_ORGS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_ORG_QUALIFIED_URLS_SUPPORTED_FOR_LEVEL_ONE_ORGS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_CONTEXT_PATH_COMPONENT;
@@ -53,6 +64,8 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.V1_API_PATH_COMPONENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.MICROSOFT;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.ORACLE;
+import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_DOMAIN;
+
 
 /**
  * This class provides utility functions for the Organization Management.
@@ -360,5 +373,219 @@ public class Utils {
             LOG.error("Error while checking the depth of the given organization.");
         }
         return true;
+    }
+
+    /**
+     * Retrieve tenant ID for a given tenant domain.
+     *
+     * @param tenantDomain  Tenant domain.
+     * @return the tenant ID.
+     * @throws RuntimeException If error occurred when retrieving tenant ID or when given tenant domain is invalid.
+     */
+    public static int getTenantId(String tenantDomain) throws RuntimeException {
+
+        int tenantId = MultitenantConstants.INVALID_TENANT_ID;
+        try {
+            if (OrganizationManagementDataHolder.getInstance().getRealmService() != null) {
+                tenantId = OrganizationManagementDataHolder.getInstance().getRealmService().getTenantManager()
+                        .getTenantId(tenantDomain);
+            }
+        } catch (UserStoreException e) {
+            throw new RuntimeException("Error occurred while retrieving tenantId for tenantDomain: " + tenantDomain +
+                    e.getMessage(), e);
+        }
+        if (tenantId == MultitenantConstants.INVALID_TENANT_ID) {
+            throw new RuntimeException("Invalid tenant domain " + tenantDomain);
+        }
+        return tenantId;
+    }
+
+    /**
+     * Retrieve tenant domain for a given tenant ID.
+     *
+     * @param tenantId  Tenant ID.
+     * @return the tenant domain.
+     * @throws RuntimeException If error occurred when retrieving tenant domain or when given tenant ID is invalid.
+     */
+    public static String getTenantDomain(int tenantId) throws RuntimeException {
+
+        String tenantDomain = null;
+        try {
+            tenantDomain = OrganizationManagementDataHolder.getInstance().getRealmService().getTenantManager()
+                    .getDomain(tenantId);
+        } catch (UserStoreException e) {
+            throw new RuntimeException("Error occurred while retrieving tenantDomain for tenantId: " + tenantId +
+                    e.getMessage(), e);
+        }
+        if (tenantDomain == null) {
+            throw new RuntimeException("Can not find the tenant domain for the tenant id " + tenantId);
+        }
+        return tenantDomain;
+    }
+
+    /**
+     * Create the system user for self-service.
+     *
+     * @param tenantDomain tenant domain.
+     *
+     * @return userid of the system user.
+     */
+    public static String getB2BSelfServiceSystemUser(String tenantDomain) {
+
+        // Read self service configurations.
+        String userName = OrganizationManagementConfigUtil.getProperty(
+                OrganizationManagementConstants.SELF_SERVICE_SYSTEM_USER_NAME);
+        String userStore = OrganizationManagementConfigUtil
+                .getProperty(OrganizationManagementConstants.USER_STORE_NAME_FOR_SYSTEM_USER);
+        String roleName = OrganizationManagementConfigUtil.getProperty(
+                OrganizationManagementConstants.SELF_SERVICE_INTERNAL_ROLE_NAME);
+        List<String> permissionsList = OrganizationManagementConfigUtil.getPropertyAsList(
+                OrganizationManagementConstants.SELF_SERVICE_INTERNAL_ROLE_PERMISSIONS);
+
+        if (StringUtils.isBlank(userName) || StringUtils.isBlank(roleName)
+                || CollectionUtils.isEmpty(permissionsList)) {
+            String msg = "Error while creating self-service role for tenant " + tenantDomain;
+            String errorMsg = "Self service is not configured properly";
+            LOG.debug(msg, new OrganizationManagementServerException(errorMsg));
+            return null;
+        }
+
+        // Add internal domain to role name.
+        roleName = INTERNAL_DOMAIN + OrganizationManagementConstants.USER_DOMAIN_SEPARATOR + roleName;
+
+        // Add user store to username if configured.
+        if (StringUtils.isNotBlank(userStore)) {
+            userName = userStore + OrganizationManagementConstants.USER_DOMAIN_SEPARATOR + userName;
+        }
+
+        AbstractUserStoreManager userStoreManager;
+        try {
+            userStoreManager = getUserStoreManager(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
+            UserCoreUtil.setSkipPasswordPatternValidationThreadLocal(true);
+            UserCoreUtil.setSkipUsernamePatternValidationThreadLocal(true);
+            // Create system user if not already exist with the tenant.
+            if (!userStoreManager.isExistingUser(userName)) {
+                userStoreManager.addUser(userName, generatePassword().toCharArray(), null, null,
+                        null, false);
+            }
+            // Create a role for the application and assign the user to that role.
+            if (!isRoleAlreadyApplied(userName, roleName, userStoreManager)) {
+                createRoleForUser(tenantDomain, userName, permissionsList, roleName, userStoreManager);
+            }
+            return userStoreManager.getUserIDFromUserName(userName);
+        } catch (UserStoreException | OrganizationManagementServerException e) {
+            LOG.debug("Exception while creating self service user for tenant " + tenantDomain, e);
+            return null;
+        } finally {
+            UserCoreUtil.removeSkipPasswordPatternValidationThreadLocal();
+            UserCoreUtil.removeSkipUsernamePatternValidationThreadLocal();
+        }
+    }
+
+    /**
+     * Create the system role for the application and assign the user to that role.
+     *
+     * @param tenantDomain Tenant Domain.
+     * @param username Username of user to be assigned the role.
+     * @param permissionsList List of permissions to be assigned ot the role.
+     * @param roleName Name of the role to be created.
+     * @param userStoreManager User store manager.
+     * @throws OrganizationManagementServerException
+     */
+    private static void createRoleForUser(String tenantDomain, String username, List<String> permissionsList,
+                                          String roleName, UserStoreManager userStoreManager)
+            throws OrganizationManagementServerException {
+
+        List<Permission> permissionList = new ArrayList<>();
+        permissionsList.stream().forEach(permission -> {
+            permissionList.add(new Permission(permission, UserMgtConstants.EXECUTE_ACTION));
+        });
+
+        String[] usernames = {username};
+        Permission[] permissions = permissionList.toArray(new Permission[permissionList.size()]);
+        try {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Creating internal role : " + roleName + " and assign the user : "
+                        + Arrays.toString(usernames) + " to that role for tenant " + tenantDomain);
+            }
+            userStoreManager.addRole(roleName, usernames, permissions);
+        } catch (UserStoreException e) {
+            assignRoleToUser(username, roleName, userStoreManager, e);
+        }
+    }
+
+    /**
+     * If system role already exists issue, then assign the role to user.
+     *
+     * @param username         User name
+     * @param roleName         Role name
+     * @param userStoreManager User store manager
+     * @param e                User store exception threw.
+     * @throws OrganizationManagementServerException
+     */
+    private static void assignRoleToUser(String username, String roleName, UserStoreManager userStoreManager,
+                                         UserStoreException e) throws OrganizationManagementServerException {
+
+        String errMsg = e.getMessage();
+        if (errMsg.contains(ERROR_CODE_ERROR_CREATING_NEW_SYSTEM_ROLE.getCode())
+                || errMsg.contains(ERROR_CODE_ERROR_CREATING_NEW_SYSTEM_ROLE.getMessage())) {
+            String[] newRoles = {roleName};
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Internal role is already created. Skip creating: " + roleName + " and assigning" +
+                        " the user: " + username);
+            }
+            try {
+                userStoreManager.updateRoleListOfUser(username, null, newRoles);
+            } catch (UserStoreException e1) {
+                String msg = "Error while updating internal role: " + roleName + " with user " + username;
+
+                // If concurrent requests were made, the role could already be assigned to the user. When that
+                // validation is done upon a user store exception(rather than checking it prior updating the role
+                // list of the user), even the extreme case where the concurrent request assigns the role just before
+                // db query is executed, is handled.
+                try {
+                    if (isRoleAlreadyApplied(username, roleName, userStoreManager)) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("The role: " + roleName + ", is already assigned to the user: " + username
+                                    + ". Skip assigning");
+                        }
+                        return;
+                    }
+                } catch (UserStoreException ex) {
+                    msg = "Error while getting existing internal roles of the user " + username;
+                    throw new OrganizationManagementServerException(msg, ex.getMessage(), ex.getCause());
+                }
+
+                // Throw the error, unless the error caused from role being already assigned.
+                throw new OrganizationManagementServerException(msg, e1.getMessage(), e1.getCause());
+            }
+        } else {
+            throw new OrganizationManagementServerException("Error while creating internal role: " + roleName +
+                    " with user " + username, e.getMessage(), e.getCause());
+        }
+    }
+
+    private static boolean isRoleAlreadyApplied(String username, String roleName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        boolean isRoleAlreadyApplied = false;
+        String[] roleListOfUser = userStoreManager.getRoleListOfUser(username);
+        if (roleListOfUser != null) {
+            isRoleAlreadyApplied = Arrays.asList(roleListOfUser).contains(roleName);
+        }
+        return isRoleAlreadyApplied;
+    }
+
+    private static AbstractUserStoreManager getUserStoreManager(int tenantId) throws UserStoreException {
+
+        RealmService realmService = OrganizationManagementDataHolder.getInstance().getRealmService();
+        UserRealm tenantUserRealm = realmService.getTenantUserRealm(tenantId);
+        return (AbstractUserStoreManager) tenantUserRealm.getUserStoreManager();
+    }
+
+    private static String generatePassword() {
+
+        UUID uuid = UUID.randomUUID();
+        return uuid.toString().substring(0, 12);
     }
 }

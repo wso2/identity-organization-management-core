@@ -18,6 +18,11 @@
 
 package org.wso2.carbon.identity.organization.management.service.util;
 
+import org.wso2.carbon.caching.impl.CachingConstants;
+import org.wso2.carbon.identity.organization.management.service.cache.OrgMgtCacheConfig;
+import org.wso2.carbon.identity.organization.management.service.cache.OrgMgtCacheConfigKey;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,10 +33,13 @@ import java.util.Map;
 public class OrganizationManagementConfigUtil {
 
     private static Map<String, Object> orgMgtConfigurations = new HashMap<>();
+    private static Map<OrgMgtCacheConfigKey, OrgMgtCacheConfig> orgMgtCacheConfigurations = new HashMap();
 
     public static void loadOrgMgtConfigurations() {
 
         orgMgtConfigurations = OrganizationManagementConfigBuilder.getInstance().getOrgMgtConfigurations();
+        orgMgtCacheConfigurations = OrganizationManagementConfigBuilder.getInstance()
+                .getOrgMgtCacheConfigurations();
     }
 
     /**
@@ -57,5 +65,54 @@ public class OrganizationManagementConfigUtil {
             strValue = String.valueOf(value);
         }
         return strValue;
+    }
+
+    /**
+     * This reads the CacheConfig configuration in organization-mgt.xml.
+     * Since the name of the cache is different between the distributed mode and local mode, that is specially handled.
+     */
+    public static OrgMgtCacheConfig getOrgMgtCacheConfig(String cacheManagerName, String cacheName) {
+
+        OrgMgtCacheConfigKey configKey = new OrgMgtCacheConfigKey(cacheManagerName, cacheName);
+        OrgMgtCacheConfig orgMgtCacheConfig = (OrgMgtCacheConfig) orgMgtCacheConfigurations.get(configKey);
+        if (orgMgtCacheConfig == null && cacheName.startsWith(CachingConstants.LOCAL_CACHE_PREFIX)) {
+            configKey = new OrgMgtCacheConfigKey(cacheManagerName,
+                    cacheName.replace(CachingConstants.LOCAL_CACHE_PREFIX, ""));
+            orgMgtCacheConfig = (OrgMgtCacheConfig) orgMgtCacheConfigurations.get(configKey);
+        }
+        return orgMgtCacheConfig;
+    }
+
+    /**
+     * Read configuration elements defined as lists.
+     *
+     * @param key Element Name as specified from the parent elements in the XML structure.
+     *            To read the element value of b in {@code <a><b>t1</b><b>t2</b></a>},
+     *            the property name should be passed as "a.b" to get a list of b
+     * @return String list from the config element passed in as key.
+     */
+    public static List<String> getPropertyAsList(String key) {
+
+        List<String> propertyList = new ArrayList<>();
+        Object value = orgMgtConfigurations.get(key);
+
+        if (value == null) {
+            return propertyList;
+        }
+        if (value instanceof List) {
+            List rawProps = (List) value;
+            for (Object rawProp: rawProps) {
+                if (rawProp instanceof String) {
+                    propertyList.add((String) rawProp);
+                } else {
+                    propertyList.add(String.valueOf(rawProp));
+                }
+            }
+        } else if (value instanceof String) {
+            propertyList.add((String) value);
+        } else {
+            propertyList.add(String.valueOf(value));
+        }
+        return propertyList;
     }
 }
