@@ -544,15 +544,15 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ERROR_AUTHENTICATING_TENANT_DELETION_USER("65099", "Error while authenticating" +
                 " tenant deletion user.",
                 "Error while sending request for generating authentication token for tenant deletion user."),
-        ERROR_CODE_ERROR_BUILDING_TENANT_DELETION_AUTH_REQUEST_BODY("65100", "Error building auth request.", "Error while building tenant deletion authentication" +
-                " request body."),
+        ERROR_CODE_ERROR_BUILDING_TENANT_DELETION_AUTH_REQUEST_BODY("65100", "Error building auth request.",
+                "Error while building tenant deletion authentication request body."),
         ERROR_CODE_ERROR_DELETING_SUB_ORGANIZATION_TENANT("65101", "Unable to delete the tenant of the " +
                 "sub organization.", "Server encountered an error while sending delete request to the " +
-                "tenant deletion micro service."),
+                "tenant deletion service."),
         ERROR_CODE_ERROR_WHILE_DELETING_TENANT_META_DATA("65102", "Unable to delete tenant meta data.",
                 "Encountered an error while attempting to delete tenant meta data."),
-        ERROR_CODE_ERROR_RETRIEVING_TENANT_DELETION_MICRO_SERVICE_HOST_URL("650103", "Tenant deletion micro " +
-                "service host url not found.", "Configuration could not be found for tenant deletion micro " +
+        ERROR_CODE_ERROR_RETRIEVING_TENANT_DELETION_SERVICE_HOST_URL("650103", "Tenant deletion " +
+                "service host url not found.", "Configuration could not be found for tenant deletion " +
                 "service host url."),
         ERROR_CODE_ERROR_RETRIEVING_IDENTITY_SERVER_HOST_URL("65104", "Identity server host url not found.",
                 "Configuration could not be found for identity server host url."),;
