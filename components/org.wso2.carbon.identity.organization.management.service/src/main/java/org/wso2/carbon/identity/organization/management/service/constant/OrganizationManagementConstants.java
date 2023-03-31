@@ -541,11 +541,10 @@ public class OrganizationManagementConstants {
                         " parent application: %s in organization: %s."),
         ERROR_CODE_ERROR_DELETING_USER_ROLE_ASSIGNMENTS("65098", "Unable to remove the user from the roles.",
                 "Server encountered an error while removing the user id: %s from the roles."),
-        ERROR_CODE_ERROR_AUTHENTICATING_TENANT_DELETION_USER("65099", "Error while authenticating" +
-                " tenant deletion user.",
-                "Error while sending request for generating authentication token for tenant deletion user."),
-        ERROR_CODE_ERROR_BUILDING_TENANT_DELETION_AUTH_REQUEST_BODY("65100", "Error building auth request.",
-                "Error while building tenant deletion authentication request body."),
+        ERROR_CODE_ERROR_GENERATING_AUTH_TOKEN_FOR_TENANT_DELETION_SERVICE("65099",
+                "Error while generating authentication token for Tenant Deletion Auth Service Provider.",
+                "Error while sending request for generating authentication token for Tenant Deletion Auth " +
+                        "Service Provider client credentials."),
         ERROR_CODE_ERROR_DELETING_SUB_ORGANIZATION_TENANT("65101", "Unable to delete the tenant of the " +
                 "sub organization.", "Server encountered an error while sending delete request to the " +
                 "tenant deletion service."),
