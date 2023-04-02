@@ -540,7 +540,10 @@ public class OrganizationManagementConstants {
                 "Server encountered an error when deleting shared application roles related to" +
                         " parent application: %s in organization: %s."),
         ERROR_CODE_ERROR_DELETING_USER_ROLE_ASSIGNMENTS("65098", "Unable to remove the user from the roles.",
-                "Server encountered an error while removing the user id: %s from the roles.");
+                "Server encountered an error while removing the user id: %s from the roles."),
+        ERROR_CODE_ERROR_WHILE_RESOLVING_USER_IN_RESIDENT_ORG("65099",
+                "Error while resolving user in resident organization.",
+                "Error while resolving user: %s in resident organization with ID: %s.");
 
         private final String code;
         private final String message;

@@ -44,6 +44,7 @@ import java.util.stream.Collectors;
 
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_RESOLVING_ROOT_ORG;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_RESOLVING_USER_FROM_RESIDENT_ORG;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_RESOLVING_USER_IN_RESIDENT_ORG;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_NO_USERNAME_OR_ID_TO_RESOLVE_USER_FROM_RESIDENT_ORG;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUPER_ORG_ID;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleClientException;
@@ -223,6 +224,25 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
         basicOrganizationList = basicOrganizationList.subList(0, residentOrgIndex + 1);
         Collections.reverse(basicOrganizationList);
         return basicOrganizationList;
+    }
+
+    public User getUserFromResidentOrgId(String userId, String userResidentOrganizationId)
+            throws OrganizationManagementException {
+
+        User user = null;
+        try {
+            String associatedTenantDomainForOrg = resolveTenantDomainForOrg(userResidentOrganizationId);
+            if (associatedTenantDomainForOrg != null) {
+                AbstractUserStoreManager userStoreManager = getUserStoreManager(associatedTenantDomainForOrg);
+                if (userId != null && userStoreManager.isExistingUserWithID(userId)) {
+                    user = userStoreManager.getUser(userId, null);
+                }
+            }
+        } catch (UserStoreException | OrganizationManagementServerException e) {
+            throw handleServerException(ERROR_CODE_ERROR_WHILE_RESOLVING_USER_IN_RESIDENT_ORG, e,
+                    userId, userResidentOrganizationId);
+        }
+        return user;
     }
 
     private String resolveTenantDomainForOrg(String organizationId) throws OrganizationManagementServerException {
