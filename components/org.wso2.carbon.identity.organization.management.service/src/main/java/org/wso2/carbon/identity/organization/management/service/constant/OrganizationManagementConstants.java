@@ -545,15 +545,15 @@ public class OrganizationManagementConstants {
                 "Error while generating authentication token for Tenant Deletion Auth Service Provider.",
                 "Error while sending request for generating authentication token for Tenant Deletion Auth " +
                         "Service Provider client credentials."),
-        ERROR_CODE_ERROR_DELETING_SUB_ORGANIZATION_TENANT("65101", "Unable to delete the tenant of the " +
+        ERROR_CODE_ERROR_DELETING_SUB_ORGANIZATION_TENANT("65100", "Unable to delete the tenant of the " +
                 "sub organization.", "Server encountered an error while sending delete request to the " +
                 "tenant deletion service."),
-        ERROR_CODE_ERROR_WHILE_DELETING_TENANT_META_DATA("65102", "Unable to delete tenant meta data.",
+        ERROR_CODE_ERROR_WHILE_DELETING_TENANT_META_DATA("65101", "Unable to delete tenant meta data.",
                 "Encountered an error while attempting to delete tenant meta data."),
-        ERROR_CODE_ERROR_RETRIEVING_TENANT_DELETION_SERVICE_HOST_URL("650103", "Tenant deletion " +
+        ERROR_CODE_ERROR_RETRIEVING_TENANT_DELETION_SERVICE_HOST_URL("650102", "Tenant deletion " +
                 "service host url not found.", "Configuration could not be found for tenant deletion " +
                 "service host url."),
-        ERROR_CODE_ERROR_RETRIEVING_IDENTITY_SERVER_HOST_URL("65104", "Identity server host url not found.",
+        ERROR_CODE_ERROR_RETRIEVING_IDENTITY_SERVER_HOST_URL("65103", "Identity server host url not found.",
                 "Configuration could not be found for identity server host url."),;
 
         private final String code;
