@@ -82,11 +82,8 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                     if (StringUtils.isNotBlank(associatedTenantDomainForOrg)) {
                         AbstractUserStoreManager userStoreManager = getUserStoreManager(associatedTenantDomainForOrg);
                         User user = null;
-                        boolean isValidDomain = false;
-                        if (StringUtils.isNotBlank(domain) &&
-                                userStoreManager.getSecondaryUserStoreManager(domain) != null) {
-                            isValidDomain = true;
-                        }
+                        boolean isValidDomain = StringUtils.isNotBlank(domain) &&
+                                userStoreManager.getSecondaryUserStoreManager(domain) != null;
                         if (StringUtils.isNotBlank(userName) && isValidDomain &&
                                 userStoreManager.isExistingUser(userName)) {
                             user = userStoreManager.getUser(null, userName);
@@ -94,9 +91,9 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                             user = userStoreManager.getUser(userId, null);
                         } else if (StringUtils.isNotBlank(userName) &&
                                 UserCoreUtil.removeDomainFromName(userName).equals(userName)) {
-                            /**
-                             * Try to find the user from the secondary user stores when the username is not domain
-                             * qualified.
+                            /*
+                              Try to find the user from the secondary user stores when the username is not domain
+                              qualified.
                              */
                             boolean userFound = false;
                             UserStoreManager secondaryUserStoreManager =
