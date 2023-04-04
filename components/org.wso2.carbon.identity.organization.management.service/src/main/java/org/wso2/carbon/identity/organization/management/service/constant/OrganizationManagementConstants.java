@@ -541,22 +541,21 @@ public class OrganizationManagementConstants {
                         " parent application: %s in organization: %s."),
         ERROR_CODE_ERROR_DELETING_USER_ROLE_ASSIGNMENTS("65098", "Unable to remove the user from the roles.",
                 "Server encountered an error while removing the user id: %s from the roles."),
-        ERROR_CODE_ERROR_AUTHENTICATING_TENANT_DELETION_USER("65099", "Error while authenticating" +
-                " tenant deletion user.",
-                "Error while sending request for generating authentication token for tenant deletion user."),
-        ERROR_CODE_ERROR_BUILDING_TENANT_DELETION_AUTH_REQUEST_BODY("65100", "Error building auth request.",
-                "Error while building tenant deletion authentication request body."),
-        ERROR_CODE_ERROR_DELETING_SUB_ORGANIZATION_TENANT("65101", "Unable to delete the tenant of the " +
+        ERROR_CODE_ERROR_GENERATING_AUTH_TOKEN_FOR_TENANT_DELETION_SERVICE("65099",
+                "Error while generating authentication token for Tenant Deletion Auth Service Provider.",
+                "Error while generating authentication token for Tenant Deletion Auth " +
+                        "Service Provider using client credentials grant."),
+        ERROR_CODE_ERROR_DELETING_SUB_ORGANIZATION_TENANT("65100", "Unable to delete the tenant of the " +
                 "sub organization.", "Server encountered an error while sending delete request to the " +
                 "tenant deletion service."),
-        ERROR_CODE_ERROR_WHILE_DELETING_TENANT_META_DATA("65102", "Unable to delete tenant meta data.",
+        ERROR_CODE_ERROR_WHILE_DELETING_TENANT_META_DATA("65101", "Unable to delete tenant meta data.",
                 "Encountered an error while attempting to delete tenant meta data."),
-        ERROR_CODE_ERROR_RETRIEVING_TENANT_DELETION_SERVICE_HOST_URL("650103", "Tenant deletion " +
+        ERROR_CODE_ERROR_RETRIEVING_TENANT_DELETION_SERVICE_HOST_URL("650102", "Tenant deletion " +
                 "service host url not found.", "Configuration could not be found for tenant deletion " +
                 "service host url."),
-        ERROR_CODE_ERROR_RETRIEVING_IDENTITY_SERVER_HOST_URL("65104", "Identity server host url not found.",
+        ERROR_CODE_ERROR_RETRIEVING_IDENTITY_SERVER_HOST_URL("65103", "Identity server host url not found.",
                 "Configuration could not be found for identity server host url."),
-        ERROR_CODE_ERROR_WHILE_RESOLVING_USER_IN_RESIDENT_ORG("65105",
+        ERROR_CODE_ERROR_WHILE_RESOLVING_USER_IN_RESIDENT_ORG("65104",
                 "Error while resolving user in resident organization.",
                 "Error while resolving user: %s in resident organization with ID: %s.");
 
