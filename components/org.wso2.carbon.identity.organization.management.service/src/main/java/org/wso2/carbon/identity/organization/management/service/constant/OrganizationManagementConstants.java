@@ -543,8 +543,8 @@ public class OrganizationManagementConstants {
                 "Server encountered an error while removing the user id: %s from the roles."),
         ERROR_CODE_ERROR_GENERATING_AUTH_TOKEN_FOR_TENANT_DELETION_SERVICE("65099",
                 "Error while generating authentication token for Tenant Deletion Auth Service Provider.",
-                "Error while sending request for generating authentication token for Tenant Deletion Auth " +
-                        "Service Provider client credentials."),
+                "Error while generating authentication token for Tenant Deletion Auth " +
+                        "Service Provider using client credentials grant."),
         ERROR_CODE_ERROR_DELETING_SUB_ORGANIZATION_TENANT("65100", "Unable to delete the tenant of the " +
                 "sub organization.", "Server encountered an error while sending delete request to the " +
                 "tenant deletion service."),
