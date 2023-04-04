@@ -226,21 +226,21 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
         return basicOrganizationList;
     }
 
-    public User getUserFromResidentOrgId(String userId, String userResidentOrganizationId)
+    public Optional<String> getUserNameFromResidentOrgId(String userId, String userResidentOrganizationId)
             throws OrganizationManagementException {
 
-        User user = null;
+        String username = null;
         try {
             String associatedTenantDomainForOrg = resolveTenantDomainForOrg(userResidentOrganizationId);
             if (StringUtils.isNotBlank(associatedTenantDomainForOrg)) {
                 AbstractUserStoreManager userStoreManager = getUserStoreManager(associatedTenantDomainForOrg);
-                user = userStoreManager.getUser(userId, null);
+                username = userStoreManager.getUser(userId, null).getUsername();
             }
         } catch (UserStoreException | OrganizationManagementServerException e) {
             throw handleServerException(ERROR_CODE_ERROR_WHILE_RESOLVING_USER_IN_RESIDENT_ORG, e,
                     userId, userResidentOrganizationId);
         }
-        return user;
+        return Optional.ofNullable(username);
     }
 
     private String resolveTenantDomainForOrg(String organizationId) throws OrganizationManagementServerException {
