@@ -543,24 +543,18 @@ public class OrganizationManagementConstants {
                 "Server encountered an error while removing the user id: %s from the roles."),
         ERROR_CODE_ERROR_GENERATING_AUTH_TOKEN_FOR_TENANT_DELETION_SERVICE("65099",
                 "Error while generating authentication token for Tenant Deletion Auth Service Provider.",
-                "Error while sending request for generating authentication token for Tenant Deletion Auth " +
-                        "Service Provider client credentials with response code : %d"),
+                "Error while generating authentication token for Tenant Deletion Auth " +
+                        "Service Provider using client credentials grant."),
         ERROR_CODE_ERROR_DELETING_SUB_ORGANIZATION_TENANT("65100", "Unable to delete the tenant of the " +
-                "sub organization.", "Server error while sending delete request to the tenant deletion service" +
-                "for sub organization id : %s."),
+                "sub organization.", "Server encountered an error while sending delete request to the " +
+                "tenant deletion service."),
         ERROR_CODE_ERROR_WHILE_DELETING_TENANT_META_DATA("65101", "Unable to delete tenant meta data.",
                 "Encountered an error while attempting to delete tenant meta data."),
         ERROR_CODE_ERROR_RETRIEVING_TENANT_DELETION_SERVICE_HOST_URL("650102", "Tenant deletion " +
                 "service host url not found.", "Configuration could not be found for tenant deletion " +
                 "service host url."),
         ERROR_CODE_ERROR_RETRIEVING_IDENTITY_SERVER_HOST_URL("65103", "Identity server host url not found.",
-                "Configuration could not be found for identity server host url."),
-        ERROR_CODE_ERROR_SENDING_SUB_ORGANIZATION_TENANT_DELETION_REQUEST("65104", "Unable to delete the " +
-                "tenant of the sub organization.", "Server error while sending delete request to the tenant " +
-                "deletion service with response code : %d."),
-        ERROR_CODE_ERROR_GETTING_TENANT_DELETION_ACCESS_TOKEN("65105", "Error while generating access " +
-                "token for tenant deletion service.", "Failed to generate authentication token for client " +
-                "credentials");
+                "Configuration could not be found for identity server host url."),;
 
         private final String code;
         private final String message;
