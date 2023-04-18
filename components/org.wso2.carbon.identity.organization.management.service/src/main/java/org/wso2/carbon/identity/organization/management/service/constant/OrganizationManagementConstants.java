@@ -554,7 +554,10 @@ public class OrganizationManagementConstants {
                 "service host url not found.", "Configuration could not be found for tenant deletion " +
                 "service host url."),
         ERROR_CODE_ERROR_RETRIEVING_IDENTITY_SERVER_HOST_URL("65103", "Identity server host url not found.",
-                "Configuration could not be found for identity server host url."),;
+                "Configuration could not be found for identity server host url."),
+        ERROR_CODE_ERROR_WHILE_RESOLVING_USER_IN_RESIDENT_ORG("65104",
+                "Error while resolving user in resident organization.",
+                "Error while resolving user: %s in resident organization with ID: %s.");
 
         private final String code;
         private final String message;

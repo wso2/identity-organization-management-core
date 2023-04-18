@@ -44,6 +44,7 @@ import java.util.stream.Collectors;
 
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_RESOLVING_ROOT_ORG;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_RESOLVING_USER_FROM_RESIDENT_ORG;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_RESOLVING_USER_IN_RESIDENT_ORG;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_NO_USERNAME_OR_ID_TO_RESOLVE_USER_FROM_RESIDENT_ORG;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUPER_ORG_ID;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleClientException;
@@ -67,10 +68,10 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
         String domain = null;
 
         try {
-            if (userName == null && userId == null) {
+            if (StringUtils.isBlank(userName) && StringUtils.isBlank(userId)) {
                 throw handleClientException(ERROR_CODE_NO_USERNAME_OR_ID_TO_RESOLVE_USER_FROM_RESIDENT_ORG);
             }
-            if (userName != null) {
+            if (StringUtils.isNotBlank(userName)) {
                 domain = UserCoreUtil.extractDomainFromName(userName);
             }
             List<String> ancestorOrganizationIds =
@@ -78,21 +79,21 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
             if (ancestorOrganizationIds != null) {
                 for (String organizationId : ancestorOrganizationIds) {
                     String associatedTenantDomainForOrg = resolveTenantDomainForOrg(organizationId);
-                    if (associatedTenantDomainForOrg != null) {
+                    if (StringUtils.isNotBlank(associatedTenantDomainForOrg)) {
                         AbstractUserStoreManager userStoreManager = getUserStoreManager(associatedTenantDomainForOrg);
                         User user = null;
-                        boolean isValidDomain = false;
-                        if (domain != null && userStoreManager.getSecondaryUserStoreManager(domain) != null) {
-                            isValidDomain = true;
-                        }
-                        if (userName != null && isValidDomain && userStoreManager.isExistingUser(userName)) {
+                        boolean isValidDomain = StringUtils.isNotBlank(domain) &&
+                                userStoreManager.getSecondaryUserStoreManager(domain) != null;
+                        if (StringUtils.isNotBlank(userName) && isValidDomain &&
+                                userStoreManager.isExistingUser(userName)) {
                             user = userStoreManager.getUser(null, userName);
-                        } else if (userId != null && userStoreManager.isExistingUserWithID(userId)) {
+                        } else if (StringUtils.isNotBlank(userId) && userStoreManager.isExistingUserWithID(userId)) {
                             user = userStoreManager.getUser(userId, null);
-                        } else if (userName != null && UserCoreUtil.removeDomainFromName(userName).equals(userName)) {
-                            /**
-                             * Try to find the user from the secondary user stores when the username is not domain
-                             * qualified.
+                        } else if (StringUtils.isNotBlank(userName) &&
+                                UserCoreUtil.removeDomainFromName(userName).equals(userName)) {
+                            /*
+                              Try to find the user from the secondary user stores when the username is not domain
+                              qualified.
                              */
                             boolean userFound = false;
                             UserStoreManager secondaryUserStoreManager =
@@ -223,6 +224,23 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
         basicOrganizationList = basicOrganizationList.subList(0, residentOrgIndex + 1);
         Collections.reverse(basicOrganizationList);
         return basicOrganizationList;
+    }
+
+    public Optional<String> getUserNameFromResidentOrgId(String userId, String userResidentOrganizationId)
+            throws OrganizationManagementException {
+
+        String username = null;
+        try {
+            String associatedTenantDomainForOrg = resolveTenantDomainForOrg(userResidentOrganizationId);
+            if (StringUtils.isNotBlank(associatedTenantDomainForOrg)) {
+                AbstractUserStoreManager userStoreManager = getUserStoreManager(associatedTenantDomainForOrg);
+                username = userStoreManager.getUser(userId, null).getUsername();
+            }
+        } catch (UserStoreException | OrganizationManagementServerException e) {
+            throw handleServerException(ERROR_CODE_ERROR_WHILE_RESOLVING_USER_IN_RESIDENT_ORG, e,
+                    userId, userResidentOrganizationId);
+        }
+        return Optional.ofNullable(username);
     }
 
     private String resolveTenantDomainForOrg(String organizationId) throws OrganizationManagementServerException {
