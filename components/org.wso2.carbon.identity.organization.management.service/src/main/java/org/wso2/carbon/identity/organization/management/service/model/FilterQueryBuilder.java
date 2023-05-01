@@ -33,32 +33,63 @@ public class FilterQueryBuilder {
     private int count = 1;
     private String filter;
 
+    /**
+     * Get filter query builder attributes.
+     *
+     * @return Map of filter query builder attributes.
+     */
     public Map<String, String> getFilterAttributeValue() {
 
         return stringParameters;
     }
 
+    /**
+     * Add a filter query builder attribute.
+     *
+     * @param placeholder filter attribute placeholder.
+     * @param value attribute value.
+     */
     public void setFilterAttributeValue(String placeholder, String value) {
 
         stringParameters.put(placeholder + count, value);
         count++;
     }
 
+    /**
+     * Get filter query builder attributes.
+     *
+     * @return List filter query builder timestamp attributes.
+     */
     public List<String> getTimestampFilterAttributes() {
 
         return timestampParameters;
     }
 
+    /**
+     * Add a filter query builder timestamp attribute.
+     *
+     * @param placeholder filter timestamp attribute placeholder.
+     */
     public void addTimestampFilterAttributes(String placeholder) {
 
         timestampParameters.add(placeholder + count);
     }
 
+    /**
+     * Set filter query.
+     *
+     * @param filter filter query.
+     */
     public void setFilterQuery(String filter) {
 
         this.filter = filter;
     }
 
+    /**
+     * Get filter query.
+     *
+     * @return Filter query string.
+     */
     public String getFilterQuery() {
 
         return filter;

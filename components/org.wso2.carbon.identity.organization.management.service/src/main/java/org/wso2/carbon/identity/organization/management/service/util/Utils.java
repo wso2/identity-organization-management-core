@@ -291,6 +291,7 @@ public class Utils {
 
         String[] permissionParts = resourceId.split(PATH_SEPARATOR);
         List<String> allowedPermissions = new ArrayList<>();
+        // consider iteration till the second last element since initial element is always an empty string.
         for (int i = 0; i < permissionParts.length - 1; i++) {
             allowedPermissions.add(String.join(PATH_SEPARATOR,
                     subArray(permissionParts, permissionParts.length - i)));
