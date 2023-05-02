@@ -266,9 +266,8 @@ public class Utils {
         if (StringUtils.isNotBlank(organizationId)) {
             return String.format(ORGANIZATION_CONTEXT_PATH_COMPONENT, organizationId) + SERVER_API_PATH_COMPONENT +
                     endpoint;
-        } else {
-            return SERVER_API_PATH_COMPONENT + endpoint;
         }
+        return SERVER_API_PATH_COMPONENT + endpoint;
     }
 
     /**
