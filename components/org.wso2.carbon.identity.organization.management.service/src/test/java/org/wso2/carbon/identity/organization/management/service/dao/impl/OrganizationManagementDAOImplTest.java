@@ -102,7 +102,6 @@ public class OrganizationManagementDAOImplTest {
     public Object[][] dataForIsOrganizationExistByName() {
 
         return new Object[][]{
-
                 {ORG_NAME},
                 {INVALID_DATA},
         };
@@ -123,7 +122,6 @@ public class OrganizationManagementDAOImplTest {
     public Object[][] dataForIsOrganizationExistById() {
 
         return new Object[][]{
-
                 {orgId},
                 {INVALID_DATA},
         };
@@ -160,7 +158,6 @@ public class OrganizationManagementDAOImplTest {
     public Object[][] dataForHasChildOrganizations() {
 
         return new Object[][]{
-
                 {SUPER_ORG_ID},
                 {orgId},
         };
@@ -181,7 +178,6 @@ public class OrganizationManagementDAOImplTest {
     public Object[][] dataForIsAttributeExistByKey() {
 
         return new Object[][]{
-
                 {ATTRIBUTE_KEY},
                 {INVALID_DATA},
         };

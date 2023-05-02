@@ -53,21 +53,10 @@
                 <version>${apache.felix.scr.ds.annotations.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.ops4j.pax.logging</groupId>
-                <artifactId>pax-logging-api</artifactId>
-                <version>${pax.logging.api.version}</version>
-            </dependency>
-
             <!-- Kernel Dependencies -->
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.user.core</artifactId>
-                <version>${carbon.kernel.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.tomcat.ext</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
 
@@ -288,8 +277,6 @@
         <apache.felix.scr.ds.annotations.version>1.2.4</apache.felix.scr.ds.annotations.version>
         <pax.logging.api.version>1.10.1</pax.logging.api.version>
 
-        <identity.organization.management.exp.pkg.version>${project.version}
-        </identity.organization.management.exp.pkg.version>
         <org.wso2.identity.organization.mgt.imp.pkg.version.range>[1.0.0,2.0.0)
         </org.wso2.identity.organization.mgt.imp.pkg.version.range>
 

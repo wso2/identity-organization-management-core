@@ -221,8 +221,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
         validateOrganizationAccess(requestInvokingOrganizationId, organizationId, true);
         getListener().preGetOrganization(organizationId.trim());
-        Organization organization = organizationManagementDAO.getOrganization(organizationId.trim());
 
+        Organization organization = organizationManagementDAO.getOrganization(organizationId.trim());
         if (organization == null) {
             throw handleClientException(ERROR_CODE_INVALID_ORGANIZATION, organizationId);
         }

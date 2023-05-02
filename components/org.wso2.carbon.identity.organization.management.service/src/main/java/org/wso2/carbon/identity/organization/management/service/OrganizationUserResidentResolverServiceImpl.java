@@ -248,9 +248,8 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
         if (StringUtils.equals(SUPER_ORG_ID, organizationId)) {
             // super tenant domain will be returned.
             return MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-        } else {
-            return organizationManagementDAO.resolveTenantDomain(organizationId);
         }
+        return organizationManagementDAO.resolveTenantDomain(organizationId);
     }
 
     private AbstractUserStoreManager getUserStoreManager(String tenantDomain) throws UserStoreException {
