@@ -27,6 +27,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.wso2.carbon.identity.organization.management.service.OrganizationGroupResidentResolverService;
+import org.wso2.carbon.identity.organization.management.service.OrganizationGroupResidentResolverServiceImpl;
 import org.wso2.carbon.identity.organization.management.service.OrganizationManager;
 import org.wso2.carbon.identity.organization.management.service.OrganizationManagerImpl;
 import org.wso2.carbon.identity.organization.management.service.OrganizationUserResidentResolverService;
@@ -58,6 +60,8 @@ public class OrganizationManagementServiceComponent {
             bundleContext.registerService(OrganizationManager.class.getName(), new OrganizationManagerImpl(), null);
             bundleContext.registerService(OrganizationUserResidentResolverService.class.getName(),
                     new OrganizationUserResidentResolverServiceImpl(), null);
+            bundleContext.registerService(OrganizationGroupResidentResolverService.class.getName(),
+                    new OrganizationGroupResidentResolverServiceImpl(), null);
             OrganizationManagementConfigUtil.loadOrgMgtConfigurations();
             OrganizationManagementDataHolder.getInstance().initDataSource();
             if (LOG.isDebugEnabled()) {

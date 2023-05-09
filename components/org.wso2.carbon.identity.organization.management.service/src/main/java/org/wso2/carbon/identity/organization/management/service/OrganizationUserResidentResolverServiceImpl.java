@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_RESOLVING_ROOT_ORG;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_RESOLVING_USERS_ROOT_ORG;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_RESOLVING_USER_FROM_RESIDENT_ORG;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_RESOLVING_USER_IN_RESIDENT_ORG;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_NO_USERNAME_OR_ID_TO_RESOLVE_USER_FROM_RESIDENT_ORG;
@@ -170,7 +170,7 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                 }
             }
         } catch (UserStoreException e) {
-            throw handleServerException(ERROR_CODE_ERROR_WHILE_RESOLVING_ROOT_ORG, e, userId);
+            throw handleServerException(ERROR_CODE_ERROR_WHILE_RESOLVING_USERS_ROOT_ORG, e, userId);
         }
         return Optional.ofNullable(residentOrgId);
     }
@@ -210,7 +210,7 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                 }
             }
         } catch (UserStoreException e) {
-            throw handleServerException(ERROR_CODE_ERROR_WHILE_RESOLVING_ROOT_ORG, e, userId);
+            throw handleServerException(ERROR_CODE_ERROR_WHILE_RESOLVING_USERS_ROOT_ORG, e, userId);
         }
         /*
         Organizations will be sorted starting from resident organization (higher level) and ended up with
