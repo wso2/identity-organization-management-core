@@ -491,7 +491,7 @@ public class OrganizationManagementConstants {
                         "organization: %s."),
         ERROR_CODE_ORG_PARAMETERS_NOT_RESOLVED("65077", "Organization name or organization id is not " +
                 "resolved.", "The organization information has not resolved before the authentication."),
-        ERROR_CODE_ERROR_WHILE_RESOLVING_ROOT_ORG("65078", "Unable to resolve user's root organization.",
+        ERROR_CODE_ERROR_WHILE_RESOLVING_USERS_ROOT_ORG("65078", "Unable to resolve user's root organization.",
                 "Error while resolving root organization of user with ID: %s."),
         ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_IDP_LIST("65079", "Unable to retrieve organization IDP list.",
                 "Error while retrieving the IDP list of the organization: %s"),
@@ -528,6 +528,8 @@ public class OrganizationManagementConstants {
                 "a fragment.", "Encountered an error while checking whether application %s is a fragment application."),
         ERROR_CODE_ERROR_UPDATING_APPLICATION_ATTRIBUTE("65094", "Error when updating application.",
                 "Encountered an error when updating application of id: %s with property share with all children."),
+        ERROR_CODE_ERROR_WHILE_RESOLVING_GROUPS_ROOT_ORG("65078", "Unable to resolve group's root organization.",
+                "Error while resolving root organization of group with ID: %s."),
         ERROR_CODE_ERROR_CREATING_NEW_SYSTEM_ROLE("31701", "Please pick another role name",
                 "Role name already exists in the system. Please pick another role name."),
         ERROR_CODE_ERROR_RESOLVING_ORGANIZATION_ID_FROM_TENANT_ID("65095", "Unable to retrieve the " +
