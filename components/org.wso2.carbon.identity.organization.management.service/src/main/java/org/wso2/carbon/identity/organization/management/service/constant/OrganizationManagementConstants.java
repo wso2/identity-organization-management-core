@@ -528,7 +528,7 @@ public class OrganizationManagementConstants {
                 "a fragment.", "Encountered an error while checking whether application %s is a fragment application."),
         ERROR_CODE_ERROR_UPDATING_APPLICATION_ATTRIBUTE("65094", "Error when updating application.",
                 "Encountered an error when updating application of id: %s with property share with all children."),
-        ERROR_CODE_ERROR_WHILE_RESOLVING_GROUPS_ROOT_ORG("65078", "Unable to resolve group's root organization.",
+        ERROR_CODE_ERROR_WHILE_RESOLVING_GROUPS_ROOT_ORG("65095", "Unable to resolve group's root organization.",
                 "Error while resolving root organization of group with ID: %s."),
         ERROR_CODE_ERROR_CREATING_NEW_SYSTEM_ROLE("31701", "Please pick another role name",
                 "Role name already exists in the system. Please pick another role name."),
