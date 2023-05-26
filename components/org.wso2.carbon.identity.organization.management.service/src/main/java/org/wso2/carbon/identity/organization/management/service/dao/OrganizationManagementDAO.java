@@ -106,6 +106,24 @@ public interface OrganizationManagementDAO {
             throws OrganizationManagementServerException;
 
     /**
+     * Retrieve the IDs of the organizations under a given organization ID for particular user
+     * who has permissions over them.
+     *
+     * @param recursive               Determines whether records should be retrieved in a recursive manner.
+     * @param limit                   The maximum number of records to be returned.
+     * @param organizationId          The organization ID.
+     * @param sortOrder               The sort order, ascending or descending.
+     * @param expressionNodes         The list of filters excluding filtering by parentId.
+     * @param parentIdExpressionNodes The list of filters related to parentId.
+     * @return the list of organization IDs.
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the organizations.
+     */
+    List<BasicOrganization> getOrganizationsByUser(boolean recursive, Integer limit, String organizationId,
+                                                   String sortOrder, List<ExpressionNode> expressionNodes,
+                                             List<ExpressionNode> parentIdExpressionNodes)
+            throws OrganizationManagementServerException;
+
+    /**
      * Delete {@link Organization} by ID.
      *
      * @param organizationId The organization ID.
