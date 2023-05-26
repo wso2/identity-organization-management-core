@@ -49,6 +49,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.sql.DataSource;
@@ -61,6 +62,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_PATH;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATH_SEPARATOR;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SERVER_API_PATH_COMPONENT;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUB_ORG_START_LEVEL;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.V1_API_PATH_COMPONENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.MICROSOFT;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.ORACLE;
@@ -322,6 +324,17 @@ public class Utils {
     }
 
     /**
+     * Get the start level of the sub organizations in the organization tree.
+     *
+     * @return Start level of the sub organizations.
+     */
+    public static int getSubOrgStartLevel() {
+
+        return Integer.parseInt(Objects.requireNonNull(OrganizationManagementConfigUtil
+                .getProperty(SUB_ORG_START_LEVEL)));
+    }
+
+    /**
      * Return whether organization role based validation is used.
      *
      * @param organizationId Organization id.
@@ -340,6 +353,17 @@ public class Utils {
             LOG.error("Error while checking the depth of the given organization.");
         }
         return true;
+    }
+
+    /**
+     * Return whether the given organization is a sub organization.
+     *
+     * @param currentOrgLevel Current organization level.
+     * @return True if the organization is a sub organization.
+     */
+    public static boolean isSubOrganization(int currentOrgLevel) {
+
+        return currentOrgLevel >= Utils.getSubOrgStartLevel();
     }
 
     /**

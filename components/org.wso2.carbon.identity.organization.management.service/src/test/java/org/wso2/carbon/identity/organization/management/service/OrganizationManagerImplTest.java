@@ -538,6 +538,7 @@ public class OrganizationManagerImplTest {
                 .defaultAnswer(Mockito.CALLS_REAL_METHODS));
         mockedUtilities.when(() -> Utils.getTenantId("carbon.super")).thenReturn(-1234);
         mockedUtilities.when(() -> Utils.getTenantDomain(-1234)).thenReturn("carbon.super");
+        mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(1);
     }
 
     private Organization getOrganization(String id, String name, String description, String parent, String type) {
