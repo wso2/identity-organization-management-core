@@ -68,7 +68,6 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.ORACLE;
 import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_DOMAIN;
 
-
 /**
  * This class provides utility functions for the Organization Management.
  */
@@ -304,7 +303,7 @@ public class Utils {
      * Create a subArray by slicing array from start to specified end.
      *
      * @param array original array with element to be sliced
-     * @param end index of final element to create subArray
+     * @param end   index of final element to create subArray
      * @return Array.
      */
     private static <T> T[] subArray(T[] array, int end) {
@@ -358,12 +357,12 @@ public class Utils {
     /**
      * Return whether the given organization is a sub organization.
      *
-     * @param currentOrgLevel Current organization level.
+     * @param organizationDepth The depth of the organization in the organization tree.
      * @return True if the organization is a sub organization.
      */
-    public static boolean isSubOrganization(int currentOrgLevel) {
+    public static boolean isSubOrganization(int organizationDepth) {
 
-        return currentOrgLevel >= Utils.getSubOrgStartLevel();
+        return organizationDepth >= Utils.getSubOrgStartLevel();
     }
 
     /**
@@ -402,7 +401,7 @@ public class Utils {
     /**
      * Retrieve tenant ID for a given tenant domain.
      *
-     * @param tenantDomain  Tenant domain.
+     * @param tenantDomain Tenant domain.
      * @return the tenant ID.
      * @throws RuntimeException If error occurred when retrieving tenant ID or when given tenant domain is invalid.
      */
@@ -427,7 +426,7 @@ public class Utils {
     /**
      * Retrieve tenant domain for a given tenant ID.
      *
-     * @param tenantId  Tenant ID.
+     * @param tenantId Tenant ID.
      * @return the tenant domain.
      * @throws RuntimeException If error occurred when retrieving tenant domain or when given tenant ID is invalid.
      */
@@ -451,7 +450,6 @@ public class Utils {
      * Create the system user for self-service.
      *
      * @param tenantDomain tenant domain.
-     *
      * @return userid of the system user.
      */
     public static String getB2BSelfServiceSystemUser(String tenantDomain) {
@@ -509,10 +507,10 @@ public class Utils {
     /**
      * Create the system role for the application and assign the user to that role.
      *
-     * @param tenantDomain Tenant Domain.
-     * @param username Username of user to be assigned the role.
-     * @param permissionsList List of permissions to be assigned ot the role.
-     * @param roleName Name of the role to be created.
+     * @param tenantDomain     Tenant Domain.
+     * @param username         Username of user to be assigned the role.
+     * @param permissionsList  List of permissions to be assigned ot the role.
+     * @param roleName         Name of the role to be created.
      * @param userStoreManager User store manager.
      * @throws OrganizationManagementServerException
      */

@@ -521,9 +521,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
     private void validateOrgNameUniquenessAmongSiblings(String parentOrgId, String organizationName)
             throws OrganizationManagementException {
 
-        boolean isSiblingWithSameNameExist =
-                organizationManagementDAO.isSiblingOrganizationExistWithName(organizationName, parentOrgId);
-        if (isSiblingWithSameNameExist) {
+        if (organizationManagementDAO.isSiblingOrganizationExistWithName(organizationName, parentOrgId)) {
             throw handleClientException(ERROR_CODE_SAME_ORG_NAME_ON_IMMEDIATE_SUB_ORGANIZATIONS_OF_PARENT_ORG,
                     organizationName, parentOrgId);
         }
@@ -532,14 +530,12 @@ public class OrganizationManagerImpl implements OrganizationManager {
     private void validateOrgNameUniqueness(String parentOrgId, String organizationName)
             throws OrganizationManagementException {
 
-        int depthOfOrganization = organizationManagementDAO.getOrganizationDepthInHierarchy(parentOrgId) + 1;
-        if (!isSubOrganization(depthOfOrganization)) {
+        int depthOfChildOrganization = organizationManagementDAO.getOrganizationDepthInHierarchy(parentOrgId) + 1;
+        if (!isSubOrganization(depthOfChildOrganization)) {
             validateOrgNameUniquenessAmongSiblings(parentOrgId, organizationName);
             return;
         }
-        boolean isChildOrgWithSameNameExist =
-                organizationManagementDAO.isChildOrganizationExistWithName(organizationName, parentOrgId);
-        if (isChildOrgWithSameNameExist) {
+        if (organizationManagementDAO.isChildOrganizationExistWithName(organizationName, parentOrgId)) {
             throw handleClientException(ERROR_CODE_ORGANIZATION_NAME_EXIST_IN_CHILD_ORGANIZATIONS, parentOrgId);
         }
     }
