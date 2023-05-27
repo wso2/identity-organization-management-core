@@ -49,11 +49,11 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_SUB_ORG_LEVEL;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_DB_METADATA;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CREATING_NEW_SYSTEM_ROLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_CARBON_ROLE_VALIDATION_ENABLED_FOR_LEVEL_ONE_ORGS;
@@ -323,14 +323,17 @@ public class Utils {
     }
 
     /**
-     * Get the start level of the sub organizations in the organization tree.
+     * Get the start level of the sub-organizations in the organization tree.
      *
-     * @return Start level of the sub organizations.
+     * @return Start level of the sub-organizations.
      */
     public static int getSubOrgStartLevel() {
 
-        return Integer.parseInt(Objects.requireNonNull(OrganizationManagementConfigUtil
-                .getProperty(SUB_ORG_START_LEVEL)));
+        String subOrgStartLevel = OrganizationManagementConfigUtil.getProperty(SUB_ORG_START_LEVEL);
+        if (StringUtils.isNotEmpty(subOrgStartLevel)) {
+            return Integer.parseInt(subOrgStartLevel);
+        }
+        return DEFAULT_SUB_ORG_LEVEL;
     }
 
     /**
@@ -355,10 +358,10 @@ public class Utils {
     }
 
     /**
-     * Return whether the given organization is a sub organization.
+     * Return whether the given organization is a sub-organization.
      *
      * @param organizationDepth The depth of the organization in the organization tree.
-     * @return True if the organization is a sub organization.
+     * @return True if the organization is a sub-organization.
      */
     public static boolean isSubOrganization(int organizationDepth) {
 

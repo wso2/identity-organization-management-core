@@ -31,6 +31,7 @@ public class OrganizationManagementConstants {
 
     public static final String SUPER = "Super";
     public static final String SUPER_ORG_ID = "10084a8d-113f-4211-a0d5-efe36b082211";
+    public static final int DEFAULT_SUB_ORG_LEVEL = 1;
     public static final String PATH_SEPARATOR = "/";
     public static final String V1_API_PATH_COMPONENT = "v1";
     public static final String ORGANIZATION_PATH = "organizations";

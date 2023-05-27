@@ -168,6 +168,46 @@ public class OrganizationManagerImplTest {
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
+    public void testAddExistingOrganizationWhenSubOrgStartFromLevel1() throws Exception {
+
+        Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG2_NAME, ORG_DESCRIPTION,
+                SUPER_ORG_ID, TENANT.toString());
+        mockCarbonContext();
+        mockAuthorizationManager();
+        when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(true);
+
+        OrganizationManagementAuthorizationManager authorizationManager =
+                mock(OrganizationManagementAuthorizationManager.class);
+        setFinalStatic(OrganizationManagementAuthorizationManager.class.getDeclaredField("INSTANCE"),
+                authorizationManager);
+
+        when(OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(anyString(), anyString(),
+                anyString())).thenReturn(true);
+
+        organizationManager.addOrganization(sampleOrganization);
+    }
+
+    @Test
+    public void testAddExistingOrganizationWhenSubOrgStartFromLevel2() throws Exception {
+
+        Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG2_NAME, ORG_DESCRIPTION,
+                SUPER_ORG_ID, TENANT.toString());
+        mockCarbonContext();
+        mockAuthorizationManager();
+        when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(true);
+
+        OrganizationManagementAuthorizationManager authorizationManager =
+                mock(OrganizationManagementAuthorizationManager.class);
+        setFinalStatic(OrganizationManagementAuthorizationManager.class.getDeclaredField("INSTANCE"),
+                authorizationManager);
+
+        when(OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(anyString(), anyString(),
+                anyString())).thenReturn(true);
+        mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(2);
+        organizationManager.addOrganization(sampleOrganization);
+    }
+
+    @Test(expectedExceptions = OrganizationManagementClientException.class)
     public void testAddOrganizationWithInvalidParentId() throws Exception {
 
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(),
@@ -538,7 +578,6 @@ public class OrganizationManagerImplTest {
                 .defaultAnswer(Mockito.CALLS_REAL_METHODS));
         mockedUtilities.when(() -> Utils.getTenantId("carbon.super")).thenReturn(-1234);
         mockedUtilities.when(() -> Utils.getTenantDomain(-1234)).thenReturn("carbon.super");
-        mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(1);
     }
 
     private Organization getOrganization(String id, String name, String description, String parent, String type) {
