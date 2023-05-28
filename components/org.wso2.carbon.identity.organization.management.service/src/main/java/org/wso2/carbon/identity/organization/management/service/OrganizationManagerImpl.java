@@ -518,25 +518,28 @@ public class OrganizationManagerImpl implements OrganizationManager {
         validateAddOrganizationType(organization);
     }
 
-    private void validateOrgNameUniquenessAmongSiblings(String parentOrgId, String organizationName)
-            throws OrganizationManagementException {
-
-        if (organizationManagementDAO.isSiblingOrganizationExistWithName(organizationName, parentOrgId)) {
-            throw handleClientException(ERROR_CODE_SAME_ORG_NAME_ON_IMMEDIATE_SUB_ORGANIZATIONS_OF_PARENT_ORG,
-                    organizationName, parentOrgId);
-        }
-    }
-
     private void validateOrgNameUniqueness(String parentOrgId, String organizationName)
             throws OrganizationManagementException {
 
-        int depthOfChildOrganization = organizationManagementDAO.getOrganizationDepthInHierarchy(parentOrgId) + 1;
-        if (!isSubOrganization(depthOfChildOrganization)) {
-            validateOrgNameUniquenessAmongSiblings(parentOrgId, organizationName);
+        int depthOfChildOrg = organizationManagementDAO.getOrganizationDepthInHierarchy(parentOrgId) + 1;
+        if (!isSubOrganization(depthOfChildOrg)) {
+            if (organizationManagementDAO.isSiblingOrganizationExistWithName(organizationName, parentOrgId)) {
+                throw handleClientException(ERROR_CODE_SAME_ORG_NAME_ON_IMMEDIATE_SUB_ORGANIZATIONS_OF_PARENT_ORG,
+                        organizationName, parentOrgId);
+            }
             return;
         }
-        if (organizationManagementDAO.isChildOrganizationExistWithName(organizationName, parentOrgId)) {
-            throw handleClientException(ERROR_CODE_ORGANIZATION_NAME_EXIST_IN_CHILD_ORGANIZATIONS, parentOrgId);
+
+        List<String> ancestorOrgIds = organizationManagementDAO.getAncestorOrganizationIds(parentOrgId);
+        // Root org is the parent level org of the sub organization start level.
+        int depthOfRootOrg = Utils.getSubOrgStartLevel() - 1;
+        if (ancestorOrgIds != null && ancestorOrgIds.size() > depthOfRootOrg) {
+            // ancestor organization list is in reverse order. Hence the root org index has to be derived.
+            int rootOrgIndex = ancestorOrgIds.size() - depthOfRootOrg - 1;
+            String rootOrgId = ancestorOrgIds.get(rootOrgIndex);
+            if (organizationManagementDAO.isChildOrganizationExistWithName(organizationName, rootOrgId)) {
+                throw handleClientException(ERROR_CODE_ORGANIZATION_NAME_EXIST_IN_CHILD_ORGANIZATIONS, rootOrgId);
+            }
         }
     }
 

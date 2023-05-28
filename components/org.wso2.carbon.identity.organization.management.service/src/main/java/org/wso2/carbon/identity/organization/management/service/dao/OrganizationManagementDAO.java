@@ -127,7 +127,7 @@ public interface OrganizationManagementDAO {
      * Check if sibling organization exist with the given name under the given parent organization.
      *
      * @param organizationName Name of the organization to be checked.
-     * @param parentOrgId ID of the parent organization.
+     * @param parentOrgId      ID of the parent organization.
      * @return true if the sibling organization exist with the given name under the given parent organization.
      */
     boolean isSiblingOrganizationExistWithName(String organizationName, String parentOrgId)
@@ -137,7 +137,7 @@ public interface OrganizationManagementDAO {
      * Check if child organization exist with the given name under the given parent organization.
      *
      * @param organizationName Name of the organization to be checked.
-     * @param parentOrgId ID of the parent organization.
+     * @param parentOrgId      ID of the parent organization.
      * @return true if the child organization exist with the given name under the given parent organization.
      */
     boolean isChildOrganizationExistWithName(String organizationName, String parentOrgId)
