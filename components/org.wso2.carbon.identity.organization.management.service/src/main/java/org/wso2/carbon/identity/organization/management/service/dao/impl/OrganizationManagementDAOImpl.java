@@ -135,9 +135,10 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_BY_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_MSSQL;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_MSSQL_WITH_ALL_SUB_ORGS;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_MSSQL_WITHOUT_PERMISSION_CHECK;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_ORACLE;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_ORACLE_WITH_ALL_SUB_ORGS;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_ORACLE_WITHOUT_PERMISSION_CHECK;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_WITHOUT_PERMISSION_CHECK;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_DEPTH_IN_HIERARCHY;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_NAME_BY_ID;
@@ -360,17 +361,18 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                                                     List<ExpressionNode> parentIdExpressionNodes)
             throws OrganizationManagementServerException {
 
-        return getOrganizationsList(true, recursive, limit, organizationId, sortOrder,
+        return getOrganizationsList(false, recursive, limit, organizationId, sortOrder,
                 expressionNodes, parentIdExpressionNodes);
     }
 
     @Override
-    public List<BasicOrganization> getOrganizationsByUser(boolean recursive, Integer limit, String organizationId,
-                                                    String sortOrder, List<ExpressionNode> expressionNodes,
-                                                    List<ExpressionNode> parentIdExpressionNodes)
+    public List<BasicOrganization> getUserAuthorizedOrganizations(boolean recursive, Integer limit,
+                                                                  String organizationId, String sortOrder,
+                                                                  List<ExpressionNode> expressionNodes,
+                                                                  List<ExpressionNode> parentIdExpressionNodes)
             throws OrganizationManagementServerException {
 
-        return getOrganizationsList(false, recursive, limit, organizationId, sortOrder,
+        return getOrganizationsList(true, recursive, limit, organizationId, sortOrder,
                 expressionNodes, parentIdExpressionNodes);
     }
 
@@ -676,8 +678,8 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         }
     }
 
-    private List<BasicOrganization> getOrganizationsList(boolean allSubOrgs, boolean recursive, Integer limit,
-                                                         String organizationId, String sortOrder,
+    private List<BasicOrganization> getOrganizationsList(boolean authorizedSubOrgsOnly, boolean recursive,
+                                                         Integer limit, String organizationId, String sortOrder,
                                                          List<ExpressionNode> expressionNodes,
                                                          List<ExpressionNode> parentIdExpressionNodes)
             throws OrganizationManagementServerException {
@@ -693,14 +695,15 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         String parentIdFilterQuery = parentIdFilterQueryBuilder.getFilterQuery();
 
         String sqlStmt;
-        String getOrgSqlStmtTail = GET_ORGANIZATIONS_TAIL;
+        String getOrgSqlStmtTail = authorizedSubOrgsOnly ? GET_ORGANIZATIONS_TAIL
+                : GET_ORGANIZATIONS_TAIL_WITHOUT_PERMISSION_CHECK;
 
         if (isOracleDB()) {
-            getOrgSqlStmtTail = allSubOrgs ? GET_ORGANIZATIONS_TAIL_ORACLE_WITH_ALL_SUB_ORGS :
-                    GET_ORGANIZATIONS_TAIL_ORACLE;
+            getOrgSqlStmtTail = authorizedSubOrgsOnly ? GET_ORGANIZATIONS_TAIL_ORACLE
+                    : GET_ORGANIZATIONS_TAIL_ORACLE_WITHOUT_PERMISSION_CHECK;
         } else if (isMSSqlDB()) {
-            getOrgSqlStmtTail = allSubOrgs ? GET_ORGANIZATIONS_TAIL_MSSQL_WITH_ALL_SUB_ORGS
-                    : GET_ORGANIZATIONS_TAIL_MSSQL;
+            getOrgSqlStmtTail = authorizedSubOrgsOnly ? GET_ORGANIZATIONS_TAIL_MSSQL
+                    : GET_ORGANIZATIONS_TAIL_MSSQL_WITHOUT_PERMISSION_CHECK;
         }
 
         if (StringUtils.isBlank(parentIdFilterQuery)) {
@@ -715,13 +718,14 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         String permissionPlaceholder = "PERMISSION_";
         List<String> permissions = getAllowedPermissions(VIEW_ORGANIZATION_PERMISSION);
         List<String> permissionPlaceholders = new ArrayList<>();
-        // Constructing the placeholders required to hold the permission strings in the named prepared statement.
-        for (int i = 1; i <= permissions.size(); i++) {
-            permissionPlaceholders.add(":" + permissionPlaceholder + i + ";");
+        if (authorizedSubOrgsOnly) {
+            // Constructing the placeholders required to hold the permission strings in the named prepared statement.
+            for (int i = 1; i <= permissions.size(); i++) {
+                permissionPlaceholders.add(":" + permissionPlaceholder + i + ";");
+            }
+            String placeholder = String.join(", ", permissionPlaceholders);
+            sqlStmt = sqlStmt.replace(PERMISSION_LIST_PLACEHOLDER, placeholder);
         }
-        String placeholder = String.join(", ", permissionPlaceholders);
-        sqlStmt = sqlStmt.replace(PERMISSION_LIST_PLACEHOLDER, placeholder);
-
         List<BasicOrganization> organizations;
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
         try {
@@ -750,7 +754,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                                 namedPreparedStatement.setString(entry.getKey(), entry.getValue());
                             }
                         }
-                        if (!allSubOrgs) {
+                        if (authorizedSubOrgsOnly) {
                             int index = 1;
                             for (String permission : permissions) {
                                 namedPreparedStatement.setString(permissionPlaceholder + index, permission);

@@ -118,9 +118,9 @@ public interface OrganizationManagementDAO {
      * @return the list of organization IDs.
      * @throws OrganizationManagementServerException The server exception thrown when retrieving the organizations.
      */
-    List<BasicOrganization> getOrganizationsByUser(boolean recursive, Integer limit, String organizationId,
-                                                   String sortOrder, List<ExpressionNode> expressionNodes,
-                                             List<ExpressionNode> parentIdExpressionNodes)
+    List<BasicOrganization> getUserAuthorizedOrganizations(boolean recursive, Integer limit, String organizationId,
+                                                           String sortOrder, List<ExpressionNode> expressionNodes,
+                                                           List<ExpressionNode> parentIdExpressionNodes)
             throws OrganizationManagementServerException;
 
     /**
