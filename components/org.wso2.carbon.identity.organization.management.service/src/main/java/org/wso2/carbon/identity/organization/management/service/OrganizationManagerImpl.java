@@ -280,6 +280,22 @@ public class OrganizationManagerImpl implements OrganizationManager {
                                                     String filter, boolean recursive)
             throws OrganizationManagementException {
 
+        return getOrganizationList(false, limit, after, before, sortOrder, filter, recursive);
+    }
+
+    @Override
+    public List<BasicOrganization> getUserAuthorizedOrganizations(Integer limit, String after, String before,
+                                                                  String sortOrder, String filter, boolean recursive)
+            throws OrganizationManagementException {
+
+        return getOrganizationList(true, limit, after, before, sortOrder, filter, recursive);
+    }
+
+    private List<BasicOrganization> getOrganizationList(boolean authorizedSubOrgsOnly, Integer limit, String after,
+                                                        String before, String sortOrder,
+                                                        String filter, boolean recursive)
+            throws OrganizationManagementException {
+
         List<ExpressionNode> expressionNodes = getExpressionNodes(filter, after, before);
 
         String orgId = resolveOrganizationId(getTenantDomain());
@@ -305,8 +321,10 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
         expressionNodes.removeAll(filteringByParentIdExpressionNodes);
 
-        return organizationManagementDAO.getOrganizations(recursive, limit, orgId, sortOrder, expressionNodes,
-                filteringByParentIdExpressionNodes);
+        return authorizedSubOrgsOnly ? organizationManagementDAO.getUserAuthorizedOrganizations(
+                recursive, limit, orgId, sortOrder, expressionNodes, filteringByParentIdExpressionNodes)
+                : organizationManagementDAO.getOrganizations(
+                recursive, limit, orgId, sortOrder, expressionNodes, filteringByParentIdExpressionNodes);
     }
 
     @Override
