@@ -149,10 +149,10 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
     }
 
     @Override
-    public boolean isChildOrganizationExistWithName(String organizationName, String parentOrgId)
+    public boolean isChildOrganizationExistWithName(String organizationName, String rootOrgId)
             throws OrganizationManagementServerException {
 
-        return organizationMgtDAO.isChildOrganizationExistWithName(organizationName, parentOrgId);
+        return organizationMgtDAO.isChildOrganizationExistWithName(organizationName, rootOrgId);
     }
 
     @Override

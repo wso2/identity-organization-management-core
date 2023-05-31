@@ -137,10 +137,10 @@ public interface OrganizationManagementDAO {
      * Check if child organization exist with the given name under the given parent organization.
      *
      * @param organizationName Name of the organization to be checked.
-     * @param parentOrgId      ID of the parent organization.
-     * @return true if the child organization exist with the given name under the given parent organization.
+     * @param rootOrgId        ID of the root organization where the sub-org tree is rooted.
+     * @return true if the child organization exist with the given name under the given root organization.
      */
-    boolean isChildOrganizationExistWithName(String organizationName, String parentOrgId)
+    boolean isChildOrganizationExistWithName(String organizationName, String rootOrgId)
             throws OrganizationManagementServerException;
 
     /**

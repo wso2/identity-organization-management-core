@@ -483,7 +483,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
     }
 
     @Override
-    public boolean isChildOrganizationExistWithName(String organizationName, String parentOrgId)
+    public boolean isChildOrganizationExistWithName(String organizationName, String rootOrgId)
             throws OrganizationManagementServerException {
 
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
@@ -492,11 +492,11 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                     namedJdbcTemplate.executeQuery(CHECK_CHILD_ORGANIZATIONS_EXIST_WITH_NAME,
                             (resultSet, rowNumber) -> resultSet.getInt(1), namedPreparedStatement -> {
                                 namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_NAME, organizationName);
-                                namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_PARENT_ID, parentOrgId);
+                                namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_PARENT_ID, rootOrgId);
                             });
             return childOrganizationIds.get(0) > 0;
         } catch (DataAccessException e) {
-            throw handleServerException(ERROR_CODE_ERROR_CHECKING_CHILD_ORGANIZATION_BY_NAME, e, parentOrgId);
+            throw handleServerException(ERROR_CODE_ERROR_CHECKING_CHILD_ORGANIZATION_BY_NAME, e, rootOrgId);
         }
     }
 
