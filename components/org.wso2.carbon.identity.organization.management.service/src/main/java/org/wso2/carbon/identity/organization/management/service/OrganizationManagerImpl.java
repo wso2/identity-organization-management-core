@@ -534,7 +534,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         // Root org is the parent level org of the sub organization start level.
         int depthOfRootOrg = Utils.getSubOrgStartLevel() - 1;
         if (ancestorOrgIds != null && ancestorOrgIds.size() > depthOfRootOrg) {
-            // ancestor organization list is in reverse order. Hence the root org index has to be derived.
+            // Ancestor organization list is in reverse order. Hence the root org index has to be derived.
             int rootOrgIndex = ancestorOrgIds.size() - depthOfRootOrg - 1;
             String rootOrgId = ancestorOrgIds.get(rootOrgIndex);
             if (organizationManagementDAO.isChildOrganizationExistWithName(organizationName, rootOrgId)) {
