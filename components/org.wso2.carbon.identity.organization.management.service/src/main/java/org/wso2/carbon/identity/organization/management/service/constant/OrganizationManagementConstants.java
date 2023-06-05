@@ -572,7 +572,7 @@ public class OrganizationManagementConstants {
                 "token for tenant deletion service.", "Failed to generate authentication token for client " +
                 "credentials"),
         ERROR_CODE_ERROR_CHECKING_SIBLING_ORGANIZATION_BY_NAME("65107", "Failed to check sibling organization " +
-                "by name.", "Error while checking child organization of the parent organization id: %s by name"),
+                "by name.", "Error while checking child organization of the parent organization id: %s by name."),
         ERROR_CODE_ERROR_CHECKING_CHILD_ORGANIZATION_BY_NAME("65108", "Failed to check child organization " +
                 "by name.", "Error while checking child organization of the root organization id: %s by name."),
         ERROR_CODE_ERROR_RESOLVING_ROOT_ORGANIZATION_OF_ORGANIZATION("65109", "Unable to retrieve the " +
