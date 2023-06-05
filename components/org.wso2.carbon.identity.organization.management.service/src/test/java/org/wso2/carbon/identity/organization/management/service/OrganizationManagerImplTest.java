@@ -168,6 +168,83 @@ public class OrganizationManagerImplTest {
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
+    public void testAddExistingSubOrganization() throws Exception {
+
+        /*
+            sub org level = 1
+            Existing org hierarchy =  Super -> ORG1 -> ORG2
+            Operation = Super -> ORG2
+         */
+        Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG2_NAME, ORG_DESCRIPTION,
+                SUPER_ORG_ID, TENANT.toString());
+        mockCarbonContext();
+        mockAuthorizationManager();
+        when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(true);
+
+        OrganizationManagementAuthorizationManager authorizationManager =
+                mock(OrganizationManagementAuthorizationManager.class);
+        setFinalStatic(OrganizationManagementAuthorizationManager.class.getDeclaredField("INSTANCE"),
+                authorizationManager);
+
+        when(OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(anyString(), anyString(),
+                anyString())).thenReturn(true);
+
+        organizationManager.addOrganization(sampleOrganization);
+    }
+
+    @Test
+    public void testAddRootOrganizationWithSameSubOrgName() throws Exception {
+
+        /*
+            sub org level = 2
+            Existing org hierarchy =  Super -> ORG1 -> ORG2
+            Root organizations before test = ORG1
+            Operation = Super -> ORG2
+            Root organizations after test = ORG1, ORG2
+         */
+        Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG2_NAME, ORG_DESCRIPTION,
+                SUPER_ORG_ID, TENANT.toString());
+        mockCarbonContext();
+        mockAuthorizationManager();
+        when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(true);
+
+        OrganizationManagementAuthorizationManager authorizationManager =
+                mock(OrganizationManagementAuthorizationManager.class);
+        setFinalStatic(OrganizationManagementAuthorizationManager.class.getDeclaredField("INSTANCE"),
+                authorizationManager);
+
+        when(OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(anyString(), anyString(),
+                anyString())).thenReturn(true);
+        mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(2);
+        organizationManager.addOrganization(sampleOrganization);
+    }
+
+    @Test(expectedExceptions = OrganizationManagementClientException.class)
+    public void testAddExistingSubOrganizationInUpperLevel() throws Exception {
+
+        /*
+            sub org level = 1
+            Existing org hierarchy =  Super -> ORG1 -> ORG2
+            Operation = ORG2 -> ORG1
+         */
+        Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG1_NAME, ORG_DESCRIPTION,
+                ORG2_ID, TENANT.toString());
+        mockCarbonContext();
+        mockAuthorizationManager();
+        when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(true);
+
+        OrganizationManagementAuthorizationManager authorizationManager =
+                mock(OrganizationManagementAuthorizationManager.class);
+        setFinalStatic(OrganizationManagementAuthorizationManager.class.getDeclaredField("INSTANCE"),
+                authorizationManager);
+
+        when(OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(anyString(), anyString(),
+                anyString())).thenReturn(true);
+
+        organizationManager.addOrganization(sampleOrganization);
+    }
+
+    @Test(expectedExceptions = OrganizationManagementClientException.class)
     public void testAddOrganizationWithInvalidParentId() throws Exception {
 
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(),
@@ -523,6 +600,7 @@ public class OrganizationManagerImplTest {
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(SUPER_TENANT_DOMAIN_NAME);
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(SUPER_TENANT_ID);
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername("admin");
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setUserId("1234");
     }
 
     private void mockAuthorizationManager() throws UserStoreException {

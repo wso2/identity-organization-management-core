@@ -53,6 +53,7 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_SUB_ORG_LEVEL;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_DB_METADATA;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CREATING_NEW_SYSTEM_ROLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_CARBON_ROLE_VALIDATION_ENABLED_FOR_LEVEL_ONE_ORGS;
@@ -61,11 +62,11 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_PATH;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATH_SEPARATOR;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SERVER_API_PATH_COMPONENT;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUB_ORG_START_LEVEL;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.V1_API_PATH_COMPONENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.MICROSOFT;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.ORACLE;
 import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_DOMAIN;
-
 
 /**
  * This class provides utility functions for the Organization Management.
@@ -302,7 +303,7 @@ public class Utils {
      * Create a subArray by slicing array from start to specified end.
      *
      * @param array original array with element to be sliced
-     * @param end index of final element to create subArray
+     * @param end   index of final element to create subArray
      * @return Array.
      */
     private static <T> T[] subArray(T[] array, int end) {
@@ -319,6 +320,20 @@ public class Utils {
 
         return Boolean.parseBoolean(
                 OrganizationManagementConfigUtil.getProperty(IS_CARBON_ROLE_VALIDATION_ENABLED_FOR_LEVEL_ONE_ORGS));
+    }
+
+    /**
+     * Get the start level of the sub-organizations in the organization tree.
+     *
+     * @return Start level of the sub-organizations.
+     */
+    public static int getSubOrgStartLevel() {
+
+        String subOrgStartLevel = OrganizationManagementConfigUtil.getProperty(SUB_ORG_START_LEVEL);
+        if (StringUtils.isNotEmpty(subOrgStartLevel)) {
+            return Integer.parseInt(subOrgStartLevel);
+        }
+        return DEFAULT_SUB_ORG_LEVEL;
     }
 
     /**
@@ -340,6 +355,17 @@ public class Utils {
             LOG.error("Error while checking the depth of the given organization.");
         }
         return true;
+    }
+
+    /**
+     * Return whether the given organization is a sub-organization.
+     *
+     * @param organizationDepth The depth of the organization in the organization tree.
+     * @return True if the organization is a sub-organization.
+     */
+    public static boolean isSubOrganization(int organizationDepth) {
+
+        return organizationDepth >= Utils.getSubOrgStartLevel();
     }
 
     /**
@@ -378,7 +404,7 @@ public class Utils {
     /**
      * Retrieve tenant ID for a given tenant domain.
      *
-     * @param tenantDomain  Tenant domain.
+     * @param tenantDomain Tenant domain.
      * @return the tenant ID.
      * @throws RuntimeException If error occurred when retrieving tenant ID or when given tenant domain is invalid.
      */
@@ -403,7 +429,7 @@ public class Utils {
     /**
      * Retrieve tenant domain for a given tenant ID.
      *
-     * @param tenantId  Tenant ID.
+     * @param tenantId Tenant ID.
      * @return the tenant domain.
      * @throws RuntimeException If error occurred when retrieving tenant domain or when given tenant ID is invalid.
      */
@@ -427,7 +453,6 @@ public class Utils {
      * Create the system user for self-service.
      *
      * @param tenantDomain tenant domain.
-     *
      * @return userid of the system user.
      */
     public static String getB2BSelfServiceSystemUser(String tenantDomain) {
@@ -485,10 +510,10 @@ public class Utils {
     /**
      * Create the system role for the application and assign the user to that role.
      *
-     * @param tenantDomain Tenant Domain.
-     * @param username Username of user to be assigned the role.
-     * @param permissionsList List of permissions to be assigned ot the role.
-     * @param roleName Name of the role to be created.
+     * @param tenantDomain     Tenant Domain.
+     * @param username         Username of user to be assigned the role.
+     * @param permissionsList  List of permissions to be assigned ot the role.
+     * @param roleName         Name of the role to be created.
      * @param userStoreManager User store manager.
      * @throws OrganizationManagementServerException
      */

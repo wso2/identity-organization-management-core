@@ -57,11 +57,13 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_ADDING_ORGANIZATION_ATTRIBUTE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_ADDING_ORGANIZATION_HIERARCHY_DATA;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_ACTIVE_CHILD_ORGANIZATIONS;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_CHILD_ORGANIZATION_BY_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_IF_CHILD_OF_PARENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_IF_IMMEDIATE_CHILD_OF_PARENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_ORGANIZATION_ATTRIBUTE_KEY_EXIST;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_ORGANIZATION_EXIST_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_ORGANIZATION_EXIST_BY_NAME;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_SIBLING_ORGANIZATION_BY_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_DELETING_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_DELETING_ORGANIZATION_ATTRIBUTES;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_PATCHING_ORGANIZATION;
@@ -116,11 +118,13 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_TYPE_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.CHECK_CHILD_OF_PARENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.CHECK_CHILD_ORGANIZATIONS_EXIST;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.CHECK_CHILD_ORGANIZATIONS_EXIST_WITH_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.CHECK_CHILD_ORGANIZATIONS_STATUS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.CHECK_IMMEDIATE_CHILD_OF_PARENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.CHECK_ORGANIZATION_ATTRIBUTE_KEY_EXIST;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.CHECK_ORGANIZATION_EXIST_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.CHECK_ORGANIZATION_EXIST_BY_NAME;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.CHECK_SIBLING_ORGANIZATIONS_EXIST_WITH_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.DELETE_ORGANIZATION_ATTRIBUTE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.DELETE_ORGANIZATION_ATTRIBUTES_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.DELETE_ORGANIZATION_BY_ID;
@@ -457,6 +461,42 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             return childOrganizationIds.get(0) > 0;
         } catch (DataAccessException e) {
             throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_CHILD_ORGANIZATIONS, e, organizationId);
+        }
+    }
+
+    @Override
+    public boolean isSiblingOrganizationExistWithName(String organizationName, String parentOrgId)
+            throws OrganizationManagementServerException {
+
+        NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
+        try {
+            List<Integer> childOrganizationIds =
+                    namedJdbcTemplate.executeQuery(CHECK_SIBLING_ORGANIZATIONS_EXIST_WITH_NAME,
+                            (resultSet, rowNumber) -> resultSet.getInt(1), namedPreparedStatement -> {
+                                namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_NAME, organizationName);
+                                namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_PARENT_ID, parentOrgId);
+                            });
+            return childOrganizationIds.get(0) > 0;
+        } catch (DataAccessException e) {
+            throw handleServerException(ERROR_CODE_ERROR_CHECKING_SIBLING_ORGANIZATION_BY_NAME, e, parentOrgId);
+        }
+    }
+
+    @Override
+    public boolean isChildOrganizationExistWithName(String organizationName, String rootOrgId)
+            throws OrganizationManagementServerException {
+
+        NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
+        try {
+            List<Integer> childOrganizationIds =
+                    namedJdbcTemplate.executeQuery(CHECK_CHILD_ORGANIZATIONS_EXIST_WITH_NAME,
+                            (resultSet, rowNumber) -> resultSet.getInt(1), namedPreparedStatement -> {
+                                namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_NAME, organizationName);
+                                namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_PARENT_ID, rootOrgId);
+                            });
+            return childOrganizationIds.get(0) > 0;
+        } catch (DataAccessException e) {
+            throw handleServerException(ERROR_CODE_ERROR_CHECKING_CHILD_ORGANIZATION_BY_NAME, e, rootOrgId);
         }
     }
 

@@ -91,6 +91,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_TENANT_TYPE_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_HAS_CHILD_ORGANIZATIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_ID_UNDEFINED;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_NAME_EXIST_IN_CHILD_ORGANIZATIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_NAME_RESERVED;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_NOT_FOUND_FOR_TENANT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_NOT_FOUND_FOR_TENANT_ID;
@@ -147,6 +148,7 @@ import static org.wso2.carbon.identity.organization.management.service.util.Util
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getUserId;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleClientException;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleServerException;
+import static org.wso2.carbon.identity.organization.management.service.util.Utils.isSubOrganization;
 
 /**
  * This class implements the {@link OrganizationManager} interface.
@@ -161,7 +163,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
         validateAddOrganizationRequest(organization);
         setParentOrganization(organization);
-        validateOrgNameUniquenessAmongSiblings(organization.getParent().getId(), organization.getName());
+        validateOrgNameUniqueness(organization.getParent().getId(), organization.getName());
         setCreatedAndLastModifiedTime(organization);
         getListener().preAddOrganization(organization);
         organizationManagementDAO.addOrganization(organization);
@@ -391,7 +393,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         validateUpdateOrganizationRequest(currentOrganizationName, organization);
         if (!currentOrganizationName.equals(organization.getName().trim())) {
             // If the PUT request has a different organization name, need to check the availability.
-            validateOrgNameUniquenessAmongSiblings(organization.getParent().getId(), organization.getName());
+            validateOrgNameUniqueness(organization.getParent().getId(), organization.getName());
         }
         updateLastModifiedTime(organization);
 
@@ -441,7 +443,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
     public String resolveOrganizationIdFromTenantId(String tenantId) throws OrganizationManagementException {
 
         return organizationManagementDAO.resolveOrganizationIdFromTenantId(tenantId).orElseThrow(
-                    () -> handleClientException(ERROR_CODE_ORGANIZATION_NOT_FOUND_FOR_TENANT_ID, tenantId));
+                () -> handleClientException(ERROR_CODE_ORGANIZATION_NOT_FOUND_FOR_TENANT_ID, tenantId));
     }
 
     @Override
@@ -516,15 +518,28 @@ public class OrganizationManagerImpl implements OrganizationManager {
         validateAddOrganizationType(organization);
     }
 
-    private void validateOrgNameUniquenessAmongSiblings(String parentOrgId, String organizationName)
+    private void validateOrgNameUniqueness(String parentOrgId, String organizationName)
             throws OrganizationManagementException {
 
-        boolean hasSiblingWithSameName =
-                organizationManagementDAO.getChildOrganizations(parentOrgId.trim(), false).stream().anyMatch(
-                        basicOrganization -> StringUtils.equals(basicOrganization.getName(), organizationName.trim()));
-        if (hasSiblingWithSameName) {
-            throw handleClientException(ERROR_CODE_SAME_ORG_NAME_ON_IMMEDIATE_SUB_ORGANIZATIONS_OF_PARENT_ORG,
-                    organizationName, parentOrgId);
+        int depthOfChildOrg = organizationManagementDAO.getOrganizationDepthInHierarchy(parentOrgId) + 1;
+        if (!isSubOrganization(depthOfChildOrg)) {
+            if (organizationManagementDAO.isSiblingOrganizationExistWithName(organizationName, parentOrgId)) {
+                throw handleClientException(ERROR_CODE_SAME_ORG_NAME_ON_IMMEDIATE_SUB_ORGANIZATIONS_OF_PARENT_ORG,
+                        organizationName, parentOrgId);
+            }
+            return;
+        }
+
+        List<String> ancestorOrgIds = organizationManagementDAO.getAncestorOrganizationIds(parentOrgId);
+        // Root org is the parent level org of the sub organization start level.
+        int depthOfRootOrg = Utils.getSubOrgStartLevel() - 1;
+        if (ancestorOrgIds != null && ancestorOrgIds.size() > depthOfRootOrg) {
+            // Ancestor organization list is in reverse order. Hence the root org index has to be derived.
+            int rootOrgIndex = ancestorOrgIds.size() - depthOfRootOrg - 1;
+            String rootOrgId = ancestorOrgIds.get(rootOrgIndex);
+            if (organizationManagementDAO.isChildOrganizationExistWithName(organizationName, rootOrgId)) {
+                throw handleClientException(ERROR_CODE_ORGANIZATION_NAME_EXIST_IN_CHILD_ORGANIZATIONS, rootOrgId);
+            }
         }
     }
 
@@ -772,7 +787,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 Organization organization = organizationManagementDAO.getOrganization(organizationId);
                 if (!organization.getName().equals(value)) {
                     // If trying to patch a new name, need to check the availability.
-                    validateOrgNameUniquenessAmongSiblings(organization.getParent().getId(), value);
+                    validateOrgNameUniqueness(organization.getParent().getId(), value);
                 }
             }
 

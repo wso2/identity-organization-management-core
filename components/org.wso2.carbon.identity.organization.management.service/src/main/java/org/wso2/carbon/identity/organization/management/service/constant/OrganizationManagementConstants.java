@@ -31,6 +31,7 @@ public class OrganizationManagementConstants {
 
     public static final String SUPER = "Super";
     public static final String SUPER_ORG_ID = "10084a8d-113f-4211-a0d5-efe36b082211";
+    public static final int DEFAULT_SUB_ORG_LEVEL = 1;
     public static final String PATH_SEPARATOR = "/";
     public static final String V1_API_PATH_COMPONENT = "v1";
     public static final String ORGANIZATION_PATH = "organizations";
@@ -95,6 +96,7 @@ public class OrganizationManagementConstants {
             "LevelOneOrganizationConfigs.EnableCarbonRoleBasedValidation";
     public static final String IS_ORG_QUALIFIED_URLS_SUPPORTED_FOR_LEVEL_ONE_ORGS =
             "LevelOneOrganizationConfigs.SupportOrganizationQualifiedURLs";
+    public static final String SUB_ORG_START_LEVEL = "SubOrganizationStartLevel";
 
     // Organization management cache constants.
     public static final String CACHE_CONFIG = "CacheConfig";
@@ -310,6 +312,9 @@ public class OrganizationManagementConstants {
                 "filter format provided when listing organization roles : %s ."),
         ERROR_CODE_ORGANIZATION_NOT_FOUND_FOR_TENANT_ID("60075", "Organization not found for the tenant id",
                 "Organization for the tenant id %s not found."),
+        ERROR_CODE_ORGANIZATION_NAME_EXIST_IN_CHILD_ORGANIZATIONS("60076", "Given organization name is taken " +
+                "from a child organization of the root organization.",
+                "Given organization name is taken from a child organization of the root organization id: %s."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -565,7 +570,14 @@ public class OrganizationManagementConstants {
                 "deletion service with response code : %d."),
         ERROR_CODE_ERROR_GETTING_TENANT_DELETION_ACCESS_TOKEN("65106", "Error while generating access " +
                 "token for tenant deletion service.", "Failed to generate authentication token for client " +
-                "credentials");
+                "credentials"),
+        ERROR_CODE_ERROR_CHECKING_SIBLING_ORGANIZATION_BY_NAME("65107", "Failed to check sibling organization " +
+                "by name.", "Error while checking child organization of the parent organization id: %s by name."),
+        ERROR_CODE_ERROR_CHECKING_CHILD_ORGANIZATION_BY_NAME("65108", "Failed to check child organization " +
+                "by name.", "Error while checking child organization of the root organization id: %s by name."),
+        ERROR_CODE_ERROR_RESOLVING_ROOT_ORGANIZATION_OF_ORGANIZATION("65109", "Unable to retrieve the " +
+                "root organization of the child organization", "Server encountered an error while retrieving the " +
+                "root organization of the organization id: %s.");
 
         private final String code;
         private final String message;

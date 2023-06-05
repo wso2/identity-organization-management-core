@@ -142,6 +142,20 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
     }
 
     @Override
+    public boolean isSiblingOrganizationExistWithName(String organizationName, String parentOrgId)
+            throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.isSiblingOrganizationExistWithName(organizationName, parentOrgId);
+    }
+
+    @Override
+    public boolean isChildOrganizationExistWithName(String organizationName, String rootOrgId)
+            throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.isChildOrganizationExistWithName(organizationName, rootOrgId);
+    }
+
+    @Override
     public void patchOrganization(String organizationId, Instant lastModifiedInstant,
                                   List<PatchOperation> patchOperations) throws OrganizationManagementServerException {
 
