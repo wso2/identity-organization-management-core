@@ -49,6 +49,15 @@ public interface OrganizationManager {
      */
     boolean isOrganizationExistByName(String organizationName) throws OrganizationManagementException;
 
+
+    /**
+     * Check if the {@link Organization} exists by name in hierarchy.
+     *
+     * @param organizationName The organization name.
+     * @return true if the organization exists.
+     */
+    boolean isOrganizationExistByNameInGivenHierarchy(String organizationName);
+
     /**
      * Check if the {@link Organization} exists by ID.
      *

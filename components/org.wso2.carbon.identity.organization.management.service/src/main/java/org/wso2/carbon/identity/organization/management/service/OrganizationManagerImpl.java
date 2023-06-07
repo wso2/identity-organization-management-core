@@ -192,6 +192,18 @@ public class OrganizationManagerImpl implements OrganizationManager {
     }
 
     @Override
+    public boolean isOrganizationExistByNameInGivenHierarchy(String organizationName) {
+
+        try {
+            String orgId = resolveOrganizationId(getTenantDomain());
+            validateOrgNameUniqueness(orgId, organizationName);
+        } catch (OrganizationManagementException e) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public boolean isOrganizationExistById(String organizationId) throws OrganizationManagementException {
 
         return organizationManagementDAO.isOrganizationExistById(organizationId);
