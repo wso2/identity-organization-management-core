@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.organization.management.service;
 import org.apache.commons.lang.StringUtils;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -79,6 +80,7 @@ public class OrganizationManagerImplTest {
     private static final String SUPER = "Super";
     private static final String ORG1_NAME = "ABC Builders";
     private static final String ORG2_NAME = "XYZ Builders";
+    private static final String NON_EXISTING_ORG_NAME = "Dummy Builders";
     private static final String NEW_ORG1_NAME = "ABC Builders New";
     private static final String ORG_DESCRIPTION = "This is a construction company.";
     private static final String NEW_ORG_NAME = "New Org";
@@ -588,6 +590,35 @@ public class OrganizationManagerImplTest {
 
         int organizationDepthInHierarchy = organizationManager.getOrganizationDepthInHierarchy(organizationId);
         assertEquals(depth, organizationDepthInHierarchy);
+    }
+
+    @DataProvider(name = "dataForOrgNameUniquenessTest")
+    public Object[][] dataForOrgNameUniquenessTest() {
+
+        return new Object[][]{
+                {ORG1_NAME, true},
+                {NON_EXISTING_ORG_NAME, false}
+        };
+    }
+
+    @Test(dataProvider = "dataForOrgNameUniquenessTest")
+    public void testIsOrganizationExistByNameInGivenHierarchy(String organizationName, boolean expectedResult)
+            throws Exception {
+
+        mockCarbonContext();
+        mockAuthorizationManager();
+        when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(true);
+
+        OrganizationManagementAuthorizationManager authorizationManager =
+                mock(OrganizationManagementAuthorizationManager.class);
+        setFinalStatic(OrganizationManagementAuthorizationManager.class.getDeclaredField("INSTANCE"),
+                authorizationManager);
+
+        when(OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(anyString(), anyString(),
+                anyString())).thenReturn(true);
+
+        Assert.assertEquals(organizationManager.isOrganizationExistByNameInGivenHierarchy(organizationName),
+                expectedResult);
     }
 
     private void mockCarbonContext() {
