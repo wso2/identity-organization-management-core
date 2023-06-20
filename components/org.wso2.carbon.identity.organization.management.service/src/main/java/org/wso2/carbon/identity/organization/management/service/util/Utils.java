@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -53,6 +53,7 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.B2B_APPLICATION_ROLE_SUPPORT_ENABLED;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_SUB_ORG_LEVEL;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_DB_METADATA;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CREATING_NEW_SYSTEM_ROLE;
@@ -334,6 +335,17 @@ public class Utils {
             return Integer.parseInt(subOrgStartLevel);
         }
         return DEFAULT_SUB_ORG_LEVEL;
+    }
+
+    /**
+     * Is B2B application role support enabled.
+     *
+     * @return True if B2B application role support is enabled.
+     */
+    public static boolean isB2BApplicationRoleSupportEnabled() {
+
+        return Boolean.parseBoolean(
+                OrganizationManagementConfigUtil.getProperty(B2B_APPLICATION_ROLE_SUPPORT_ENABLED));
     }
 
     /**
