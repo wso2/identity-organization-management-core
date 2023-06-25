@@ -316,6 +316,8 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ORGANIZATION_NAME_EXIST_IN_CHILD_ORGANIZATIONS("60076", "Given organization name is taken " +
                 "from a child organization of the root organization.",
                 "Given organization name is taken from a child organization of the root organization id: %s."),
+        ERROR_CODE_BLOCK_SHARING_SHARED_APP("60077", "Shared applications are not allowed to be shared.",
+                "Application %s can't be shared with any organization."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
