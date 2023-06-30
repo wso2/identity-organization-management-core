@@ -336,9 +336,9 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 }
             }
         }
+        int organizationDepthInHierarchy = organizationManagementDAO.getOrganizationDepthInHierarchy(organizationId);
         organizationManagementDAO.deleteOrganization(organizationId);
-        getListener().postDeleteOrganization(organizationId,
-                organizationManagementDAO.getOrganizationDepthInHierarchy(organizationId));
+        getListener().postDeleteOrganization(organizationId, organizationDepthInHierarchy);
     }
 
     @Override
