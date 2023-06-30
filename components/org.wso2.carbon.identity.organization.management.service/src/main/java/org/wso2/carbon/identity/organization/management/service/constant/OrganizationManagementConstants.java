@@ -318,6 +318,8 @@ public class OrganizationManagementConstants {
                 "Given organization name is taken from a child organization of the root organization id: %s."),
         ERROR_CODE_BLOCK_SHARING_SHARED_APP("60077", "Shared applications are not allowed to be shared.",
                 "Application %s can't be shared with any organization."),
+        ERROR_CODE_SUB_ORG_CANNOT_CREATE_APP("60078", "Applications cannot be created for sub-organizations.",
+                "Application cannot be created for the sub-organization with id: %s."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
