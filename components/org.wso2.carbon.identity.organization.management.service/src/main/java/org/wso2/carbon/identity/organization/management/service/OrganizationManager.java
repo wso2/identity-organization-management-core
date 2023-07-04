@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -48,7 +48,6 @@ public interface OrganizationManager {
      * @throws OrganizationManagementException The exception thrown when checking the organization existence.
      */
     boolean isOrganizationExistByName(String organizationName) throws OrganizationManagementException;
-
 
     /**
      * Check if the {@link Organization} exists by name in hierarchy.
@@ -133,7 +132,6 @@ public interface OrganizationManager {
     List<BasicOrganization> getOrganizations(Integer limit, String after, String before, String sortOrder,
                                              String filter, boolean recursive) throws OrganizationManagementException;
 
-
     /**
      * List or search organizations authorized for the user.
      *
@@ -147,7 +145,8 @@ public interface OrganizationManager {
      * @throws OrganizationManagementException The exception thrown when listing organizations.
      */
     List<BasicOrganization> getUserAuthorizedOrganizations(Integer limit, String after, String before, String sortOrder,
-                                             String filter, boolean recursive) throws OrganizationManagementException;
+                                                           String filter, boolean recursive)
+            throws OrganizationManagementException;
 
     /**
      * Delete the organization identified by the provided ID.
@@ -245,4 +244,15 @@ public interface OrganizationManager {
      * @throws OrganizationManagementServerException Error occurred while checking depth of the organization.
      */
     int getOrganizationDepthInHierarchy(String organizationId) throws OrganizationManagementServerException;
+
+    /**
+     * Retrieve the relative depth between two organizations which exist on the same organization branch.
+     *
+     * @param firstOrgId  The first organization id.
+     * @param secondOrgId The second organization id.
+     * @return The relative depth between the given organizations.
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the relative depth.
+     */
+    int getRelativeDepthBetweenOrganizationsInSameBranch(String firstOrgId, String secondOrgId)
+            throws OrganizationManagementServerException;
 }

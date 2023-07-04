@@ -582,7 +582,10 @@ public class OrganizationManagementConstants {
                 "by name.", "Error while checking child organization of the root organization id: %s by name."),
         ERROR_CODE_ERROR_RESOLVING_ROOT_ORGANIZATION_OF_ORGANIZATION("65109", "Unable to retrieve the " +
                 "root organization of the child organization", "Server encountered an error while retrieving the " +
-                "root organization of the organization id: %s.");
+                "root organization of the organization id: %s."),
+        ERROR_CODE_ERROR_RETRIEVING_RELATIVE_ORGANIZATION_DEPTH_IN_BRANCH("65110", "Unable to retrieve the " +
+                "relative organization depth in branch.", "Server encountered an error while retrieving relative " +
+                "depth of organizations with IDs: %s & %s");
 
         private final String code;
         private final String message;

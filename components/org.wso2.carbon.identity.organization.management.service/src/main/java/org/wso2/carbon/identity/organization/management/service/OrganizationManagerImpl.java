@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -497,6 +497,13 @@ public class OrganizationManagerImpl implements OrganizationManager {
     public int getOrganizationDepthInHierarchy(String organizationId) throws OrganizationManagementServerException {
 
         return organizationManagementDAO.getOrganizationDepthInHierarchy(organizationId);
+    }
+
+    @Override
+    public int getRelativeDepthBetweenOrganizationsInSameBranch(String firstOrgId, String secondOrgId)
+            throws OrganizationManagementServerException {
+
+        return organizationManagementDAO.getRelativeDepthBetweenOrganizationsInSameBranch(firstOrgId, secondOrgId);
     }
 
     private void updateTenantStatus(String status, String organizationId) throws OrganizationManagementServerException {

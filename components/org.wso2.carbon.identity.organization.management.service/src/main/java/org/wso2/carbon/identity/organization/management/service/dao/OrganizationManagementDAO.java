@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -356,4 +356,15 @@ public interface OrganizationManagementDAO {
      * @throws OrganizationManagementServerException The server exception thrown when retrieving the depth.
      */
     int getOrganizationDepthInHierarchy(String organizationId) throws OrganizationManagementServerException;
+
+    /**
+     * Retrieve the relative depth between two organizations which exist on the same organization branch.
+     *
+     * @param firstOrgId  The first organization id.
+     * @param secondOrgId The second organization id.
+     * @return The relative depth between the given organizations.
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the relative depth.
+     */
+    int getRelativeDepthBetweenOrganizationsInSameBranch(String firstOrgId, String secondOrgId)
+            throws OrganizationManagementServerException;
 }
