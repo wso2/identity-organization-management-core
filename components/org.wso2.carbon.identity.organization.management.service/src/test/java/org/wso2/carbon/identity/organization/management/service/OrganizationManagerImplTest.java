@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -35,6 +35,7 @@ import org.wso2.carbon.identity.organization.management.service.authz.Organizati
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
 import org.wso2.carbon.identity.organization.management.service.dao.impl.OrganizationManagementDAOImpl;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementClientException;
+import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
 import org.wso2.carbon.identity.organization.management.service.listener.OrganizationManagerListener;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
@@ -80,6 +81,7 @@ public class OrganizationManagerImplTest {
     private static final String SUPER = "Super";
     private static final String ORG1_NAME = "ABC Builders";
     private static final String ORG2_NAME = "XYZ Builders";
+    private static final String ORG3_NAME = "Greater";
     private static final String NON_EXISTING_ORG_NAME = "Dummy Builders";
     private static final String NEW_ORG1_NAME = "ABC Builders New";
     private static final String ORG_DESCRIPTION = "This is a construction company.";
@@ -90,6 +92,7 @@ public class OrganizationManagerImplTest {
     private static final String SUPER_ORG_ID = "10084a8d-113f-4211-a0d5-efe36b082211";
     private static final String ORG1_ID = "org_id_1";
     private static final String ORG2_ID = "org_id_2";
+    private static final String ORG3_ID = "org_id_3";
     private static final String INVALID_PARENT_ID = "invalid_parent_id";
     private static final String INVALID_ORG_ID = "invalid_org_id";
     private static final String ERROR_MESSAGE = "message";
@@ -131,8 +134,11 @@ public class OrganizationManagerImplTest {
                 STRUCTURAL.toString());
         Organization organization2 = getOrganization(ORG2_ID, ORG2_NAME, ORG_DESCRIPTION, ORG1_ID,
                 STRUCTURAL.toString());
+        Organization organization3 = getOrganization(ORG3_ID, ORG3_NAME, ORG_DESCRIPTION, SUPER_ORG_ID,
+                TENANT.toString());
         organizationManagementDAO.addOrganization(organization1);
         organizationManagementDAO.addOrganization(organization2);
+        organizationManagementDAO.addOrganization(organization3);
     }
 
     @AfterMethod
@@ -619,6 +625,13 @@ public class OrganizationManagerImplTest {
 
         Assert.assertEquals(organizationManager.isOrganizationExistByNameInGivenHierarchy(organizationName),
                 expectedResult);
+    }
+
+    @Test
+    public void testGetRelativeDepthBetweenOrganizationsInSameBranch() throws OrganizationManagementException {
+
+        Assert.assertEquals(organizationManager.getRelativeDepthBetweenOrganizationsInSameBranch(ORG1_ID, ORG2_ID), 1);
+        Assert.assertEquals(organizationManager.getRelativeDepthBetweenOrganizationsInSameBranch(ORG1_ID, ORG3_ID), -1);
     }
 
     private void mockCarbonContext() {
