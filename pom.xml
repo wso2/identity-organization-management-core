@@ -25,7 +25,7 @@
 
     <groupId>org.wso2.carbon.identity.organization.management.core</groupId>
     <artifactId>identity-organization-management-core</artifactId>
-    <version>1.0.50-SNAPSHOT</version>
+    <version>1.0.54-SNAPSHOT</version>
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Organization Management Core</name>

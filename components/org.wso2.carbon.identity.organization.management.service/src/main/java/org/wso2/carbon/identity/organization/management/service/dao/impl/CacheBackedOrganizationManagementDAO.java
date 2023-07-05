@@ -125,6 +125,17 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
     }
 
     @Override
+    public List<BasicOrganization> getUserAuthorizedOrganizations(boolean recursive, Integer limit,
+                                                                  String organizationId, String sortOrder,
+                                                                  List<ExpressionNode> expressionNodes,
+                                                                  List<ExpressionNode> parentIdExpressionNodes)
+            throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.getUserAuthorizedOrganizations(recursive, limit, organizationId, sortOrder,
+                expressionNodes, parentIdExpressionNodes);
+    }
+
+    @Override
     public void deleteOrganization(String organizationId) throws OrganizationManagementServerException {
 
         String tenantDomain = resolveTenantDomain(organizationId);

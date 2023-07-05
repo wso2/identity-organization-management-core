@@ -49,6 +49,15 @@ public interface OrganizationManager {
      */
     boolean isOrganizationExistByName(String organizationName) throws OrganizationManagementException;
 
+
+    /**
+     * Check if the {@link Organization} exists by name in hierarchy.
+     *
+     * @param organizationName The organization name.
+     * @return true if the organization exists.
+     */
+    boolean isOrganizationExistByNameInGivenHierarchy(String organizationName);
+
     /**
      * Check if the {@link Organization} exists by ID.
      *
@@ -122,6 +131,22 @@ public interface OrganizationManager {
      * @throws OrganizationManagementException The exception thrown when listing organizations.
      */
     List<BasicOrganization> getOrganizations(Integer limit, String after, String before, String sortOrder,
+                                             String filter, boolean recursive) throws OrganizationManagementException;
+
+
+    /**
+     * List or search organizations authorized for the user.
+     *
+     * @param limit     The maximum number of records to be returned.
+     * @param after     The pointer to next page.
+     * @param before    The pointer to previous page.
+     * @param sortOrder The sort order, ascending or descending.
+     * @param filter    The filter string.
+     * @param recursive Determines whether records should be retrieved in a recursive manner.
+     * @return the list of {@link BasicOrganization}s.
+     * @throws OrganizationManagementException The exception thrown when listing organizations.
+     */
+    List<BasicOrganization> getUserAuthorizedOrganizations(Integer limit, String after, String before, String sortOrder,
                                              String filter, boolean recursive) throws OrganizationManagementException;
 
     /**

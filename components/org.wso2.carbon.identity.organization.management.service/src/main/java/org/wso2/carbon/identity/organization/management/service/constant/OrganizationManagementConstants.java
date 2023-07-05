@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -97,6 +97,7 @@ public class OrganizationManagementConstants {
     public static final String IS_ORG_QUALIFIED_URLS_SUPPORTED_FOR_LEVEL_ONE_ORGS =
             "LevelOneOrganizationConfigs.SupportOrganizationQualifiedURLs";
     public static final String SUB_ORG_START_LEVEL = "SubOrganizationStartLevel";
+    public static final String B2B_APPLICATION_ROLE_SUPPORT_ENABLED = "B2BApplicationRoleSupportEnabled";
 
     // Organization management cache constants.
     public static final String CACHE_CONFIG = "CacheConfig";
@@ -315,6 +316,10 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ORGANIZATION_NAME_EXIST_IN_CHILD_ORGANIZATIONS("60076", "Given organization name is taken " +
                 "from a child organization of the root organization.",
                 "Given organization name is taken from a child organization of the root organization id: %s."),
+        ERROR_CODE_BLOCK_SHARING_SHARED_APP("60077", "Shared applications are not allowed to be shared.",
+                "Application %s can't be shared with any organization."),
+        ERROR_CODE_SUB_ORG_CANNOT_CREATE_APP("60078", "Applications cannot be created for sub-organizations.",
+                "Application cannot be created for the sub-organization with id: %s."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",

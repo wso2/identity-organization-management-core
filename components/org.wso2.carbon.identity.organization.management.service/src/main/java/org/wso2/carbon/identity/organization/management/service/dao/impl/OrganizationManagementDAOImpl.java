@@ -135,7 +135,10 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_BY_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_MSSQL;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_MSSQL_WITHOUT_PERMISSION_CHECK;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_ORACLE;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_ORACLE_WITHOUT_PERMISSION_CHECK;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_WITHOUT_PERMISSION_CHECK;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_DEPTH_IN_HIERARCHY;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_NAME_BY_ID;
@@ -358,83 +361,19 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                                                     List<ExpressionNode> parentIdExpressionNodes)
             throws OrganizationManagementServerException {
 
-        FilterQueryBuilder filterQueryBuilder = new FilterQueryBuilder();
-        appendFilterQuery(expressionNodes, filterQueryBuilder);
-        Map<String, String> filterAttributeValue = filterQueryBuilder.getFilterAttributeValue();
-        List<String> timestampTypeAttributes = filterQueryBuilder.getTimestampFilterAttributes();
+        return getOrganizationsList(false, recursive, limit, organizationId, sortOrder,
+                expressionNodes, parentIdExpressionNodes);
+    }
 
-        FilterQueryBuilder parentIdFilterQueryBuilder = new FilterQueryBuilder();
-        appendFilterQueryForParentId(parentIdFilterQueryBuilder, parentIdExpressionNodes);
-        Map<String, String> parentIdFilterAttributeValueMap = parentIdFilterQueryBuilder.getFilterAttributeValue();
-        String parentIdFilterQuery = parentIdFilterQueryBuilder.getFilterQuery();
+    @Override
+    public List<BasicOrganization> getUserAuthorizedOrganizations(boolean recursive, Integer limit,
+                                                                  String organizationId, String sortOrder,
+                                                                  List<ExpressionNode> expressionNodes,
+                                                                  List<ExpressionNode> parentIdExpressionNodes)
+            throws OrganizationManagementServerException {
 
-        String sqlStmt;
-        String getOrgSqlStmtTail = GET_ORGANIZATIONS_TAIL;
-
-        if (isOracleDB()) {
-            getOrgSqlStmtTail = GET_ORGANIZATIONS_TAIL_ORACLE;
-        } else if (isMSSqlDB()) {
-            getOrgSqlStmtTail = GET_ORGANIZATIONS_TAIL_MSSQL;
-        }
-
-        if (StringUtils.isBlank(parentIdFilterQuery)) {
-            sqlStmt = GET_ORGANIZATIONS + filterQueryBuilder.getFilterQuery() +
-                    String.format(getOrgSqlStmtTail, SET_ID, recursive ? "> 0" : "= 1", sortOrder);
-        } else {
-            sqlStmt = GET_ORGANIZATIONS + filterQueryBuilder.getFilterQuery() +
-                    String.format(getOrgSqlStmtTail, parentIdFilterQuery, recursive ? "> 0" : "= 1",
-                            sortOrder);
-        }
-
-        String permissionPlaceholder = "PERMISSION_";
-        List<String> permissions = getAllowedPermissions(VIEW_ORGANIZATION_PERMISSION);
-        List<String> permissionPlaceholders = new ArrayList<>();
-        // Constructing the placeholders required to hold the permission strings in the named prepared statement.
-        for (int i = 1; i <= permissions.size(); i++) {
-            permissionPlaceholders.add(":" + permissionPlaceholder + i + ";");
-        }
-        String placeholder = String.join(", ", permissionPlaceholders);
-        sqlStmt = sqlStmt.replace(PERMISSION_LIST_PLACEHOLDER, placeholder);
-
-        List<BasicOrganization> organizations;
-        NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
-        try {
-            organizations = namedJdbcTemplate.executeQuery(sqlStmt,
-                    (resultSet, rowNumber) -> {
-                        BasicOrganization organization = new BasicOrganization();
-                        organization.setId(resultSet.getString(1));
-                        organization.setName(resultSet.getString(2));
-                        organization.setCreated(resultSet.getTimestamp(3).toString());
-                        organization.setStatus(resultSet.getString(4));
-                        return organization;
-                    },
-                    namedPreparedStatement -> {
-                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_ID, getUserId());
-                        if (parentIdFilterAttributeValueMap.isEmpty()) {
-                            namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, organizationId);
-                        }
-                        for (Map.Entry<String, String> entry : parentIdFilterAttributeValueMap.entrySet()) {
-                            namedPreparedStatement.setString(entry.getKey(), entry.getValue());
-                        }
-                        for (Map.Entry<String, String> entry : filterAttributeValue.entrySet()) {
-                            if (timestampTypeAttributes.contains(entry.getKey())) {
-                                namedPreparedStatement.setTimeStamp(entry.getKey(), Timestamp.valueOf(entry.getValue()),
-                                        null);
-                            } else {
-                                namedPreparedStatement.setString(entry.getKey(), entry.getValue());
-                            }
-                        }
-                        int index = 1;
-                        for (String permission : permissions) {
-                            namedPreparedStatement.setString(permissionPlaceholder + index, permission);
-                            index++;
-                        }
-                        namedPreparedStatement.setInt(DB_SCHEMA_LIMIT, limit);
-                    });
-        } catch (DataAccessException e) {
-            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS, e);
-        }
-        return organizations;
+        return getOrganizationsList(true, recursive, limit, organizationId, sortOrder,
+                expressionNodes, parentIdExpressionNodes);
     }
 
     @Override
@@ -737,6 +676,97 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             throw handleServerException(ERROR_CODE_ERROR_RESOLVING_TENANT_DOMAIN_FROM_ORGANIZATION_DOMAIN, e,
                     organizationId);
         }
+    }
+
+    private List<BasicOrganization> getOrganizationsList(boolean authorizedSubOrgsOnly, boolean recursive,
+                                                         Integer limit, String organizationId, String sortOrder,
+                                                         List<ExpressionNode> expressionNodes,
+                                                         List<ExpressionNode> parentIdExpressionNodes)
+            throws OrganizationManagementServerException {
+
+        FilterQueryBuilder filterQueryBuilder = new FilterQueryBuilder();
+        appendFilterQuery(expressionNodes, filterQueryBuilder);
+        Map<String, String> filterAttributeValue = filterQueryBuilder.getFilterAttributeValue();
+        List<String> timestampTypeAttributes = filterQueryBuilder.getTimestampFilterAttributes();
+
+        FilterQueryBuilder parentIdFilterQueryBuilder = new FilterQueryBuilder();
+        appendFilterQueryForParentId(parentIdFilterQueryBuilder, parentIdExpressionNodes);
+        Map<String, String> parentIdFilterAttributeValueMap = parentIdFilterQueryBuilder.getFilterAttributeValue();
+        String parentIdFilterQuery = parentIdFilterQueryBuilder.getFilterQuery();
+
+        String sqlStmt;
+        String getOrgSqlStmtTail = authorizedSubOrgsOnly ? GET_ORGANIZATIONS_TAIL
+                : GET_ORGANIZATIONS_TAIL_WITHOUT_PERMISSION_CHECK;
+
+        if (isOracleDB()) {
+            getOrgSqlStmtTail = authorizedSubOrgsOnly ? GET_ORGANIZATIONS_TAIL_ORACLE
+                    : GET_ORGANIZATIONS_TAIL_ORACLE_WITHOUT_PERMISSION_CHECK;
+        } else if (isMSSqlDB()) {
+            getOrgSqlStmtTail = authorizedSubOrgsOnly ? GET_ORGANIZATIONS_TAIL_MSSQL
+                    : GET_ORGANIZATIONS_TAIL_MSSQL_WITHOUT_PERMISSION_CHECK;
+        }
+
+        if (StringUtils.isBlank(parentIdFilterQuery)) {
+            sqlStmt = GET_ORGANIZATIONS + filterQueryBuilder.getFilterQuery() +
+                    String.format(getOrgSqlStmtTail, SET_ID, recursive ? "> 0" : "= 1", sortOrder);
+        } else {
+            sqlStmt = GET_ORGANIZATIONS + filterQueryBuilder.getFilterQuery() +
+                    String.format(getOrgSqlStmtTail, parentIdFilterQuery, recursive ? "> 0" : "= 1",
+                            sortOrder);
+        }
+
+        String permissionPlaceholder = "PERMISSION_";
+        List<String> permissions = getAllowedPermissions(VIEW_ORGANIZATION_PERMISSION);
+        List<String> permissionPlaceholders = new ArrayList<>();
+        if (authorizedSubOrgsOnly) {
+            // Constructing the placeholders required to hold the permission strings in the named prepared statement.
+            for (int i = 1; i <= permissions.size(); i++) {
+                permissionPlaceholders.add(":" + permissionPlaceholder + i + ";");
+            }
+            String placeholder = String.join(", ", permissionPlaceholders);
+            sqlStmt = sqlStmt.replace(PERMISSION_LIST_PLACEHOLDER, placeholder);
+        }
+        List<BasicOrganization> organizations;
+        NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
+        try {
+            organizations = namedJdbcTemplate.executeQuery(sqlStmt,
+                    (resultSet, rowNumber) -> {
+                        BasicOrganization organization = new BasicOrganization();
+                        organization.setId(resultSet.getString(1));
+                        organization.setName(resultSet.getString(2));
+                        organization.setCreated(resultSet.getTimestamp(3).toString());
+                        organization.setStatus(resultSet.getString(4));
+                        return organization;
+                    },
+                    namedPreparedStatement -> {
+                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_ID, getUserId());
+                        if (parentIdFilterAttributeValueMap.isEmpty()) {
+                            namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, organizationId);
+                        }
+                        for (Map.Entry<String, String> entry : parentIdFilterAttributeValueMap.entrySet()) {
+                            namedPreparedStatement.setString(entry.getKey(), entry.getValue());
+                        }
+                        for (Map.Entry<String, String> entry : filterAttributeValue.entrySet()) {
+                            if (timestampTypeAttributes.contains(entry.getKey())) {
+                                namedPreparedStatement.setTimeStamp(entry.getKey(), Timestamp.valueOf(entry.getValue()),
+                                        null);
+                            } else {
+                                namedPreparedStatement.setString(entry.getKey(), entry.getValue());
+                            }
+                        }
+                        if (authorizedSubOrgsOnly) {
+                            int index = 1;
+                            for (String permission : permissions) {
+                                namedPreparedStatement.setString(permissionPlaceholder + index, permission);
+                                index++;
+                            }
+                        }
+                        namedPreparedStatement.setInt(DB_SCHEMA_LIMIT, limit);
+                    });
+        } catch (DataAccessException e) {
+            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS, e);
+        }
+        return organizations;
     }
 
     private void deleteOrganizationAttributes(String organizationId) throws OrganizationManagementServerException {
