@@ -373,6 +373,13 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         return organizationDepthInHierarchy;
     }
 
+    @Override
+    public int getRelativeDepthBetweenOrganizationsInSameBranch(String firstOrgId, String secondOrgId)
+            throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.getRelativeDepthBetweenOrganizationsInSameBranch(firstOrgId, secondOrgId);
+    }
+
     private TenantDomainCacheEntry getTenantDomainFromCache(String organizationId) {
 
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);

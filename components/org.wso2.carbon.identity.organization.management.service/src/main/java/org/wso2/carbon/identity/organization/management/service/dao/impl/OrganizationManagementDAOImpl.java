@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -84,6 +84,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_STATUS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_TYPE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_PARENT_ORGANIZATION_STATUS;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_RELATIVE_ORGANIZATION_DEPTH_IN_BRANCH;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_TENANT_UUID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_UPDATING_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_RETRIEVING_ANCESTORS;
@@ -148,6 +149,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_UUID_FROM_TENANT_DOMAIN;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_UUID_FROM_TENANT_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_PARENT_ORGANIZATION_STATUS;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_RELATIVE_ORG_DEPTH_BETWEEN_ORGANIZATIONS_IN_SAME_BRANCH;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_TENANT_DOMAIN_FROM_ORGANIZATION_UUID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_TENANT_UUID_FROM_ORGANIZATION_UUID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INSERT_ATTRIBUTE;
@@ -1194,6 +1196,31 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             return Integer.parseInt(depth);
         } catch (DataAccessException e) {
             throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_DEPTH, e, organizationId);
+        }
+    }
+
+    @Override
+    public int getRelativeDepthBetweenOrganizationsInSameBranch(String firstOrgId, String secondOrgId)
+            throws OrganizationManagementServerException {
+
+        if (StringUtils.equals(firstOrgId, secondOrgId)) {
+            return 0;
+        }
+        try {
+            String depth = Utils.getNewTemplate().fetchSingleRecord(
+                    GET_RELATIVE_ORG_DEPTH_BETWEEN_ORGANIZATIONS_IN_SAME_BRANCH,
+                    (resultSet, rowNumber) -> resultSet.getString(1),
+                    namedPreparedStatement -> {
+                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, firstOrgId);
+                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_PARENT_ID, secondOrgId);
+                    });
+            if (depth == null) {
+                return -1;
+            }
+            return Integer.parseInt(depth);
+        } catch (DataAccessException e) {
+            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_RELATIVE_ORGANIZATION_DEPTH_IN_BRANCH, e,
+                    firstOrgId, secondOrgId);
         }
     }
 

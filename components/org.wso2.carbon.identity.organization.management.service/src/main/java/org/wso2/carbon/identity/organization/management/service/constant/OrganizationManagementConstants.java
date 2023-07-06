@@ -582,10 +582,13 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ERROR_RESOLVING_ROOT_ORGANIZATION_OF_ORGANIZATION("65109", "Unable to retrieve the " +
                 "root organization of the child organization", "Server encountered an error while retrieving the " +
                 "root organization of the organization id: %s."),
-        ERROR_CODE_ERROR_WHILE_RESOLVING_UNDERLYING_TENANT_OF_SUB_ORGANIZATION("65110", "Unable to retrieve " +
+        ERROR_CODE_ERROR_RETRIEVING_RELATIVE_ORGANIZATION_DEPTH_IN_BRANCH("65110", "Unable to retrieve the " +
+                "relative organization depth in branch.", "Server encountered an error while retrieving relative " +
+                "depth of organizations with IDs: %s & %s"),
+        ERROR_CODE_ERROR_WHILE_RESOLVING_UNDERLYING_TENANT_OF_SUB_ORGANIZATION("65111", "Unable to retrieve " +
                 "the underlying tenant of the sub organization.", "Server encountered an error while retrieving " +
                 "the underlying tenant of the sub organization id: %s."),
-        ERROR_CODE_ERROR_WHILE_DELETING_TENANT_RESOURCES("65111", "Unable to delete tenant resources.",
+        ERROR_CODE_ERROR_WHILE_DELETING_TENANT_RESOURCES("65112", "Unable to delete tenant resources.",
                 "Server responded with response code: %d while deleting tenant resources for tenant id: %s.");
 
         private final String code;

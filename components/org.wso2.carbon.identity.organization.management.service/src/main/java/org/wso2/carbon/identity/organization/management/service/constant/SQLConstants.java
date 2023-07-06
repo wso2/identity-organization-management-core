@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -227,6 +227,12 @@ public class SQLConstants {
     public static final String GET_ORGANIZATION_DEPTH_IN_HIERARCHY = "SELECT DEPTH FROM UM_ORG_HIERARCHY WHERE " +
             "UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + "; AND UM_PARENT_ID = :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID + ";";
+
+    public static final String GET_RELATIVE_ORG_DEPTH_BETWEEN_ORGANIZATIONS_IN_SAME_BRANCH = "SELECT DEPTH FROM " +
+            "UM_ORG_HIERARCHY WHERE UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + "; AND UM_PARENT_ID = :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID + "; OR UM_ID = :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID + "; AND UM_PARENT_ID = :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";";
 
     /**
      * SQL Placeholders.
