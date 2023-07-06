@@ -554,14 +554,14 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ERROR_DELETING_USER_ROLE_ASSIGNMENTS("65098", "Unable to remove the user from the roles.",
                 "Server encountered an error while removing the user id: %s from the roles."),
         ERROR_CODE_ERROR_GENERATING_AUTH_TOKEN_FOR_TENANT_DELETION_SERVICE("65099",
-                "Error while generating authentication token for Tenant Deletion Auth Service Provider.",
-                "Error while sending request for generating authentication token for Tenant Deletion Auth " +
-                        "Service Provider client credentials with response code : %d"),
-        ERROR_CODE_ERROR_DELETING_SUB_ORGANIZATION_TENANT("65100", "Unable to delete the tenant of the " +
-                "sub organization.", "Server error while sending delete request to the tenant deletion service" +
-                "for sub organization id : %s."),
+                "Error while generating authentication token for tenant deletion service provider.",
+                "Error while generating authentication token for tenant deletion service provider using " +
+                        "client credentials. Server responded with with response code : %d"),
+        ERROR_CODE_ERROR_DELETING_SUB_ORGANIZATION_TENANT("65100", "Unable to delete the underlying " +
+                "tenant of the sub organization.", "Server encountered an error while deleting the underlying " +
+                "tenant for sub organization id : %s."),
         ERROR_CODE_ERROR_WHILE_DELETING_TENANT_META_DATA("65101", "Unable to delete tenant meta data.",
-                "Encountered an error while attempting to delete tenant meta data."),
+                "Server encountered an error while attempting to delete tenant meta data for tenant id: %s."),
         ERROR_CODE_ERROR_RETRIEVING_TENANT_DELETION_SERVICE_HOST_URL("650102", "Tenant deletion " +
                 "service host url not found.", "Configuration could not be found for tenant deletion " +
                 "service host url."),
@@ -570,12 +570,11 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ERROR_WHILE_RESOLVING_USER_IN_RESIDENT_ORG("65104",
                 "Error while resolving user in resident organization.",
                 "Error while resolving user: %s in resident organization with ID: %s."),
-        ERROR_CODE_ERROR_SENDING_SUB_ORGANIZATION_TENANT_DELETION_REQUEST("65105", "Unable to delete the " +
-                "tenant of the sub organization.", "Server error while sending delete request to the tenant " +
-                "deletion service with response code : %d."),
-        ERROR_CODE_ERROR_GETTING_TENANT_DELETION_ACCESS_TOKEN("65106", "Error while generating access " +
-                "token for tenant deletion service.", "Failed to generate authentication token for client " +
-                "credentials"),
+        ERROR_CODE_ERROR_SENDING_TENANT_DELETION_REQUEST("65105", "Error while sending tenant deletion " +
+                "request.", "Server encountered an error while sending delete request for tenant id: %s."),
+        ERROR_CODE_ERROR_SENDING_TENANT_DELETION_AUTHENTICATION_REQUEST("65106", "Error while sending" +
+                "authentication request for tenant deletion service.", "Server encountered an error while" +
+                "sending authentication request for tenant deletion service"),
         ERROR_CODE_ERROR_CHECKING_SIBLING_ORGANIZATION_BY_NAME("65107", "Failed to check sibling organization " +
                 "by name.", "Error while checking child organization of the parent organization id: %s by name."),
         ERROR_CODE_ERROR_CHECKING_CHILD_ORGANIZATION_BY_NAME("65108", "Failed to check child organization " +
@@ -585,7 +584,12 @@ public class OrganizationManagementConstants {
                 "root organization of the organization id: %s."),
         ERROR_CODE_ERROR_RETRIEVING_RELATIVE_ORGANIZATION_DEPTH_IN_BRANCH("65110", "Unable to retrieve the " +
                 "relative organization depth in branch.", "Server encountered an error while retrieving relative " +
-                "depth of organizations with IDs: %s & %s");
+                "depth of organizations with IDs: %s & %s"),
+        ERROR_CODE_ERROR_WHILE_RESOLVING_UNDERLYING_TENANT_OF_SUB_ORGANIZATION("65111", "Unable to retrieve " +
+                "the underlying tenant of the sub organization.", "Server encountered an error while retrieving " +
+                "the underlying tenant of the sub organization id: %s."),
+        ERROR_CODE_ERROR_WHILE_DELETING_TENANT_RESOURCES("65112", "Unable to delete tenant resources.",
+                "Server responded with response code: %d while deleting tenant resources for tenant id: %s.");
 
         private final String code;
         private final String message;
