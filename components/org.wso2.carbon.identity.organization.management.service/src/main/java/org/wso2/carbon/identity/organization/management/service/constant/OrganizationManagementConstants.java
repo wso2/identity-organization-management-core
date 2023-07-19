@@ -565,8 +565,8 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ERROR_RETRIEVING_TENANT_DELETION_SERVICE_HOST_URL("650102", "Tenant deletion " +
                 "service host url not found.", "Configuration could not be found for tenant deletion " +
                 "service host url."),
-        ERROR_CODE_ERROR_RETRIEVING_IDENTITY_SERVER_HOST_URL("65103", "Identity server host url not found.",
-                "Configuration could not be found for identity server host url."),
+        ERROR_CODE_ERROR_RETRIEVING_IDENTITY_SERVER_HOST_URL("65103", "Error while retrieving identity " +
+                "server host url.", "Internal server error while reading identity server host url."),
         ERROR_CODE_ERROR_WHILE_RESOLVING_USER_IN_RESIDENT_ORG("65104",
                 "Error while resolving user in resident organization.",
                 "Error while resolving user: %s in resident organization with ID: %s."),
