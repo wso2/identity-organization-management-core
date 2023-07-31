@@ -1,0 +1,78 @@
+<!--
+~ Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+~
+~ Licensed under the Apache License, Version 2.0 (the "License");
+~ you may not use this file except in compliance with the License.
+~ You may obtain a copy of the License at
+~
+~ http://www.apache.org/licenses/LICENSE-2.0
+~
+~ Unless required by applicable law or agreed to in writing, software
+~ distributed under the License is distributed on an "AS IS" BASIS,
+~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~ See the License for the specific language governing permissions and
+~ limitations under the License.
+ -->
+
+<OrganizationManagement>
+
+    <LevelOneOrganizationConfigs>
+        <EnableCarbonRoleBasedValidation>{{organization_management.level_one_organization_configs.enable_carbon_role_based_validation | default(false)}}</EnableCarbonRoleBasedValidation>
+        <!--
+            Following config determines how first level organizations support both o/ and t/ supported endpoints.
+            If set to TRUE those endpoints will be supported with o/ paths.
+            If set to FALSE those endpoints will be supported with t/ paths.
+        -->
+        <SupportOrganizationQualifiedURLs>{{organization_management.level_one_organization_configs.support_organization_qualified_urls | default(true)}}</SupportOrganizationQualifiedURLs>
+    </LevelOneOrganizationConfigs>
+
+    <!--
+        Set the following config to true if the product support application roles for B2B applications.
+    -->
+    <B2BApplicationRoleSupportEnabled>{{organization_management.b2b_application_role_support_enabled | default(false)}}</B2BApplicationRoleSupportEnabled>
+
+    <!--
+        From which organization level onwards the sub-organizations are created with respect to the organization tree.
+    -->
+    <SubOrganizationStartLevel>{{organization_management.sub_organization_start_level | default(1)}}</SubOrganizationStartLevel>
+
+    <CacheConfig>
+    	<CacheManager name="OrganizationManagementCacheManager">
+            <Cache id="org_details_cache_by_orgid" name="OrganizationDetailsCacheByOrgId"
+                   enable="{{cache.org_details_cache_by_orgid.enable | default(true)}}"
+                   timeout="{{cache.org_details_cache_by_orgid.timeout | default(900)}}"
+                   capacity="{{cache.org_details_cache_by_orgid.capacity | default(5000)}}"
+                   isDistributed="false"/>
+            <Cache id="tenant_domain_cache_by_orgid" name="TenantDomainCacheByOrgId"
+                   enable="{{cache.tenant_domain_cache_by_orgid.enable | default(true)}}"
+                   timeout="{{cache.tenant_domain_cache_by_orgid.timeout | default(900)}}"
+                   capacity="{{cache.tenant_domain_cache_by_orgid.capacity | default(5000)}}"
+                   isDistributed="false"/>
+	    </CacheManager>
+    </CacheConfig>
+
+    {% if organization_management.self_service.system_user_name is defined %}
+    <SelfService>
+       <SystemUserName>{{organization_management.self_service.system_user_name}}</SystemUserName>
+       <SystemDefaultAppName>{{organization_management.self_service.default_system_app_name}}</SystemDefaultAppName>
+       <SystemDefaultTokenExpiryTime>{{organization_management.self_service.default_token_expiry_time}}</SystemDefaultTokenExpiryTime>
+       <UserStoreNameForSystemUser>{{organization_management.self_service.user_store_name_for_system_user}}</UserStoreNameForSystemUser>
+       <InternalRoleName>{{organization_management.self_service.internal_role_name}}</InternalRoleName>
+       <InternalRolePermissions>
+           {% for permission in organization_management.self_service.permissions %}
+           <Permission>{{permission}}</Permission>
+           {% endfor %}
+       </InternalRolePermissions>
+       {% if organization_management.self_service.lite_user_store_name is defined %}
+       <LiteUser>
+           <UserStoreName>{{organization_management.self_service.lite_user_store_name}}</UserStoreName>
+           <ConnectionURL>{{organization_management.self_service.lite_user_connection_url}}</ConnectionURL>
+           <ConnectionUsername>{{organization_management.self_service.lite_user_connection_username}}</ConnectionUsername>
+           <ConnectionPassword>{{organization_management.self_service.lite_user_connection_password}}</ConnectionPassword>
+           <ConnectionDriverName>{{organization_management.self_service.lite_user_connection_driver_name}}</ConnectionDriverName>
+       </LiteUser>
+        {% endif %}
+    </SelfService>
+    {% endif %}
+
+</OrganizationManagement>

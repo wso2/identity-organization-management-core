@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+  ~ Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -19,28 +19,16 @@
     <parent>
         <groupId>org.wso2.carbon.identity.organization.management.core</groupId>
         <artifactId>identity-organization-management-core</artifactId>
-        <version>1.0.58-SNAPSHOT</version>
+        <version>1.0.57-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.identity.organization.management.core.server.feature</artifactId>
+    <artifactId>org.wso2.carbon.identity.organization.management.core.feature</artifactId>
     <packaging>pom</packaging>
-    <name>Organization Management Core Server Feature</name>
+    <name>Organization Management Core Feature</name>
     <url>http://wso2.org</url>
-    <description>This feature contains the core bundles required for Organization Management functionality</description>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.wso2.carbon.identity.organization.management.core</groupId>
-            <artifactId>org.wso2.carbon.identity.organization.management.service</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity.organization.management.core</groupId>
-            <artifactId>org.wso2.carbon.identity.organization.management.core.feature</artifactId>
-            <type>zip</type>
-        </dependency>
-    </dependencies>
+    <description>This feature contains the core resources required for Organization Management functionality</description>
 
     <build>
         <plugins>
@@ -56,13 +44,8 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.identity.organization.management.core.server</id>
+                            <id>org.wso2.carbon.identity.organization.management.core</id>
                             <propertiesFile>../etc/feature.properties</propertiesFile>
-                            <includedFeatures>
-                                <includedFeatureDef>
-                                    org.wso2.carbon.identity.organization.management.core:org.wso2.carbon.identity.organization.management.core.feature
-                                </includedFeatureDef>
-                            </includedFeatures>
                             <adviceFile>
                                 <properties>
                                     <propertyDef>org.wso2.carbon.p2.category.type:server</propertyDef>
@@ -95,6 +78,31 @@
                         <goals>
                             <goal>run</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>src/main/resources</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>resources</directory>
+                                    <includes>
+                                        <include>p2.inf</include>
+                                        <include>organization-mgt.xml</include>
+                                        <include>organization-mgt.xml.j2</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
