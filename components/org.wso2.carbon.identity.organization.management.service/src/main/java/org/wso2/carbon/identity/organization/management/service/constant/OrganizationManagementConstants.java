@@ -589,7 +589,10 @@ public class OrganizationManagementConstants {
                 "the underlying tenant of the sub organization.", "Server encountered an error while retrieving " +
                 "the underlying tenant of the sub organization id: %s."),
         ERROR_CODE_ERROR_WHILE_DELETING_TENANT_RESOURCES("65112", "Unable to delete tenant resources.",
-                "Server responded with response code: %d while deleting tenant resources for tenant id: %s.");
+                "Server responded with response code: %d while deleting tenant resources for tenant id: %s."),
+        ERROR_CODE_ERROR_WHILE_INITIALIZING_SUB_ORGANIZATION_TENANT_DELETION_HANDLER("65111", "Error while " +
+                "initializing sub organization tenant deletion handler.", "Server encountered an error while " +
+                "initializing SubOrganizationTenantDeletionHandler. Value not found for : %s."),;
 
         private final String code;
         private final String message;
