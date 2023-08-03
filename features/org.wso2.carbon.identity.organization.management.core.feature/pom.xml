@@ -63,17 +63,6 @@
                                     org.wso2.carbon.identity.organization.management.core:org.wso2.carbon.identity.organization.management.core.server.feature
                                 </includedFeatureDef>
                             </includedFeatures>
-                            <adviceFile>
-                                <properties>
-                                    <propertyDef>org.wso2.carbon.p2.category.type:server</propertyDef>
-                                </properties>
-                            </adviceFile>
-                            <bundles>
-                                <bundleDef>org.wso2.carbon.identity.organization.management.core:org.wso2.carbon.identity.organization.management.service</bundleDef>
-                            </bundles>
-                            <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.core:compatible:${carbon.kernel.feature.version}</importFeatureDef>
-                            </importFeatures>
                         </configuration>
                     </execution>
                 </executions>
