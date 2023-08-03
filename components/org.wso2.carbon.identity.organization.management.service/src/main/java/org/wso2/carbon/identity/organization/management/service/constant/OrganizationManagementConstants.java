@@ -98,6 +98,7 @@ public class OrganizationManagementConstants {
             "LevelOneOrganizationConfigs.SupportOrganizationQualifiedURLs";
     public static final String SUB_ORG_START_LEVEL = "SubOrganizationStartLevel";
     public static final String B2B_APPLICATION_ROLE_SUPPORT_ENABLED = "B2BApplicationRoleSupportEnabled";
+    public static final String IS_ORGANIZATION_MANAGEMENT_FEATURE_ENABLED = "Enable";
 
     // Organization management cache constants.
     public static final String CACHE_CONFIG = "CacheConfig";

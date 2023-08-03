@@ -16,6 +16,8 @@
 
 <OrganizationManagement>
 
+    <Enable>{{organization_management.enable | default(true)}}</Enable>
+
     <LevelOneOrganizationConfigs>
         <EnableCarbonRoleBasedValidation>{{organization_management.level_one_organization_configs.enable_carbon_role_based_validation | default(false)}}</EnableCarbonRoleBasedValidation>
         <!--
