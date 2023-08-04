@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+  ~ Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -28,7 +28,14 @@
     <packaging>pom</packaging>
     <name>Organization Management Core Server Feature</name>
     <url>http://wso2.org</url>
-    <description>This feature contains the core resources required for Organization Management functionality</description>
+    <description>This feature contains the core bundles required for Organization Management functionality</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.wso2.carbon.identity.organization.management.core</groupId>
+            <artifactId>org.wso2.carbon.identity.organization.management.service</artifactId>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

@@ -41,7 +41,6 @@
 
     <modules>
         <module>components/org.wso2.carbon.identity.organization.management.service</module>
-        <module>features/org.wso2.carbon.identity.organization.management.core.feature</module>
         <module>features/org.wso2.carbon.identity.organization.management.core.server.feature</module>
     </modules>
 
@@ -81,13 +80,6 @@
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-annotations</artifactId>
                 <version>${spotbugs.annotation.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.wso2.carbon.identity.organization.management.core</groupId>
-                <artifactId>org.wso2.carbon.identity.organization.management.core.server.feature</artifactId>
-                <version>${project.version}</version>
-                <type>zip</type>
             </dependency>
 
             <!--Test Dependencies-->
