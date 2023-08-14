@@ -130,9 +130,10 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.DELETE_ORGANIZATION_ATTRIBUTES_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.DELETE_ORGANIZATION_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ANCESTORS_OF_GIVEN_ORG_INCLUDING_ITSELF;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_AUTHORIZED_ORGANIZATIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATION_IDS;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_DISTINCT_ORGANIZATIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_BY_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_MSSQL;
@@ -708,11 +709,17 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                     : GET_ORGANIZATIONS_TAIL_MSSQL_WITHOUT_PERMISSION_CHECK;
         }
 
+        if (authorizedSubOrgsOnly) {
+            sqlStmt = GET_AUTHORIZED_ORGANIZATIONS;
+        } else {
+            sqlStmt = GET_DISTINCT_ORGANIZATIONS;
+        }
+
         if (StringUtils.isBlank(parentIdFilterQuery)) {
-            sqlStmt = GET_ORGANIZATIONS + filterQueryBuilder.getFilterQuery() +
+            sqlStmt = sqlStmt + filterQueryBuilder.getFilterQuery() +
                     String.format(getOrgSqlStmtTail, SET_ID, recursive ? "> 0" : "= 1", sortOrder);
         } else {
-            sqlStmt = GET_ORGANIZATIONS + filterQueryBuilder.getFilterQuery() +
+            sqlStmt = sqlStmt + filterQueryBuilder.getFilterQuery() +
                     String.format(getOrgSqlStmtTail, parentIdFilterQuery, recursive ? "> 0" : "= 1",
                             sortOrder);
         }
