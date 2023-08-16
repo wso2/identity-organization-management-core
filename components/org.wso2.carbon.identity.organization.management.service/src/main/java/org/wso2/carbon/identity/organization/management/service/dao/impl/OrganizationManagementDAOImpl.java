@@ -709,10 +709,9 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                     : GET_ORGANIZATIONS_TAIL_MSSQL_WITHOUT_PERMISSION_CHECK;
         }
 
+        sqlStmt = GET_DISTINCT_ORGANIZATIONS;
         if (authorizedSubOrgsOnly) {
             sqlStmt = GET_AUTHORIZED_ORGANIZATIONS;
-        } else {
-            sqlStmt = GET_DISTINCT_ORGANIZATIONS;
         }
 
         if (StringUtils.isBlank(parentIdFilterQuery)) {
