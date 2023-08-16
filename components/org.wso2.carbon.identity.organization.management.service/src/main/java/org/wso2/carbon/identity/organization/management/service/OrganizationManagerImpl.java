@@ -89,6 +89,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_PARENT_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_PATCH_OPERATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_TENANT_TYPE_ORGANIZATION;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_NO_PARENT_ORG;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_HAS_CHILD_ORGANIZATIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_ID_UNDEFINED;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_NAME_EXIST_IN_CHILD_ORGANIZATIONS;
@@ -504,6 +505,20 @@ public class OrganizationManagerImpl implements OrganizationManager {
             throws OrganizationManagementServerException {
 
         return organizationManagementDAO.getRelativeDepthBetweenOrganizationsInSameBranch(firstOrgId, secondOrgId);
+    }
+
+    @Override
+    public String getParentOrganizationId(String organizationId) throws OrganizationManagementException {
+
+        if (SUPER_ORG_ID.equals(organizationId)) {
+            throw handleClientException(ERROR_CODE_NO_PARENT_ORG, organizationId);
+        }
+        String parentOrgId =
+                organizationManagementDAO.getAnAncestorOrganizationIdInGivenDepth(organizationId, 1);
+        if (StringUtils.isBlank(parentOrgId)) {
+            throw handleClientException(ERROR_CODE_NO_PARENT_ORG, organizationId);
+        }
+        return parentOrgId;
     }
 
     private void updateTenantStatus(String status, String organizationId) throws OrganizationManagementServerException {

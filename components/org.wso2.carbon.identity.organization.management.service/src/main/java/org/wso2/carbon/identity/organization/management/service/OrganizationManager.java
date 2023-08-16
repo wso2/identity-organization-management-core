@@ -255,4 +255,13 @@ public interface OrganizationManager {
      */
     int getRelativeDepthBetweenOrganizationsInSameBranch(String firstOrgId, String secondOrgId)
             throws OrganizationManagementServerException;
+
+    /**
+     * Get the parent organization id of the given organization.
+     *
+     * @param organizationId ID of the organization which needs the parent organization id.
+     * @return Organization id of the parent organization.
+     * @throws OrganizationManagementException Error occurred while retrieving the parent organization id.
+     */
+    String getParentOrganizationId(String organizationId) throws OrganizationManagementException;
 }

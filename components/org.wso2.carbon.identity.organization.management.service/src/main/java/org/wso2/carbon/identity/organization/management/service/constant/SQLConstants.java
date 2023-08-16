@@ -234,6 +234,10 @@ public class SQLConstants {
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID + "; AND UM_PARENT_ID = :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";";
 
+    public static final String GET_ANCESTOR_ORGANIZATION_ID_WITH_DEPTH = "SELECT UM_PARENT_ID, DEPTH FROM " +
+            "UM_ORG_HIERARCHY WHERE UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + "; AND DEPTH = :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_DEPTH + ";";
+
     /**
      * SQL Placeholders.
      */
@@ -253,5 +257,6 @@ public class SQLConstants {
         public static final String DB_SCHEMA_COLUMN_NAME_TENANT_ID = "TENANT_ID";
         public static final String DB_SCHEMA_COLUMN_NAME_TENANT_DOMAIN = "TENANT_DOMAIN";
         public static final String DB_SCHEMA_LIMIT = "LIMIT";
+        public static final String DB_SCHEMA_COLUMN_NAME_DEPTH = "DEPTH";
     }
 }

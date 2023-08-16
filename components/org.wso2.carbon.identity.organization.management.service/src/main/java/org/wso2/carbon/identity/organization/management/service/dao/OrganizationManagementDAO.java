@@ -367,4 +367,15 @@ public interface OrganizationManagementDAO {
      */
     int getRelativeDepthBetweenOrganizationsInSameBranch(String firstOrgId, String secondOrgId)
             throws OrganizationManagementServerException;
+
+    /**
+     * Get the ancestor organization id of the given organization and the depth.
+     *
+     * @param organizationId ID of the organization to get the ancestor.
+     * @param depth Depth of the ancestor organization to get.
+     * @return Ancestor organization id.
+     * @throws OrganizationManagementServerException The server exception thrown when getting the ancestor organization.
+     */
+    String getAnAncestorOrganizationIdInGivenDepth(String organizationId, int depth)
+            throws OrganizationManagementServerException;
 }

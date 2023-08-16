@@ -320,6 +320,8 @@ public class OrganizationManagementConstants {
                 "Application %s can't be shared with any organization."),
         ERROR_CODE_SUB_ORG_CANNOT_CREATE_APP("60078", "Applications cannot be created for sub-organizations.",
                 "Application cannot be created for the sub-organization with id: %s."),
+        ERROR_CODE_NO_PARENT_ORG("60079", "No parent organization.",
+                "No parent organization is available for the give organization id: %s."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -592,7 +594,10 @@ public class OrganizationManagementConstants {
                 "Server responded with response code: %d while deleting tenant resources for tenant id: %s."),
         ERROR_CODE_ERROR_WHILE_INITIALIZING_SUB_ORGANIZATION_TENANT_DELETION_HANDLER("65113", "Error while " +
                 "initializing sub organization tenant deletion handler.", "Server encountered an error while " +
-                "initializing SubOrganizationTenantDeletionHandler. Value not found for : %s."),;
+                "initializing SubOrganizationTenantDeletionHandler. Value not found for : %s."),
+        ERROR_CODE_GET_ANCESTOR_IN_DEPTH("65114", "Unable to retrieve the ancestor organization in depth.",
+                "Server encountered an error while retrieving the ancestor organization in depth %s for organization " +
+                        "id: %s."),;
 
         private final String code;
         private final String message;
