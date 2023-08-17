@@ -634,6 +634,12 @@ public class OrganizationManagerImplTest {
         Assert.assertEquals(organizationManager.getRelativeDepthBetweenOrganizationsInSameBranch(ORG1_ID, ORG3_ID), -1);
     }
 
+    @Test
+    public void testGetParentOrganizationId() throws OrganizationManagementException {
+
+        Assert.assertEquals(organizationManager.getParentOrganizationId(ORG2_ID), ORG1_ID);
+    }
+
     private void mockCarbonContext() {
 
         String carbonHome = Paths.get(System.getProperty("user.dir"), "target", "test-classes").toString();
