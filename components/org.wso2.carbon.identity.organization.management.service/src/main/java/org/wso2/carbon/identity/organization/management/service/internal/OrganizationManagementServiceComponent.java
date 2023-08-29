@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -29,6 +29,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.identity.organization.management.service.OrganizationGroupResidentResolverService;
 import org.wso2.carbon.identity.organization.management.service.OrganizationGroupResidentResolverServiceImpl;
+import org.wso2.carbon.identity.organization.management.service.OrganizationManagementInitialize;
+import org.wso2.carbon.identity.organization.management.service.OrganizationManagementInitializeImpl;
 import org.wso2.carbon.identity.organization.management.service.OrganizationManager;
 import org.wso2.carbon.identity.organization.management.service.OrganizationManagerImpl;
 import org.wso2.carbon.identity.organization.management.service.OrganizationUserResidentResolverService;
@@ -56,13 +58,15 @@ public class OrganizationManagementServiceComponent {
     protected void activate(ComponentContext componentContext) {
 
         try {
+            OrganizationManagementConfigUtil.loadOrgMgtConfigurations();
             BundleContext bundleContext = componentContext.getBundleContext();
             bundleContext.registerService(OrganizationManager.class.getName(), new OrganizationManagerImpl(), null);
             bundleContext.registerService(OrganizationUserResidentResolverService.class.getName(),
                     new OrganizationUserResidentResolverServiceImpl(), null);
             bundleContext.registerService(OrganizationGroupResidentResolverService.class.getName(),
                     new OrganizationGroupResidentResolverServiceImpl(), null);
-            OrganizationManagementConfigUtil.loadOrgMgtConfigurations();
+            bundleContext.registerService(OrganizationManagementInitialize.class.getName(),
+                    new OrganizationManagementInitializeImpl(), null);
             OrganizationManagementDataHolder.getInstance().initDataSource();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Organization Management component activated successfully.");

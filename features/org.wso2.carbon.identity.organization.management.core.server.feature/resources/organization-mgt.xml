@@ -16,6 +16,8 @@
 
 <OrganizationManagement>
 
+    <Enable>true</Enable>
+
     <LevelOneOrganizationConfigs>
         <EnableCarbonRoleBasedValidation>false</EnableCarbonRoleBasedValidation>
         <!--
