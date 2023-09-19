@@ -521,6 +521,12 @@ public class OrganizationManagerImpl implements OrganizationManager {
         return parentOrgId;
     }
 
+    @Override
+    public boolean isPrimaryOrganization(String organizationId) throws OrganizationManagementServerException {
+
+        return Utils.getSubOrgStartLevel() == getOrganizationDepthInHierarchy(organizationId);
+    }
+
     private void updateTenantStatus(String status, String organizationId) throws OrganizationManagementServerException {
 
         if (StringUtils.equals(ACTIVE.toString(), status)) {
