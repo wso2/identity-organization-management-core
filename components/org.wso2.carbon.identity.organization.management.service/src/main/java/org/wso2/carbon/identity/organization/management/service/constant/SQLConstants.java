@@ -28,6 +28,8 @@ public class SQLConstants {
 
     public static final String MICROSOFT = "microsoft";
 
+    public static final String MYSQL = "mysql";
+
     public static final String PERMISSION_LIST_PLACEHOLDER = "_PERMISSION_LIST_";
 
     public static final String INSERT_ORGANIZATION = "INSERT INTO UM_ORG (UM_ID, UM_ORG_NAME, UM_ORG_DESCRIPTION, " +
