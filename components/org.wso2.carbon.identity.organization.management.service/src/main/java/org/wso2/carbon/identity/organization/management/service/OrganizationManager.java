@@ -264,4 +264,12 @@ public interface OrganizationManager {
      * @throws OrganizationManagementException Error occurred while retrieving the parent organization id.
      */
     String getParentOrganizationId(String organizationId) throws OrganizationManagementException;
+
+    /**
+     * Check if the provided organization ID is a primary organization.
+     *
+     * @param organizationId          The organization ID.
+     * @return True if the organization is the primary organization; otherwise, false.
+     */
+    boolean isPrimaryOrganization(String organizationId) throws OrganizationManagementServerException;
 }
