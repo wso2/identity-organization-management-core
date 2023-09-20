@@ -66,6 +66,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUB_ORG_START_LEVEL;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.V1_API_PATH_COMPONENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.MICROSOFT;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.MYSQL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.ORACLE;
 import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_DOMAIN;
 
@@ -148,6 +149,17 @@ public class Utils {
     public static boolean isMSSqlDB() throws OrganizationManagementServerException {
 
         return isDBTypeOf(MICROSOFT);
+    }
+
+    /**
+     * Check whether the string, "mysql", contains in the driver name or db product name.
+     *
+     * @return true if the database type matches the driver type, false otherwise.
+     * @throws OrganizationManagementServerException If error occurred while checking the DB metadata.
+     */
+    public static boolean isMySqlDB() throws OrganizationManagementServerException {
+
+        return isDBTypeOf(MYSQL);
     }
 
     /**
