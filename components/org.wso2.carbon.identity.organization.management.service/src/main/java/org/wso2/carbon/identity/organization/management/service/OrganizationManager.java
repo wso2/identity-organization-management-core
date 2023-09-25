@@ -268,8 +268,17 @@ public interface OrganizationManager {
     /**
      * Check if the provided organization ID is a primary organization.
      *
-     * @param organizationId          The organization ID.
+     * @param organizationId The organization ID.
      * @return True if the organization is the primary organization; otherwise, false.
      */
     boolean isPrimaryOrganization(String organizationId) throws OrganizationManagementServerException;
+
+    /**
+     * Fetch the primary organization of the given organization.
+     *
+     * @param organizationId The ID of the organization whose primary organization is to be fetched.
+     * @return The ID of the primary organization.
+     * @throws OrganizationManagementServerException The server exception thrown when fetching the primary organization.
+     */
+    String getPrimaryOrganizationId(String organizationId) throws OrganizationManagementServerException;
 }

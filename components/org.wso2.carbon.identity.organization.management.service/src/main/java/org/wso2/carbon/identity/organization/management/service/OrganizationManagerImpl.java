@@ -527,6 +527,20 @@ public class OrganizationManagerImpl implements OrganizationManager {
         return Utils.getSubOrgStartLevel() == getOrganizationDepthInHierarchy(organizationId);
     }
 
+    @Override
+    public String getPrimaryOrganizationId(String organizationId) throws OrganizationManagementServerException {
+
+        List<String> ancestorOrgIds = getAncestorOrganizationIds(organizationId);
+        // Primary organization is the parent level organization of the sub organization start level.
+        int primaryOrgDepth = Utils.getSubOrgStartLevel() - 1;
+        if (ancestorOrgIds != null && ancestorOrgIds.size() > primaryOrgDepth) {
+            // Ancestor organization list is in reverse order. Hence, the primary organization index has to be derived.
+            int primaryOrgIndex = ancestorOrgIds.size() - primaryOrgDepth - 1;
+            return ancestorOrgIds.get(primaryOrgIndex);
+        }
+        return null;
+    }
+
     private void updateTenantStatus(String status, String organizationId) throws OrganizationManagementServerException {
 
         if (StringUtils.equals(ACTIVE.toString(), status)) {
