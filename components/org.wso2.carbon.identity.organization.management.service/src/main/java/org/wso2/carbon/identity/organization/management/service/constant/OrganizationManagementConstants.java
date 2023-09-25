@@ -323,6 +323,21 @@ public class OrganizationManagementConstants {
                 "Application cannot be created for the sub-organization with id: %s."),
         ERROR_CODE_NO_PARENT_ORG("60079", "No parent organization.",
                 "No parent organization is available for the give organization id: %s."),
+        ERROR_CODE_DISCOVERY_CONFIG_DISABLED("60080", "Can't add organization discovery attribute.",
+                "The organization discovery configuration is disabled in the root organization with ID: %s."),
+        ERROR_CODE_UNAUTHORIZED_ORG_ADDS_DISCOVERY_ATTRIBUTE("60081", "Can't add organization discovery " +
+                "attribute.", "Only the root organization is allowed to add the organization discovery " +
+                "attribute mappings."),
+        ERROR_CODE_DUPLICATE_DISCOVERY_ATTRIBUTE_TYPES("60082", "Invalid request body.", "The discovery " +
+                "attribute type: %s is duplicated."),
+        ERROR_CODE_DISCOVERY_ATTRIBUTE_TAKEN("60083", "Discovery attribute is already mapped in the " +
+                "organization hierarchy.", "The provided discovery attribute value is already associated with a " +
+                "different organization's discovery attribute of type %s."),
+        ERROR_CODE_UNSUPPORTED_DISCOVERY_ATTRIBUTE("60084", "Unsupported discovery attribute.",
+                "The discovery attribute type: %s is unsupported."),
+        ERROR_CODE_DISCOVERY_ATTRIBUTE_ALREADY_ADDED_FOR_ORGANIZATION("60085", "Discovery attribute(s) are " +
+                "already added for the organization.", "Discovery attribute(s) are already added for the " +
+                "organization with ID: %s."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -598,7 +613,19 @@ public class OrganizationManagementConstants {
                 "initializing SubOrganizationTenantDeletionHandler. Value not found for : %s."),
         ERROR_CODE_GET_ANCESTOR_IN_DEPTH("65114", "Unable to retrieve the ancestor organization in depth.",
                 "Server encountered an error while retrieving the ancestor organization in depth %s for organization " +
-                        "id: %s."),;
+                        "ID: %s."),
+        ERROR_CODE_ERROR_ADDING_ORGANIZATION_DISCOVERY_ATTRIBUTE("65115", "Unable to add organization " +
+                "discovery attribute.", "Server encountered an error while adding organization discovery " +
+                "attribute for organization with ID: %s."),
+        ERROR_CODE_ERROR_CHECKING_ORGANIZATION_DISCOVERY_ATTRIBUTE_EXIST_IN_HIERARCHY("65116", "Error " +
+                "while checking if the organization discovery attribute exists.", "Server encountered an error" +
+                " while checking if the organization discovery attribute exists within the hierarchy."),
+        ERROR_CODE_ERROR_CHECKING_DISCOVERY_ATTRIBUTE_ADDED_IN_ORGANIZATION("65117", "Error while checking " +
+                "if the organization already has discovery attributes", "Server encountered an error while " +
+                "checking if the organization with ID: %s already has discovery attribute(s) added."),
+        ERROR_CODE_ERROR_RETRIEVING_DISCOVERY_CONFIGURATION("65118", "Error while retrieving discovery " +
+                "configuration.", "Server encountered an error while retrieving discovery configuration for " +
+                "the root organization with ID: %s.");
 
         private final String code;
         private final String message;

@@ -524,7 +524,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
     @Override
     public boolean isPrimaryOrganization(String organizationId) throws OrganizationManagementServerException {
 
-        return Utils.getSubOrgStartLevel() == getOrganizationDepthInHierarchy(organizationId);
+        return Utils.getSubOrgStartLevel() - 1 == getOrganizationDepthInHierarchy(organizationId);
     }
 
     @Override
