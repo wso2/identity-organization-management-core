@@ -323,11 +323,12 @@ public class OrganizationManagementConstants {
                 "Application cannot be created for the sub-organization with id: %s."),
         ERROR_CODE_NO_PARENT_ORG("60079", "No parent organization.",
                 "No parent organization is available for the give organization id: %s."),
-        ERROR_CODE_DISCOVERY_CONFIG_DISABLED("60080", "Can't add organization discovery attribute.",
-                "The organization discovery configuration is disabled in the root organization with ID: %s."),
-        ERROR_CODE_UNAUTHORIZED_ORG_ADDS_DISCOVERY_ATTRIBUTE("60081", "Can't add organization discovery " +
-                "attribute.", "Only the root organization is allowed to add the organization discovery " +
-                "attribute mappings."),
+        ERROR_CODE_DISCOVERY_CONFIG_DISABLED("60080", "Unable to execute the requested organization discovery " +
+                "management task.", "The organization discovery configuration is disabled in the root organization " +
+                "with ID: %s."),
+        ERROR_CODE_UNAUTHORIZED_ORG_FOR_DISCOVERY_ATTRIBUTE_MANAGEMENT("60081", "Unable to execute the " +
+                "requested organization discovery management task.", "Only the root organization is allowed to " +
+                "manage the discovery attributes of the organization with ID: %s."),
         ERROR_CODE_DUPLICATE_DISCOVERY_ATTRIBUTE_TYPES("60082", "Invalid request body.", "The discovery " +
                 "attribute type: %s is duplicated."),
         ERROR_CODE_DISCOVERY_ATTRIBUTE_TAKEN("60083", "Discovery attribute is already mapped in the " +
@@ -338,6 +339,10 @@ public class OrganizationManagementConstants {
         ERROR_CODE_DISCOVERY_ATTRIBUTE_ALREADY_ADDED_FOR_ORGANIZATION("60085", "Discovery attribute(s) are " +
                 "already added for the organization.", "Discovery attribute(s) are already added for the " +
                 "organization with ID: %s."),
+        ERROR_CODE_PAGINATION_NOT_IMPLEMENTED("60086", "Pagination not supported.", "Pagination " +
+                "capabilities are not currently supported."),
+        ERROR_CODE_FILTERING_NOT_IMPLEMENTED("60087", "Filtering not supported.", "Filtering " +
+                "capabilities are not currently supported."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -625,7 +630,19 @@ public class OrganizationManagementConstants {
                 "checking if the organization with ID: %s already has discovery attribute(s) added."),
         ERROR_CODE_ERROR_RETRIEVING_DISCOVERY_CONFIGURATION("65118", "Error while retrieving discovery " +
                 "configuration.", "Server encountered an error while retrieving discovery configuration for " +
-                "the root organization with ID: %s.");
+                "the root organization with ID: %s."),
+        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_DISCOVERY_ATTRIBUTE("65119", "Error while retrieving " +
+                "organization discovery attribute.", "Server encountered an error while retrieving organization " +
+                "discovery attribute for organization with ID: %s."),
+        ERROR_CODE_ERROR_DELETING_ORGANIZATION_DISCOVERY_ATTRIBUTE("65120", "Error while deleting " +
+                "organization discovery attribute.", "Server encountered an error while deleting organization " +
+                "discovery attribute for organization with ID: %s."),
+        ERROR_CODE_ERROR_UPDATING_ORGANIZATION_DISCOVERY_ATTRIBUTE("65121", "Unable to update organization " +
+                "discovery attribute.", "Server encountered an error while updating organization discovery " +
+                "attribute for organization with ID: %s."),
+        ERROR_CODE_ERROR_LISTING_ORGANIZATIONS_DISCOVERY_ATTRIBUTES("65122", "Error while listing " +
+                "organizations discovery attributes.", "Server encountered an error while fetching discovery " +
+                "attributes for organizations.");
 
         private final String code;
         private final String message;
