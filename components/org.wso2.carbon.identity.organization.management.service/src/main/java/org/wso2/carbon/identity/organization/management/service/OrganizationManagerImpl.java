@@ -545,7 +545,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
         if (StringUtils.equals(ACTIVE.toString(), status)) {
             try {
-                getTenantMgtService().activateTenant(getRealmService().getTenantManager().getTenantId(organizationId));
+                String tenantDomain = organizationManagementDAO.resolveTenantDomain(organizationId);
+                getTenantMgtService().activateTenant(getRealmService().getTenantManager().getTenantId(tenantDomain));
             } catch (TenantMgtException | UserStoreException e) {
                 throw handleServerException(ERROR_CODE_ERROR_ACTIVATING_ORGANIZATION_TENANT, e, organizationId);
             }
