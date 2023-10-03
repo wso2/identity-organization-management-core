@@ -378,4 +378,8 @@ public interface OrganizationManagementDAO {
      */
     String getAnAncestorOrganizationIdInGivenDepth(String organizationId, int depth)
             throws OrganizationManagementServerException;
+
+
+    void addSuperOrganization(Organization organization) throws OrganizationManagementServerException;
+
 }

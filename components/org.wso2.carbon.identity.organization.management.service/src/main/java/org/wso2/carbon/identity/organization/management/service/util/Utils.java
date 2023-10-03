@@ -369,16 +369,20 @@ public class Utils {
      */
     public static boolean useOrganizationRolesForValidation(String organizationId) {
 
-        if (!Utils.isCarbonRoleValidationEnabledForLevelOneOrgs()) {
-            return true;
-        }
+        int depth = 0;
         try {
-            // Return false if the organization is in depth 1.
-            return organizationManager.getOrganizationDepthInHierarchy(organizationId) != 1;
+            depth = organizationManager.getOrganizationDepthInHierarchy(organizationId);
         } catch (OrganizationManagementServerException e) {
             LOG.error("Error while checking the depth of the given organization.");
         }
-        return true;
+        if (depth == 0) {
+            return false;
+        }
+        if (!Utils.isCarbonRoleValidationEnabledForLevelOneOrgs()) {
+            return true;
+        }
+        // Return false if the organization is in depth 1.
+        return depth != 1;
     }
 
     /**

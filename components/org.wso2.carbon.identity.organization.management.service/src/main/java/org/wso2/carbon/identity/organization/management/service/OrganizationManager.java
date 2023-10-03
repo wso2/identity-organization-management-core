@@ -281,4 +281,6 @@ public interface OrganizationManager {
      * @throws OrganizationManagementServerException The server exception thrown when fetching the primary organization.
      */
     String getPrimaryOrganizationId(String organizationId) throws OrganizationManagementServerException;
+
+    Organization addSuperOrganization(int tenantId, Organization organization) throws OrganizationManagementException;
 }

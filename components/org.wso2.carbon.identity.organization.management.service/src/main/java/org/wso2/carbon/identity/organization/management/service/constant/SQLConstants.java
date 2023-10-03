@@ -69,6 +69,17 @@ public class SQLConstants {
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID + ";, :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID +
             ";, 1 FROM dual ) SELECT * FROM OH";
 
+    public static final String INSERT_SUPER_ORGANIZATION = "INSERT INTO UM_ORG (UM_ID, UM_ORG_NAME, " +
+            "UM_CREATED_TIME, UM_LAST_MODIFIED, UM_STATUS, UM_ORG_TYPE) VALUES (:" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";, :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_NAME + ";, :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_CREATED_TIME + ";, :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_LAST_MODIFIED + ";, :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_STATUS + ";, :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_TYPE + ";)";
+    public static final String INSERT_ITSELF_ORGANIZATION_HIERARCHY = "INSERT INTO UM_ORG_HIERARCHY " +
+            "(UM_PARENT_ID, UM_ID, DEPTH) VALUES (:" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";, :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";, 0)";
+
     public static final String INSERT_OTHER_ORGANIZATION_HIERARCHY = "INSERT INTO UM_ORG_HIERARCHY (UM_PARENT_ID, " +
             "UM_ID, DEPTH) SELECT UM_PARENT_ID, :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";, DEPTH + 1 FROM " +
             "UM_ORG_HIERARCHY WHERE UM_ORG_HIERARCHY.UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID +

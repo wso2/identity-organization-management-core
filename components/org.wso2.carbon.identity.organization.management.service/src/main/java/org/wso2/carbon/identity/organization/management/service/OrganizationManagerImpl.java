@@ -541,6 +541,23 @@ public class OrganizationManagerImpl implements OrganizationManager {
         return null;
     }
 
+    @Override
+    public Organization addSuperOrganization(int tenantId, Organization organization)
+            throws OrganizationManagementException {
+
+        try {
+            setCreatedAndLastModifiedTime(organization);
+            organization.setType(TENANT.name());
+            organizationManagementDAO.addSuperOrganization(organization);
+            org.wso2.carbon.user.api.Tenant tenant = getRealmService().getTenantManager().getTenant(tenantId);
+            tenant.setAssociatedOrganizationUUID(organization.getId());
+            getRealmService().getTenantManager().updateTenant(tenant);
+        } catch (UserStoreException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
     private void updateTenantStatus(String status, String organizationId) throws OrganizationManagementServerException {
 
         if (StringUtils.equals(ACTIVE.toString(), status)) {
