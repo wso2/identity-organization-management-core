@@ -142,6 +142,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_ORACLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_ORACLE_WITHOUT_PERMISSION_CHECK;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_WITHOUT_PERMISSION_CHECK;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITHOUT_PERMISSION_CHECK;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_DEPTH_IN_HIERARCHY;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_NAME_BY_ID;
@@ -711,11 +712,17 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                     : GET_ORGANIZATIONS_TAIL_MSSQL_WITHOUT_PERMISSION_CHECK;
         }
 
+        if (authorizedSubOrgsOnly) {
+            sqlStmt = GET_ORGANIZATIONS;
+        } else {
+            sqlStmt = GET_ORGANIZATIONS_WITHOUT_PERMISSION_CHECK;
+        }
+
         if (StringUtils.isBlank(parentIdFilterQuery)) {
-            sqlStmt = GET_ORGANIZATIONS + filterQueryBuilder.getFilterQuery() +
+            sqlStmt += filterQueryBuilder.getFilterQuery() +
                     String.format(getOrgSqlStmtTail, SET_ID, recursive ? "> 0" : "= 1", sortOrder);
         } else {
-            sqlStmt = GET_ORGANIZATIONS + filterQueryBuilder.getFilterQuery() +
+            sqlStmt += filterQueryBuilder.getFilterQuery() +
                     String.format(getOrgSqlStmtTail, parentIdFilterQuery, recursive ? "> 0" : "= 1",
                             sortOrder);
         }
