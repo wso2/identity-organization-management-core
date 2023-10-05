@@ -343,6 +343,8 @@ public class OrganizationManagementConstants {
                 "capabilities are not currently supported."),
         ERROR_CODE_FILTERING_NOT_IMPLEMENTED("60087", "Filtering not supported.", "Filtering " +
                 "capabilities are not currently supported."),
+        ERROR_CODE_EMPTY_DISCOVERY_ATTRIBUTES("60088", "Invalid request.", "Discovery attributes " +
+                "cannot be empty."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
