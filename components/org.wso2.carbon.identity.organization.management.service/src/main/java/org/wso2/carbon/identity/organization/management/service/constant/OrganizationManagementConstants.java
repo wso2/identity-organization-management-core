@@ -345,6 +345,8 @@ public class OrganizationManagementConstants {
                 "capabilities are not currently supported."),
         ERROR_CODE_EMPTY_DISCOVERY_ATTRIBUTES("60088", "Invalid request.", "Discovery attributes " +
                 "cannot be empty."),
+        ERROR_CODE_MANAGED_ORGANIZATION_CLAIM_UPDATE_NOT_ALLOWED("60089", "The managed organization " +
+                "is not allowed to modify.", "The managed organization is a read only property."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -644,7 +646,34 @@ public class OrganizationManagementConstants {
                 "attribute for organization with ID: %s."),
         ERROR_CODE_ERROR_LISTING_ORGANIZATIONS_DISCOVERY_ATTRIBUTES("65122", "Error while listing " +
                 "organizations discovery attributes.", "Server encountered an error while fetching discovery " +
-                "attributes for organizations.");
+                "attributes for organizations."),
+        ERROR_CODE_ERROR_CREATE_ORGANIZATION_USER_ASSOCIATION("65123", "Unable to create organization user " +
+                "association.", "Server encountered an error while creating organization user association " +
+                "for user with ID: %s."),
+        ERROR_CODE_ERROR_DELETE_ORGANIZATION_USER_ASSOCIATION_FOR_SHARED_USER("65124", "Unable to delete" +
+                " organization user association.", "Server encountered an error while deleting organization " +
+                "user association of the shared user with ID: %s."),
+        ERROR_CODE_ERROR_DELETE_ORGANIZATION_USER_ASSOCIATIONS("65125", "Unable to delete" +
+                " organization user associations of the user.", "Server encountered an error while deleting " +
+                "organization user associations of user."),
+        ERROR_CODE_ERROR_GET_ORGANIZATION_USER_ASSOCIATIONS("65126", "Unable to get the organization user " +
+                "associations.", "Server encountered an error while fetching organization user " +
+                "associations for the user."),
+        ERROR_CODE_ERROR_GET_ORGANIZATION_USER_ASSOCIATION_FOR_USER_AT_SHARED_ORG("65127", "Unable to get the " +
+                "organization user association.", "Server encountered an error while fetching the organization " +
+                "user association for the user in shared organization %s."),
+        ERROR_CODE_ERROR_DELETE_SHARED_USER("65128", "Unable to remove the shared user.",
+                "Server encountered an error while deleting the shared user with ID: %s from the shared " +
+                        "organization %s"),
+        ERROR_CODE_ERROR_FETCH_USER_MANAGED_ORGANIZATION_CLAIM("65129", "Unable to fetch the user managed " +
+                "organization.", "Server encountered an error while fetching the user managed " +
+                "organization of the shared user with ID: %s"),
+        ERROR_CODE_ERROR_CREATE_SHARED_USER("65130", "Unable to share the user." +
+                "user.", "Server encountered an error while sharing user with organization %s"),
+        ERROR_CODE_ERROR_GET_ORGANIZATION_USER_ASSOCIATION_OF_SHARED_USER("65131", "Unable to get the " +
+                "organization user association for shared user.", "Server encountered an error while " +
+                "fetching the organization user association for the shared user with ID: %s at shared " +
+                "organization %s.");
 
         private final String code;
         private final String message;
