@@ -668,8 +668,8 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ERROR_FETCH_USER_MANAGED_ORGANIZATION_CLAIM("65129", "Unable to fetch the user managed " +
                 "organization.", "Server encountered an error while fetching the user managed " +
                 "organization of the shared user with ID: %s"),
-        ERROR_CODE_ERROR_CREATE_SHARED_USER("65130", "Unable to share the user." +
-                "user.", "Server encountered an error while sharing user with organization %s"),
+        ERROR_CODE_ERROR_CREATE_SHARED_USER("65130", "Unable to share the user.",
+                "Server encountered an error while sharing user with organization %s"),
         ERROR_CODE_ERROR_GET_ORGANIZATION_USER_ASSOCIATION_OF_SHARED_USER("65131", "Unable to get the " +
                 "organization user association for shared user.", "Server encountered an error while " +
                 "fetching the organization user association for the shared user with ID: %s at shared " +
@@ -677,7 +677,13 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ERROR_GETTING_ORGANIZATION_ID_BY_DISCOVERY_ATTRIBUTE("65132", "Unable to retrieve the " +
                 "organization ID associated with the provided discovery attribute.", "Server encountered an error " +
                 "when attempting to retrieve the organization ID linked to the given discovery attribute, which has " +
-                "the type: %s and value: %s, within the hierarchy under the root organization with ID: %s");
+                "the type: %s and value: %s, within the hierarchy under the root organization with ID: %s"),
+        ERROR_CODE_ERROR_VALIDATING_ORGANIZATION_DISCOVERY_ATTRIBUTE("65133", "Unable to validate the " +
+                "organization discovery attribute.", "Server encountered an error while validating the " +
+                "organization discovery attribute."),
+        ERROR_CODE_ERROR_GETTING_ORGANIZATION_DISCOVERY_CONFIG("65134", "Unable to retrieve the " +
+                "organization discovery configuration.", "Server encountered an error while retrieving the " +
+                "organization discovery configuration.");
 
         private final String code;
         private final String message;
