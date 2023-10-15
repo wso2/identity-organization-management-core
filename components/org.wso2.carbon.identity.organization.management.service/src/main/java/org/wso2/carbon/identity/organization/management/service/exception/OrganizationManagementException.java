@@ -37,6 +37,11 @@ public class OrganizationManagementException extends Exception {
         this.errorCode = errorCode;
     }
 
+    public OrganizationManagementException(String message, Throwable cause) {
+
+        super(message, cause);
+    }
+
     public OrganizationManagementException(String message, String errorCode, Throwable cause) {
 
         super(message, cause);
