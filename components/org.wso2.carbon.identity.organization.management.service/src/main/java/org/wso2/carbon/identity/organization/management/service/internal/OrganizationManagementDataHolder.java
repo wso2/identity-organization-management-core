@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.organization.management.service.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.organization.management.service.OrganizationManager;
 import org.wso2.carbon.identity.organization.management.service.listener.OrganizationManagerListener;
 import org.wso2.carbon.tenant.mgt.services.TenantMgtService;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -39,6 +40,7 @@ public class OrganizationManagementDataHolder {
     private TenantMgtService tenantMgtService;
     private OrganizationManagerListener organizationManagerListener;
     private DataSource dataSource;
+    private OrganizationManager organizationManager;
 
     private static final Log LOG = LogFactory.getLog(OrganizationManagementDataHolder.class);
 
@@ -101,5 +103,25 @@ public class OrganizationManagementDataHolder {
         } catch (UserStoreException e) {
             LOG.error("Error while retrieving user management data source.", e);
         }
+    }
+
+    /**
+     * Get organization manager.
+     *
+     * @return OrganizationManager.
+     */
+    public OrganizationManager getOrganizationManager() {
+
+        return organizationManager;
+    }
+
+    /**
+     * Set organization manager.
+     *
+     * @param organizationManager Instance of {@link OrganizationManager}.
+     */
+    public void setOrganizationManager(OrganizationManager organizationManager) {
+
+        this.organizationManager = organizationManager;
     }
 }

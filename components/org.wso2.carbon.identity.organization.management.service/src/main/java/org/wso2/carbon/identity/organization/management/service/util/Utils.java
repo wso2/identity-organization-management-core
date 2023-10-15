@@ -393,6 +393,53 @@ public class Utils {
     }
 
     /**
+     * Check whether the tenant is an organization.
+     *
+     * @param tenantDomain Tenant domain.
+     * @return True if the tenant is an organization.
+     * @throws OrganizationManagementException
+     */
+    public static boolean isOrganization(String tenantDomain) throws OrganizationManagementException {
+
+        RealmService realmService = OrganizationManagementDataHolder.getInstance().getRealmService();
+        int tenantId;
+        try {
+            tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
+        } catch (UserStoreException e) {
+            throw new OrganizationManagementException("Error while retrieving the tenant id for the tenant domain: " +
+                    tenantDomain, e);
+        }
+        return isOrganization(tenantId);
+    }
+
+    /**
+     * Check whether the tenant is an organization.
+     *
+     * @param tenantId Tenant id.
+     * @return True if the tenant is an organization.
+     * @throws OrganizationManagementException
+     */
+    public static boolean isOrganization(int tenantId) throws OrganizationManagementException {
+
+        RealmService realmService = OrganizationManagementDataHolder.getInstance().getRealmService();
+        String organizationUUID;
+        try {
+            organizationUUID = realmService.getTenantManager().getTenant(tenantId).getAssociatedOrganizationUUID();
+        } catch (UserStoreException e) {
+            throw new OrganizationManagementException("Error while retrieving the associated organization UUID for " +
+                    "the tenant with id: " + tenantId, e);
+        }
+        if (StringUtils.isBlank(organizationUUID)) {
+            return false;
+        }
+
+        OrganizationManager organizationManager = OrganizationManagementDataHolder.getInstance()
+                .getOrganizationManager();
+        int organizationDepth = organizationManager.getOrganizationDepthInHierarchy(organizationUUID);
+        return organizationDepth >= Utils.getSubOrgStartLevel();
+    }
+
+    /**
      * Return whether organization qualified URLs are supported for first level organizations in the deployment.
      *
      * @return True if organization qualified URLs are supported for first level organizations.

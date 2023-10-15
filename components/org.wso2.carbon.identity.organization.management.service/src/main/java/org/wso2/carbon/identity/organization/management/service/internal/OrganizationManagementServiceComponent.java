@@ -60,7 +60,9 @@ public class OrganizationManagementServiceComponent {
         try {
             OrganizationManagementConfigUtil.loadOrgMgtConfigurations();
             BundleContext bundleContext = componentContext.getBundleContext();
-            bundleContext.registerService(OrganizationManager.class.getName(), new OrganizationManagerImpl(), null);
+            OrganizationManager organizationManager = new OrganizationManagerImpl();
+            bundleContext.registerService(OrganizationManager.class.getName(), organizationManager, null);
+            OrganizationManagementDataHolder.getInstance().setOrganizationManager(organizationManager);
             bundleContext.registerService(OrganizationUserResidentResolverService.class.getName(),
                     new OrganizationUserResidentResolverServiceImpl(), null);
             bundleContext.registerService(OrganizationGroupResidentResolverService.class.getName(),
