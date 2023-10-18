@@ -281,4 +281,14 @@ public interface OrganizationManager {
      * @throws OrganizationManagementServerException The server exception thrown when fetching the primary organization.
      */
     String getPrimaryOrganizationId(String organizationId) throws OrganizationManagementServerException;
+
+    /**
+     * Add Root organization which can initiate an organization tree.
+     *
+     * @param tenantId The tenant ID corresponds to the root organization.
+     * @param organization The organization to be created.
+     * @return The newly created organization.
+     * @throws OrganizationManagementException The exception thrown when creating an organization.
+     */
+    Organization addRootOrganization(int tenantId, Organization organization) throws OrganizationManagementException;
 }

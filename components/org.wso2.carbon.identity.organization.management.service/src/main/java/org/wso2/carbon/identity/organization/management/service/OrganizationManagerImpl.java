@@ -76,6 +76,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_DUPLICATE_ATTRIBUTE_KEYS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_ACTIVATING_ORGANIZATION_TENANT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_ADDING_TENANT_TYPE_ORGANIZATION;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CREATING_ROOT_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_DEACTIVATING_ORGANIZATION_TENANT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_EVALUATING_ADD_ORGANIZATION_AUTHORIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_EVALUATING_ADD_ORGANIZATION_TO_SUPER_AUTHORIZATION;
@@ -539,6 +540,23 @@ public class OrganizationManagerImpl implements OrganizationManager {
             return ancestorOrgIds.get(primaryOrgIndex);
         }
         return null;
+    }
+
+    @Override
+    public Organization addRootOrganization(int tenantId, Organization organization)
+            throws OrganizationManagementException {
+
+        try {
+            setCreatedAndLastModifiedTime(organization);
+            organization.setType(TENANT.name());
+            organizationManagementDAO.addRootOrganization(organization);
+            org.wso2.carbon.user.api.Tenant tenant = getRealmService().getTenantManager().getTenant(tenantId);
+            tenant.setAssociatedOrganizationUUID(organization.getId());
+            getRealmService().getTenantManager().updateTenant(tenant);
+        } catch (UserStoreException e) {
+            throw handleServerException(ERROR_CODE_ERROR_CREATING_ROOT_ORGANIZATION, e, String.valueOf(tenantId));
+        }
+        return organization;
     }
 
     private void updateTenantStatus(String status, String organizationId) throws OrganizationManagementServerException {

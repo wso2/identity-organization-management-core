@@ -378,4 +378,13 @@ public interface OrganizationManagementDAO {
      */
     String getAnAncestorOrganizationIdInGivenDepth(String organizationId, int depth)
             throws OrganizationManagementServerException;
+
+    /**
+     * Add a root organization.
+     *
+     * @param rootOrganization The root organization to be added.
+     * @throws OrganizationManagementServerException The server exception thrown when adding a root organization.
+     */
+    void addRootOrganization(Organization rootOrganization) throws OrganizationManagementServerException;
+
 }

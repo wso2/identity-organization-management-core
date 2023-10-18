@@ -683,7 +683,9 @@ public class OrganizationManagementConstants {
                 "organization discovery attribute."),
         ERROR_CODE_ERROR_GETTING_ORGANIZATION_DISCOVERY_CONFIG("65134", "Unable to retrieve the " +
                 "organization discovery configuration.", "Server encountered an error while retrieving the " +
-                "organization discovery configuration.");
+                "organization discovery configuration."),
+        ERROR_CODE_ERROR_CREATING_ROOT_ORGANIZATION("65135", "Unable to create the root organization.",
+                "Server encountered an error while creating the root organization for the tenant ID: %s");
 
         private final String code;
         private final String message;
