@@ -187,7 +187,7 @@ public class OrganizationManagerImplTest {
     public void testAddRootOrganization() throws Exception {
 
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), NEW_ORG_NAME, ORG_DESCRIPTION,
-                SUPER_ORG_ID, TENANT.toString());
+                null, TENANT.toString());
         mockCarbonContext();
         mockAuthorizationManager();
         when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(true);
