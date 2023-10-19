@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.identity.organization.management.service.dao;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.filter.ExpressionNode;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
@@ -373,7 +372,7 @@ public interface OrganizationManagementDAO {
      * Get the ancestor organization id of the given organization and the depth.
      *
      * @param organizationId ID of the organization to get the ancestor.
-     * @param depth Depth of the ancestor organization to get.
+     * @param depth          Depth of the ancestor organization to get.
      * @return Ancestor organization id.
      * @throws OrganizationManagementServerException The server exception thrown when getting the ancestor organization.
      */
@@ -386,9 +385,5 @@ public interface OrganizationManagementDAO {
      * @param rootOrganization The root organization to be added.
      * @throws OrganizationManagementServerException The server exception thrown when adding a root organization.
      */
-    default void addRootOrganization(Organization rootOrganization) throws OrganizationManagementServerException {
-
-        throw new NotImplementedException();
-    }
-
+    void addRootOrganization(Organization rootOrganization) throws OrganizationManagementServerException;
 }
