@@ -31,7 +31,6 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.common.testng.WithAxisConfiguration;
-import org.wso2.carbon.identity.organization.management.service.authz.OrganizationManagementAuthorizationManager;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
 import org.wso2.carbon.identity.organization.management.service.dao.impl.OrganizationManagementDAOImpl;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementClientException;
@@ -46,12 +45,9 @@ import org.wso2.carbon.identity.organization.management.util.TestUtils;
 import org.wso2.carbon.user.api.AuthorizationManager;
 import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.api.UserRealm;
-import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -59,7 +55,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -92,14 +87,14 @@ public class OrganizationManagerImplTest {
     private static final String ORG_ATTRIBUTE_KEY = "country";
     private static final String ORG_ATTRIBUTE_VALUE = "Sri Lanka";
     private static final String SUPER_ORG_ID = "10084a8d-113f-4211-a0d5-efe36b082211";
+    private static final String ROOT_ORG = "custom-root-org";
     private static final String ORG1_ID = "org_id_1";
     private static final String ORG2_ID = "org_id_2";
+    private static final String ORG2_1 = "org_2_1";
+    private static final String ORG3_1 = "org_3_1";
     private static final String ORG3_ID = "org_id_3";
     private static final String INVALID_PARENT_ID = "invalid_parent_id";
     private static final String INVALID_ORG_ID = "invalid_org_id";
-    private static final String ERROR_MESSAGE = "message";
-    private static final String ERROR_DESCRIPTION = "description";
-    private static final String ERROR_CODE = "code";
 
     private OrganizationManagerImpl organizationManager;
 
@@ -121,8 +116,6 @@ public class OrganizationManagerImplTest {
     public void init() {
 
         realmService = mock(RealmService.class);
-        userRealm = mock(UserRealm.class);
-        authorizationManager = mock(AuthorizationManager.class);
         tenantManager = mock(TenantManager.class);
         tenant = mock(Tenant.class);
         mockUtils();
@@ -134,10 +127,13 @@ public class OrganizationManagerImplTest {
         organizationManager = new OrganizationManagerImpl();
         OrganizationManagementDataHolder.getInstance().setOrganizationManagerListener(mock(
                 OrganizationManagerListener.class));
+        OrganizationManagementDataHolder.getInstance().setRealmService(realmService);
 
         TestUtils.initiateH2Base();
         TestUtils.mockDataSource();
 
+        // Super -> org1 -> org2
+        //       -> org3
         Organization organization1 = getOrganization(ORG1_ID, ORG1_NAME, ORG_DESCRIPTION, SUPER_ORG_ID,
                 STRUCTURAL.toString());
         Organization organization2 = getOrganization(ORG2_ID, ORG2_NAME, ORG_DESCRIPTION, ORG1_ID,
@@ -162,22 +158,11 @@ public class OrganizationManagerImplTest {
     }
 
     @Test
-    public void testAddOrganization() throws Exception {
+    public void testAddOrganizationUnderSuperTenant() throws Exception {
 
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), NEW_ORG_NAME, ORG_DESCRIPTION,
                 SUPER_ORG_ID, STRUCTURAL.toString());
         mockCarbonContext();
-        mockAuthorizationManager();
-        when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(true);
-
-        OrganizationManagementAuthorizationManager authorizationManager =
-                mock(OrganizationManagementAuthorizationManager.class);
-        setFinalStatic(OrganizationManagementAuthorizationManager.class.getDeclaredField("INSTANCE"),
-                authorizationManager);
-
-        when(OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(anyString(), anyString(),
-                anyString())).thenReturn(true);
-
         Organization addedOrganization = organizationManager.addOrganization(sampleOrganization);
         assertNotNull(addedOrganization.getId(), "Created organization id cannot be null");
         assertEquals(addedOrganization.getName(), sampleOrganization.getName());
@@ -186,26 +171,39 @@ public class OrganizationManagerImplTest {
     @Test
     public void testAddRootOrganization() throws Exception {
 
-        Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), NEW_ORG_NAME, ORG_DESCRIPTION,
+        // Root_1
+        Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ROOT_ORG, ORG_DESCRIPTION,
                 null, TENANT.toString());
         mockCarbonContext();
-        mockAuthorizationManager();
-        when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(true);
-
         when(realmService.getTenantManager()).thenReturn(tenantManager);
         when(tenantManager.getTenant(anyInt())).thenReturn(tenant);
-
-        OrganizationManagementAuthorizationManager authorizationManager =
-                mock(OrganizationManagementAuthorizationManager.class);
-        setFinalStatic(OrganizationManagementAuthorizationManager.class.getDeclaredField("INSTANCE"),
-                authorizationManager);
-
-        when(OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(anyString(), anyString(),
-                anyString())).thenReturn(true);
-
         Organization addedOrganization = organizationManager.addRootOrganization(1, sampleOrganization);
         assertNotNull(addedOrganization.getId(), "Created root organization id cannot be null");
         assertEquals(addedOrganization.getName(), sampleOrganization.getName());
+    }
+
+    @Test
+    public void testAddOrganizationFromImmediateParent() throws Exception {
+
+        // Super -> org1 -> org2_1
+        Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG2_1,
+                ORG_DESCRIPTION, ORG1_ID, TENANT.toString());
+        mockCarbonContext();
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG1_ID);
+        Organization addedOrganization = organizationManager.addOrganization(sampleOrganization);
+        assertNotNull(addedOrganization.getId(), "Created organization id cannot be null");
+        assertEquals(addedOrganization.getName(), sampleOrganization.getName());
+    }
+
+    @Test(expectedExceptions = OrganizationManagementClientException.class)
+    public void testAddOrganizationFromAncestorOrg() throws Exception {
+
+        // Super -> org1 -> org2 -> org3_1
+        Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG3_1,
+                ORG_DESCRIPTION, ORG2_ID, TENANT.toString());
+        mockCarbonContext();
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG1_ID);
+        organizationManager.addOrganization(sampleOrganization);
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
@@ -219,49 +217,29 @@ public class OrganizationManagerImplTest {
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG2_NAME, ORG_DESCRIPTION,
                 SUPER_ORG_ID, TENANT.toString());
         mockCarbonContext();
-        mockAuthorizationManager();
-        when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(true);
-
-        OrganizationManagementAuthorizationManager authorizationManager =
-                mock(OrganizationManagementAuthorizationManager.class);
-        setFinalStatic(OrganizationManagementAuthorizationManager.class.getDeclaredField("INSTANCE"),
-                authorizationManager);
-
-        when(OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(anyString(), anyString(),
-                anyString())).thenReturn(true);
-
         organizationManager.addOrganization(sampleOrganization);
     }
 
     @Test
-    public void testAddRootOrganizationWithSameSubOrgName() throws Exception {
+    public void testAddPrimaryOrganizationWithSameNameOfSubOrg() throws Exception {
 
         /*
             sub org level = 2
             Existing org hierarchy =  Super -> ORG1 -> ORG2
             Root organizations before test = ORG1
+
             Operation = Super -> ORG2
             Root organizations after test = ORG1, ORG2
          */
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG2_NAME, ORG_DESCRIPTION,
                 SUPER_ORG_ID, TENANT.toString());
         mockCarbonContext();
-        mockAuthorizationManager();
-        when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(true);
-
-        OrganizationManagementAuthorizationManager authorizationManager =
-                mock(OrganizationManagementAuthorizationManager.class);
-        setFinalStatic(OrganizationManagementAuthorizationManager.class.getDeclaredField("INSTANCE"),
-                authorizationManager);
-
-        when(OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(anyString(), anyString(),
-                anyString())).thenReturn(true);
         mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(2);
         organizationManager.addOrganization(sampleOrganization);
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
-    public void testAddExistingSubOrganizationInUpperLevel() throws Exception {
+    public void testAddOrganizationWithExistingAncestorOrganizationName() throws Exception {
 
         /*
             sub org level = 1
@@ -271,17 +249,7 @@ public class OrganizationManagerImplTest {
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG1_NAME, ORG_DESCRIPTION,
                 ORG2_ID, TENANT.toString());
         mockCarbonContext();
-        mockAuthorizationManager();
-        when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(true);
-
-        OrganizationManagementAuthorizationManager authorizationManager =
-                mock(OrganizationManagementAuthorizationManager.class);
-        setFinalStatic(OrganizationManagementAuthorizationManager.class.getDeclaredField("INSTANCE"),
-                authorizationManager);
-
-        when(OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(anyString(), anyString(),
-                anyString())).thenReturn(true);
-
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG2_ID);
         organizationManager.addOrganization(sampleOrganization);
     }
 
@@ -368,23 +336,6 @@ public class OrganizationManagerImplTest {
         organizationAttributeList.add(organizationAttribute1);
         organizationAttributeList.add(organizationAttribute2);
         organization.setAttributes(organizationAttributeList);
-        organizationManager.addOrganization(organization);
-    }
-
-    @Test(expectedExceptions = OrganizationManagementClientException.class)
-    public void testAddOrganizationUserNotAuthorized() throws Exception {
-
-        Organization organization = getOrganization(UUID.randomUUID().toString(), NEW_ORG_NAME, ORG_DESCRIPTION,
-                SUPER_ORG_ID, STRUCTURAL.toString());
-        mockCarbonContext();
-        mockAuthorizationManager();
-        when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(false);
-        OrganizationManagementAuthorizationManager orgAuthorizationManager =
-                mock(OrganizationManagementAuthorizationManager.class);
-        setFinalStatic(OrganizationManagementAuthorizationManager.class.getDeclaredField("INSTANCE"),
-                orgAuthorizationManager);
-        when(orgAuthorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(false);
-
         organizationManager.addOrganization(organization);
     }
 
@@ -641,21 +592,9 @@ public class OrganizationManagerImplTest {
     }
 
     @Test(dataProvider = "dataForOrgNameUniquenessTest")
-    public void testIsOrganizationExistByNameInGivenHierarchy(String organizationName, boolean expectedResult)
-            throws Exception {
+    public void testIsOrganizationExistByNameInGivenHierarchy(String organizationName, boolean expectedResult) {
 
         mockCarbonContext();
-        mockAuthorizationManager();
-        when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(true);
-
-        OrganizationManagementAuthorizationManager authorizationManager =
-                mock(OrganizationManagementAuthorizationManager.class);
-        setFinalStatic(OrganizationManagementAuthorizationManager.class.getDeclaredField("INSTANCE"),
-                authorizationManager);
-
-        when(OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(anyString(), anyString(),
-                anyString())).thenReturn(true);
-
         Assert.assertEquals(organizationManager.isOrganizationExistByNameInGivenHierarchy(organizationName),
                 expectedResult);
     }
@@ -684,13 +623,7 @@ public class OrganizationManagerImplTest {
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(SUPER_TENANT_ID);
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername("admin");
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setUserId("1234");
-    }
-
-    private void mockAuthorizationManager() throws UserStoreException {
-
-        OrganizationManagementDataHolder.getInstance().setRealmService(realmService);
-        when(realmService.getTenantUserRealm(anyInt())).thenReturn(userRealm);
-        when(userRealm.getAuthorizationManager()).thenReturn(authorizationManager);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
     }
 
     private void mockUtils() {
@@ -713,16 +646,5 @@ public class OrganizationManagerImplTest {
         organization.setCreated(Instant.now());
         organization.setLastModified(Instant.now());
         return organization;
-    }
-
-    private void setFinalStatic(Field field, Object newValue) throws Exception {
-
-        field.setAccessible(true);
-
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-
-        field.set(null, newValue);
     }
 }

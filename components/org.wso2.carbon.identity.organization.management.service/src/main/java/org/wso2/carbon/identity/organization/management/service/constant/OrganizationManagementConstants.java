@@ -205,7 +205,7 @@ public class OrganizationManagementConstants {
         ERROR_CODE_PATCH_REQUEST_REPLACE_NON_EXISTING_ATTRIBUTE("60020", "Unable to patch the organization.",
                 "Cannot replace non existing attribute key: %s"),
         ERROR_CODE_USER_NOT_AUTHORIZED_TO_CREATE_ORGANIZATION("60021", "Unable to create the organization.",
-                "Unauthorized request to add an organization to parent organization with ID: %s."), // 403
+                "Unauthorized request to add an organization under the parent organization with ID: %s."), // 403
         ERROR_CODE_INVALID_FILTER_FORMAT("60022", "Unable to retrieve organizations.", "Invalid " +
                 "format used for filtering."),
         ERROR_CODE_UNSUPPORTED_FILTER_ATTRIBUTE("60023", "Unsupported filter attribute.",
