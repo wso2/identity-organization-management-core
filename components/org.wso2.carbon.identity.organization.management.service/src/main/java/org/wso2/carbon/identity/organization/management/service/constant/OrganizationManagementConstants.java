@@ -347,6 +347,11 @@ public class OrganizationManagementConstants {
                 "cannot be empty."),
         ERROR_CODE_MANAGED_ORGANIZATION_CLAIM_UPDATE_NOT_ALLOWED("60089", "The managed organization " +
                 "is not allowed to modify.", "The managed organization is a read only property."),
+        ERROR_CODE_EMAIL_DOMAIN_ASSOCIATED_WITH_DIFFERENT_ORGANIZATION("60090", "The user is not allowed " +
+                "to register with this organization.", "The email domain provided has been associated with a " +
+                "different organization."),
+        ERROR_CODE_EMAIL_DOMAIN_NOT_MAPPED_TO_ORGANIZATION("60091", "The user is not allowed to register with " +
+                "this organization.", "The email domain provided is not associated with this organization."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
