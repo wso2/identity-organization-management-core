@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.organization.management.service;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
@@ -281,4 +282,18 @@ public interface OrganizationManager {
      * @throws OrganizationManagementServerException The server exception thrown when fetching the primary organization.
      */
     String getPrimaryOrganizationId(String organizationId) throws OrganizationManagementServerException;
+
+    /**
+     * Add Root organization which can initiate an organization tree.
+     *
+     * @param tenantId     The tenant ID corresponds to the root organization.
+     * @param organization The organization to be created.
+     * @return The newly created organization.
+     * @throws OrganizationManagementException The exception thrown when creating an organization.
+     */
+    default Organization addRootOrganization(int tenantId, Organization organization)
+            throws OrganizationManagementException {
+
+        throw new NotImplementedException();
+    }
 }

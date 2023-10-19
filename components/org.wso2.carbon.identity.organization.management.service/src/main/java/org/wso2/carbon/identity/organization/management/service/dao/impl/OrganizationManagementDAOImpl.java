@@ -104,7 +104,6 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_PATH_ORG_DESCRIPTION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_PATH_ORG_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_PATH_ORG_STATUS;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUPER_ORG_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SW;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_ATTR_KEY_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_ATTR_VALUE_COLUMN;
@@ -145,6 +144,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITHOUT_PERMISSION_CHECK;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_DEPTH_IN_HIERARCHY;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_DEPTH_IN_HIERARCHY_OTHER;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_NAME_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_PERMISSIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_STATUS;
@@ -160,6 +160,8 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INSERT_IMMEDIATE_ORGANIZATION_HIERARCHY_ORACLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INSERT_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INSERT_OTHER_ORGANIZATION_HIERARCHY;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INSERT_ROOT_ORGANIZATION;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INSERT_ROOT_ORGANIZATION_HIERARCHY;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.PATCH_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.PATCH_ORGANIZATION_CONCLUDE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.PERMISSION_LIST_PLACEHOLDER;
@@ -1192,13 +1194,17 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
     @Override
     public int getOrganizationDepthInHierarchy(String organizationId) throws OrganizationManagementServerException {
 
+        String getOrgDepthQuery = GET_ORGANIZATION_DEPTH_IN_HIERARCHY;
+        if (isOracleDB() || isMSSqlDB()) {
+            getOrgDepthQuery = GET_ORGANIZATION_DEPTH_IN_HIERARCHY_OTHER;
+        }
+
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
         try {
-            String depth = namedJdbcTemplate.fetchSingleRecord(GET_ORGANIZATION_DEPTH_IN_HIERARCHY,
+            String depth = namedJdbcTemplate.fetchSingleRecord(getOrgDepthQuery,
                     (resultSet, rowNumber) -> resultSet.getString(1),
                     namedPreparedStatement -> {
                         namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, organizationId);
-                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_PARENT_ID, SUPER_ORG_ID);
                     });
             if (depth == null) {
                 return -1;
@@ -1248,6 +1254,48 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                     });
         } catch (DataAccessException e) {
             throw handleServerException(ERROR_CODE_GET_ANCESTOR_IN_DEPTH, e, String.valueOf(depth), organizationId);
+        }
+    }
+
+    @Override
+    public void addRootOrganization(Organization rootOrganization) throws OrganizationManagementServerException {
+
+        NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
+        try {
+            namedJdbcTemplate.withTransaction(template -> {
+                template.executeInsert(INSERT_ROOT_ORGANIZATION, namedPreparedStatement -> {
+                    namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, rootOrganization.getId());
+                    namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_NAME, rootOrganization.getName());
+                    namedPreparedStatement.setTimeStamp(DB_SCHEMA_COLUMN_NAME_CREATED_TIME,
+                            Timestamp.from(rootOrganization.getCreated()), CALENDAR);
+                    namedPreparedStatement.setTimeStamp(DB_SCHEMA_COLUMN_NAME_LAST_MODIFIED,
+                            Timestamp.from(rootOrganization.getLastModified()), CALENDAR);
+                    namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_STATUS, rootOrganization.getStatus());
+                    namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_TYPE, rootOrganization.getType());
+                }, rootOrganization, false);
+                if (CollectionUtils.isNotEmpty(rootOrganization.getAttributes())) {
+                    addOrganizationAttributes(rootOrganization);
+                }
+                createRootOrganizationHierarchy(rootOrganization.getId());
+                return null;
+            });
+        } catch (TransactionException e) {
+            throw handleServerException(ERROR_CODE_ERROR_ADDING_ORGANIZATION, e);
+        }
+    }
+
+    private void createRootOrganizationHierarchy(String organizationId) throws OrganizationManagementServerException {
+
+        NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
+        try {
+            namedJdbcTemplate.withTransaction(template -> {
+                template.executeInsert(INSERT_ROOT_ORGANIZATION_HIERARCHY, namedPreparedStatement -> {
+                    namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, organizationId);
+                }, null, false);
+                return null;
+            });
+        } catch (TransactionException e) {
+            throw handleServerException(ERROR_CODE_ERROR_ADDING_ORGANIZATION_HIERARCHY_DATA, e);
         }
     }
 

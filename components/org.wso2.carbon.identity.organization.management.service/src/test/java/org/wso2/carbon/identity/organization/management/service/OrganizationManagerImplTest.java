@@ -44,9 +44,11 @@ import org.wso2.carbon.identity.organization.management.service.model.PatchOpera
 import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.identity.organization.management.util.TestUtils;
 import org.wso2.carbon.user.api.AuthorizationManager;
+import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.tenant.TenantManager;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -109,6 +111,10 @@ public class OrganizationManagerImplTest {
 
     private AuthorizationManager authorizationManager;
 
+    private TenantManager tenantManager;
+
+    private Tenant tenant;
+
     private MockedStatic<Utils> mockedUtilities;
 
     @BeforeClass
@@ -117,6 +123,8 @@ public class OrganizationManagerImplTest {
         realmService = mock(RealmService.class);
         userRealm = mock(UserRealm.class);
         authorizationManager = mock(AuthorizationManager.class);
+        tenantManager = mock(TenantManager.class);
+        tenant = mock(Tenant.class);
         mockUtils();
     }
 
@@ -172,6 +180,31 @@ public class OrganizationManagerImplTest {
 
         Organization addedOrganization = organizationManager.addOrganization(sampleOrganization);
         assertNotNull(addedOrganization.getId(), "Created organization id cannot be null");
+        assertEquals(addedOrganization.getName(), sampleOrganization.getName());
+    }
+
+    @Test
+    public void testAddRootOrganization() throws Exception {
+
+        Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), NEW_ORG_NAME, ORG_DESCRIPTION,
+                null, TENANT.toString());
+        mockCarbonContext();
+        mockAuthorizationManager();
+        when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(true);
+
+        when(realmService.getTenantManager()).thenReturn(tenantManager);
+        when(tenantManager.getTenant(anyInt())).thenReturn(tenant);
+
+        OrganizationManagementAuthorizationManager authorizationManager =
+                mock(OrganizationManagementAuthorizationManager.class);
+        setFinalStatic(OrganizationManagementAuthorizationManager.class.getDeclaredField("INSTANCE"),
+                authorizationManager);
+
+        when(OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(anyString(), anyString(),
+                anyString())).thenReturn(true);
+
+        Organization addedOrganization = organizationManager.addRootOrganization(1, sampleOrganization);
+        assertNotNull(addedOrganization.getId(), "Created root organization id cannot be null");
         assertEquals(addedOrganization.getName(), sampleOrganization.getName());
     }
 

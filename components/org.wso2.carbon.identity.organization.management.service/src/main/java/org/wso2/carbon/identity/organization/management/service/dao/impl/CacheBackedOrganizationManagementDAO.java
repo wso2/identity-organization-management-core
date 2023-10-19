@@ -387,6 +387,12 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         return organizationMgtDAO.getAnAncestorOrganizationIdInGivenDepth(organizationId, depth);
     }
 
+    @Override
+    public void addRootOrganization(Organization organization) throws OrganizationManagementServerException {
+
+        organizationMgtDAO.addRootOrganization(organization);
+    }
+
     private TenantDomainCacheEntry getTenantDomainFromCache(String organizationId) {
 
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);

@@ -372,10 +372,18 @@ public interface OrganizationManagementDAO {
      * Get the ancestor organization id of the given organization and the depth.
      *
      * @param organizationId ID of the organization to get the ancestor.
-     * @param depth Depth of the ancestor organization to get.
+     * @param depth          Depth of the ancestor organization to get.
      * @return Ancestor organization id.
      * @throws OrganizationManagementServerException The server exception thrown when getting the ancestor organization.
      */
     String getAnAncestorOrganizationIdInGivenDepth(String organizationId, int depth)
             throws OrganizationManagementServerException;
+
+    /**
+     * Add a root organization.
+     *
+     * @param rootOrganization The root organization to be added.
+     * @throws OrganizationManagementServerException The server exception thrown when adding a root organization.
+     */
+    void addRootOrganization(Organization rootOrganization) throws OrganizationManagementServerException;
 }
