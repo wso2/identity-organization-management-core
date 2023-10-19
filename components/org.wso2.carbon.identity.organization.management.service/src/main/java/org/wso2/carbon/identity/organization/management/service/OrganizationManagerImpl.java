@@ -20,9 +20,7 @@ package org.wso2.carbon.identity.organization.management.service;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.organization.management.service.authz.OrganizationManagementAuthorizationManager;
 import org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
 import org.wso2.carbon.identity.organization.management.service.dao.impl.CacheBackedOrganizationManagementDAO;
@@ -47,8 +45,6 @@ import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.stratos.common.exception.TenantManagementClientException;
 import org.wso2.carbon.stratos.common.exception.TenantMgtException;
 import org.wso2.carbon.tenant.mgt.services.TenantMgtService;
-import org.wso2.carbon.user.api.AuthorizationManager;
-import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.Tenant;
@@ -66,8 +62,6 @@ import java.util.stream.Collectors;
 
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.AND;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CO;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CREATE_ORGANIZATION_ADMIN_PERMISSION;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CREATE_ORGANIZATION_PERMISSION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.EW;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ACTIVE_CHILD_ORGANIZATIONS_EXIST;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ATTRIBUTE_KEY_MISSING;
@@ -79,8 +73,6 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CREATING_ROOT_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_DEACTIVATING_ORGANIZATION_TENANT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_DEACTIVATING_ROOT_ORGANIZATION_TENANT;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_EVALUATING_ADD_ORGANIZATION_AUTHORIZATION;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_EVALUATING_ADD_ORGANIZATION_TO_SUPER_AUTHORIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_MISSING_SUPER;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_CURSOR_FOR_PAGINATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_FILTER_FORMAT;
@@ -113,7 +105,6 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_SAME_ORG_NAME_ON_IMMEDIATE_SUB_ORGANIZATIONS_OF_PARENT_ORG;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_SUPER_ORG_DELETE_OR_DISABLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_SUPER_ORG_RENAME;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_UNABLE_TO_CREATE_CHILD_ORGANIZATION_IN_SUPER;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_UNAUTHORIZED_ORG_ACCESS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_UNSUPPORTED_COMPLEX_QUERY_IN_FILTER;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_UNSUPPORTED_FILTER_ATTRIBUTE;
@@ -147,7 +138,6 @@ import static org.wso2.carbon.identity.organization.management.service.util.Util
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getAuthenticatedUsername;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getOrganizationId;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getTenantDomain;
-import static org.wso2.carbon.identity.organization.management.service.util.Utils.getTenantId;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getUserId;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleClientException;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleServerException;
@@ -165,7 +155,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
     public Organization addOrganization(Organization organization) throws OrganizationManagementException {
 
         validateAddOrganizationRequest(organization);
-        setParentOrganization(organization);
+        validateParentOrganization(organization);
         validateOrgNameUniqueness(organization.getParent().getId(), organization.getName());
         setCreatedAndLastModifiedTime(organization);
         getListener().preAddOrganization(organization);
@@ -729,10 +719,20 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
     }
 
-    private void setParentOrganization(Organization organization) throws OrganizationManagementException {
+    private void validateParentOrganization(Organization organization) throws OrganizationManagementException {
 
         ParentOrganizationDO parentOrganization = organization.getParent();
         String parentId = parentOrganization.getId().trim();
+
+        // Child organizations are only allowed to be created from the immediate parent organization.
+        String authorizedOrganization = getOrganizationId();
+        if (StringUtils.isEmpty(authorizedOrganization)) {
+            authorizedOrganization = resolveOrganizationId(getTenantDomain());
+        }
+        if (!StringUtils.equals(authorizedOrganization, parentId)) {
+            throw handleClientException(ERROR_CODE_USER_NOT_AUTHORIZED_TO_CREATE_ORGANIZATION, parentId);
+        }
+
         /*
         For parentId an alias as 'Super' is supported. This indicates that the organization should be created as an
         immediate child of the super organization.
@@ -749,63 +749,10 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 throw handleClientException(ERROR_CODE_INVALID_PARENT_ORGANIZATION, parentId);
             }
         }
-        /*
-        To create an organization as an immediate child of super organization, the request should be invoked from the
-        super organization (super tenant) space.
-         */
-        if (StringUtils.equals(SUPER_ORG_ID, parentId) && getTenantId() != MultitenantConstants.SUPER_TENANT_ID) {
-            throw handleClientException(ERROR_CODE_UNABLE_TO_CREATE_CHILD_ORGANIZATION_IN_SUPER);
-        }
 
         validateAddOrganizationParentStatus(parentId);
-        /*
-        Having '/permission/admin/' assigned to the user would be sufficient to create an organization as an
-        immediate child organization of the super organization.
-        */
-        if (StringUtils.equals(SUPER_ORG_ID, parentId)) {
-            if (!isUserAuthorizedToCreateChildOrganizationInSuper() &&
-                    !isUserAuthorizedToCreateOrganization(parentId)) {
-                throw handleClientException(ERROR_CODE_USER_NOT_AUTHORIZED_TO_CREATE_ORGANIZATION, parentId);
-            }
-        /*
-         For level-1 & below, having '/permission/admin/manage/identity/organizationmgt/create' would be sufficient
-         to create an organization as a child organization.
-        */
-        } else if (!isUserAuthorizedToCreateOrganization(parentId)) {
-            throw handleClientException(ERROR_CODE_USER_NOT_AUTHORIZED_TO_CREATE_ORGANIZATION, parentId);
-        }
         parentOrganization.setId(parentId);
         parentOrganization.setRef(buildURIForBody(parentId));
-    }
-
-    private boolean isUserAuthorizedToCreateChildOrganizationInSuper() throws OrganizationManagementException {
-
-        String username = getAuthenticatedUsername();
-        try {
-            UserRealm tenantUserRealm = getRealmService().getTenantUserRealm(getTenantId());
-            AuthorizationManager authorizationManager = tenantUserRealm.getAuthorizationManager();
-            return authorizationManager.isUserAuthorized(username, CREATE_ORGANIZATION_ADMIN_PERMISSION,
-                    CarbonConstants.UI_PERMISSION_ACTION);
-        } catch (UserStoreException e) {
-            throw handleServerException(ERROR_CODE_ERROR_EVALUATING_ADD_ORGANIZATION_TO_SUPER_AUTHORIZATION, e);
-        }
-    }
-
-    private boolean isUserAuthorizedToCreateOrganization(String parentId) throws OrganizationManagementServerException {
-
-        try {
-            if (!Utils.useOrganizationRolesForValidation(parentId)) {
-                String username = getAuthenticatedUsername();
-                UserRealm tenantUserRealm = getRealmService().getTenantUserRealm(getTenantId());
-                AuthorizationManager authorizationManager = tenantUserRealm.getAuthorizationManager();
-                return authorizationManager.isUserAuthorized(username, CREATE_ORGANIZATION_PERMISSION,
-                        CarbonConstants.UI_PERMISSION_ACTION);
-            }
-            return OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(getUserId(),
-                    CREATE_ORGANIZATION_PERMISSION, parentId);
-        } catch (OrganizationManagementServerException | UserStoreException e) {
-            throw handleServerException(ERROR_CODE_ERROR_EVALUATING_ADD_ORGANIZATION_AUTHORIZATION, e, parentId);
-        }
     }
 
     private void validateUpdateOrganizationRequest(String currentOrganizationName, Organization organization)
