@@ -26,6 +26,7 @@ import org.wso2.carbon.identity.organization.management.service.exception.Organi
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
+import org.wso2.carbon.identity.organization.management.service.util.OrganizationManagementUtil;
 import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -118,7 +119,8 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                             When user found from an organization where carbon roles are applied, the organization
                             permission check has to be skipped
                          */
-                        if (!Utils.useOrganizationRolesForValidation(organizationId)) {
+                        if (!OrganizationManagementUtil.isOrganization(associatedTenantDomainForOrg) ||
+                                !Utils.useOrganizationRolesForValidation(organizationId)) {
                             resolvedUser = user;
                             break;
                         }
