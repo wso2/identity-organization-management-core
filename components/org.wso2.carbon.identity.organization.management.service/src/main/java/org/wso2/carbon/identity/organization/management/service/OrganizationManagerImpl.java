@@ -73,14 +73,12 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CREATING_ROOT_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_DEACTIVATING_ORGANIZATION_TENANT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_DEACTIVATING_ROOT_ORGANIZATION_TENANT;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_MISSING_SUPER;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_CURSOR_FOR_PAGINATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_FILTER_FORMAT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_FILTER_TIMESTAMP_FORMAT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_ORGANIZATION_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_ORGANIZATION_TYPE;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_PARENT_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_PATCH_OPERATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_TENANT_TYPE_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_NO_PARENT_ORG;
@@ -651,7 +649,6 @@ public class OrganizationManagerImpl implements OrganizationManager {
             OrganizationManagementClientException {
 
         validateOrganizationRequiredFieldName(organization.getName());
-        validateOrganizationRequiredFieldParentId(organization.getParent().getId());
     }
 
     private void validateUpdateOrganizationRequiredFields(Organization organization) throws
@@ -659,14 +656,6 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
         validateOrganizationRequiredFieldName(organization.getName());
         validateOrganizationRequiredFieldStatus(organization.getStatus());
-    }
-
-    private void validateOrganizationRequiredFieldParentId(String parentId) throws
-            OrganizationManagementClientException {
-
-        if (StringUtils.isBlank(parentId)) {
-            throw handleClientException(ERROR_CODE_REQUIRED_FIELDS_MISSING, PARENT_ID_FIELD);
-        }
     }
 
     private void validateOrganizationRequiredFieldName(String organizationName) throws
@@ -721,33 +710,30 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
     private void validateParentOrganization(Organization organization) throws OrganizationManagementException {
 
-        ParentOrganizationDO parentOrganization = organization.getParent();
-        String parentId = parentOrganization.getId().trim();
-
         // Child organizations are only allowed to be created from the immediate parent organization.
         String authorizedOrganization = getOrganizationId();
         if (StringUtils.isEmpty(authorizedOrganization)) {
             authorizedOrganization = resolveOrganizationId(getTenantDomain());
         }
-        if (!StringUtils.equals(authorizedOrganization, parentId)) {
-            throw handleClientException(ERROR_CODE_USER_NOT_AUTHORIZED_TO_CREATE_ORGANIZATION, parentId);
+
+        ParentOrganizationDO parentOrganization = organization.getParent();
+        String parentId = parentOrganization.getId();
+        if (StringUtils.isBlank(parentId)) {
+            parentId = authorizedOrganization;
+        } else {
+            parentId = parentId.trim();
         }
 
         /*
         For parentId an alias as 'Super' is supported. This indicates that the organization should be created as an
         immediate child of the super organization.
          */
-        if (StringUtils.equals(SUPER, parentId)) {
-            String superOrganizationId = SUPER_ORG_ID;
-            if (StringUtils.isBlank(superOrganizationId)) {
-                throw handleServerException(ERROR_CODE_ERROR_MISSING_SUPER, null);
-            }
-            parentId = superOrganizationId;
-        } else {
-            Organization parent = organizationManagementDAO.getOrganization(parentId);
-            if (parent == null) {
-                throw handleClientException(ERROR_CODE_INVALID_PARENT_ORGANIZATION, parentId);
-            }
+        if (SUPER.equals(parentId)) {
+            parentId = SUPER_ORG_ID;
+        }
+
+        if (!StringUtils.equals(authorizedOrganization, parentId)) {
+            throw handleClientException(ERROR_CODE_USER_NOT_AUTHORIZED_TO_CREATE_ORGANIZATION, parentId);
         }
 
         validateAddOrganizationParentStatus(parentId);
