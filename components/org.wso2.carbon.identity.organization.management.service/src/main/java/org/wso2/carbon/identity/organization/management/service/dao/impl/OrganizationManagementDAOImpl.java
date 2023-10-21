@@ -144,7 +144,8 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITHOUT_PERMISSION_CHECK;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_DEPTH_IN_HIERARCHY;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_DEPTH_IN_HIERARCHY_OTHER;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_DEPTH_IN_HIERARCHY_MSSQL;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_DEPTH_IN_HIERARCHY_ORACLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_NAME_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_PERMISSIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_STATUS;
@@ -1195,8 +1196,10 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
     public int getOrganizationDepthInHierarchy(String organizationId) throws OrganizationManagementServerException {
 
         String getOrgDepthQuery = GET_ORGANIZATION_DEPTH_IN_HIERARCHY;
-        if (isOracleDB() || isMSSqlDB()) {
-            getOrgDepthQuery = GET_ORGANIZATION_DEPTH_IN_HIERARCHY_OTHER;
+        if (isOracleDB()) {
+            getOrgDepthQuery = GET_ORGANIZATION_DEPTH_IN_HIERARCHY_ORACLE;
+        } else if (isMSSqlDB()) {
+            getOrgDepthQuery = GET_ORGANIZATION_DEPTH_IN_HIERARCHY_MSSQL;
         }
 
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
