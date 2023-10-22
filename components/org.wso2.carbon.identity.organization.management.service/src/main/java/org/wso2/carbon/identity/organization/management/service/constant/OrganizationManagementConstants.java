@@ -352,6 +352,8 @@ public class OrganizationManagementConstants {
                 "different organization."),
         ERROR_CODE_EMAIL_DOMAIN_NOT_MAPPED_TO_ORGANIZATION("60091", "The user is not allowed to register with " +
                 "this organization.", "The email domain provided is not associated with this organization."),
+        ERROR_CODE_INVALID_DISCOVERY_ATTRIBUTE_VALUE("60092", "Invalid discovery attribute value.", "The provided " +
+                "discovery attribute(s) do not adhere to the expected format for the discovery type: %s."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
