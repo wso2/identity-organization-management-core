@@ -402,6 +402,9 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
 
     private void addTenantDomainToCache(String organizationId, String tenantDomain) {
 
+        if (StringUtils.isBlank(tenantDomain)) {
+            return;
+        }
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
         TenantDomainCacheEntry cacheEntry = new TenantDomainCacheEntry(tenantDomain);
         TenantDomainCacheByOrgId.getInstance()
@@ -445,7 +448,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
     }
 
     private void addAncestorOrganizationIdsToCache(String organizationId, List<String> ancestorOrganizationIds,
-                                                 String tenantDomain) {
+                                                   String tenantDomain) {
 
         OrganizationDetailsCacheEntry cacheEntry = new OrganizationDetailsCacheEntry.Builder()
                 .setAncestorOrganizationIds(ancestorOrganizationIds).build();
