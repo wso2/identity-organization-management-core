@@ -354,6 +354,8 @@ public class OrganizationManagementConstants {
                 "this organization.", "The email domain provided is not associated with this organization."),
         ERROR_CODE_INVALID_DISCOVERY_ATTRIBUTE_VALUE("60092", "Invalid discovery attribute value.", "The provided " +
                 "discovery attribute(s) do not adhere to the expected format for the discovery type: %s."),
+        ERROR_CODE_INVALID_OFFSET("60093", "Invalid request.", "The provided offset value is invalid."),
+        ERROR_CODE_INVALID_LIMIT("60094", "Invalid request.", "The provided limit value is invalid."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
