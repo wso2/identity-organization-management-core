@@ -207,7 +207,17 @@ public class Utils {
      */
     public static String getOrganizationId() {
 
-        return PrivilegedCarbonContext.getThreadLocalCarbonContext().getOrganizationId();
+        String organizationId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getOrganizationId();
+        if (StringUtils.isBlank(organizationId)) {
+            String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            try {
+                organizationId = organizationManager.resolveOrganizationId(tenantDomain);
+            } catch (OrganizationManagementException e) {
+                throw new RuntimeException("Error occurred while retrieving organization ID for tenant domain: " +
+                        tenantDomain + e.getMessage(), e);
+            }
+        }
+        return organizationId;
     }
 
     /**
