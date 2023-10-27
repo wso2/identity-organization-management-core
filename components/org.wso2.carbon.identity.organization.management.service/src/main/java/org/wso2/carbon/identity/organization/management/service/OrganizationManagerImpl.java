@@ -221,9 +221,6 @@ public class OrganizationManagerImpl implements OrganizationManager {
             throw handleClientException(ERROR_CODE_ORGANIZATION_ID_UNDEFINED);
         }
         String requestInvokingOrganizationId = getOrganizationId();
-        if (requestInvokingOrganizationId == null) {
-            requestInvokingOrganizationId = SUPER_ORG_ID;
-        }
         validateOrganizationAccess(requestInvokingOrganizationId, organizationId, true);
         getListener().preGetOrganization(organizationId.trim());
 
@@ -337,9 +334,6 @@ public class OrganizationManagerImpl implements OrganizationManager {
             throw handleClientException(ERROR_CODE_ORGANIZATION_ID_UNDEFINED);
         }
         String requestInvokingOrganizationId = getOrganizationId();
-        if (requestInvokingOrganizationId == null) {
-            requestInvokingOrganizationId = SUPER_ORG_ID;
-        }
         validateOrganizationAccess(requestInvokingOrganizationId, organizationId, false);
         validateOrganizationDelete(organizationId);
         Organization organization = organizationManagementDAO.getOrganization(organizationId);
@@ -371,9 +365,6 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
         organizationId = organizationId.trim();
         String requestInvokingOrganizationId = getOrganizationId();
-        if (requestInvokingOrganizationId == null) {
-            requestInvokingOrganizationId = SUPER_ORG_ID;
-        }
         validateOrganizationAccess(requestInvokingOrganizationId, organizationId, false);
         if (!isOrganizationExistById(organizationId)) {
             throw handleClientException(ERROR_CODE_INVALID_ORGANIZATION, organizationId);
@@ -403,9 +394,6 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
         organizationId = organizationId.trim();
         String requestInvokingOrganizationId = getOrganizationId();
-        if (requestInvokingOrganizationId == null) {
-            requestInvokingOrganizationId = SUPER_ORG_ID;
-        }
         validateOrganizationAccess(requestInvokingOrganizationId, organizationId, false);
         if (!isOrganizationExistById(organizationId)) {
             throw handleClientException(ERROR_CODE_INVALID_ORGANIZATION, organizationId);
