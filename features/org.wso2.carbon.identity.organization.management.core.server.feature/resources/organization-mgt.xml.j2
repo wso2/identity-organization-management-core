@@ -53,7 +53,6 @@
 	    </CacheManager>
     </CacheConfig>
 
-    {% if organization_management.self_service.system_user_name is defined %}
     <SelfService>
        <SystemUserName>{{organization_management.self_service.system_user_name}}</SystemUserName>
        <SystemDefaultAppName>{{organization_management.self_service.default_system_app_name}}</SystemDefaultAppName>
@@ -64,6 +63,11 @@
            {% for permission in organization_management.self_service.permissions %}
            <Permission>{{permission}}</Permission>
            {% endfor %}
+           <Permission>/permission/admin/manage/identity/organizationmgt/view</Permission>
+           <Permission>/permission/admin/manage/identity/organizationmgt/create</Permission>
+           <Permission>/permission/admin/manage/identity/usermgt/view</Permission>
+           <Permission>/permission/admin/manage/identity/usermgt/create</Permission>
+           <Permission>/permission/admin/manage/identity/identitymgt</Permission>
        </InternalRolePermissions>
        {% if organization_management.self_service.lite_user_store_name is defined %}
        <LiteUser>
@@ -75,6 +79,5 @@
        </LiteUser>
         {% endif %}
     </SelfService>
-    {% endif %}
 
 </OrganizationManagement>

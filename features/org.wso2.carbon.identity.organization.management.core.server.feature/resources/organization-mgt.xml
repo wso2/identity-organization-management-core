@@ -57,6 +57,7 @@
         <SystemUserName>B2B-SS-System-User</SystemUserName>
         <SystemDefaultAppName>B2B-Self-Service-Mgt-Application</SystemDefaultAppName>
         <SystemDefaultTokenExpiryTime>7200</SystemDefaultTokenExpiryTime>
+        <UserStoreNameForSystemUser>PRIMARY</UserStoreNameForSystemUser>
         <InternalRoleName>B2B-SS-System-Role</InternalRoleName>
         <InternalRolePermissions>
             <Permission>/permission/admin/manage/identity/organizationmgt/view</Permission>
