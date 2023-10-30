@@ -402,7 +402,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
 
     private void addTenantDomainToCache(String organizationId, String tenantDomain) {
 
-        if (StringUtils.isBlank(tenantDomain)) {
+        if (StringUtils.isBlank(tenantDomain) || StringUtils.isBlank(organizationId)) {
             return;
         }
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
