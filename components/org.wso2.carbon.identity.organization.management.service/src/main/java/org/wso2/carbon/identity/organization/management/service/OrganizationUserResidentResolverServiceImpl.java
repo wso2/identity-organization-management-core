@@ -19,15 +19,12 @@
 package org.wso2.carbon.identity.organization.management.service;
 
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.identity.organization.management.service.authz.OrganizationManagementAuthorizationManager;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
 import org.wso2.carbon.identity.organization.management.service.dao.impl.OrganizationManagementDAOImpl;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
-import org.wso2.carbon.identity.organization.management.service.util.OrganizationManagementUtil;
-import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -65,7 +62,6 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                                                               String accessedOrganizationId)
             throws OrganizationManagementException {
 
-        User resolvedUser = null;
         String domain = null;
 
         try {
@@ -82,59 +78,29 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                     String associatedTenantDomainForOrg = resolveTenantDomainForOrg(organizationId);
                     if (StringUtils.isNotBlank(associatedTenantDomainForOrg)) {
                         AbstractUserStoreManager userStoreManager = getUserStoreManager(associatedTenantDomainForOrg);
-                        User user = null;
                         boolean isValidDomain = StringUtils.isNotBlank(domain) &&
                                 userStoreManager.getSecondaryUserStoreManager(domain) != null;
                         if (StringUtils.isNotBlank(userName) && isValidDomain &&
                                 userStoreManager.isExistingUser(userName)) {
-                            user = userStoreManager.getUser(null, userName);
+                            return Optional.of(userStoreManager.getUser(null, userName));
                         } else if (StringUtils.isNotBlank(userId) && userStoreManager.isExistingUserWithID(userId)) {
-                            user = userStoreManager.getUser(userId, null);
+                            return Optional.of(userStoreManager.getUser(userId, null));
                         } else if (StringUtils.isNotBlank(userName) &&
                                 UserCoreUtil.removeDomainFromName(userName).equals(userName)) {
                             /*
                               Try to find the user from the secondary user stores when the username is not domain
                               qualified.
                              */
-                            boolean userFound = false;
                             UserStoreManager secondaryUserStoreManager =
                                     userStoreManager.getSecondaryUserStoreManager();
                             while (secondaryUserStoreManager != null) {
                                 domain = secondaryUserStoreManager.getRealmConfiguration().getUserStoreProperties()
                                         .get(PROPERTY_DOMAIN_NAME);
                                 if (userStoreManager.isExistingUser(domain + DOMAIN_SEPARATOR + userName)) {
-                                    user = userStoreManager.getUser(null, domain + DOMAIN_SEPARATOR + userName);
-                                    userFound = true;
-                                    break;
+                                    return Optional.of(userStoreManager.getUser(null, domain + DOMAIN_SEPARATOR + userName));
                                 }
                                 secondaryUserStoreManager = secondaryUserStoreManager.getSecondaryUserStoreManager();
                             }
-                            if (!userFound) {
-                                continue;
-                            }
-                        } else {
-                            continue;
-                        }
-                        /*
-                            When user found from an organization where carbon roles are applied, the organization
-                            permission check has to be skipped
-                         */
-                        if (!OrganizationManagementUtil.isOrganization(associatedTenantDomainForOrg) ||
-                                !Utils.useOrganizationRolesForValidation(organizationId)) {
-                            resolvedUser = user;
-                            break;
-                        }
-                        // Check whether user has any association against the org the user is trying to access.
-                        boolean userHasAccessPermissions =
-                                OrganizationManagementAuthorizationManager.getInstance()
-                                        .hasUserOrgAssociation(user.getUserID(), accessedOrganizationId);
-                        if (userHasAccessPermissions) {
-                            resolvedUser = user;
-                            /*
-                                User resident organization logic should be improved based on the user store
-                                configurations in the deployment. So commenting the flow break as a temporary fix.
-                             */
-                            //break;
                         }
                     }
                 }
@@ -143,7 +109,7 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
             throw handleServerException(ERROR_CODE_ERROR_WHILE_RESOLVING_USER_FROM_RESIDENT_ORG, e, userName,
                     accessedOrganizationId);
         }
-        return Optional.ofNullable(resolvedUser);
+        return Optional.empty();
     }
 
     @Override
