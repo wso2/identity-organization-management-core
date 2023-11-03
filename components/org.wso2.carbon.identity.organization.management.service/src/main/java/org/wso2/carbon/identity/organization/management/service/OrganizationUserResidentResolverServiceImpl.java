@@ -97,7 +97,8 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                                 domain = secondaryUserStoreManager.getRealmConfiguration().getUserStoreProperties()
                                         .get(PROPERTY_DOMAIN_NAME);
                                 if (userStoreManager.isExistingUser(domain + DOMAIN_SEPARATOR + userName)) {
-                                    return Optional.of(userStoreManager.getUser(null, domain + DOMAIN_SEPARATOR + userName));
+                                    return Optional.of(
+                                            userStoreManager.getUser(null, domain + DOMAIN_SEPARATOR + userName));
                                 }
                                 secondaryUserStoreManager = secondaryUserStoreManager.getSecondaryUserStoreManager();
                             }
