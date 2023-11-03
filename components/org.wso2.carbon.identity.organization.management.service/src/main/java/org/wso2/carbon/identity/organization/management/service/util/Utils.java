@@ -40,6 +40,7 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
+import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
@@ -232,7 +233,10 @@ public class Utils {
             context. That value can be used to find the username from the user ID. */
         if (StringUtils.isNotEmpty(userResidentOrganizationId)) {
             try {
-                return getUserStoreManager(userResidentOrganizationId).getUser(getUserId(), null).getUsername();
+                 User user = getUserStoreManager(userResidentOrganizationId).getUser(getUserId(), null);
+                 if (user != null) {
+                     return user.getUsername();
+                 }
             } catch (OrganizationManagementException | UserStoreException e) {
                 LOG.debug("Authenticated user's username could not be resolved.", e);
             }
