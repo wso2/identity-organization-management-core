@@ -227,16 +227,21 @@ public class Utils {
      */
     public static String getAuthenticatedUsername() {
 
-        String username = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
-        if (username == null) {
+        String userResidentOrganizationId = PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                .getUserResidentOrganizationId();
+        /* When user accessing a different organization, the user resident organization is populated in the carbon
+            context. That value can be used to find the username from the user ID. */
+        if (StringUtils.isNotEmpty(userResidentOrganizationId)) {
             try {
-                username = organizationUserResidentResolverService.resolveUserFromResidentOrganization(null,
-                        getUserId(), getOrganizationId()).map(User::getUsername).orElse(null);
-            } catch (OrganizationManagementException e) {
+                 User user = getUserStoreManager(userResidentOrganizationId).getUser(getUserId(), null);
+                 if (user != null) {
+                     return user.getUsername();
+                 }
+            } catch (OrganizationManagementException | UserStoreException e) {
                 LOG.debug("Authenticated user's username could not be resolved.", e);
             }
         }
-        return username;
+        return PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
     }
 
     /**
@@ -246,22 +251,7 @@ public class Utils {
      */
     public static String getUserId() {
 
-        String userId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUserId();
-        /*
-            The federated users with organization management permissions do not have user id set in the carbon
-            context but the user id is set against the username. Therefore the user is resolved by the user id
-            information saved in the username.
-         */
-        if (userId == null && PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername() != null) {
-            try {
-                userId = organizationUserResidentResolverService.resolveUserFromResidentOrganization(null,
-                        PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername(),
-                        getOrganizationId()).map(User::getUserID).orElse(null);
-            } catch (OrganizationManagementException e) {
-                LOG.debug("Authenticated user's id could not be resolved.", e);
-            }
-        }
-        return userId;
+        return PrivilegedCarbonContext.getThreadLocalCarbonContext().getUserId();
     }
 
     /**
@@ -646,5 +636,17 @@ public class Utils {
 
         UUID uuid = UUID.randomUUID();
         return uuid.toString().substring(0, 12);
+    }
+
+    private static AbstractUserStoreManager getUserStoreManager(String organizationId)
+            throws UserStoreException, OrganizationManagementException {
+
+        String tenantDomain = OrganizationManagementDataHolder.getInstance().getOrganizationManager()
+                .resolveTenantDomain(organizationId);
+        int tenantId = OrganizationManagementDataHolder.getInstance().getRealmService().getTenantManager()
+                .getTenantId(tenantDomain);
+        RealmService realmService = OrganizationManagementDataHolder.getInstance().getRealmService();
+        UserRealm tenantUserRealm = realmService.getTenantUserRealm(tenantId);
+        return (AbstractUserStoreManager) tenantUserRealm.getUserStoreManager();
     }
 }
