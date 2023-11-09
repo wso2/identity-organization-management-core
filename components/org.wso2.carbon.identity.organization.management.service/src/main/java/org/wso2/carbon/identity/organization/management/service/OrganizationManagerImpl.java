@@ -132,7 +132,6 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUPER;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUPER_ORG_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SW;
-import static org.wso2.carbon.identity.organization.management.service.util.Utils.buildURIForBody;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getAuthenticatedUsername;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getOrganizationId;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getTenantDomain;
@@ -229,10 +228,6 @@ public class OrganizationManagerImpl implements OrganizationManager {
             throw handleClientException(ERROR_CODE_INVALID_ORGANIZATION, organizationId);
         }
 
-        if (!SUPER.equals(organization.getName())) {
-            organization.getParent().setRef(buildURIForBody(organization.getParent().getId()));
-        }
-
         if (showChildren) {
             List<String> childOrganizationIds = organizationManagementDAO.getChildOrganizationIds(organizationId);
             if (CollectionUtils.isNotEmpty(childOrganizationIds)) {
@@ -240,7 +235,6 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 for (String childOrganizationId : childOrganizationIds) {
                     ChildOrganizationDO childOrganization = new ChildOrganizationDO();
                     childOrganization.setId(childOrganizationId);
-                    childOrganization.setRef(buildURIForBody(childOrganizationId));
                     childOrganizations.add(childOrganization);
                 }
                 organization.setChildOrganizations(childOrganizations);
@@ -377,12 +371,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
         getListener().postPatchOrganization(organizationId, patchOperations);
 
-        Organization organization = organizationManagementDAO.getOrganization(organizationId);
-        if (!SUPER.equals(organization.getName())) {
-            organization.getParent().setRef(buildURIForBody(organization.getParent().getId()));
-        }
-
-        return organization;
+        return organizationManagementDAO.getOrganization(organizationId);
     }
 
     @Override
@@ -410,9 +399,6 @@ public class OrganizationManagerImpl implements OrganizationManager {
         organizationManagementDAO.updateOrganization(organizationId, organization);
 
         Organization updatedOrganization = organizationManagementDAO.getOrganization(organizationId);
-        if (!SUPER.equals(updatedOrganization.getName())) {
-            updatedOrganization.getParent().setRef(buildURIForBody(updatedOrganization.getParent().getId()));
-        }
 
         if (StringUtils.equals(TENANT.toString(), organization.getType())) {
             updateTenantStatus(organization.getStatus(), organizationId);
@@ -726,7 +712,6 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
         validateAddOrganizationParentStatus(parentId);
         parentOrganization.setId(parentId);
-        parentOrganization.setRef(buildURIForBody(parentId));
     }
 
     private void validateUpdateOrganizationRequest(String currentOrganizationName, Organization organization)
