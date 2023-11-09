@@ -77,7 +77,7 @@ public class OrganizationManagementConstants {
     public static final List<String> ALL_ORGANIZATION_PERMISSIONS = Collections.unmodifiableList(Arrays
             .asList(CREATE_ORGANIZATION_PERMISSION, VIEW_ORGANIZATION_PERMISSION, UPDATE_ORGANIZATION_PERMISSION,
                     DELETE_ORGANIZATION_PERMISSION));
-    public static final String ORG_PERSPECTIVE_RESOURCE_ACCESSED_TENANT = "OrgPerspectiveResourceAccessedTenant";
+    public static final String ROOT_TENANT = "RootTenant";
 
     public static final String EQ = "eq";
     public static final String CO = "co";
