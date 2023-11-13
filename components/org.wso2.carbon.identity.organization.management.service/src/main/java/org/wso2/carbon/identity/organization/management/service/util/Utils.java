@@ -23,6 +23,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.database.utils.jdbc.NamedJdbcTemplate;
 import org.wso2.carbon.database.utils.jdbc.exceptions.DataAccessException;
@@ -447,6 +448,10 @@ public class Utils {
      */
     public static String getB2BSelfServiceSystemUser(String tenantDomain) {
 
+        // If Legacy authorization is not enabled, API subscription will be used and there's no need to crete this user.
+        if (!isLegacyAuthzRuntime()) {
+            return null;
+        }
         // Read self service configurations.
         String userName = OrganizationManagementConfigUtil.getProperty(
                 OrganizationManagementConstants.SELF_SERVICE_SYSTEM_USER_NAME);
@@ -614,5 +619,15 @@ public class Utils {
         RealmService realmService = OrganizationManagementDataHolder.getInstance().getRealmService();
         UserRealm tenantUserRealm = realmService.getTenantUserRealm(tenantId);
         return (AbstractUserStoreManager) tenantUserRealm.getUserStoreManager();
+    }
+
+    /**
+     * Check whether the legacy authorization runtime is enabled or not.
+     *
+     * @return True if the legacy authorization runtime is enabled.
+     */
+    public static boolean isLegacyAuthzRuntime() {
+
+        return CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME;
     }
 }
