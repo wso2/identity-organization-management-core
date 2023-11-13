@@ -59,12 +59,8 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CREATING_NEW_SYSTEM_ROLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_CARBON_ROLE_VALIDATION_ENABLED_FOR_LEVEL_ONE_ORGS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_ORG_QUALIFIED_URLS_SUPPORTED_FOR_LEVEL_ONE_ORGS;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_CONTEXT_PATH_COMPONENT;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_PATH;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATH_SEPARATOR;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SERVER_API_PATH_COMPONENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUB_ORG_START_LEVEL;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.V1_API_PATH_COMPONENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.MICROSOFT;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.MYSQL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.ORACLE;
@@ -252,36 +248,6 @@ public class Utils {
     public static String getUserId() {
 
         return PrivilegedCarbonContext.getThreadLocalCarbonContext().getUserId();
-    }
-
-    /**
-     * Build URI prepending the server API context with the proxy context path to the endpoint.
-     *
-     * @param organizationId The organization ID.
-     * @return Relative URI.
-     */
-    public static String buildURIForBody(String organizationId) {
-
-        String context = getContext(V1_API_PATH_COMPONENT + PATH_SEPARATOR + ORGANIZATION_PATH
-                + PATH_SEPARATOR + organizationId);
-
-        return context;
-    }
-
-    /**
-     * Builds the API context.
-     *
-     * @param endpoint Relative endpoint path.
-     * @return Context of the API.
-     */
-    public static String getContext(String endpoint) {
-
-        String organizationId = getOrganizationId();
-        if (StringUtils.isNotBlank(organizationId)) {
-            return String.format(ORGANIZATION_CONTEXT_PATH_COMPONENT, organizationId) + SERVER_API_PATH_COMPONENT +
-                    endpoint;
-        }
-        return SERVER_API_PATH_COMPONENT + endpoint;
     }
 
     /**
