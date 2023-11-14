@@ -358,6 +358,8 @@ public class OrganizationManagementConstants {
                 "discovery attribute(s) do not adhere to the expected format for the discovery type: %s."),
         ERROR_CODE_INVALID_OFFSET("60093", "Invalid request.", "The provided offset value is invalid."),
         ERROR_CODE_INVALID_LIMIT("60094", "Invalid request.", "The provided limit value is invalid."),
+        ERROR_CODE_SHARED_USER_CLAIM_UPDATE_NOT_ALLOWED("60095", "The claims cannot be modified for the shared users",
+                "The shared user profile attributes are read only."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
