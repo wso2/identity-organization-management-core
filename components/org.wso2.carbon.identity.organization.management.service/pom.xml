@@ -124,6 +124,7 @@
                             org.wso2.carbon.user.core.tenant;version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.user.core.util;version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.utils;version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon;version="${carbon.kernel.package.import.version.range}",
                         </Import-Package>
                     </instructions>
                 </configuration>
