@@ -123,6 +123,10 @@ public class OrganizationManagementConstants {
     public static final String SELF_SERVICE_INTERNAL_ROLE_PERMISSIONS =
             "SelfService.InternalRolePermissions.Permission";
 
+    // Application sharing related constants
+    public static final String SHARE_WITH_ALL_CHILDREN = "shareWithAllChildren";
+    public static final String IS_APP_SHARED = "isAppShared";
+
     /**
      * Contains constants related to filter operations.
      */
