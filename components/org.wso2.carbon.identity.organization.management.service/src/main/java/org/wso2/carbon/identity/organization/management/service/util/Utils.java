@@ -41,7 +41,6 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
-import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
@@ -224,20 +223,6 @@ public class Utils {
      */
     public static String getAuthenticatedUsername() {
 
-        String userResidentOrganizationId = PrivilegedCarbonContext.getThreadLocalCarbonContext()
-                .getUserResidentOrganizationId();
-        /* When user accessing a different organization, the user resident organization is populated in the carbon
-            context. That value can be used to find the username from the user ID. */
-        if (StringUtils.isNotEmpty(userResidentOrganizationId)) {
-            try {
-                 User user = getUserStoreManager(userResidentOrganizationId).getUser(getUserId(), null);
-                 if (user != null) {
-                     return user.getUsername();
-                 }
-            } catch (OrganizationManagementException | UserStoreException e) {
-                LOG.debug("Authenticated user's username could not be resolved.", e);
-            }
-        }
         return PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
     }
 
@@ -607,18 +592,6 @@ public class Utils {
 
         UUID uuid = UUID.randomUUID();
         return uuid.toString().substring(0, 12);
-    }
-
-    private static AbstractUserStoreManager getUserStoreManager(String organizationId)
-            throws UserStoreException, OrganizationManagementException {
-
-        String tenantDomain = OrganizationManagementDataHolder.getInstance().getOrganizationManager()
-                .resolveTenantDomain(organizationId);
-        int tenantId = OrganizationManagementDataHolder.getInstance().getRealmService().getTenantManager()
-                .getTenantId(tenantDomain);
-        RealmService realmService = OrganizationManagementDataHolder.getInstance().getRealmService();
-        UserRealm tenantUserRealm = realmService.getTenantUserRealm(tenantId);
-        return (AbstractUserStoreManager) tenantUserRealm.getUserStoreManager();
     }
 
     /**
