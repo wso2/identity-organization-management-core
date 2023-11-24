@@ -25,7 +25,7 @@
 
     <groupId>org.wso2.carbon.identity.organization.management.core</groupId>
     <artifactId>identity-organization-management-core</artifactId>
-    <version>1.0.91-SNAPSHOT</version>
+    <version>1.0.91</version>
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Organization Management Core</name>
@@ -36,7 +36,7 @@
         <url>https://github.com/wso2-extensions/identity-organization-management-core.git</url>
         <developerConnection>scm:git:https://github.com/wso2-extensions/identity-organization-management-core.git</developerConnection>
         <connection>scm:git:https://github.com/wso2-extensions/identity-organization-management-core.git</connection>
-        <tag>HEAD</tag>
+        <tag>v1.0.91</tag>
     </scm>
 
     <modules>
