@@ -330,9 +330,10 @@ public class OrganizationManagementConstants {
         ERROR_CODE_NO_PARENT_ORG("60079", "No parent organization.",
                 "No parent organization is available for the give organization id: %s."),
         ERROR_CODE_DISCOVERY_CONFIG_DISABLED("60080", "Unable to execute the requested organization discovery " +
-                "management task.", "The organization discovery configuration is disabled in the root organization."),
+                "management task.", "The organization discovery configuration is disabled in the root organization " +
+                "with ID: %s."),
         ERROR_CODE_UNAUTHORIZED_ORG_FOR_DISCOVERY_ATTRIBUTE_MANAGEMENT("60081", "Unable to execute the " +
-                "requested organization discovery management task.", "Only the parent organization is allowed to " +
+                "requested organization discovery management task.", "Only the root organization is allowed to " +
                 "manage the discovery attributes of the organization with ID: %s."),
         ERROR_CODE_DUPLICATE_DISCOVERY_ATTRIBUTE_TYPES("60082", "Invalid request body.", "The discovery " +
                 "attribute type: %s is duplicated."),
@@ -363,12 +364,6 @@ public class OrganizationManagementConstants {
         ERROR_CODE_INVALID_LIMIT("60094", "Invalid request.", "The provided limit value is invalid."),
         ERROR_CODE_SHARED_USER_CLAIM_UPDATE_NOT_ALLOWED("60095", "The claims cannot be modified for the shared users",
                 "The shared user profile attributes are read only."),
-        ERROR_CODE_CANNOT_LIST_DISCOVERY_ATTRIBUTES_IN_THE_HIERARCHY("60096", "Only the primary organization " +
-                "of the hierarchy is allowed to perform the requested task.", "The organization with ID: %s is " +
-                "not allowed to list down the discovery attributes of organizations."),
-        ERROR_CODE_CANNOT_VIEW_DISCOVERY_ATTRIBUTES("60097", "Only the ancestor organizations are allowed " +
-                "to perform the requested task.", "Unable to view the discovery attributes of the organization " +
-                "with ID: %s"),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
