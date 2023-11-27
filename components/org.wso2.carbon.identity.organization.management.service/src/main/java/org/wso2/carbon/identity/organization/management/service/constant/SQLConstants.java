@@ -195,7 +195,7 @@ public class SQLConstants {
     public static final String GET_CHILD_ORGANIZATIONS = "SELECT UM_ORG.UM_ID, UM_ORG.UM_ORG_NAME, " +
             "UM_ORG.UM_CREATED_TIME FROM UM_ORG JOIN UM_ORG_HIERARCHY ON UM_ORG.UM_ID = UM_ORG_HIERARCHY.UM_ID " +
             "WHERE UM_ORG_HIERARCHY.UM_PARENT_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID +
-            "; AND UM_ORG_HIERARCHY.DEPTH %s ;";
+            "; AND UM_ORG_HIERARCHY.DEPTH %s ";
 
     public static final String GET_CHILD_ORGANIZATION_IDS = "SELECT UM_ID FROM UM_ORG WHERE UM_PARENT_ID = :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID + ";";
