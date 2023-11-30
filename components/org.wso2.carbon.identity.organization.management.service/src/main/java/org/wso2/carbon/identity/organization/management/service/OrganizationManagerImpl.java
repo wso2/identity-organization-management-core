@@ -1033,6 +1033,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
         String orgOwnerId = organization.getCreatorId();
         String orgOwnerName = organization.getCreatorUsername();
+        String orgOwnerEmail = organization.getCreatorEmail();
         if (StringUtils.isNotEmpty(orgOwnerId)) {
             int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
             try {
@@ -1055,6 +1056,11 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
         if (StringUtils.isEmpty(orgOwnerName)) {
             organization.setCreatorUsername(getAuthenticatedUsername());
+        }
+
+        if (StringUtils.isEmpty(orgOwnerEmail)) {
+            String email = "dummyadmin@email.com";
+            organization.setCreatorEmail(email);
         }
     }
 }
