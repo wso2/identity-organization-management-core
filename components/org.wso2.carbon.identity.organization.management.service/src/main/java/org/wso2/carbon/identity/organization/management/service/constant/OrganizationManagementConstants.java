@@ -130,7 +130,6 @@ public class OrganizationManagementConstants {
     public static final String CREATOR_ID = "creator.id";
     public static final String CREATOR_USERNAME = "creator.username";
     public static final String CREATOR_EMAIL = "creator.email";
-    public static final String CLAIM_EMAIL_ADDRESS = "http://wso2.org/claims/emailaddress";
 
     /**
      * Contains constants related to filter operations.
@@ -715,10 +714,7 @@ public class OrganizationManagementConstants {
                 " the root organization tenant with ID: %s"),
         ERROR_CODE_ERROR_VALIDATING_ORGANIZATION_OWNER("65137", "Error while validating organization " +
                 "owner.", "Server encountered while validating the organization owner for the " +
-                "organization with ID: %s."),
-        ERROR_CODE_ERROR_RESOLVING_ORGANIZATION_OWNER_EMAIL("65138", "Error while resolving the " +
-                "organization owner email.", "Server encountered while resolving the email of the " +
-                "owner of the organization created for under the parent organization with ID: %s.");
+                "organization with ID: %s.");
 
         private final String code;
         private final String message;

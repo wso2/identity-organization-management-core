@@ -42,9 +42,9 @@ import org.wso2.carbon.identity.organization.management.service.model.Organizati
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
 import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.identity.organization.management.util.TestUtils;
+import org.wso2.carbon.user.api.AuthorizationManager;
 import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.api.UserRealm;
-import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 
@@ -103,7 +103,9 @@ public class OrganizationManagerImplTest {
     private RealmService realmService;
 
     private UserRealm userRealm;
-    private AbstractUserStoreManager abstractUserStoreManager;
+
+    private AuthorizationManager authorizationManager;
+
     private TenantManager tenantManager;
 
     private Tenant tenant;
@@ -114,8 +116,6 @@ public class OrganizationManagerImplTest {
     public void init() {
 
         realmService = mock(RealmService.class);
-        userRealm = mock(UserRealm.class);
-        abstractUserStoreManager = mock(AbstractUserStoreManager.class);
         tenantManager = mock(TenantManager.class);
         tenant = mock(Tenant.class);
         mockUtils();
@@ -128,9 +128,6 @@ public class OrganizationManagerImplTest {
         OrganizationManagementDataHolder.getInstance().setOrganizationManagerListener(mock(
                 OrganizationManagerListener.class));
         OrganizationManagementDataHolder.getInstance().setRealmService(realmService);
-        when(realmService.getTenantUserRealm(anyInt())).thenReturn(userRealm);
-        when(userRealm.getUserStoreManager()).thenReturn(abstractUserStoreManager);
-
 
         TestUtils.initiateH2Base();
         TestUtils.mockDataSource();

@@ -58,12 +58,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.AND;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CLAIM_EMAIL_ADDRESS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CO;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CREATOR_EMAIL;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CREATOR_ID;
@@ -79,7 +77,6 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CREATING_ROOT_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_DEACTIVATING_ORGANIZATION_TENANT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_DEACTIVATING_ROOT_ORGANIZATION_TENANT;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RESOLVING_ORGANIZATION_OWNER_EMAIL;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_VALIDATING_ORGANIZATION_OWNER;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_CURSOR_FOR_PAGINATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_FILTER_FORMAT;
@@ -1058,37 +1055,6 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
         if (StringUtils.isEmpty(orgOwnerName)) {
             organization.setCreatorUsername(getAuthenticatedUsername());
-        }
-
-        if (StringUtils.isEmpty(organization.getCreatorEmail())) {
-            String email = resolveOrganizationOwnerEmail(organization.getCreatorId());
-            organization.setCreatorEmail(email);
-        }
-    }
-
-    private String resolveOrganizationOwnerEmail(String userId) throws OrganizationManagementServerException {
-
-        int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
-        try {
-            String userResidentOrganization = PrivilegedCarbonContext.getThreadLocalCarbonContext()
-                    .getUserResidentOrganizationId();
-            /* If the request initiated user resides in an ancestor organization, the organization owner also should
-               be in that organization. */
-            if (StringUtils.isNotEmpty(userResidentOrganization)) {
-                String tenantDomain = resolveTenantDomain(userResidentOrganization);
-                tenantId = OrganizationManagementDataHolder.getInstance().getRealmService().getTenantManager()
-                        .getTenantId(tenantDomain);
-            }
-            AbstractUserStoreManager userStoreManager = Utils.getUserStoreManager(tenantId);
-            Map<String, String> claimsMap = userStoreManager
-                    .getUserClaimValuesWithID(userId, new String[]{CLAIM_EMAIL_ADDRESS}, null);
-            String emailAddress = claimsMap.get(CLAIM_EMAIL_ADDRESS);
-            if (StringUtils.isEmpty(emailAddress)) {
-                emailAddress = "dummyadmin@email.com";
-            }
-            return emailAddress;
-        } catch (UserStoreException | OrganizationManagementException e) {
-            throw handleServerException(ERROR_CODE_ERROR_RESOLVING_ORGANIZATION_OWNER_EMAIL, e, getOrganizationId());
         }
     }
 }
