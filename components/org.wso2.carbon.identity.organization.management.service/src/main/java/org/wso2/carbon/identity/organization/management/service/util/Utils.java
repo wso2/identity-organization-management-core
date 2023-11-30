@@ -581,7 +581,7 @@ public class Utils {
         return isRoleAlreadyApplied;
     }
 
-    private static AbstractUserStoreManager getUserStoreManager(int tenantId) throws UserStoreException {
+    public static AbstractUserStoreManager getUserStoreManager(int tenantId) throws UserStoreException {
 
         RealmService realmService = OrganizationManagementDataHolder.getInstance().getRealmService();
         UserRealm tenantUserRealm = realmService.getTenantUserRealm(tenantId);
