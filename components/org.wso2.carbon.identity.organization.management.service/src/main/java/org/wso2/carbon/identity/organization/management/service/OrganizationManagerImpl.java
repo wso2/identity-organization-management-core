@@ -1048,9 +1048,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
             } catch (UserStoreException e) {
                 throw handleServerException(ERROR_CODE_ERROR_VALIDATING_ORGANIZATION_OWNER, e, organization.getId());
             }
-        }
-
-        if (StringUtils.isEmpty(orgOwnerId)) {
+        } else {
             organization.setCreatorId(getUserId());
         }
 
