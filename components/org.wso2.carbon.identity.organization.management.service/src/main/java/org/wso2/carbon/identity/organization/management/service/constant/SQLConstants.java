@@ -195,7 +195,7 @@ public class SQLConstants {
     public static final String GET_CHILD_ORGANIZATIONS = "SELECT UM_ORG.UM_ID, UM_ORG.UM_ORG_NAME, " +
             "UM_ORG.UM_CREATED_TIME FROM UM_ORG JOIN UM_ORG_HIERARCHY ON UM_ORG.UM_ID = UM_ORG_HIERARCHY.UM_ID " +
             "WHERE UM_ORG_HIERARCHY.UM_PARENT_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID +
-            "; AND UM_ORG_HIERARCHY.DEPTH %s ";
+            "; AND UM_ORG_HIERARCHY.DEPTH %s";
 
     public static final String GET_CHILD_ORGANIZATION_IDS = "SELECT UM_ID FROM UM_ORG WHERE UM_PARENT_ID = :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID + ";";
@@ -235,10 +235,10 @@ public class SQLConstants {
 
     public static final String GET_ANCESTORS_OF_GIVEN_ORG_INCLUDING_ITSELF =
             "SELECT UM_PARENT_ID FROM UM_ORG_HIERARCHY WHERE UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID +
-                    "; ORDER BY DEPTH ASC;";
+                    "; ORDER BY DEPTH ASC";
 
     public static final String GET_ORGANIZATION_DEPTH_IN_HIERARCHY = "SELECT DEPTH FROM UM_ORG_HIERARCHY WHERE " +
-            "UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + "; ORDER BY DEPTH DESC LIMIT 1;";
+            "UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + "; ORDER BY DEPTH DESC LIMIT 1";
 
     public static final String GET_ORGANIZATION_DEPTH_IN_HIERARCHY_ORACLE = "SELECT DEPTH FROM UM_ORG_HIERARCHY " +
             "WHERE UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + "; ORDER BY DEPTH DESC FETCH FIRST 1 ROW " +
