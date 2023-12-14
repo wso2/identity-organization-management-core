@@ -46,6 +46,7 @@ import org.wso2.carbon.stratos.common.exception.TenantManagementClientException;
 import org.wso2.carbon.stratos.common.exception.TenantMgtException;
 import org.wso2.carbon.tenant.mgt.services.TenantMgtService;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -62,6 +63,9 @@ import java.util.stream.Collectors;
 
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.AND;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CO;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CREATOR_EMAIL;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CREATOR_ID;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CREATOR_USERNAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.EW;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ACTIVE_CHILD_ORGANIZATIONS_EXIST;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ATTRIBUTE_KEY_MISSING;
@@ -73,6 +77,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CREATING_ROOT_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_DEACTIVATING_ORGANIZATION_TENANT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_DEACTIVATING_ROOT_ORGANIZATION_TENANT;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_VALIDATING_ORGANIZATION_OWNER;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_CURSOR_FOR_PAGINATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_FILTER_FORMAT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_FILTER_TIMESTAMP_FORMAT;
@@ -88,6 +93,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_NAME_RESERVED;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_NOT_FOUND_FOR_TENANT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_NOT_FOUND_FOR_TENANT_ID;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_OWNER_NOT_EXIST;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_TYPE_UNDEFINED;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_PARENT_ORGANIZATION_IS_DISABLED;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_PATCH_OPERATION_UNDEFINED;
@@ -157,19 +163,11 @@ public class OrganizationManagerImpl implements OrganizationManager {
         setCreatedAndLastModifiedTime(organization);
         getListener().preAddOrganization(organization);
         organizationManagementDAO.addOrganization(organization);
-        String orgCreatorID =
-                StringUtils.isNotBlank(organization.getCreatorId()) ? organization.getCreatorId() : getUserId();
-        String orgCreatorName =
-                StringUtils.isNotBlank(organization.getCreatorUsername()) ? organization.getCreatorUsername() :
-                        getAuthenticatedUsername();
-        String orgCreatorEmail =
-                StringUtils.isNotBlank(organization.getCreatorEmail()) ? organization.getCreatorEmail() :
-                        "dummyadmin@email.com";
+        setOrganizationOwnerInformation(organization);
         // Create a tenant for tenant type organization.
         if (organization instanceof TenantTypeOrganization) {
             String tenantDomainName = ((TenantTypeOrganization) organization).getDomainName();
-            String organizationId = organization.getId();
-            createTenant(tenantDomainName, organizationId, orgCreatorID, orgCreatorName, orgCreatorEmail);
+            createTenant(tenantDomainName, organization);
         }
         getListener().postAddOrganization(organization);
         return organization;
@@ -932,20 +930,19 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 !attributeValue.equalsIgnoreCase(PAGINATION_BEFORE);
     }
 
-    private void createTenant(String domain, String organizationId, String orgCreatorID, String orgCreatorName,
-                              String orgCreatorEmail) throws OrganizationManagementException {
+    private void createTenant(String domain, Organization organization) throws OrganizationManagementException {
 
         try {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(MultitenantConstants
                     .SUPER_TENANT_DOMAIN_NAME);
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(orgCreatorName);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(organization.getCreatorUsername());
             getTenantMgtService().addTenant(
-                    createTenantInfoBean(domain, organizationId, orgCreatorID, orgCreatorName, orgCreatorEmail));
+                    createTenantInfoBean(domain, organization));
         } catch (TenantMgtException e) {
             // Rollback created organization.
-            deleteOrganization(organizationId);
+            deleteOrganization(organization.getId());
             if (e instanceof TenantManagementClientException) {
                 throw handleClientException(ERROR_CODE_INVALID_TENANT_TYPE_ORGANIZATION);
             } else {
@@ -956,16 +953,15 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
     }
 
-    private Tenant createTenantInfoBean(String domain, String organizationId, String orgCreatorID,
-                                        String orgCreatorName, String orgCreatorEmail) {
+    private Tenant createTenantInfoBean(String domain, Organization organization) {
 
         Tenant tenant = new Tenant();
         tenant.setActive(true);
         tenant.setDomain(domain);
-        tenant.setAdminName(orgCreatorName);
-        tenant.setAdminUserId(orgCreatorID);
-        tenant.setEmail(orgCreatorEmail);
-        tenant.setAssociatedOrganizationUUID(organizationId);
+        tenant.setAdminName(organization.getCreatorUsername());
+        tenant.setAdminUserId(organization.getCreatorId());
+        tenant.setEmail(organization.getCreatorEmail());
+        tenant.setAssociatedOrganizationUUID(organization.getId());
         tenant.setProvisioningMethod(StringUtils.EMPTY);
         return tenant;
     }
@@ -1014,6 +1010,55 @@ public class OrganizationManagerImpl implements OrganizationManager {
         } catch (UserStoreException e) {
             throw handleServerException(ERROR_CODE_ERROR_DEACTIVATING_ROOT_ORGANIZATION_TENANT, e,
                     String.valueOf(tenantId));
+        }
+    }
+
+    private void setOrganizationOwnerInformation(Organization organization) throws OrganizationManagementException {
+
+        for (OrganizationAttribute attribute : organization.getAttributes()) {
+            switch (attribute.getKey()) {
+                case CREATOR_ID:
+                    organization.setCreatorId(attribute.getValue());
+                    break;
+                case CREATOR_USERNAME:
+                    organization.setCreatorUsername(attribute.getValue());
+                    break;
+                case CREATOR_EMAIL:
+                    organization.setCreatorEmail(attribute.getValue());
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        String orgOwnerId = organization.getCreatorId();
+        String orgOwnerName = organization.getCreatorUsername();
+        String orgOwnerEmail = organization.getCreatorEmail();
+        if (StringUtils.isNotEmpty(orgOwnerId)) {
+            int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
+            try {
+                AbstractUserStoreManager userStoreManager = Utils.getUserStoreManager(tenantId);
+                if (!userStoreManager.isExistingUserWithID(orgOwnerId)) {
+                    throw handleClientException(ERROR_CODE_ORGANIZATION_OWNER_NOT_EXIST, String.valueOf(tenantId));
+                }
+                if (StringUtils.isEmpty(orgOwnerName)) {
+                    orgOwnerName = userStoreManager.getUser(orgOwnerId, null).getUsername();
+                    organization.setCreatorUsername(orgOwnerName);
+                }
+            } catch (UserStoreException e) {
+                throw handleServerException(ERROR_CODE_ERROR_VALIDATING_ORGANIZATION_OWNER, e, organization.getId());
+            }
+        } else {
+            organization.setCreatorId(getUserId());
+        }
+
+        if (StringUtils.isEmpty(orgOwnerName)) {
+            organization.setCreatorUsername(getAuthenticatedUsername());
+        }
+
+        if (StringUtils.isEmpty(orgOwnerEmail)) {
+            String email = "dummyadmin@email.com";
+            organization.setCreatorEmail(email);
         }
     }
 }

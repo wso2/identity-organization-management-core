@@ -127,6 +127,10 @@ public class OrganizationManagementConstants {
     public static final String SHARE_WITH_ALL_CHILDREN = "shareWithAllChildren";
     public static final String IS_APP_SHARED = "isAppShared";
 
+    public static final String CREATOR_ID = "creator.id";
+    public static final String CREATOR_USERNAME = "creator.username";
+    public static final String CREATOR_EMAIL = "creator.email";
+
     /**
      * Contains constants related to filter operations.
      */
@@ -364,6 +368,8 @@ public class OrganizationManagementConstants {
         ERROR_CODE_INVALID_LIMIT("60094", "Invalid request.", "The provided limit value is invalid."),
         ERROR_CODE_SHARED_USER_CLAIM_UPDATE_NOT_ALLOWED("60095", "The claims cannot be modified for the shared users",
                 "The shared user profile attributes are read only."),
+        ERROR_CODE_ORGANIZATION_OWNER_NOT_EXIST("60096", "The assigned organization owner does not exist ",
+                "The assigned organization owner is not found in the tenant with ID: %s"),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -705,7 +711,10 @@ public class OrganizationManagementConstants {
                 "Server encountered an error while creating the root organization for the tenant with ID: %s"),
         ERROR_CODE_ERROR_DEACTIVATING_ROOT_ORGANIZATION_TENANT("65136", "Failed to deactivate the tenant " +
                 "when root organization failed to create.", "Server encountered an error while deactivating" +
-                " the root organization tenant with ID: %s");
+                " the root organization tenant with ID: %s"),
+        ERROR_CODE_ERROR_VALIDATING_ORGANIZATION_OWNER("65137", "Error while validating organization " +
+                "owner.", "Server encountered while validating the organization owner for the " +
+                "organization with ID: %s.");
 
         private final String code;
         private final String message;
