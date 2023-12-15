@@ -169,7 +169,14 @@ public class OrganizationManagerImpl implements OrganizationManager {
             String tenantDomainName = ((TenantTypeOrganization) organization).getDomainName();
             createTenant(tenantDomainName, organization);
         }
-        getListener().postAddOrganization(organization);
+
+        try {
+            getListener().postAddOrganization(organization);
+        } catch (OrganizationManagementException e) {
+            // Rollback created organization.
+            deleteOrganization(organization.getId());
+            throw e;
+        }
         return organization;
     }
 
