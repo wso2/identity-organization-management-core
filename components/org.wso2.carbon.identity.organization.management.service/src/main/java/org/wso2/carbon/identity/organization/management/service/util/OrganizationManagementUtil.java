@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.organization.management.service.OrganizationManager;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
+import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -67,7 +68,11 @@ public class OrganizationManagementUtil {
         RealmService realmService = OrganizationManagementDataHolder.getInstance().getRealmService();
         String organizationUUID;
         try {
-            organizationUUID = realmService.getTenantManager().getTenant(tenantId).getAssociatedOrganizationUUID();
+            Tenant tenant = realmService.getTenantManager().getTenant(tenantId);
+            if (tenant == null) {
+                return false;
+            }
+            organizationUUID = tenant.getAssociatedOrganizationUUID();
         } catch (UserStoreException e) {
             throw new OrganizationManagementException("Error while retrieving the associated organization UUID for " +
                     "the tenant with id: " + tenantId, e);
