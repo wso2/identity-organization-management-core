@@ -162,8 +162,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
         validateOrgNameUniqueness(organization.getParent().getId(), organization.getName());
         setCreatedAndLastModifiedTime(organization);
         getListener().preAddOrganization(organization);
-        organizationManagementDAO.addOrganization(organization);
         setOrganizationOwnerInformation(organization);
+        organizationManagementDAO.addOrganization(organization);
         // Create a tenant for tenant type organization.
         if (organization instanceof TenantTypeOrganization) {
             String tenantDomainName = ((TenantTypeOrganization) organization).getDomainName();
