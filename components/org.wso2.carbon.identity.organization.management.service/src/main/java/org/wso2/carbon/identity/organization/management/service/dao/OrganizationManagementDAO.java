@@ -115,12 +115,14 @@ public interface OrganizationManagementDAO {
      * @param sortOrder               The sort order, ascending or descending.
      * @param expressionNodes         The list of filters excluding filtering by parentId.
      * @param parentIdExpressionNodes The list of filters related to parentId.
+     * @param applicationAudience     The application audience.
      * @return the list of organization IDs.
      * @throws OrganizationManagementServerException The server exception thrown when retrieving the organizations.
      */
     List<BasicOrganization> getUserAuthorizedOrganizations(boolean recursive, Integer limit, String organizationId,
                                                            String sortOrder, List<ExpressionNode> expressionNodes,
-                                                           List<ExpressionNode> parentIdExpressionNodes)
+                                                           List<ExpressionNode> parentIdExpressionNodes,
+                                                           String applicationAudience)
             throws OrganizationManagementServerException;
 
     /**
