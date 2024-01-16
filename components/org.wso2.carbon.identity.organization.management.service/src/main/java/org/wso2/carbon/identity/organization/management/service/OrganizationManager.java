@@ -150,6 +150,23 @@ public interface OrganizationManager {
             throws OrganizationManagementException;
 
     /**
+     * List or search organizations authorized for the user with a role for given application audience.
+     *
+     * @param limit               The maximum number of records to be returned.
+     * @param after               The pointer to next page.
+     * @param before              The pointer to previous page.
+     * @param sortOrder           The sort order, ascending or descending.
+     * @param filter              The filter string.
+     * @param recursive           Determines whether records should be retrieved in a recursive manner.
+     * @param applicationAudience The application audience.
+     * @return the list of {@link BasicOrganization}s.
+     * @throws OrganizationManagementException The exception thrown when listing organizations.
+     */
+    List<BasicOrganization> getUserAuthorizedOrganizations(Integer limit, String after, String before, String sortOrder,
+                                                           String filter, boolean recursive, String applicationAudience)
+            throws OrganizationManagementException;
+
+    /**
      * Delete the organization identified by the provided ID.
      *
      * @param organizationId The organization ID.

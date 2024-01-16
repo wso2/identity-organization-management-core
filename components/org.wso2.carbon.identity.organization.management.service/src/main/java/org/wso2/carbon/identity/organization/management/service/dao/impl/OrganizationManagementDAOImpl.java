@@ -151,6 +151,10 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_TAIL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_TAIL_MSSQL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_TAIL_ORACLE;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_TAIL;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_TAIL_MSSQL;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_TAIL_ORACLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_DEPTH_IN_HIERARCHY;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_DEPTH_IN_HIERARCHY_MSSQL;
@@ -176,6 +180,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.PATCH_ORGANIZATION_CONCLUDE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.PERMISSION_LIST_PLACEHOLDER;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SET_ID;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_AUDIENCE_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_CREATED_TIME;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_DEPTH;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_DESCRIPTION;
@@ -380,18 +385,19 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             throws OrganizationManagementServerException {
 
         return getOrganizationsList(false, recursive, limit, organizationId, sortOrder,
-                expressionNodes, parentIdExpressionNodes);
+                expressionNodes, parentIdExpressionNodes, null);
     }
 
     @Override
     public List<BasicOrganization> getUserAuthorizedOrganizations(boolean recursive, Integer limit,
                                                                   String organizationId, String sortOrder,
                                                                   List<ExpressionNode> expressionNodes,
-                                                                  List<ExpressionNode> parentIdExpressionNodes)
+                                                                  List<ExpressionNode> parentIdExpressionNodes,
+                                                                  String applicationAudience)
             throws OrganizationManagementServerException {
 
         return getOrganizationsList(true, recursive, limit, organizationId, sortOrder,
-                expressionNodes, parentIdExpressionNodes);
+                expressionNodes, parentIdExpressionNodes, applicationAudience);
     }
 
     @Override
@@ -699,7 +705,8 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
     private List<BasicOrganization> getOrganizationsList(boolean authorizedSubOrgsOnly, boolean recursive,
                                                          Integer limit, String organizationId, String sortOrder,
                                                          List<ExpressionNode> expressionNodes,
-                                                         List<ExpressionNode> parentIdExpressionNodes)
+                                                         List<ExpressionNode> parentIdExpressionNodes,
+                                                         String applicationAudience)
             throws OrganizationManagementServerException {
 
         FilterQueryBuilder filterQueryBuilder = new FilterQueryBuilder();
@@ -715,19 +722,32 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         String sqlStmt;
         String getOrgSqlStmtTail;
         if (!CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME) {
-            getOrgSqlStmtTail = authorizedSubOrgsOnly ? GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_TAIL
+            getOrgSqlStmtTail = authorizedSubOrgsOnly
+                    ? StringUtils.isNotBlank(applicationAudience)
+                    ? GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_TAIL
+                    : GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_TAIL
                     : GET_ORGANIZATIONS_TAIL;
 
             if (isOracleDB()) {
-                getOrgSqlStmtTail = authorizedSubOrgsOnly ? GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_TAIL_ORACLE
+                getOrgSqlStmtTail = authorizedSubOrgsOnly
+                        ? StringUtils.isNotBlank(applicationAudience)
+                        ? GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_TAIL_ORACLE
+                        : GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_TAIL_ORACLE
                         : GET_ORGANIZATIONS_TAIL_ORACLE;
             } else if (isMSSqlDB()) {
-                getOrgSqlStmtTail = authorizedSubOrgsOnly ? GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_TAIL_MSSQL
+                getOrgSqlStmtTail = authorizedSubOrgsOnly
+                        ? StringUtils.isNotBlank(applicationAudience)
+                        ? GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_TAIL_MSSQL
+                        : GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_TAIL_MSSQL
                         : GET_ORGANIZATIONS_TAIL_MSSQL;
             }
 
             if (authorizedSubOrgsOnly) {
-                sqlStmt = GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS;
+                if (StringUtils.isNotBlank(applicationAudience)) {
+                    sqlStmt = GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS;
+                } else {
+                    sqlStmt = GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS;
+                }
             } else {
                 sqlStmt = GET_ORGANIZATIONS;
             }
@@ -795,6 +815,9 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                         namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_ID, getUserId());
                         if (parentIdFilterAttributeValueMap.isEmpty()) {
                             namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, organizationId);
+                        }
+                        if (StringUtils.isNotBlank(applicationAudience)) {
+                            namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_AUDIENCE_ID, applicationAudience);
                         }
                         for (Map.Entry<String, String> entry : parentIdFilterAttributeValueMap.entrySet()) {
                             namedPreparedStatement.setString(entry.getKey(), entry.getValue());

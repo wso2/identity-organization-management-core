@@ -279,7 +279,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
                                                     String filter, boolean recursive)
             throws OrganizationManagementException {
 
-        return getOrganizationList(false, limit, after, before, sortOrder, filter, recursive);
+        return getOrganizationList(false, limit, after, before, sortOrder, filter, recursive, null);
     }
 
     @Override
@@ -287,12 +287,21 @@ public class OrganizationManagerImpl implements OrganizationManager {
                                                                   String sortOrder, String filter, boolean recursive)
             throws OrganizationManagementException {
 
-        return getOrganizationList(true, limit, after, before, sortOrder, filter, recursive);
+        return getOrganizationList(true, limit, after, before, sortOrder, filter, recursive, null);
+    }
+
+    @Override
+    public List<BasicOrganization> getUserAuthorizedOrganizations(Integer limit, String after, String before,
+                                                                  String sortOrder, String filter, boolean recursive,
+                                                                  String applicationAudience)
+            throws OrganizationManagementException {
+
+        return getOrganizationList(true, limit, after, before, sortOrder, filter, recursive, applicationAudience);
     }
 
     private List<BasicOrganization> getOrganizationList(boolean authorizedSubOrgsOnly, Integer limit, String after,
-                                                        String before, String sortOrder,
-                                                        String filter, boolean recursive)
+                                                        String before, String sortOrder, String filter,
+                                                        boolean recursive, String applicationAudience)
             throws OrganizationManagementException {
 
         List<ExpressionNode> expressionNodes = getExpressionNodes(filter, after, before);
@@ -320,10 +329,11 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
         expressionNodes.removeAll(filteringByParentIdExpressionNodes);
 
-        return authorizedSubOrgsOnly ? organizationManagementDAO.getUserAuthorizedOrganizations(
-                recursive, limit, orgId, sortOrder, expressionNodes, filteringByParentIdExpressionNodes)
-                : organizationManagementDAO.getOrganizations(
-                recursive, limit, orgId, sortOrder, expressionNodes, filteringByParentIdExpressionNodes);
+        return authorizedSubOrgsOnly ?
+                organizationManagementDAO.getUserAuthorizedOrganizations(recursive, limit, orgId, sortOrder,
+                        expressionNodes, filteringByParentIdExpressionNodes, applicationAudience) :
+                organizationManagementDAO.getOrganizations(recursive, limit, orgId, sortOrder, expressionNodes,
+                        filteringByParentIdExpressionNodes);
     }
 
     @Override

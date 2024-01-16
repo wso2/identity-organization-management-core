@@ -128,11 +128,12 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
     public List<BasicOrganization> getUserAuthorizedOrganizations(boolean recursive, Integer limit,
                                                                   String organizationId, String sortOrder,
                                                                   List<ExpressionNode> expressionNodes,
-                                                                  List<ExpressionNode> parentIdExpressionNodes)
+                                                                  List<ExpressionNode> parentIdExpressionNodes,
+                                                                  String applicationAudience)
             throws OrganizationManagementServerException {
 
         return organizationMgtDAO.getUserAuthorizedOrganizations(recursive, limit, organizationId, sortOrder,
-                expressionNodes, parentIdExpressionNodes);
+                expressionNodes, parentIdExpressionNodes, applicationAudience);
     }
 
     @Override
