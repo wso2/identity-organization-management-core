@@ -71,6 +71,7 @@ public class FilterTreeBuilder {
         input.wordChars('.', '.');
         input.wordChars('*', '*');
         input.wordChars('/', '/');
+        input.wordChars('!', '!');
 
         tokenList = new ArrayList<>();
         StringBuilder concatenatedString = new StringBuilder();
