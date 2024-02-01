@@ -714,7 +714,10 @@ public class OrganizationManagementConstants {
                 " the root organization tenant with ID: %s"),
         ERROR_CODE_ERROR_VALIDATING_ORGANIZATION_OWNER("65137", "Error while validating organization " +
                 "owner.", "Server encountered while validating the organization owner for the " +
-                "organization with ID: %s.");
+                "organization with ID: %s."),
+        ERROR_CODE_ERROR_REVOKING_SHARED_APP_TOKENS("65138", "Error while revoking tokens issued for " +
+                "shared application.", "Server encountered an error while revoking tokens issued for application: " +
+                "%s in tenant domain: %s");
 
         private final String code;
         private final String message;
