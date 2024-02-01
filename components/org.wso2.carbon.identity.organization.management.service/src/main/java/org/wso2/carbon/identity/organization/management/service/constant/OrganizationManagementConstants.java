@@ -717,7 +717,7 @@ public class OrganizationManagementConstants {
                 "organization with ID: %s."),
         ERROR_CODE_ERROR_REVOKING_SHARED_APP_TOKENS("65138", "Error while revoking tokens issued for " +
                 "shared application.", "Server encountered an error while revoking tokens issued for application: " +
-                "%s in tenant domain: %s");
+                "%s in organization with ID: %s");
 
         private final String code;
         private final String message;
