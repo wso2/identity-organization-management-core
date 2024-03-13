@@ -55,7 +55,8 @@ public class OrganizationGroupResidentResolverServiceImpl implements Organizatio
             if (ancestorOrganizationIds != null) {
                 for (String organizationId : ancestorOrganizationIds) {
                     String associatedTenantDomainForOrg = resolveTenantDomainForOrg(organizationId);
-                    if (StringUtils.isBlank(associatedTenantDomainForOrg)) {
+                    if (StringUtils.isBlank(associatedTenantDomainForOrg) || StringUtils
+                            .equals(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME, associatedTenantDomainForOrg)) {
                         continue;
                     }
 
