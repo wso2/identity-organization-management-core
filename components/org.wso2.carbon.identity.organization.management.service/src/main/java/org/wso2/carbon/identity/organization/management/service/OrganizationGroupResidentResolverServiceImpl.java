@@ -44,6 +44,9 @@ public class OrganizationGroupResidentResolverServiceImpl implements Organizatio
 
     private final OrganizationManagementDAO organizationManagementDAO = new OrganizationManagementDAOImpl();
 
+    /**
+     * This method is no longer engaged in IS B2B flows.
+     */
     @Override
     public Optional<String> resolveResidentOrganization(String groupId, String accessedOrganizationId)
             throws OrganizationManagementException {
