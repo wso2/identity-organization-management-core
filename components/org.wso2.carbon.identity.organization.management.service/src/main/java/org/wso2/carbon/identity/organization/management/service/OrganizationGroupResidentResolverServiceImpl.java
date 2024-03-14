@@ -55,7 +55,7 @@ public class OrganizationGroupResidentResolverServiceImpl implements Organizatio
                     organizationManagementDAO.getAncestorOrganizationIds(accessedOrganizationId);
             int subOrgStartLevel = Utils.getSubOrgStartLevel();
             if (ancestorOrganizationIds != null) {
-                if (subOrgStartLevel > 1 ) {
+                if (subOrgStartLevel > 1) {
                     ancestorOrganizationIds.remove(ancestorOrganizationIds.size() - 1);
                 }
                 for (String organizationId : ancestorOrganizationIds) {
