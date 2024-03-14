@@ -24,6 +24,7 @@ import org.wso2.carbon.identity.organization.management.service.dao.impl.Organiz
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
+import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
@@ -52,7 +53,11 @@ public class OrganizationGroupResidentResolverServiceImpl implements Organizatio
         try {
             List<String> ancestorOrganizationIds =
                     organizationManagementDAO.getAncestorOrganizationIds(accessedOrganizationId);
+            int subOrgStartLevel = Utils.getSubOrgStartLevel();
             if (ancestorOrganizationIds != null) {
+                if (subOrgStartLevel > 1 ) {
+                    ancestorOrganizationIds.remove(ancestorOrganizationIds.size() - 1);
+                }
                 for (String organizationId : ancestorOrganizationIds) {
                     String associatedTenantDomainForOrg = resolveTenantDomainForOrg(organizationId);
                     if (StringUtils.isBlank(associatedTenantDomainForOrg)) {
