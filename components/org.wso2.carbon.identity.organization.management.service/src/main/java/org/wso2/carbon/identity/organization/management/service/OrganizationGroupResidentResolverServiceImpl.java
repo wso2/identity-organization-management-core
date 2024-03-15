@@ -45,6 +45,9 @@ public class OrganizationGroupResidentResolverServiceImpl implements Organizatio
 
     private final OrganizationManagementDAO organizationManagementDAO = new OrganizationManagementDAOImpl();
 
+    /**
+     * This method is no longer engaged in IS B2B flows.
+     */
     @Override
     public Optional<String> resolveResidentOrganization(String groupId, String accessedOrganizationId)
             throws OrganizationManagementException {
@@ -60,7 +63,8 @@ public class OrganizationGroupResidentResolverServiceImpl implements Organizatio
                 }
                 for (String organizationId : ancestorOrganizationIds) {
                     String associatedTenantDomainForOrg = resolveTenantDomainForOrg(organizationId);
-                    if (StringUtils.isBlank(associatedTenantDomainForOrg)) {
+                    if (StringUtils.isBlank(associatedTenantDomainForOrg) || StringUtils
+                            .equals(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME, associatedTenantDomainForOrg)) {
                         continue;
                     }
 
