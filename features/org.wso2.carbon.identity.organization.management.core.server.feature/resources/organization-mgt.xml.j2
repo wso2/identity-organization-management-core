@@ -80,4 +80,14 @@
         {% endif %}
     </SelfService>
 
+    <!--
+        Parent organization user invitation and user sharing related configurations.
+    -->
+    <OrganizationUserInvitation>
+        <DefaultExpiryTime>{{organization.user.invitation.default.expiry_time}}</DefaultExpiryTime>
+        <PrimaryUserDomain>{{organization.user.invitation.primary.user_domain}}</PrimaryUserDomain>
+        <DefaultAcceptURL>{{organization.user.invitation.default.accept_url}}</DefaultAcceptURL>
+        <AssociationWaitTime>{{organization.user.invitation.association.wait_time}}</AssociationWaitTime>
+    </OrganizationUserInvitation>
+
 </OrganizationManagement>

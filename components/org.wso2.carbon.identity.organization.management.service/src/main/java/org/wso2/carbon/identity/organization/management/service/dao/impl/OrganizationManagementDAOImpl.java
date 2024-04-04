@@ -193,13 +193,17 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_TENANT_DOMAIN;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_TENANT_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_TYPE;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_DOMAIN;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_ID;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_VALUE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_LIMIT;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.UPDATE_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.UPDATE_ORGANIZATION_ATTRIBUTE_VALUE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.UPDATE_ORGANIZATION_LAST_MODIFIED;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getAllowedPermissions;
+import static org.wso2.carbon.identity.organization.management.service.util.Utils.getAuthenticatedUsername;
+import static org.wso2.carbon.identity.organization.management.service.util.Utils.getOrganizationUserInvitationPrimaryUserDomain;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getUserId;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleServerException;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.isMSSqlDB;
@@ -813,6 +817,9 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                     },
                     namedPreparedStatement -> {
                         namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_ID, getUserId());
+                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_NAME, getAuthenticatedUsername());
+                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_DOMAIN,
+                                getOrganizationUserInvitationPrimaryUserDomain());
                         if (parentIdFilterAttributeValueMap.isEmpty()) {
                             namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, organizationId);
                         }

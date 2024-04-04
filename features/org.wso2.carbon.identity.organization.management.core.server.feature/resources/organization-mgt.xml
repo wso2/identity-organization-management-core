@@ -68,4 +68,14 @@
         </InternalRolePermissions>
     </SelfService>
 
+    <!--
+        Parent organization user invitation and user sharing related configurations.
+    -->
+    <OrganizationUserInvitation>
+        <DefaultExpiryTime>4320</DefaultExpiryTime>
+        <PrimaryUserDomain>PRIMARY</PrimaryUserDomain>
+        <DefaultAcceptURL>/accountrecoveryendpoint/acceptinvitation.do</DefaultAcceptURL>
+        <AssociationWaitTime>5000</AssociationWaitTime>
+    </OrganizationUserInvitation>
+
 </OrganizationManagement>
