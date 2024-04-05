@@ -130,6 +130,8 @@ public class OrganizationManagementConstants {
     public static final String CREATOR_ID = "creator.id";
     public static final String CREATOR_USERNAME = "creator.username";
     public static final String CREATOR_EMAIL = "creator.email";
+    public static final String ORGANIZATION_USER_INVITATION_PRIMARY_USER_DOMAIN =
+            "OrganizationUserInvitation.PrimaryUserDomain";
 
     /**
      * Contains constants related to filter operations.

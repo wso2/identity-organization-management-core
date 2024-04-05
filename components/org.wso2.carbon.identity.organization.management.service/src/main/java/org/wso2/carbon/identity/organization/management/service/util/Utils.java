@@ -313,6 +313,17 @@ public class Utils {
     }
 
     /**
+     * Get the organization user invitation primary user domain.
+     *
+     * @return User invitation primary user domain configuration.
+     */
+    public static String getOrganizationUserInvitationPrimaryUserDomain() {
+
+        return OrganizationManagementConfigUtil.getProperty(
+                OrganizationManagementConstants.ORGANIZATION_USER_INVITATION_PRIMARY_USER_DOMAIN);
+    }
+
+    /**
      * Return whether organization role based validation is used.
      *
      * @param organizationId Organization id.
