@@ -41,6 +41,7 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
+import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
@@ -223,7 +224,21 @@ public class Utils {
      */
     public static String getAuthenticatedUsername() {
 
-        return PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
+        String userName = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
+        if (StringUtils.isNotEmpty(userName)) {
+            return userName;
+        }
+        try {
+            AbstractUserStoreManager userStoreManager = getUserStoreManager(PrivilegedCarbonContext
+                    .getThreadLocalCarbonContext().getTenantId());
+            User user = userStoreManager.getUser(getUserId(), null);
+            if (user != null) {
+                return user.getUsername();
+            }
+        } catch (UserStoreException e) {
+            LOG.error("Error while resolving the username by user ID.");
+        }
+        return StringUtils.EMPTY;
     }
 
     /**
