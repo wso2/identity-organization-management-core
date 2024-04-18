@@ -36,6 +36,7 @@ import org.wso2.carbon.identity.organization.management.service.model.Organizati
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
 import org.wso2.carbon.identity.organization.management.service.util.Utils;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -805,7 +806,12 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
 
         List<BasicOrganization> organizations;
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
+        String username = getAuthenticatedUsername();
+        if (StringUtils.isNotEmpty(username)) {
+            username = UserCoreUtil.removeDomainFromName(username);
+        }
         try {
+            String finalUsername = username;
             organizations = namedJdbcTemplate.executeQuery(sqlStmt,
                     (resultSet, rowNumber) -> {
                         BasicOrganization organization = new BasicOrganization();
@@ -817,7 +823,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                     },
                     namedPreparedStatement -> {
                         namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_ID, getUserId());
-                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_NAME, getAuthenticatedUsername());
+                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_NAME, finalUsername);
                         namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_DOMAIN,
                                 getOrganizationUserInvitationPrimaryUserDomain());
                         if (parentIdFilterAttributeValueMap.isEmpty()) {
