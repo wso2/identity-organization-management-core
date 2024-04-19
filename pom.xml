@@ -22,7 +22,7 @@
 
     <groupId>org.wso2.carbon.identity.organization.management.core</groupId>
     <artifactId>identity-organization-management-core</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.4.0-ASGARDEOINTERNAL-hotfix-1-SNAPSHOT</version>
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Organization Management Core</name>
@@ -315,5 +315,5 @@
 
         <axiom.osgi.version.range>[1.2.11, 2.0.0)</axiom.osgi.version.range>
         <equinox.osgi.stax-api.imp.pkg.version.range>[1.0.1,2.0.0)</equinox.osgi.stax-api.imp.pkg.version.range>
-    </properties>
+    <project.scm.id>wso2-scm-server</project.scm.id></properties>
 </project>
