@@ -825,7 +825,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                         for (Map.Entry<String, String> entry : filterAttributeValue.entrySet()) {
                             if (timestampTypeAttributes.contains(entry.getKey())) {
                                 namedPreparedStatement.setTimeStamp(entry.getKey(), Timestamp.valueOf(entry.getValue()),
-                                        null);
+                                        CALENDAR);
                             } else {
                                 namedPreparedStatement.setString(entry.getKey(), entry.getValue());
                             }
