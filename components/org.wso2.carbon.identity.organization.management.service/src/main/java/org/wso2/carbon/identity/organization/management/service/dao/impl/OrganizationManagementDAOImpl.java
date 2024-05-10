@@ -1024,7 +1024,8 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         return organization;
     }
 
-    private void appendFilterQuery(List<ExpressionNode> expressionNodes, FilterQueryBuilder filterQueryBuilder) {
+    private void appendFilterQuery(List<ExpressionNode> expressionNodes, FilterQueryBuilder filterQueryBuilder)
+            throws OrganizationManagementServerException {
 
         int count = 1;
         StringBuilder filter = new StringBuilder();
@@ -1411,33 +1412,41 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
     }
 
     private void greaterThanOrEqualFilterBuilder(int count, String value, String attributeName, StringBuilder filter,
-                                                 FilterQueryBuilder filterQueryBuilder) {
+                                                 FilterQueryBuilder filterQueryBuilder)
+            throws OrganizationManagementServerException {
 
-        String filterString = String.format(" >= :%s%s; AND ", FILTER_PLACEHOLDER_PREFIX, count);
+        String filterString = String.format(isDateTimeAndMSSql(attributeName) ? " >= CAST(:%s%s; AS DATETIME) AND "
+                : " >= :%s%s; AND ", FILTER_PLACEHOLDER_PREFIX, count);
         filter.append(attributeName).append(filterString);
         filterQueryBuilder.setFilterAttributeValue(FILTER_PLACEHOLDER_PREFIX, value);
     }
 
     private void lessThanOrEqualFilterBuilder(int count, String value, String attributeName, StringBuilder filter,
-                                              FilterQueryBuilder filterQueryBuilder) {
+                                              FilterQueryBuilder filterQueryBuilder)
+            throws OrganizationManagementServerException {
 
-        String filterString = String.format(" <= :%s%s; AND ", FILTER_PLACEHOLDER_PREFIX, count);
+        String filterString = String.format(isDateTimeAndMSSql(attributeName) ? " <= CAST(:%s%s; AS DATETIME) AND "
+                : " <= :%s%s; AND ", FILTER_PLACEHOLDER_PREFIX, count);
         filter.append(attributeName).append(filterString);
         filterQueryBuilder.setFilterAttributeValue(FILTER_PLACEHOLDER_PREFIX, value);
     }
 
     private void greaterThanFilterBuilder(int count, String value, String attributeName, StringBuilder filter,
-                                          FilterQueryBuilder filterQueryBuilder) {
+                                          FilterQueryBuilder filterQueryBuilder)
+            throws OrganizationManagementServerException {
 
-        String filterString = String.format(" > :%s%s; AND ", FILTER_PLACEHOLDER_PREFIX, count);
+        String filterString = String.format(isDateTimeAndMSSql(attributeName) ? " > CAST(:%s%s; AS DATETIME) AND "
+                : " > :%s%s; AND ", FILTER_PLACEHOLDER_PREFIX, count);
         filter.append(attributeName).append(filterString);
         filterQueryBuilder.setFilterAttributeValue(FILTER_PLACEHOLDER_PREFIX, value);
     }
 
     private void lessThanFilterBuilder(int count, String value, String attributeName, StringBuilder filter,
-                                       FilterQueryBuilder filterQueryBuilder) {
+                                       FilterQueryBuilder filterQueryBuilder)
+            throws OrganizationManagementServerException {
 
-        String filterString = String.format(" < :%s%s; AND ", FILTER_PLACEHOLDER_PREFIX, count);
+        String filterString = String.format(isDateTimeAndMSSql(attributeName) ? " < CAST(:%s%s; AS DATETIME) AND "
+                : " < :%s%s; AND ", FILTER_PLACEHOLDER_PREFIX, count);
         filter.append(attributeName).append(filterString);
         filterQueryBuilder.setFilterAttributeValue(FILTER_PLACEHOLDER_PREFIX, value);
     }
@@ -1513,5 +1522,11 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         } else {
             filter.append(" AND ").append(OrganizationManagementConstants.VIEW_ID_COLUMN).append(filterString);
         }
+    }
+
+    private boolean isDateTimeAndMSSql(String attributeName) throws OrganizationManagementServerException {
+
+        return (VIEW_CREATED_TIME_COLUMN.equals(attributeName) || VIEW_LAST_MODIFIED_COLUMN.equals(attributeName))
+                && isMSSqlDB();
     }
 }
