@@ -814,9 +814,8 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         }
         /* The shared user parent user might be created with 'shared-' prefix if there is business user with same name
         in the child organization. */
-        username = Stream.of(username, "shared-" + username).map(name -> "'" + name + "'")
-                .collect(Collectors.joining(","));
-        sqlStmt = sqlStmt.replace(USER_NAME_LIST_PLACEHOLDER, username);
+        sqlStmt = sqlStmt.replace(USER_NAME_LIST_PLACEHOLDER, Stream.of(username, "shared-" + username)
+                .map(name -> "'" + name + "'").collect(Collectors.joining(",")));
         try {
             organizations = namedJdbcTemplate.executeQuery(sqlStmt,
                     (resultSet, rowNumber) -> {
