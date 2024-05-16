@@ -372,7 +372,6 @@ public class SQLConstants {
         public static final String DB_SCHEMA_LIMIT = "LIMIT";
         public static final String DB_SCHEMA_COLUMN_NAME_DEPTH = "DEPTH";
         public static final String DB_SCHEMA_COLUMN_NAME_AUDIENCE_ID = "AUDIENCE_ID";
-        public static final String DB_SCHEMA_COLUMN_NAME_USER_NAME = "USER_NAME";
         public static final String DB_SCHEMA_COLUMN_NAME_USER_DOMAIN = "USER_DOMAIN";
     }
 }
