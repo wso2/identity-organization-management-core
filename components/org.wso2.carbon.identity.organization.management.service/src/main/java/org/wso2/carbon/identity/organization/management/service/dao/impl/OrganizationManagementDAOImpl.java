@@ -809,12 +809,13 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         List<BasicOrganization> organizations;
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
         String username = getAuthenticatedUsername();
+        String userID =  getUserId();
         if (StringUtils.isNotEmpty(username)) {
             username = UserCoreUtil.removeDomainFromName(username);
         }
-        /* The shared user parent user might be created with 'shared-' prefix if there is business user with same name
+        /* The shared user parent user might be created with user ID if there is business user with same name
         in the child organization. */
-        sqlStmt = sqlStmt.replace(USER_NAME_LIST_PLACEHOLDER, Stream.of(username, "shared-" + username)
+        sqlStmt = sqlStmt.replace(USER_NAME_LIST_PLACEHOLDER, Stream.of(username, userID)
                 .map(name -> "'" + name + "'").collect(Collectors.joining(",")));
         try {
             organizations = namedJdbcTemplate.executeQuery(sqlStmt,
@@ -827,7 +828,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                         return organization;
                     },
                     namedPreparedStatement -> {
-                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_ID, getUserId());
+                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_ID, userID);
                         namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_DOMAIN,
                                 getOrganizationUserInvitationPrimaryUserDomain());
                         if (parentIdFilterAttributeValueMap.isEmpty()) {
