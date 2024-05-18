@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -31,6 +31,7 @@ public class SQLConstants {
     public static final String MYSQL = "mysql";
 
     public static final String PERMISSION_LIST_PLACEHOLDER = "_PERMISSION_LIST_";
+    public static final String USER_NAME_LIST_PLACEHOLDER = "_SHARED_USER_NAMES_";
 
     public static final String INSERT_ORGANIZATION = "INSERT INTO UM_ORG (UM_ID, UM_ORG_NAME, UM_ORG_DESCRIPTION, " +
             "UM_CREATED_TIME, UM_LAST_MODIFIED, UM_STATUS, UM_PARENT_ID, UM_ORG_TYPE) VALUES (:" +
@@ -118,8 +119,8 @@ public class SQLConstants {
 
     public static final String GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_TAIL =
             "UM_ORG_USER_ASSOCIATION.UM_ASSOCIATED_USER_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_ID +
-                    "; AND UM_HYBRID_USER_ROLE.UM_USER_NAME = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_NAME +
-                    "; AND UM_DOMAIN.UM_DOMAIN_NAME = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_DOMAIN +
+                    "; AND UM_HYBRID_USER_ROLE.UM_USER_NAME IN (" + USER_NAME_LIST_PLACEHOLDER + ") " +
+                    "AND UM_DOMAIN.UM_DOMAIN_NAME = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_DOMAIN +
                     "; AND UM_SHARED_ROLE.UM_MAIN_ROLE_ID IN " +
                     "(SELECT UM_HYBRID_ROLE.UM_ID FROM UM_HYBRID_ROLE INNER JOIN UM_HYBRID_ROLE_AUDIENCE ON " +
                     "UM_HYBRID_ROLE_AUDIENCE.UM_ID = UM_HYBRID_ROLE.UM_AUDIENCE_REF_ID WHERE " +
@@ -142,8 +143,8 @@ public class SQLConstants {
 
     public static final String GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_TAIL_ORACLE =
             "UM_ORG_USER_ASSOCIATION.UM_ASSOCIATED_USER_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_ID +
-                    "; AND UM_HYBRID_USER_ROLE.UM_USER_NAME = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_NAME +
-                    "; AND UM_DOMAIN.UM_DOMAIN_NAME = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_DOMAIN +
+                    "; AND UM_HYBRID_USER_ROLE.UM_USER_NAME IN (" + USER_NAME_LIST_PLACEHOLDER + ") " +
+                    "AND UM_DOMAIN.UM_DOMAIN_NAME = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_DOMAIN +
                     "; AND UM_SHARED_ROLE.UM_MAIN_ROLE_ID IN " +
                     "(SELECT UM_HYBRID_ROLE.UM_ID FROM UM_HYBRID_ROLE INNER JOIN UM_HYBRID_ROLE_AUDIENCE ON " +
                     "UM_HYBRID_ROLE_AUDIENCE.UM_ID = UM_HYBRID_ROLE.UM_AUDIENCE_REF_ID WHERE " +
@@ -167,8 +168,8 @@ public class SQLConstants {
 
     public static final String GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_TAIL_MSSQL =
             "UM_ORG_USER_ASSOCIATION.UM_ASSOCIATED_USER_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_ID +
-                    "; AND UM_HYBRID_USER_ROLE.UM_USER_NAME = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_NAME +
-                    "; AND UM_DOMAIN.UM_DOMAIN_NAME = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_DOMAIN +
+                    "; AND UM_HYBRID_USER_ROLE.UM_USER_NAME IN (" + USER_NAME_LIST_PLACEHOLDER + ") " +
+                    "AND UM_DOMAIN.UM_DOMAIN_NAME = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_DOMAIN +
                     "; AND UM_SHARED_ROLE.UM_MAIN_ROLE_ID IN " +
                     "(SELECT UM_HYBRID_ROLE.UM_ID FROM UM_HYBRID_ROLE INNER JOIN UM_HYBRID_ROLE_AUDIENCE ON " +
                     "UM_HYBRID_ROLE_AUDIENCE.UM_ID = UM_HYBRID_ROLE.UM_AUDIENCE_REF_ID WHERE " +
@@ -371,7 +372,6 @@ public class SQLConstants {
         public static final String DB_SCHEMA_LIMIT = "LIMIT";
         public static final String DB_SCHEMA_COLUMN_NAME_DEPTH = "DEPTH";
         public static final String DB_SCHEMA_COLUMN_NAME_AUDIENCE_ID = "AUDIENCE_ID";
-        public static final String DB_SCHEMA_COLUMN_NAME_USER_NAME = "USER_NAME";
         public static final String DB_SCHEMA_COLUMN_NAME_USER_DOMAIN = "USER_DOMAIN";
     }
 }

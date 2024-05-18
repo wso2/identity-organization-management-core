@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -46,6 +46,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.time.ZoneOffset.UTC;
 import static org.wso2.carbon.identity.organization.management.service.authz.constant.SQLConstants.GET_ORGANIZATION_ID_BY_NAME;
@@ -196,12 +198,12 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_TYPE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_DOMAIN;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_ID;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_VALUE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_LIMIT;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.UPDATE_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.UPDATE_ORGANIZATION_ATTRIBUTE_VALUE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.UPDATE_ORGANIZATION_LAST_MODIFIED;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.USER_NAME_LIST_PLACEHOLDER;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getAllowedPermissions;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getAuthenticatedUsername;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getOrganizationUserInvitationPrimaryUserDomain;
@@ -807,11 +809,15 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         List<BasicOrganization> organizations;
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
         String username = getAuthenticatedUsername();
+        String userID =  getUserId();
         if (StringUtils.isNotEmpty(username)) {
             username = UserCoreUtil.removeDomainFromName(username);
         }
+        /* The shared user parent user might be created with user ID if there is business user with same name
+        in the child organization. */
+        sqlStmt = sqlStmt.replace(USER_NAME_LIST_PLACEHOLDER, Stream.of(username, userID)
+                .map(name -> "'" + name + "'").collect(Collectors.joining(",")));
         try {
-            String finalUsername = username;
             organizations = namedJdbcTemplate.executeQuery(sqlStmt,
                     (resultSet, rowNumber) -> {
                         BasicOrganization organization = new BasicOrganization();
@@ -822,8 +828,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                         return organization;
                     },
                     namedPreparedStatement -> {
-                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_ID, getUserId());
-                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_NAME, finalUsername);
+                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_ID, userID);
                         namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_DOMAIN,
                                 getOrganizationUserInvitationPrimaryUserDomain());
                         if (parentIdFilterAttributeValueMap.isEmpty()) {
