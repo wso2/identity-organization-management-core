@@ -259,7 +259,13 @@ public class FilterTreeBuilder {
                                          ExpressionNode expressionNode) throws OrganizationManagementClientException {
 
         if (StringUtils.isNotBlank(attributeValue) || StringUtils.isNotBlank(operation)) {
-            expressionNode.setAttributeValue(attributeValue.trim());
+
+            String[] parts = attributeValue.split("\\.", 2);
+            expressionNode.setAttributeValue(parts[0].trim());
+
+            if (parts.length > 1) {
+                expressionNode.setSubAttributeValue(parts[1].trim());
+            }
             expressionNode.setOperation(operation.trim());
             if (value != null) {
                 expressionNode.setValue(value.trim());

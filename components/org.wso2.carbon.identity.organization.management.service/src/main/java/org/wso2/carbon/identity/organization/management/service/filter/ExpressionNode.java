@@ -25,6 +25,7 @@ public class ExpressionNode extends Node {
     private String operation;
     private String value;
     private String attributeValue;
+    private String subAttributeValue;
 
     public String getOperation() {
 
@@ -54,5 +55,13 @@ public class ExpressionNode extends Node {
     public void setAttributeValue(String attributeValue) {
 
         this.attributeValue = attributeValue;
+    }
+
+    public String getSubAttributeValue() {
+        return subAttributeValue;
+    }
+
+    public void setSubAttributeValue(String subAttribute) {
+        this.subAttributeValue = subAttribute;
     }
 }
