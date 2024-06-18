@@ -116,6 +116,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_ID_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_LAST_MODIFIED_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_NAME_COLUMN;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_ORGANIZATION_ATTRIBUTES_TABLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_ORGANIZATION_PERMISSION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_PARENT_ID_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_STATUS_COLUMN;
@@ -172,6 +173,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_RELATIVE_ORG_DEPTH_BETWEEN_ORGANIZATIONS_IN_SAME_BRANCH;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_TENANT_DOMAIN_FROM_ORGANIZATION_UUID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_TENANT_UUID_FROM_ORGANIZATION_UUID;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INNER_JOIN_UM_ORG_ATTRIBUTE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INSERT_ATTRIBUTE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INSERT_IMMEDIATE_ORGANIZATION_HIERARCHY;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INSERT_IMMEDIATE_ORGANIZATION_HIERARCHY_ORACLE;
@@ -182,6 +184,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.PATCH_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.PATCH_ORGANIZATION_CONCLUDE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.PERMISSION_LIST_PLACEHOLDER;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SELECT_UM_ORG_ATTRIBUTES;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SET_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_AUDIENCE_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_CREATED_TIME;
@@ -777,6 +780,10 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             }
         }
 
+        if (filterQueryBuilder.doesContainSubAttribute()) {
+            sqlStmt = sqlStmt.replace("WHERE", INNER_JOIN_UM_ORG_ATTRIBUTE)
+                            .replace("FROM", SELECT_UM_ORG_ATTRIBUTES);
+        }
 
         if (StringUtils.isBlank(parentIdFilterQuery)) {
             sqlStmt += filterQueryBuilder.getFilterQuery() +
@@ -1047,6 +1054,9 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                     if (VIEW_CREATED_TIME_COLUMN.equals(attributeName) ||
                             VIEW_LAST_MODIFIED_COLUMN.equals(attributeName)) {
                         filterQueryBuilder.addTimestampFilterAttributes(FILTER_PLACEHOLDER_PREFIX);
+                    }
+                    if (VIEW_ATTR_KEY_COLUMN.equals(attributeName)) {
+                        attributeName = handleViewAttrKeyColumn(expressionNode, filterQueryBuilder);
                     }
                     switch (operation) {
                         case EQ: {
@@ -1533,5 +1543,13 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
 
         return (VIEW_CREATED_TIME_COLUMN.equals(attributeName) || VIEW_LAST_MODIFIED_COLUMN.equals(attributeName))
                 && isMSSqlDB();
+    }
+
+    private String handleViewAttrKeyColumn(ExpressionNode expressionNode, FilterQueryBuilder filterQueryBuilder) {
+
+        filterQueryBuilder.setContainSubAttribute(true);
+        String subAttributeName = expressionNode.getSubAttributeValue();
+        return VIEW_ORGANIZATION_ATTRIBUTES_TABLE + "." + VIEW_ATTR_KEY_COLUMN + " = '" + subAttributeName + "' AND " +
+                VIEW_ORGANIZATION_ATTRIBUTES_TABLE + "." + VIEW_ATTR_VALUE_COLUMN;
     }
 }

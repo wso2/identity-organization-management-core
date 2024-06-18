@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -32,6 +32,7 @@ public class FilterQueryBuilder {
     private List<String> timestampParameters = new ArrayList<>();
     private int count = 1;
     private String filter;
+    private boolean containSubAttribute;
 
     /**
      * Get filter query builder attributes.
@@ -93,5 +94,25 @@ public class FilterQueryBuilder {
     public String getFilterQuery() {
 
         return filter;
+    }
+
+    /**
+     * Get the value of containSubAttribute.
+     *
+     * @return boolean value indicating if the filter contains subattributes.
+     */
+    public boolean doesContainSubAttribute() {
+
+        return containSubAttribute;
+    }
+
+    /**
+     * Set the value of containSubAttribute.
+     *
+     * @param containSubAttribute boolean value indicating if the filter contains subattributes.
+     */
+    public void setContainSubAttribute(boolean containSubAttribute) {
+
+        this.containSubAttribute = containSubAttribute;
     }
 }

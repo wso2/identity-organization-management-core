@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -48,6 +48,7 @@ public class OrganizationManagementConstants {
     public static final String VIEW_ATTR_VALUE_COLUMN = "UM_ATTRIBUTE_VALUE";
     public static final String VIEW_TYPE_COLUMN = "UM_ORG_TYPE";
     public static final String VIEW_TENANT_UUID_COLUMN = "UM_TENANT_UUID";
+    public static final String VIEW_ORGANIZATION_ATTRIBUTES_TABLE = "UM_ORG_ATTRIBUTE";
     public static final String PATCH_OP_ADD = "ADD";
     public static final String PATCH_OP_REMOVE = "REMOVE";
     public static final String PATCH_OP_REPLACE = "REPLACE";
@@ -152,6 +153,7 @@ public class OrganizationManagementConstants {
         attributeColumnMap.put(ORGANIZATION_CREATED_TIME_FIELD, VIEW_CREATED_TIME_COLUMN);
         attributeColumnMap.put(ORGANIZATION_LAST_MODIFIED_FIELD, VIEW_LAST_MODIFIED_COLUMN);
         attributeColumnMap.put(ORGANIZATION_STATUS_FIELD, VIEW_STATUS_COLUMN);
+        attributeColumnMap.put(ORGANIZATION_ATTRIBUTES_FIELD, VIEW_ATTR_KEY_COLUMN);
         attributeColumnMap.put(PAGINATION_AFTER, VIEW_CREATED_TIME_COLUMN);
         attributeColumnMap.put(PAGINATION_BEFORE, VIEW_CREATED_TIME_COLUMN);
     }

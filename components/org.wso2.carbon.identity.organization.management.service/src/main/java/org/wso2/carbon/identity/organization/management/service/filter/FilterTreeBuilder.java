@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_EMPTY_FILTER_VALUE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_FILTER_ARGUMENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_UNSUPPORTED_FILTER_OPERATION;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_ATTRIBUTES_FIELD;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleClientException;
 
 /**
@@ -260,11 +261,13 @@ public class FilterTreeBuilder {
 
         if (StringUtils.isNotBlank(attributeValue) || StringUtils.isNotBlank(operation)) {
 
-            String[] parts = attributeValue.split("\\.", 2);
-            expressionNode.setAttributeValue(parts[0].trim());
-
-            if (parts.length > 1) {
-                expressionNode.setSubAttributeValue(parts[1].trim());
+            if (attributeValue.startsWith(ORGANIZATION_ATTRIBUTES_FIELD + ".")) {
+                String subAttributeValue = StringUtils.substringAfter(attributeValue,
+                                    ORGANIZATION_ATTRIBUTES_FIELD + ".");
+                expressionNode.setAttributeValue(ORGANIZATION_ATTRIBUTES_FIELD);
+                expressionNode.setSubAttributeValue(subAttributeValue.trim());
+            } else {
+                expressionNode.setAttributeValue(attributeValue.trim());
             }
             expressionNode.setOperation(operation.trim());
             if (value != null) {

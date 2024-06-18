@@ -351,6 +351,12 @@ public class SQLConstants {
             "(SELECT UM_ID FROM UM_ORG WHERE %s) AND OH.DEPTH %s) ORDER BY UM_ORG.UM_CREATED_TIME %s OFFSET 0 ROWS " +
             "FETCH NEXT :" + SQLPlaceholders.DB_SCHEMA_LIMIT + "; ROWS ONLY";
 
+    public static final String INNER_JOIN_UM_ORG_ATTRIBUTE =
+            "INNER JOIN UM_ORG_ATTRIBUTE ON UM_ORG.UM_ID = UM_ORG_ATTRIBUTE.UM_ORG_ID WHERE";
+
+    public static final String SELECT_UM_ORG_ATTRIBUTES =
+            ", UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_KEY, UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_VALUE FROM";
+
     /**
      * SQL Placeholders.
      */
