@@ -114,6 +114,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         return organizationMgtDAO.getOrganization(organizationId);
     }
 
+    @Deprecated
     @Override
     public List<BasicOrganization> getOrganizations(boolean recursive, Integer limit, String organizationId,
                                                     String sortOrder, List<ExpressionNode> expressionNodes,
@@ -124,6 +125,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
                 parentIdExpressionNodes);
     }
 
+    @Deprecated
     @Override
     public List<BasicOrganization> getUserAuthorizedOrganizations(boolean recursive, Integer limit,
                                                                   String organizationId, String sortOrder,
@@ -133,6 +135,28 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
             throws OrganizationManagementServerException {
 
         return organizationMgtDAO.getUserAuthorizedOrganizations(recursive, limit, organizationId, sortOrder,
+                expressionNodes, parentIdExpressionNodes, applicationAudience);
+    }
+
+    @Override
+    public List<Organization> getOrganizationsList(boolean recursive, Integer limit, String organizationId,
+                                                    String sortOrder, List<ExpressionNode> expressionNodes,
+                                                    List<ExpressionNode> parentIdExpressionNodes)
+            throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.getOrganizationsList(recursive, limit, organizationId, sortOrder, expressionNodes,
+                parentIdExpressionNodes);
+    }
+
+    @Override
+    public List<Organization> getUserAuthorizedOrganizationsList(boolean recursive, Integer limit,
+                                                                  String organizationId, String sortOrder,
+                                                                  List<ExpressionNode> expressionNodes,
+                                                                  List<ExpressionNode> parentIdExpressionNodes,
+                                                                  String applicationAudience)
+            throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.getUserAuthorizedOrganizationsList(recursive, limit, organizationId, sortOrder,
                 expressionNodes, parentIdExpressionNodes, applicationAudience);
     }
 

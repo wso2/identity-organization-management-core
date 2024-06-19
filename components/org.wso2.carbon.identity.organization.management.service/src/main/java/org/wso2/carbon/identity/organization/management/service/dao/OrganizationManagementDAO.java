@@ -99,6 +99,7 @@ public interface OrganizationManagementDAO {
      * @param parentIdExpressionNodes The list of filters related to parentId.
      * @return the list of organization IDs.
      * @throws OrganizationManagementServerException The server exception thrown when retrieving the organizations.
+     * @deprecated Use {@link #getOrganizationsList(boolean, Integer, String, String, List, List)} instead.
      */
     List<BasicOrganization> getOrganizations(boolean recursive, Integer limit, String organizationId, String sortOrder,
                                              List<ExpressionNode> expressionNodes,
@@ -118,8 +119,47 @@ public interface OrganizationManagementDAO {
      * @param applicationAudience     The application audience.
      * @return the list of organization IDs.
      * @throws OrganizationManagementServerException The server exception thrown when retrieving the organizations.
+     * @deprecated Use {@link #getUserAuthorizedOrganizationsList(boolean, Integer, String, String, List, List, String)}
+     * instead.
      */
     List<BasicOrganization> getUserAuthorizedOrganizations(boolean recursive, Integer limit, String organizationId,
+                                                           String sortOrder, List<ExpressionNode> expressionNodes,
+                                                           List<ExpressionNode> parentIdExpressionNodes,
+                                                           String applicationAudience)
+            throws OrganizationManagementServerException;
+
+    /**
+     * Retrieve the list of organizations under a given organization ID.
+     *
+     * @param recursive               Determines whether records should be retrieved in a recursive manner.
+     * @param limit                   The maximum number of records to be returned.
+     * @param organizationId          The organization ID.
+     * @param sortOrder               The sort order, ascending or descending.
+     * @param expressionNodes         The list of filters excluding filtering by parentId.
+     * @param parentIdExpressionNodes The list of filters related to parentId.
+     * @return the list of organizations.
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the organizations.
+     */
+    List<Organization> getOrganizationsList(boolean recursive, Integer limit, String organizationId,
+                                                String sortOrder, List<ExpressionNode> expressionNodes,
+                                                List<ExpressionNode> parentIdExpressionNodes)
+            throws OrganizationManagementServerException;
+
+    /**
+     * Retrieve the list of organizations under a given organization ID for particular user
+     * who has permissions over them.
+     *
+     * @param recursive               Determines whether records should be retrieved in a recursive manner.
+     * @param limit                   The maximum number of records to be returned.
+     * @param organizationId          The organization ID.
+     * @param sortOrder               The sort order, ascending or descending.
+     * @param expressionNodes         The list of filters excluding filtering by parentId.
+     * @param parentIdExpressionNodes The list of filters related to parentId.
+     * @param applicationAudience     The application audience.
+     * @return the list of organizations.
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the organizations.
+     */
+    List<Organization> getUserAuthorizedOrganizationsList(boolean recursive, Integer limit, String organizationId,
                                                            String sortOrder, List<ExpressionNode> expressionNodes,
                                                            List<ExpressionNode> parentIdExpressionNodes,
                                                            String applicationAudience)
