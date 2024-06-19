@@ -129,8 +129,24 @@ public interface OrganizationManager {
      * @param recursive Determines whether records should be retrieved in a recursive manner.
      * @return the list of {@link BasicOrganization}s.
      * @throws OrganizationManagementException The exception thrown when listing organizations.
+     * @deprecated Use {@link #getOrganizationsList(Integer, String, String, String, String, boolean)} instead.
      */
     List<BasicOrganization> getOrganizations(Integer limit, String after, String before, String sortOrder,
+                                             String filter, boolean recursive) throws OrganizationManagementException;
+
+    /**
+     * List or search organizations.
+     *
+     * @param limit     The maximum number of records to be returned.
+     * @param after     The pointer to next page.
+     * @param before    The pointer to previous page.
+     * @param sortOrder The sort order, ascending or descending.
+     * @param filter    The filter string.
+     * @param recursive Determines whether records should be retrieved in a recursive manner.
+     * @return the list of {@link BasicOrganization}s.
+     * @throws OrganizationManagementException The exception thrown when listing organizations.
+     */
+    List<Organization> getOrganizationsList(Integer limit, String after, String before, String sortOrder,
                                              String filter, boolean recursive) throws OrganizationManagementException;
 
     /**

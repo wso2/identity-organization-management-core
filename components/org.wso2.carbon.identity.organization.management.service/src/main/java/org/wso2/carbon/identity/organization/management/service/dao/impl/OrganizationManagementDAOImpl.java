@@ -402,7 +402,16 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                 expressionNodes, parentIdExpressionNodes, null);
     }
 
-    @Deprecated
+    @Override
+    public List<Organization> getOrganizationsList(boolean recursive, Integer limit, String organizationId,
+                                                   String sortOrder, List<ExpressionNode> expressionNodes,
+                                                   List<ExpressionNode> parentIdExpressionNodes)
+            throws OrganizationManagementServerException {
+
+        return getOrganizationsList(false, recursive, limit, organizationId, sortOrder,
+                expressionNodes, parentIdExpressionNodes, null);
+    }
+
     @Override
     public List<BasicOrganization> getUserAuthorizedOrganizations(boolean recursive, Integer limit,
                                                                   String organizationId, String sortOrder,
@@ -412,28 +421,6 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             throws OrganizationManagementServerException {
 
         return getBasicOrganizationsList(true, recursive, limit, organizationId, sortOrder,
-                expressionNodes, parentIdExpressionNodes, applicationAudience);
-    }
-
-    @Override
-    public List<Organization> getOrganizationsList(boolean recursive, Integer limit, String organizationId,
-                                                    String sortOrder, List<ExpressionNode> expressionNodes,
-                                                    List<ExpressionNode> parentIdExpressionNodes)
-            throws OrganizationManagementServerException {
-
-        return getOrganizationsList(false, recursive, limit, organizationId, sortOrder,
-                expressionNodes, parentIdExpressionNodes, null);
-    }
-
-    @Override
-    public List<Organization> getUserAuthorizedOrganizationsList(boolean recursive, Integer limit,
-                                                                  String organizationId, String sortOrder,
-                                                                  List<ExpressionNode> expressionNodes,
-                                                                  List<ExpressionNode> parentIdExpressionNodes,
-                                                                  String applicationAudience)
-            throws OrganizationManagementServerException {
-
-        return getOrganizationsList(true, recursive, limit, organizationId, sortOrder,
                 expressionNodes, parentIdExpressionNodes, applicationAudience);
     }
 

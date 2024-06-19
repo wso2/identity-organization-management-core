@@ -275,12 +275,22 @@ public class OrganizationManagerImpl implements OrganizationManager {
         return organizationManagementDAO.getChildOrganizationIds(organizationId);
     }
 
+    @Deprecated
     @Override
     public List<BasicOrganization> getOrganizations(Integer limit, String after, String before, String sortOrder,
                                                     String filter, boolean recursive)
             throws OrganizationManagementException {
 
-        return getOrganizationList(false, limit, after, before, sortOrder, filter, recursive, null);
+        return getBasicOrganizationList(false, limit, after, before, sortOrder, filter, recursive,
+                null);
+    }
+
+    @Override
+    public List<Organization> getOrganizationsList(Integer limit, String after, String before, String sortOrder,
+                                                    String filter, boolean recursive)
+            throws OrganizationManagementException {
+
+        return getOrganizationList(limit, after, before, sortOrder, filter, recursive);
     }
 
     @Override
@@ -288,7 +298,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
                                                                   String sortOrder, String filter, boolean recursive)
             throws OrganizationManagementException {
 
-        return getOrganizationList(true, limit, after, before, sortOrder, filter, recursive, null);
+        return getBasicOrganizationList(true, limit, after, before, sortOrder, filter, recursive,
+                null);
     }
 
     @Override
@@ -297,19 +308,45 @@ public class OrganizationManagerImpl implements OrganizationManager {
                                                                   String applicationAudience)
             throws OrganizationManagementException {
 
-        return getOrganizationList(true, limit, after, before, sortOrder, filter, recursive, applicationAudience);
+        return getBasicOrganizationList(true, limit, after, before, sortOrder, filter, recursive,
+                applicationAudience);
     }
 
-    private List<BasicOrganization> getOrganizationList(boolean authorizedSubOrgsOnly, Integer limit, String after,
+    private List<BasicOrganization> getBasicOrganizationList(boolean authorizedSubOrgsOnly, Integer limit, String after,
                                                         String before, String sortOrder, String filter,
                                                         boolean recursive, String applicationAudience)
             throws OrganizationManagementException {
 
         List<ExpressionNode> expressionNodes = getExpressionNodes(filter, after, before);
-
+        List<ExpressionNode> filteringByParentIdExpressionNodes = getParentIdExpressionNodes(expressionNodes);
         String orgId = resolveOrganizationId(getTenantDomain());
+        expressionNodes.removeAll(filteringByParentIdExpressionNodes);
+
+        return authorizedSubOrgsOnly ?
+                organizationManagementDAO.getUserAuthorizedOrganizations(recursive, limit, orgId, sortOrder,
+                        expressionNodes, filteringByParentIdExpressionNodes, applicationAudience) :
+                organizationManagementDAO.getOrganizations(recursive, limit, orgId, sortOrder, expressionNodes,
+                        filteringByParentIdExpressionNodes);
+    }
+
+    private List<Organization> getOrganizationList(Integer limit, String after, String before, String sortOrder,
+                                                   String filter, boolean recursive)
+            throws OrganizationManagementException {
+
+        List<ExpressionNode> expressionNodes = getExpressionNodes(filter, after, before);
+        List<ExpressionNode> filteringByParentIdExpressionNodes = getParentIdExpressionNodes(expressionNodes);
+        String orgId = resolveOrganizationId(getTenantDomain());
+        expressionNodes.removeAll(filteringByParentIdExpressionNodes);
+
+        return organizationManagementDAO.getOrganizationsList(recursive, limit, orgId, sortOrder, expressionNodes,
+                        filteringByParentIdExpressionNodes);
+    }
+
+    private List<ExpressionNode> getParentIdExpressionNodes(List<ExpressionNode> expressionNodes)
+            throws OrganizationManagementException {
 
         List<ExpressionNode> filteringByParentIdExpressionNodes = new ArrayList<>();
+
         for (ExpressionNode expressionNode : expressionNodes) {
             String attributeValue = expressionNode.getAttributeValue();
             String operation = expressionNode.getOperation();
@@ -328,13 +365,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 }
             }
         }
-        expressionNodes.removeAll(filteringByParentIdExpressionNodes);
-
-        return authorizedSubOrgsOnly ?
-                organizationManagementDAO.getUserAuthorizedOrganizations(recursive, limit, orgId, sortOrder,
-                        expressionNodes, filteringByParentIdExpressionNodes, applicationAudience) :
-                organizationManagementDAO.getOrganizations(recursive, limit, orgId, sortOrder, expressionNodes,
-                        filteringByParentIdExpressionNodes);
+        return filteringByParentIdExpressionNodes;
     }
 
     @Override
