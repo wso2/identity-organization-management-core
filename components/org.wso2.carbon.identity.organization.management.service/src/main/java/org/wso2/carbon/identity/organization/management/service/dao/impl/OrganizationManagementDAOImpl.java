@@ -759,14 +759,17 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             organizations = namedJdbcTemplate.executeQuery(sqlStmt,
                     (resultSet, rowNumber) -> {
                         Organization organization = new Organization();
-                        OrganizationAttribute organizationAttribute = new OrganizationAttribute();
                         organization.setId(resultSet.getString(1));
                         organization.setName(resultSet.getString(2));
                         organization.setCreated(resultSet.getTimestamp(3).toInstant());
                         organization.setStatus(resultSet.getString(4));
-                        organizationAttribute.setKey(resultSet.getString(5));
-                        organizationAttribute.setValue(resultSet.getString(6));
-                        organization.setAttributes(Collections.singletonList(organizationAttribute));
+                        int columnCount = resultSet.getMetaData().getColumnCount();
+                        if (columnCount >= 6) {
+                            OrganizationAttribute organizationAttribute = new OrganizationAttribute();
+                            organizationAttribute.setKey(resultSet.getString(5));
+                            organizationAttribute.setValue(resultSet.getString(6));
+                            organization.setAttributes(Collections.singletonList(organizationAttribute));
+                        }
                         return organization;
                     },
                     namedPreparedStatement -> setPreparedStatementParams(namedPreparedStatement, organizationId,
