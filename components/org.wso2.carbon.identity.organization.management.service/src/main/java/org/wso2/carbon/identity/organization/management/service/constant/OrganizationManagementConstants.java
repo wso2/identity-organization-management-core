@@ -64,6 +64,7 @@ public class OrganizationManagementConstants {
     public static final String ORGANIZATION_LAST_MODIFIED_FIELD = "lastModified";
     public static final String ORGANIZATION_STATUS_FIELD = "status";
     public static final String ORGANIZATION_ATTRIBUTES_FIELD = "attributes";
+    public static final String ORGANIZATION_ATTRIBUTES_FIELD_PREFIX = "attributes.";
     public static final String PAGINATION_AFTER = "after";
     public static final String PAGINATION_BEFORE = "before";
     public static final String CREATE_ORGANIZATION_ADMIN_PERMISSION = "/permission/admin/";

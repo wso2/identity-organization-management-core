@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.organization.management.service.dao;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.filter.ExpressionNode;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
@@ -99,7 +100,6 @@ public interface OrganizationManagementDAO {
      * @param parentIdExpressionNodes The list of filters related to parentId.
      * @return the list of organization IDs.
      * @throws OrganizationManagementServerException The server exception thrown when retrieving the organizations.
-     * @deprecated Use {@link #getOrganizationsList(boolean, Integer, String, String, List, List)} instead.
      */
     List<BasicOrganization> getOrganizations(boolean recursive, Integer limit, String organizationId, String sortOrder,
                                              List<ExpressionNode> expressionNodes,
@@ -118,10 +118,13 @@ public interface OrganizationManagementDAO {
      * @return the list of organizations.
      * @throws OrganizationManagementServerException The server exception thrown when retrieving the organizations.
      */
-    List<Organization> getOrganizationsList(boolean recursive, Integer limit, String organizationId,
-                                            String sortOrder, List<ExpressionNode> expressionNodes,
-                                            List<ExpressionNode> parentIdExpressionNodes)
-            throws OrganizationManagementServerException;
+    default List<Organization> getOrganizationsList(boolean recursive, Integer limit, String organizationId,
+                                                    String sortOrder, List<ExpressionNode> expressionNodes,
+                                                    List<ExpressionNode> parentIdExpressionNodes)
+            throws OrganizationManagementServerException {
+
+        throw new NotImplementedException();
+    }
 
     /**
      * Retrieve the IDs of the organizations under a given organization ID for particular user

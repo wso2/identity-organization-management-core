@@ -32,7 +32,7 @@ public class FilterQueryBuilder {
     private List<String> timestampParameters = new ArrayList<>();
     private int count = 1;
     private String filter;
-    private boolean containSubAttribute;
+    private boolean hasSubAttribute;
 
     /**
      * Get filter query builder attributes.
@@ -101,18 +101,18 @@ public class FilterQueryBuilder {
      *
      * @return boolean value indicating if the filter contains subattributes.
      */
-    public boolean doesContainSubAttribute() {
+    public boolean getHasSubAttribute() {
 
-        return containSubAttribute;
+        return hasSubAttribute;
     }
 
     /**
      * Set the value of containSubAttribute.
      *
-     * @param containSubAttribute boolean value indicating if the filter contains subattributes.
+     * @param hasSubAttribute boolean value indicating if the filter contains subattributes.
      */
-    public void setContainSubAttribute(boolean containSubAttribute) {
+    public void setHasSubAttribute(boolean hasSubAttribute) {
 
-        this.containSubAttribute = containSubAttribute;
+        this.hasSubAttribute = hasSubAttribute;
     }
 }

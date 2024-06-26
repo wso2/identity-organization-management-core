@@ -39,12 +39,13 @@ import org.wso2.carbon.identity.organization.management.service.model.PatchOpera
 import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -101,6 +102,8 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.GT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.LE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.LT;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_ATTRIBUTES_FIELD;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_ATTRIBUTES_FIELD_PREFIX;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationStatus.ACTIVE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationStatus.DISABLED;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PARENT_ID_FILTER_PLACEHOLDER_PREFIX;
@@ -137,6 +140,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.DELETE_ORGANIZATION_ATTRIBUTE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.DELETE_ORGANIZATION_ATTRIBUTES_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.DELETE_ORGANIZATION_BY_ID;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ALL_UM_ORG_ATTRIBUTES;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ANCESTORS_OF_GIVEN_ORG_INCLUDING_ITSELF;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ANCESTOR_ORGANIZATION_ID_WITH_DEPTH;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATIONS;
@@ -187,7 +191,6 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.PATCH_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.PATCH_ORGANIZATION_CONCLUDE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.PERMISSION_LIST_PLACEHOLDER;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SELECT_UM_ORG_ATTRIBUTES;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SET_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_AUDIENCE_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_CREATED_TIME;
@@ -391,15 +394,14 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         }
     }
 
-    @Deprecated
     @Override
     public List<BasicOrganization> getOrganizations(boolean recursive, Integer limit, String organizationId,
                                                     String sortOrder, List<ExpressionNode> expressionNodes,
                                                     List<ExpressionNode> parentIdExpressionNodes)
             throws OrganizationManagementServerException {
 
-        return getBasicOrganizationsList(false, recursive, limit, organizationId, sortOrder,
-                expressionNodes, parentIdExpressionNodes, null);
+        return getOrganizationsBasicInfo(false, recursive, limit, organizationId, sortOrder,
+                                    expressionNodes, parentIdExpressionNodes, null);
     }
 
     @Override
@@ -409,7 +411,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             throws OrganizationManagementServerException {
 
         return getOrganizationsList(false, recursive, limit, organizationId, sortOrder,
-                expressionNodes, parentIdExpressionNodes, null);
+                                expressionNodes, parentIdExpressionNodes, null);
     }
 
     @Override
@@ -420,8 +422,8 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                                                                   String applicationAudience)
             throws OrganizationManagementServerException {
 
-        return getBasicOrganizationsList(true, recursive, limit, organizationId, sortOrder,
-                expressionNodes, parentIdExpressionNodes, applicationAudience);
+        return getOrganizationsBasicInfo(true, recursive, limit, organizationId, sortOrder,
+                                    expressionNodes, parentIdExpressionNodes, applicationAudience);
     }
 
     @Override
@@ -727,22 +729,22 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
     }
 
     private List<Organization> getOrganizationsList(boolean authorizedSubOrgsOnly, boolean recursive,
-                                                         Integer limit, String organizationId, String sortOrder,
-                                                         List<ExpressionNode> expressionNodes,
-                                                         List<ExpressionNode> parentIdExpressionNodes,
-                                                         String applicationAudience)
+                                                    Integer limit, String organizationId, String sortOrder,
+                                                    List<ExpressionNode> expressionNodes,
+                                                    List<ExpressionNode> parentIdExpressionNodes,
+                                                    String applicationAudience)
             throws OrganizationManagementServerException {
 
         FilterQueryBuilder filterQueryBuilder = buildFilterQuery(expressionNodes);
         FilterQueryBuilder parentIdFilterQueryBuilder = buildParentIdFilterQuery(parentIdExpressionNodes);
 
         String userID =  getUserId();
-        String sqlStmt = prepareGetOrganizationQuery(authorizedSubOrgsOnly, recursive, sortOrder,
-                applicationAudience, filterQueryBuilder, parentIdFilterQueryBuilder, userID);
+        String sqlStmt = prepareGetOrganizationQuery(authorizedSubOrgsOnly, recursive, sortOrder, applicationAudience,
+                        filterQueryBuilder, parentIdFilterQueryBuilder, userID);
 
         List<String> permissions;
         String permissionPlaceholder;
-        if (CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME) {
+        if (Boolean.TRUE.equals(CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME)) {
             permissionPlaceholder = "PERMISSION_";
             permissions = getAllowedPermissions(VIEW_ORGANIZATION_PERMISSION);
             if (authorizedSubOrgsOnly) {
@@ -753,39 +755,58 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             permissions = new ArrayList<>();
         }
 
+        if (filterQueryBuilder.getHasSubAttribute()) {
+            sqlStmt = String.format(GET_ALL_UM_ORG_ATTRIBUTES, sqlStmt);
+        }
         List<Organization> organizations;
+        Map<String, Organization> organizationMap = new HashMap<>();
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
         try {
-            organizations = namedJdbcTemplate.executeQuery(sqlStmt,
+            namedJdbcTemplate.executeQuery(sqlStmt,
                     (resultSet, rowNumber) -> {
-                        Organization organization = new Organization();
-                        organization.setId(resultSet.getString(1));
-                        organization.setName(resultSet.getString(2));
-                        organization.setCreated(resultSet.getTimestamp(3).toInstant());
-                        organization.setStatus(resultSet.getString(4));
-                        int columnCount = resultSet.getMetaData().getColumnCount();
-                        if (columnCount >= 6) {
+                        if (filterQueryBuilder.getHasSubAttribute()) {
+                            String orgId = resultSet.getString(1);
+                            Organization organization = organizationMap.get(orgId);
+                            if (organization == null) {
+                                organization = buildOrganization(resultSet);
+                                organizationMap.put(orgId, organization);
+                            }
                             OrganizationAttribute organizationAttribute = new OrganizationAttribute();
                             organizationAttribute.setKey(resultSet.getString(5));
                             organizationAttribute.setValue(resultSet.getString(6));
-                            organization.setAttributes(Collections.singletonList(organizationAttribute));
+                            organization.setAttribute(organizationAttribute);
+                            return organization;
+                        } else {
+                            Organization organization = buildOrganization(resultSet);
+                            organizationMap.put(organization.getId(), organization);
+                            return organization;
                         }
-                        return organization;
                     },
                     namedPreparedStatement -> setPreparedStatementParams(namedPreparedStatement, organizationId,
                             applicationAudience, limit, filterQueryBuilder, parentIdFilterQueryBuilder, permissions,
                             permissionPlaceholder, userID));
+            organizations = new ArrayList<>(organizationMap.values());
         } catch (DataAccessException e) {
             throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS, e);
         }
         return organizations;
     }
 
-    private List<BasicOrganization> getBasicOrganizationsList(boolean authorizedSubOrgsOnly, boolean recursive,
-                                                         Integer limit, String organizationId, String sortOrder,
-                                                         List<ExpressionNode> expressionNodes,
-                                                         List<ExpressionNode> parentIdExpressionNodes,
-                                                         String applicationAudience)
+    private Organization buildOrganization(ResultSet resultSet) throws SQLException {
+
+        Organization organization = new Organization();
+        organization.setId(resultSet.getString(1));
+        organization.setName(resultSet.getString(2));
+        organization.setCreated(resultSet.getTimestamp(3).toInstant());
+        organization.setStatus(resultSet.getString(4));
+        return organization;
+    }
+
+    private List<BasicOrganization> getOrganizationsBasicInfo(boolean authorizedSubOrgsOnly, boolean recursive,
+                                                              Integer limit, String organizationId, String sortOrder,
+                                                              List<ExpressionNode> expressionNodes,
+                                                              List<ExpressionNode> parentIdExpressionNodes,
+                                                              String applicationAudience)
             throws OrganizationManagementServerException {
 
         FilterQueryBuilder filterQueryBuilder = buildFilterQuery(expressionNodes);
@@ -797,7 +818,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
 
         List<String> permissions;
         String permissionPlaceholder;
-        if (CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME) {
+        if (Boolean.TRUE.equals(CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME)) {
             permissionPlaceholder = "PERMISSION_";
             permissions = getAllowedPermissions(VIEW_ORGANIZATION_PERMISSION);
             if (authorizedSubOrgsOnly) {
@@ -1005,6 +1026,9 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                 String operation = expressionNode.getOperation();
                 String value = expressionNode.getValue();
                 String attributeValue = expressionNode.getAttributeValue();
+                if (attributeValue.startsWith(ORGANIZATION_ATTRIBUTES_FIELD_PREFIX)) {
+                    attributeValue = ORGANIZATION_ATTRIBUTES_FIELD;
+                }
                 String attributeName = ATTRIBUTE_COLUMN_MAP.get(attributeValue);
                 if (StringUtils.isNotBlank(attributeName) && StringUtils.isNotBlank(value) && StringUtils
                         .isNotBlank(operation)) {
@@ -1524,8 +1548,8 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
 
         String sqlStmt = prepareSqlStatement(authorizedSubOrgsOnly, applicationAudience);
         String getOrgSqlStmtTail = getOrgSqlStmtTail(authorizedSubOrgsOnly, applicationAudience);
-        if (filterQueryBuilder.doesContainSubAttribute()) {
-            sqlStmt = modifySqlForSubAttributes(sqlStmt);
+        if (filterQueryBuilder.getHasSubAttribute()) {
+            sqlStmt = sqlStmt.replace("WHERE", INNER_JOIN_UM_ORG_ATTRIBUTE);
         }
         sqlStmt = appendFilterQueries(sqlStmt, filterQueryBuilder, parentIdFilterQueryBuilder, getOrgSqlStmtTail,
                 recursive, sortOrder);
@@ -1534,17 +1558,16 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         if (StringUtils.isNotEmpty(username)) {
             username = UserCoreUtil.removeDomainFromName(username);
         }
+
         /* The shared user parent user might be created with user ID if there is business user with same name
         in the child organization. */
-        sqlStmt = sqlStmt.replace(USER_NAME_LIST_PLACEHOLDER, Stream.of(username, userID)
+        return sqlStmt.replace(USER_NAME_LIST_PLACEHOLDER, Stream.of(username, userID)
                 .map(name -> "'" + name + "'").collect(Collectors.joining(",")));
-
-        return sqlStmt;
     }
 
     private String prepareSqlStatement(boolean authorizedSubOrgsOnly, String applicationAudience) {
 
-        if (!CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME) {
+        if (Boolean.FALSE.equals(CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME)) {
             return prepareSqlStatementForModernRuntime(authorizedSubOrgsOnly, applicationAudience);
         } else {
             return prepareSqlStatementForLegacyRuntime(authorizedSubOrgsOnly);
@@ -1576,7 +1599,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
     private String getOrgSqlStmtTail(boolean authorizedSubOrgsOnly, String applicationAudience)
             throws OrganizationManagementServerException {
 
-        if (!CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME) {
+        if (Boolean.FALSE.equals(CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME)) {
             return getOrgSqlStmtTailForModernRuntime(authorizedSubOrgsOnly, applicationAudience);
         } else {
             return getOrgSqlStmtTailForLegacyRuntime(authorizedSubOrgsOnly);
@@ -1632,16 +1655,16 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         if (StringUtils.isBlank(parentIdFilterQuery)) {
             return sqlStmt + filterQueryBuilder.getFilterQuery() +
                     String.format(getOrgSqlStmtTail, SET_ID, recursive ? "> 0" : "= 1", sortOrder);
-        } else {
-            return sqlStmt + filterQueryBuilder.getFilterQuery() +
-                    String.format(getOrgSqlStmtTail, parentIdFilterQuery, recursive ? "> 0" : "= 1", sortOrder);
         }
+        return sqlStmt + filterQueryBuilder.getFilterQuery() +
+                String.format(getOrgSqlStmtTail, parentIdFilterQuery, recursive ? "> 0" : "= 1", sortOrder);
     }
 
     private String replacePermissionPlaceholders(String sqlStmt, List<String> permissions,
                                                  String permissionPlaceholder) {
 
         List<String> permissionPlaceholders = new ArrayList<>();
+
         // Constructing the placeholders required to hold the permission strings in the named prepared statement.
         for (int i = 1; i <= permissions.size(); i++) {
             permissionPlaceholders.add(":" + permissionPlaceholder + i + ";");
@@ -1650,20 +1673,15 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         return sqlStmt.replace(PERMISSION_LIST_PLACEHOLDER, placeholder);
     }
 
-    private String modifySqlForSubAttributes(String sqlStmt) {
-
-        return sqlStmt.replace("WHERE", INNER_JOIN_UM_ORG_ATTRIBUTE).replace(
-                "FROM", SELECT_UM_ORG_ATTRIBUTES);
-    }
-
     private void setPreparedStatementParams(NamedPreparedStatement namedPreparedStatement, String organizationId,
-                                    String applicationAudience, Integer limit, FilterQueryBuilder filterQueryBuilder,
-                                    FilterQueryBuilder parentIdFilterQueryBuilder, List<String> permissions,
+                                            String applicationAudience, Integer limit,
+                                            FilterQueryBuilder filterQueryBuilder,
+                                            FilterQueryBuilder parentIdFilterQueryBuilder, List<String> permissions,
                                             String permissionPlaceholder, String userID) throws SQLException {
 
         namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_ID, userID);
         namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_DOMAIN,
-                                            getOrganizationUserInvitationPrimaryUserDomain());
+                                    getOrganizationUserInvitationPrimaryUserDomain());
         if (parentIdFilterQueryBuilder.getFilterAttributeValue().isEmpty()) {
             namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, organizationId);
         }
@@ -1672,15 +1690,17 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         }
         setFilterAttributes(namedPreparedStatement, parentIdFilterQueryBuilder.getFilterAttributeValue(),
                 filterQueryBuilder.getFilterAttributeValue(), filterQueryBuilder.getTimestampFilterAttributes());
-        if (CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME) {
+
+        if (Boolean.TRUE.equals(CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME)) {
             setPermissions(namedPreparedStatement, permissions, permissionPlaceholder);
         }
         namedPreparedStatement.setInt(DB_SCHEMA_LIMIT, limit);
     }
 
     private void setFilterAttributes(NamedPreparedStatement namedPreparedStatement,
-                         Map<String, String> parentIdFilterAttributeValueMap, Map<String, String> filterAttributeValue,
-                         List<String> timestampTypeAttributes) throws SQLException {
+                                     Map<String, String> parentIdFilterAttributeValueMap,
+                                     Map<String, String> filterAttributeValue, List<String> timestampTypeAttributes)
+            throws SQLException {
 
         for (Map.Entry<String, String> entry : parentIdFilterAttributeValueMap.entrySet()) {
             namedPreparedStatement.setString(entry.getKey(), entry.getValue());
@@ -1706,8 +1726,10 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
 
     private String handleViewAttrKeyColumn(ExpressionNode expressionNode, FilterQueryBuilder filterQueryBuilder) {
 
-        filterQueryBuilder.setContainSubAttribute(true);
-        String subAttributeName = expressionNode.getSubAttributeValue();
+        filterQueryBuilder.setHasSubAttribute(true);
+        String attributeValue = expressionNode.getAttributeValue();
+        String subAttributeName = StringUtils.substringAfter(attributeValue,
+                                                ORGANIZATION_ATTRIBUTES_FIELD + ".");
         return VIEW_ORGANIZATION_ATTRIBUTES_TABLE + "." + VIEW_ATTR_KEY_COLUMN + " = '" + subAttributeName + "' AND " +
                 VIEW_ORGANIZATION_ATTRIBUTES_TABLE + "." + VIEW_ATTR_VALUE_COLUMN;
     }

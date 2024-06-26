@@ -142,6 +142,13 @@ public class Organization {
         this.attributes = attributes;
     }
 
+    public void setAttribute(OrganizationAttribute attribute) {
+
+        if (attribute != null) {
+            this.attributes.add(attribute);
+        }
+    }
+
     public List<ChildOrganizationDO> getChildOrganizations() {
 
         return childOrganizations;

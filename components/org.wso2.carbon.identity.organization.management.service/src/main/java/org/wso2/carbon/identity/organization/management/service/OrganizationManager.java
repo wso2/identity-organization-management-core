@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -131,6 +131,7 @@ public interface OrganizationManager {
      * @throws OrganizationManagementException The exception thrown when listing organizations.
      * @deprecated Use {@link #getOrganizationsList(Integer, String, String, String, String, boolean)} instead.
      */
+    @Deprecated
     List<BasicOrganization> getOrganizations(Integer limit, String after, String before, String sortOrder,
                                              String filter, boolean recursive) throws OrganizationManagementException;
 
@@ -143,11 +144,14 @@ public interface OrganizationManager {
      * @param sortOrder The sort order, ascending or descending.
      * @param filter    The filter string.
      * @param recursive Determines whether records should be retrieved in a recursive manner.
-     * @return the list of {@link BasicOrganization}s.
+     * @return the list of {@link Organization}s.
      * @throws OrganizationManagementException The exception thrown when listing organizations.
      */
-    List<Organization> getOrganizationsList(Integer limit, String after, String before, String sortOrder,
-                                             String filter, boolean recursive) throws OrganizationManagementException;
+    default List<Organization> getOrganizationsList(Integer limit, String after, String before, String sortOrder,
+                                             String filter, boolean recursive) throws OrganizationManagementException {
+
+        throw new NotImplementedException();
+    }
 
     /**
      * List or search organizations authorized for the user.
