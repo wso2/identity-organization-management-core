@@ -721,7 +721,7 @@ public class OrganizationManagementConstants {
                 "shared application.", "Server encountered an error while revoking tokens issued for application: " +
                 "%s in organization with ID: %s"),
         ERROR_CODE_ERROR_GETTING_PARENT_APP_ID("65139",
-                "Error while retrieving shared parent app id of shared application.",
+                "Error while retrieving shared parent application ID.",
                 "Server encountered an error while retrieving shared parent app ID of main application: " +
                         "%s for child organization with ID: %s");;
 
