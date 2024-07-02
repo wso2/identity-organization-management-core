@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -22,6 +22,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.internal.CarbonContextDataHolder;
 import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.user.api.UserRealm;
@@ -37,6 +38,8 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import static org.mockito.Mockito.mock;
+import static org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_ID;
+import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
 
 public class TestUtils {
 
@@ -102,6 +105,20 @@ public class TestUtils {
                 = (CarbonContextDataHolder) carbonContextHolderField.get(CarbonContext.getThreadLocalCarbonContext());
         carbonContextHolder.setUserRealm(mock(UserRealm.class));
         setStatic(Utils.class.getDeclaredField("dataSource"), dataSource);
+    }
+
+    public static void mockCarbonContext(String superOrgId) {
+
+        String carbonHome = Paths.get(System.getProperty("user.dir"), "target", "test-classes").toString();
+        System.setProperty(CarbonBaseConstants.CARBON_HOME, carbonHome);
+        System.setProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH, Paths.get(carbonHome,
+                "repository/conf").toString());
+
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(SUPER_TENANT_DOMAIN_NAME);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(SUPER_TENANT_ID);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername("admin");
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setUserId("1234");
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(superOrgId);
     }
 
     private static void setStatic(Field field, Object newValue) throws Exception {
