@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.identity.organization.management.service.dao;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.wso2.carbon.identity.organization.management.service.exception.NotImplementedException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.filter.ExpressionNode;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
