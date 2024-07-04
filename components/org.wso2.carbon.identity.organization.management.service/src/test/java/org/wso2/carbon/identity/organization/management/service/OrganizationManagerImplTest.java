@@ -383,8 +383,8 @@ public class OrganizationManagerImplTest {
         assertEquals(organization.getChildOrganizations().size(), 1);
     }
 
-    @DataProvider(name = "metaAttributeFilters")
-    public Object[][] metaAttributeFilters() {
+    @DataProvider(name = "dataForFilterOrganizationsByMetaAttributes")
+    public Object[][] dataForFilterOrganizationsByMetaAttributes() {
 
         return new Object[][]{
                 {"attributes.country co S", false},
@@ -393,8 +393,8 @@ public class OrganizationManagerImplTest {
         };
     }
 
-    @Test(dataProvider = "metaAttributeFilters")
-    public void testGetOrganizationsWithMetaFilterAttribute(String filter, boolean isEmptyList) throws Exception {
+    @Test(dataProvider = "dataForFilterOrganizationsByMetaAttributes")
+    public void testFilterOrganizationsByMetaAttributes(String filter, boolean isEmptyList) throws Exception {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         List<Organization> organizations = organizationManager.getOrganizationsList(10, null, null,

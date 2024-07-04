@@ -97,9 +97,9 @@ public class FilterQueryBuilder {
     }
 
     /**
-     * Get the value of containSubAttribute.
+     * Get the value of hasSubAttribute.
      *
-     * @return boolean value indicating if the filter contains subattributes.
+     * @return boolean value indicating if the filter contains a sub attribute.
      */
     public boolean getHasSubAttribute() {
 
@@ -107,9 +107,9 @@ public class FilterQueryBuilder {
     }
 
     /**
-     * Set the value of containSubAttribute.
+     * Set the value of hasSubAttribute.
      *
-     * @param hasSubAttribute boolean value indicating if the filter contains subattributes.
+     * @param hasSubAttribute boolean value indicating if the filter contains a sub attributes.
      */
     public void setHasSubAttribute(boolean hasSubAttribute) {
 

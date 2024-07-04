@@ -145,8 +145,7 @@ public class OrganizationManagementDAOImplTest {
     @Test
     public void testGetOrganizationIdByName() throws Exception {
 
-        String organizationId = organizationManagementDAO.getOrganizationIdByName(
-                ORG_NAME);
+        String organizationId = organizationManagementDAO.getOrganizationIdByName(ORG_NAME);
         Assert.assertEquals(organizationId, orgId);
     }
 
@@ -158,17 +157,18 @@ public class OrganizationManagementDAOImplTest {
         Assert.assertEquals(organization.getParent().getId(), SUPER_ORG_ID);
     }
 
-    @DataProvider(name = "dataForGetOrganizationsList")
-    public Object[][] dataForGetOrganizationsList() {
+    @DataProvider(name = "dataForFilterOrganizationsByPrimaryAttributes")
+    public Object[][] dataForFilterOrganizationsByPrimaryAttributes() {
 
         return new Object[][]{
-                {ORGANIZATION_ATTRIBUTES_FIELD_PREFIX + ATTRIBUTE_KEY, "eq", ATTRIBUTE_VALUE},
-                {"name", "co", "XYZ"}
+                {"name", "co", "XYZ"},
+                {"id", "eq", orgId},
+                {"description", "sw", "This"}
         };
     }
 
-    @Test(dataProvider = "dataForGetOrganizationsList")
-    public void testGetOrganizationsList(String attributeValue, String operation, String value)
+    @Test(dataProvider = "dataForFilterOrganizationsByPrimaryAttributes")
+    public void testFilterOrganizationsByPrimaryAttributes(String attributeValue, String operation, String value)
             throws OrganizationManagementServerException {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
@@ -179,13 +179,32 @@ public class OrganizationManagementDAOImplTest {
                                         SUPER_ORG_ID, "DESC", expressionNodes, new ArrayList<>());
 
         Assert.assertEquals(organizations.get(0).getName(), ORG_NAME);
+        Assert.assertTrue(organizations.get(0).getAttributes().isEmpty());
+    }
 
-        if (attributeValue.startsWith(ORGANIZATION_ATTRIBUTES_FIELD_PREFIX)) {
-            Assert.assertEquals(organizations.get(0).getAttributes().get(0).getKey(), ATTRIBUTE_KEY);
-            Assert.assertEquals(organizations.get(0).getAttributes().get(0).getValue(), ATTRIBUTE_VALUE);
-        } else {
-            Assert.assertTrue(organizations.get(0).getAttributes().isEmpty());
-        }
+    @DataProvider(name = "dataForFilterOrganizationsByMetaAttributes")
+    public Object[][] dataForFilterOrganizationsByMetaAttributes() {
+
+        return new Object[][]{
+                {ORGANIZATION_ATTRIBUTES_FIELD_PREFIX + ATTRIBUTE_KEY, "eq", ATTRIBUTE_VALUE},
+                {ORGANIZATION_ATTRIBUTES_FIELD_PREFIX + ATTRIBUTE_KEY, "co", "L"}
+        };
+    }
+
+    @Test(dataProvider = "dataForFilterOrganizationsByMetaAttributes")
+    public void testFilterOrganizationsByMetaAttributes(String attributeValue, String operation, String value)
+            throws OrganizationManagementServerException {
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+        ExpressionNode expressionNode = getExpressionNode(attributeValue, operation, value);
+        List<ExpressionNode> expressionNodes = new ArrayList<>();
+        expressionNodes.add(expressionNode);
+        List<Organization> organizations = organizationManagementDAO.getOrganizationsList(false, 10,
+                                        SUPER_ORG_ID, "DESC", expressionNodes, new ArrayList<>());
+
+        Assert.assertEquals(organizations.get(0).getName(), ORG_NAME);
+        Assert.assertEquals(organizations.get(0).getAttributes().get(0).getKey(), ATTRIBUTE_KEY);
+        Assert.assertEquals(organizations.get(0).getAttributes().get(0).getValue(), ATTRIBUTE_VALUE);
     }
 
     @DataProvider(name = "dataForHasChildOrganizations")
