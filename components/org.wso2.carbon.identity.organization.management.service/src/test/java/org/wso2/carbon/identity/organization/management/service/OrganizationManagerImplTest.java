@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -28,7 +28,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.common.testng.WithAxisConfiguration;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
@@ -48,7 +47,6 @@ import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +58,7 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
-import static org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_ID;
+import static org.testng.Assert.assertTrue;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationStatus;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationTypes.STRUCTURAL;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationTypes.TENANT;
@@ -70,7 +68,6 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_PATH_ORG_ATTRIBUTES;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_PATH_ORG_DESCRIPTION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_PATH_ORG_NAME;
-import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
 
 @WithAxisConfiguration
 public class OrganizationManagerImplTest {
@@ -84,8 +81,10 @@ public class OrganizationManagerImplTest {
     private static final String ORG_DESCRIPTION = "This is a construction company.";
     private static final String NEW_ORG_NAME = "New Org";
     private static final String NEW_ORG_DESCRIPTION = "new sample description.";
-    private static final String ORG_ATTRIBUTE_KEY = "country";
-    private static final String ORG_ATTRIBUTE_VALUE = "Sri Lanka";
+    private static final String ORG_ATTRIBUTE_KEY_COUNTRY = "country";
+    private static final String ORG_ATTRIBUTE_VALUE_COUNTRY = "Sri Lanka";
+    private static final String ORG_ATTRIBUTE_KEY_CITY = "city";
+    private static final String ORG_ATTRIBUTE_VALUE_CITY = "Colombo";
     private static final String SUPER_ORG_ID = "10084a8d-113f-4211-a0d5-efe36b082211";
     private static final String ROOT_ORG = "custom-root-org";
     private static final String ORG1_ID = "org_id_1";
@@ -140,6 +139,13 @@ public class OrganizationManagerImplTest {
                 STRUCTURAL.toString());
         Organization organization3 = getOrganization(ORG3_ID, ORG3_NAME, ORG_DESCRIPTION, SUPER_ORG_ID,
                 TENANT.toString());
+
+        OrganizationAttribute organizationAttribute = new OrganizationAttribute(ORG_ATTRIBUTE_KEY_COUNTRY,
+                                                                            ORG_ATTRIBUTE_VALUE_COUNTRY);
+        organization3.setAttribute(organizationAttribute);
+        organizationAttribute = new OrganizationAttribute(ORG_ATTRIBUTE_KEY_CITY, ORG_ATTRIBUTE_VALUE_CITY);
+        organization3.setAttribute(organizationAttribute);
+
         organizationManagementDAO.addOrganization(organization1);
         organizationManagementDAO.addOrganization(organization2);
         organizationManagementDAO.addOrganization(organization3);
@@ -162,7 +168,7 @@ public class OrganizationManagerImplTest {
 
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), NEW_ORG_NAME, ORG_DESCRIPTION,
                 SUPER_ORG_ID, STRUCTURAL.toString());
-        mockCarbonContext();
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
         Organization addedOrganization = organizationManager.addOrganization(sampleOrganization);
         assertNotNull(addedOrganization.getId(), "Created organization id cannot be null");
         assertEquals(addedOrganization.getName(), sampleOrganization.getName());
@@ -174,7 +180,7 @@ public class OrganizationManagerImplTest {
         // Root_1
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ROOT_ORG, ORG_DESCRIPTION,
                 null, TENANT.toString());
-        mockCarbonContext();
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
         when(realmService.getTenantManager()).thenReturn(tenantManager);
         when(tenantManager.getTenant(anyInt())).thenReturn(tenant);
         Organization addedOrganization = organizationManager.addRootOrganization(1, sampleOrganization);
@@ -188,7 +194,7 @@ public class OrganizationManagerImplTest {
         // Super -> org1 -> org2_1
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG2_1,
                 ORG_DESCRIPTION, ORG1_ID, TENANT.toString());
-        mockCarbonContext();
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG1_ID);
         Organization addedOrganization = organizationManager.addOrganization(sampleOrganization);
         assertNotNull(addedOrganization.getId(), "Created organization id cannot be null");
@@ -201,7 +207,7 @@ public class OrganizationManagerImplTest {
         // Super -> org1 -> org2 -> org3_1
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG3_1,
                 ORG_DESCRIPTION, ORG2_ID, TENANT.toString());
-        mockCarbonContext();
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG1_ID);
         organizationManager.addOrganization(sampleOrganization);
     }
@@ -216,7 +222,7 @@ public class OrganizationManagerImplTest {
          */
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG2_NAME, ORG_DESCRIPTION,
                 SUPER_ORG_ID, TENANT.toString());
-        mockCarbonContext();
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
         organizationManager.addOrganization(sampleOrganization);
     }
 
@@ -233,7 +239,7 @@ public class OrganizationManagerImplTest {
          */
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG2_NAME, ORG_DESCRIPTION,
                 SUPER_ORG_ID, TENANT.toString());
-        mockCarbonContext();
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
         mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(2);
         organizationManager.addOrganization(sampleOrganization);
     }
@@ -248,7 +254,7 @@ public class OrganizationManagerImplTest {
          */
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG1_NAME, ORG_DESCRIPTION,
                 ORG2_ID, TENANT.toString());
-        mockCarbonContext();
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG2_ID);
         organizationManager.addOrganization(sampleOrganization);
     }
@@ -258,7 +264,7 @@ public class OrganizationManagerImplTest {
 
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(),
                 NEW_ORG_NAME, ORG_DESCRIPTION, INVALID_PARENT_ID, STRUCTURAL.toString());
-        mockCarbonContext();
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
         organizationManager.addOrganization(sampleOrganization);
     }
 
@@ -302,9 +308,9 @@ public class OrganizationManagerImplTest {
                 {StringUtils.EMPTY, StringUtils.EMPTY},
                 {null, StringUtils.EMPTY},
                 {StringUtils.EMPTY, null},
-                {ORG_ATTRIBUTE_KEY, null},
-                {null, ORG_ATTRIBUTE_VALUE},
-                {StringUtils.EMPTY, ORG_ATTRIBUTE_VALUE}
+                {ORG_ATTRIBUTE_KEY_COUNTRY, null},
+                {null, ORG_ATTRIBUTE_VALUE_COUNTRY},
+                {StringUtils.EMPTY, ORG_ATTRIBUTE_VALUE_COUNTRY}
         };
     }
 
@@ -312,7 +318,7 @@ public class OrganizationManagerImplTest {
             dataProvider = "dataForAddOrganizationInvalidOrganizationAttributes")
     public void testAddOrganizationInvalidAttributes(String attributeKey, String attributeValue) throws Exception {
 
-        mockCarbonContext();
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
         Organization organization = getOrganization(UUID.randomUUID().toString(), NEW_ORG_NAME, ORG_DESCRIPTION,
                 SUPER_ORG_ID, STRUCTURAL.toString());
         List<OrganizationAttribute> organizationAttributeList = new ArrayList<>();
@@ -327,12 +333,12 @@ public class OrganizationManagerImplTest {
 
         Organization organization = getOrganization(UUID.randomUUID().toString(), NEW_ORG_NAME, ORG_DESCRIPTION,
                 SUPER_ORG_ID, STRUCTURAL.toString());
-        mockCarbonContext();
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
         List<OrganizationAttribute> organizationAttributeList = new ArrayList<>();
-        OrganizationAttribute organizationAttribute1 = new OrganizationAttribute(ORG_ATTRIBUTE_KEY,
-                ORG_ATTRIBUTE_VALUE);
-        OrganizationAttribute organizationAttribute2 = new OrganizationAttribute(ORG_ATTRIBUTE_KEY,
-                ORG_ATTRIBUTE_VALUE);
+        OrganizationAttribute organizationAttribute1 = new OrganizationAttribute(ORG_ATTRIBUTE_KEY_COUNTRY,
+                ORG_ATTRIBUTE_VALUE_COUNTRY);
+        OrganizationAttribute organizationAttribute2 = new OrganizationAttribute(ORG_ATTRIBUTE_KEY_COUNTRY,
+                ORG_ATTRIBUTE_VALUE_COUNTRY);
         organizationAttributeList.add(organizationAttribute1);
         organizationAttributeList.add(organizationAttribute2);
         organization.setAttributes(organizationAttributeList);
@@ -377,28 +383,56 @@ public class OrganizationManagerImplTest {
         assertEquals(organization.getChildOrganizations().size(), 1);
     }
 
+    @DataProvider(name = "dataForFilterOrganizationsByMetaAttributes")
+    public Object[][] dataForFilterOrganizationsByMetaAttributes() {
+
+        return new Object[][]{
+                {"attributes.country co S", false},
+                {"attributes.country co Z", true},
+                {"attributes.invalid co S", true}
+        };
+    }
+
+    @Test(dataProvider = "dataForFilterOrganizationsByMetaAttributes")
+    public void testFilterOrganizationsByMetaAttributes(String filter, boolean isEmptyList) throws Exception {
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+        List<Organization> organizations = organizationManager.getOrganizationsList(10, null, null,
+                                                                        "ASC", filter, false);
+        if (isEmptyList) {
+            assertTrue(organizations.isEmpty());
+        } else {
+            assertEquals(organizations.size(), 1);
+            assertEquals(organizations.get(0).getName(), ORG3_NAME);
+            assertEquals(organizations.get(0).getAttributes().get(0).getKey(), ORG_ATTRIBUTE_KEY_COUNTRY);
+            assertEquals(organizations.get(0).getAttributes().get(0).getValue(), ORG_ATTRIBUTE_VALUE_COUNTRY);
+            assertEquals(organizations.get(0).getAttributes().get(1).getKey(), ORG_ATTRIBUTE_KEY_CITY);
+            assertEquals(organizations.get(0).getAttributes().get(1).getValue(), ORG_ATTRIBUTE_VALUE_CITY);
+        }
+    }
+
     @Test(expectedExceptions = OrganizationManagementClientException.class)
     public void testGetOrganizationsWithUnsupportedFilterAttribute() throws Exception {
 
-        mockCarbonContext();
-        organizationManager.getOrganizations(10, null, null, "ASC",
-                "invalid_attribute co xyz", false);
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+        organizationManager.getOrganizationsList(10, null, null, "ASC",
+                                        "invalid_attribute co xyz", false);
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
     public void testGetOrganizationsWithUnsupportedComplexQueryInFilter() throws Exception {
 
-        mockCarbonContext();
-        organizationManager.getOrganizations(10, null, null, "ASC",
-                "name co xyz or name co abc", false);
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+        organizationManager.getOrganizationsList(10, null, null, "ASC",
+                                        "name co xyz or name co abc", false);
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
     public void testGetOrganizationsWithInvalidPaginationAttribute() throws Exception {
 
-        mockCarbonContext();
-        organizationManager.getOrganizations(10, "MjAyNjkzMjg=", null, "ASC", "name co xyz",
-                false);
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+        organizationManager.getOrganizationsList(10, "MjAyNjkzMjg=", null, "ASC",
+                                        "name co xyz", false);
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
@@ -594,7 +628,7 @@ public class OrganizationManagerImplTest {
     @Test(dataProvider = "dataForOrgNameUniquenessTest")
     public void testIsOrganizationExistByNameInGivenHierarchy(String organizationName, boolean expectedResult) {
 
-        mockCarbonContext();
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
         Assert.assertEquals(organizationManager.isOrganizationExistByNameInGivenHierarchy(organizationName),
                 expectedResult);
     }
@@ -610,20 +644,6 @@ public class OrganizationManagerImplTest {
     public void testGetParentOrganizationId() throws OrganizationManagementException {
 
         Assert.assertEquals(organizationManager.getParentOrganizationId(ORG2_ID), ORG1_ID);
-    }
-
-    private void mockCarbonContext() {
-
-        String carbonHome = Paths.get(System.getProperty("user.dir"), "target", "test-classes").toString();
-        System.setProperty(CarbonBaseConstants.CARBON_HOME, carbonHome);
-        System.setProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH, Paths.get(carbonHome,
-                "repository/conf").toString());
-
-        PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(SUPER_TENANT_DOMAIN_NAME);
-        PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(SUPER_TENANT_ID);
-        PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername("admin");
-        PrivilegedCarbonContext.getThreadLocalCarbonContext().setUserId("1234");
-        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
     }
 
     private void mockUtils() {

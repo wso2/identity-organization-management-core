@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -140,6 +140,13 @@ public class Organization {
     public void setAttributes(List<OrganizationAttribute> attributes) {
 
         this.attributes = attributes;
+    }
+
+    public void setAttribute(OrganizationAttribute attribute) {
+
+        if (attribute != null) {
+            this.attributes.add(attribute);
+        }
     }
 
     public List<ChildOrganizationDO> getChildOrganizations() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.identity.organization.management.service;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.wso2.carbon.identity.organization.management.service.exception.NotImplementedException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
@@ -129,9 +129,29 @@ public interface OrganizationManager {
      * @param recursive Determines whether records should be retrieved in a recursive manner.
      * @return the list of {@link BasicOrganization}s.
      * @throws OrganizationManagementException The exception thrown when listing organizations.
+     * @deprecated Use {@link #getOrganizationsList(Integer, String, String, String, String, boolean)} instead.
      */
+    @Deprecated
     List<BasicOrganization> getOrganizations(Integer limit, String after, String before, String sortOrder,
                                              String filter, boolean recursive) throws OrganizationManagementException;
+
+    /**
+     * List or search organizations.
+     *
+     * @param limit     The maximum number of records to be returned.
+     * @param after     The pointer to next page.
+     * @param before    The pointer to previous page.
+     * @param sortOrder The sort order, ascending or descending.
+     * @param filter    The filter string.
+     * @param recursive Determines whether records should be retrieved in a recursive manner.
+     * @return the list of {@link Organization}s.
+     * @throws OrganizationManagementException The exception thrown when listing organizations.
+     */
+    default List<Organization> getOrganizationsList(Integer limit, String after, String before, String sortOrder,
+                                             String filter, boolean recursive) throws OrganizationManagementException {
+
+        throw new NotImplementedException();
+    }
 
     /**
      * List or search organizations authorized for the user.

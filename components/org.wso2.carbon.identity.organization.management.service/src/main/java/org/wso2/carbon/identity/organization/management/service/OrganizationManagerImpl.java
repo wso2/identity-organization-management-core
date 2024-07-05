@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -115,6 +115,8 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_UNSUPPORTED_FILTER_OPERATION_FOR_ATTRIBUTE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_UNSUPPORTED_ORGANIZATION_STATUS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_USER_NOT_AUTHORIZED_TO_CREATE_ORGANIZATION;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_ATTRIBUTES_FIELD;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_ATTRIBUTES_FIELD_PREFIX;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_CREATED_TIME_FIELD;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_DESCRIPTION_FIELD;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_ID_FIELD;
@@ -274,12 +276,25 @@ public class OrganizationManagerImpl implements OrganizationManager {
         return organizationManagementDAO.getChildOrganizationIds(organizationId);
     }
 
+    /**
+     * @deprecated Use {@link #getOrganizationsList(Integer, String, String, String, String, boolean)} instead.
+     */
+    @Deprecated
     @Override
     public List<BasicOrganization> getOrganizations(Integer limit, String after, String before, String sortOrder,
                                                     String filter, boolean recursive)
             throws OrganizationManagementException {
 
-        return getOrganizationList(false, limit, after, before, sortOrder, filter, recursive, null);
+        return getOrganizationsBasicInfo(false, limit, after, before, sortOrder, filter, recursive,
+                null);
+    }
+
+    @Override
+    public List<Organization> getOrganizationsList(Integer limit, String after, String before, String sortOrder,
+                                                    String filter, boolean recursive)
+            throws OrganizationManagementException {
+
+        return getOrganizationList(limit, after, before, sortOrder, filter, recursive);
     }
 
     @Override
@@ -287,7 +302,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
                                                                   String sortOrder, String filter, boolean recursive)
             throws OrganizationManagementException {
 
-        return getOrganizationList(true, limit, after, before, sortOrder, filter, recursive, null);
+        return getOrganizationsBasicInfo(true, limit, after, before, sortOrder, filter, recursive,
+                null);
     }
 
     @Override
@@ -296,19 +312,46 @@ public class OrganizationManagerImpl implements OrganizationManager {
                                                                   String applicationAudience)
             throws OrganizationManagementException {
 
-        return getOrganizationList(true, limit, after, before, sortOrder, filter, recursive, applicationAudience);
+        return getOrganizationsBasicInfo(true, limit, after, before, sortOrder, filter, recursive,
+                applicationAudience);
     }
 
-    private List<BasicOrganization> getOrganizationList(boolean authorizedSubOrgsOnly, Integer limit, String after,
-                                                        String before, String sortOrder, String filter,
-                                                        boolean recursive, String applicationAudience)
+    private List<BasicOrganization> getOrganizationsBasicInfo(boolean authorizedSubOrgsOnly, Integer limit,
+                                                              String after, String before, String sortOrder,
+                                                              String filter, boolean recursive,
+                                                              String applicationAudience)
             throws OrganizationManagementException {
 
         List<ExpressionNode> expressionNodes = getExpressionNodes(filter, after, before);
-
+        List<ExpressionNode> filteringByParentIdExpressionNodes = getParentIdExpressionNodes(expressionNodes);
         String orgId = resolveOrganizationId(getTenantDomain());
+        expressionNodes.removeAll(filteringByParentIdExpressionNodes);
+
+        return authorizedSubOrgsOnly ?
+                organizationManagementDAO.getUserAuthorizedOrganizations(recursive, limit, orgId, sortOrder,
+                                    expressionNodes, filteringByParentIdExpressionNodes, applicationAudience) :
+                organizationManagementDAO.getOrganizations(recursive, limit, orgId, sortOrder, expressionNodes,
+                                    filteringByParentIdExpressionNodes);
+    }
+
+    private List<Organization> getOrganizationList(Integer limit, String after, String before, String sortOrder,
+                                                   String filter, boolean recursive)
+            throws OrganizationManagementException {
+
+        List<ExpressionNode> expressionNodes = getExpressionNodes(filter, after, before);
+        List<ExpressionNode> filteringByParentIdExpressionNodes = getParentIdExpressionNodes(expressionNodes);
+        String orgId = resolveOrganizationId(getTenantDomain());
+        expressionNodes.removeAll(filteringByParentIdExpressionNodes);
+
+        return organizationManagementDAO.getOrganizationsList(recursive, limit, orgId, sortOrder, expressionNodes,
+                                                            filteringByParentIdExpressionNodes);
+    }
+
+    private List<ExpressionNode> getParentIdExpressionNodes(List<ExpressionNode> expressionNodes)
+            throws OrganizationManagementException {
 
         List<ExpressionNode> filteringByParentIdExpressionNodes = new ArrayList<>();
+
         for (ExpressionNode expressionNode : expressionNodes) {
             String attributeValue = expressionNode.getAttributeValue();
             String operation = expressionNode.getOperation();
@@ -318,7 +361,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
                     StringUtils.equals(attributeValue, ORGANIZATION_LAST_MODIFIED_FIELD)) {
                 if (SW.equals(operation) || EW.equals(operation) || CO.equals(operation)) {
                     throw handleClientException(ERROR_CODE_UNSUPPORTED_FILTER_OPERATION_FOR_ATTRIBUTE, operation,
-                            attributeValue);
+                                            attributeValue);
                 }
                 try {
                     Timestamp.valueOf(expressionNode.getValue());
@@ -327,13 +370,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 }
             }
         }
-        expressionNodes.removeAll(filteringByParentIdExpressionNodes);
-
-        return authorizedSubOrgsOnly ?
-                organizationManagementDAO.getUserAuthorizedOrganizations(recursive, limit, orgId, sortOrder,
-                        expressionNodes, filteringByParentIdExpressionNodes, applicationAudience) :
-                organizationManagementDAO.getOrganizations(recursive, limit, orgId, sortOrder, expressionNodes,
-                        filteringByParentIdExpressionNodes);
+        return filteringByParentIdExpressionNodes;
     }
 
     @Override
@@ -912,13 +949,16 @@ public class OrganizationManagerImpl implements OrganizationManager {
      * @param node       The node.
      * @param expression The list of expression nodes.
      */
-    private void setExpressionNodeList(Node node, List<ExpressionNode> expression) throws
-            OrganizationManagementClientException {
+    private void setExpressionNodeList(Node node, List<ExpressionNode> expression)
+            throws OrganizationManagementClientException {
 
         if (node instanceof ExpressionNode) {
             ExpressionNode expressionNode = (ExpressionNode) node;
             String attributeValue = expressionNode.getAttributeValue();
             if (StringUtils.isNotBlank(attributeValue)) {
+                if (attributeValue.startsWith(ORGANIZATION_ATTRIBUTES_FIELD_PREFIX)) {
+                    attributeValue = ORGANIZATION_ATTRIBUTES_FIELD;
+                }
                 if (isFilteringAttributeNotSupported(attributeValue)) {
                     throw handleClientException(ERROR_CODE_UNSUPPORTED_FILTER_ATTRIBUTE, attributeValue);
                 }
@@ -942,6 +982,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 !attributeValue.equalsIgnoreCase(ORGANIZATION_CREATED_TIME_FIELD) &&
                 !attributeValue.equalsIgnoreCase(ORGANIZATION_LAST_MODIFIED_FIELD) &&
                 !attributeValue.equalsIgnoreCase(ORGANIZATION_STATUS_FIELD) &&
+                !attributeValue.equalsIgnoreCase(ORGANIZATION_ATTRIBUTES_FIELD) &&
                 !attributeValue.equalsIgnoreCase(PARENT_ID_FIELD) &&
                 !attributeValue.equalsIgnoreCase(PAGINATION_AFTER) &&
                 !attributeValue.equalsIgnoreCase(PAGINATION_BEFORE);

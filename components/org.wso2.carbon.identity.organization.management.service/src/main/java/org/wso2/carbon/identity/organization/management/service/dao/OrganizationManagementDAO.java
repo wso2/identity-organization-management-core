@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.organization.management.service.dao;
 
+import org.wso2.carbon.identity.organization.management.service.exception.NotImplementedException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.filter.ExpressionNode;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
@@ -104,6 +105,26 @@ public interface OrganizationManagementDAO {
                                              List<ExpressionNode> expressionNodes,
                                              List<ExpressionNode> parentIdExpressionNodes)
             throws OrganizationManagementServerException;
+
+    /**
+     * Retrieve the list of organizations under a given organization ID.
+     *
+     * @param recursive               Determines whether records should be retrieved in a recursive manner.
+     * @param limit                   The maximum number of records to be returned.
+     * @param organizationId          The organization ID.
+     * @param sortOrder               The sort order, ascending or descending.
+     * @param expressionNodes         The list of filters excluding filtering by parentId.
+     * @param parentIdExpressionNodes The list of filters related to parentId.
+     * @return the list of organizations.
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the organizations.
+     */
+    default List<Organization> getOrganizationsList(boolean recursive, Integer limit, String organizationId,
+                                                    String sortOrder, List<ExpressionNode> expressionNodes,
+                                                    List<ExpressionNode> parentIdExpressionNodes)
+            throws OrganizationManagementServerException {
+
+        throw new NotImplementedException();
+    }
 
     /**
      * Retrieve the IDs of the organizations under a given organization ID for particular user

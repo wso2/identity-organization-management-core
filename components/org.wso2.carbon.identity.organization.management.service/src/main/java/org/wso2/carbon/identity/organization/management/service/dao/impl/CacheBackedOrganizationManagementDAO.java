@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ * Copyright (c) 2023-2024, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -121,6 +121,16 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
             throws OrganizationManagementServerException {
 
         return organizationMgtDAO.getOrganizations(recursive, limit, organizationId, sortOrder, expressionNodes,
+                parentIdExpressionNodes);
+    }
+
+    @Override
+    public List<Organization> getOrganizationsList(boolean recursive, Integer limit, String organizationId,
+                                                   String sortOrder, List<ExpressionNode> expressionNodes,
+                                                   List<ExpressionNode> parentIdExpressionNodes)
+            throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.getOrganizationsList(recursive, limit, organizationId, sortOrder, expressionNodes,
                 parentIdExpressionNodes);
     }
 

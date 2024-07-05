@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -26,9 +26,12 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
+import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
+import org.wso2.carbon.identity.organization.management.service.filter.ExpressionNode;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
 import org.wso2.carbon.identity.organization.management.service.model.ParentOrganizationDO;
+import org.wso2.carbon.identity.organization.management.util.TestUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -40,6 +43,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import static java.time.ZoneOffset.UTC;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_ATTRIBUTES_FIELD_PREFIX;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationTypes.STRUCTURAL;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.generateUniqueID;
 import static org.wso2.carbon.identity.organization.management.util.TestUtils.closeH2Base;
@@ -91,7 +95,7 @@ public class OrganizationManagementDAOImplTest {
         organization.setParent(parentOrganizationDO);
 
         List<OrganizationAttribute> attributes = new ArrayList<>();
-        attributes.add(new OrganizationAttribute(ATTRIBUTE_KEY, ATTRIBUTE_VALUE));
+        attributes.add(new OrganizationAttribute(ATTRIBUTE_KEY, "USA"));
         organization.setAttributes(attributes);
 
         organizationManagementDAO.addOrganization(organization);
@@ -141,8 +145,7 @@ public class OrganizationManagementDAOImplTest {
     @Test
     public void testGetOrganizationIdByName() throws Exception {
 
-        String organizationId = organizationManagementDAO.getOrganizationIdByName(
-                ORG_NAME);
+        String organizationId = organizationManagementDAO.getOrganizationIdByName(ORG_NAME);
         Assert.assertEquals(organizationId, orgId);
     }
 
@@ -152,6 +155,56 @@ public class OrganizationManagementDAOImplTest {
         Organization organization = organizationManagementDAO.getOrganization(orgId);
         Assert.assertEquals(organization.getName(), ORG_NAME);
         Assert.assertEquals(organization.getParent().getId(), SUPER_ORG_ID);
+    }
+
+    @DataProvider(name = "dataForFilterOrganizationsByPrimaryAttributes")
+    public Object[][] dataForFilterOrganizationsByPrimaryAttributes() {
+
+        return new Object[][]{
+                {"name", "co", "XYZ"},
+                {"id", "eq", orgId},
+                {"description", "sw", "This"}
+        };
+    }
+
+    @Test(dataProvider = "dataForFilterOrganizationsByPrimaryAttributes")
+    public void testFilterOrganizationsByPrimaryAttributes(String attributeValue, String operation, String value)
+            throws OrganizationManagementServerException {
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+        ExpressionNode expressionNode = getExpressionNode(attributeValue, operation, value);
+        List<ExpressionNode> expressionNodes = new ArrayList<>();
+        expressionNodes.add(expressionNode);
+        List<Organization> organizations = organizationManagementDAO.getOrganizationsList(false, 10,
+                                        SUPER_ORG_ID, "DESC", expressionNodes, new ArrayList<>());
+
+        Assert.assertEquals(organizations.get(0).getName(), ORG_NAME);
+        Assert.assertTrue(organizations.get(0).getAttributes().isEmpty());
+    }
+
+    @DataProvider(name = "dataForFilterOrganizationsByMetaAttributes")
+    public Object[][] dataForFilterOrganizationsByMetaAttributes() {
+
+        return new Object[][]{
+                {ORGANIZATION_ATTRIBUTES_FIELD_PREFIX + ATTRIBUTE_KEY, "eq", ATTRIBUTE_VALUE},
+                {ORGANIZATION_ATTRIBUTES_FIELD_PREFIX + ATTRIBUTE_KEY, "co", "L"}
+        };
+    }
+
+    @Test(dataProvider = "dataForFilterOrganizationsByMetaAttributes")
+    public void testFilterOrganizationsByMetaAttributes(String attributeValue, String operation, String value)
+            throws OrganizationManagementServerException {
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+        ExpressionNode expressionNode = getExpressionNode(attributeValue, operation, value);
+        List<ExpressionNode> expressionNodes = new ArrayList<>();
+        expressionNodes.add(expressionNode);
+        List<Organization> organizations = organizationManagementDAO.getOrganizationsList(false, 10,
+                                        SUPER_ORG_ID, "DESC", expressionNodes, new ArrayList<>());
+
+        Assert.assertEquals(organizations.get(0).getName(), ORG_NAME);
+        Assert.assertEquals(organizations.get(0).getAttributes().get(0).getKey(), ATTRIBUTE_KEY);
+        Assert.assertEquals(organizations.get(0).getAttributes().get(0).getValue(), ATTRIBUTE_VALUE);
     }
 
     @DataProvider(name = "dataForHasChildOrganizations")
@@ -208,6 +261,7 @@ public class OrganizationManagementDAOImplTest {
 
         orgId = generateUniqueID();
         storeOrganization(orgId, "XYZ builders", "This is a construction company.", parentId);
+        storeOrganizationHierarchy(orgId, parentId);
         storeOrganizationAttributes(orgId);
     }
 
@@ -229,6 +283,18 @@ public class OrganizationManagementDAOImplTest {
         }
     }
 
+    private void storeOrganizationHierarchy(String id, String parentId) throws Exception {
+
+        try (Connection connection = getConnection()) {
+            String sql = "INSERT INTO UM_ORG_HIERARCHY (UM_PARENT_ID, UM_ID, DEPTH) VALUES ( ?, ?, ?)";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, parentId);
+            statement.setString(2, id);
+            statement.setString(3, "1");
+            statement.execute();
+        }
+    }
+
     private void storeOrganizationAttributes(String id) throws Exception {
 
         try (Connection connection = getConnection()) {
@@ -240,5 +306,14 @@ public class OrganizationManagementDAOImplTest {
             statement.setString(3, ATTRIBUTE_VALUE);
             statement.execute();
         }
+    }
+
+    private ExpressionNode getExpressionNode(String attributeValue, String operation, String value) {
+
+        ExpressionNode expressionNode = new ExpressionNode();
+        expressionNode.setAttributeValue(attributeValue);
+        expressionNode.setOperation(operation);
+        expressionNode.setValue(value);
+        return expressionNode;
     }
 }
