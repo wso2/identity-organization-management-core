@@ -767,7 +767,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         Map<String, Organization> organizationMap = new HashMap<>();
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
         try {
-            namedJdbcTemplate.executeQuery(sqlStmt,
+            organizations = namedJdbcTemplate.executeQuery(sqlStmt,
                     (resultSet, rowNumber) -> {
                         if (filterQueryBuilder.getHasSubAttribute()) {
                             String orgId = resultSet.getString(1);
@@ -782,15 +782,15 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                             organization.setAttribute(organizationAttribute);
                             return organization;
                         }
-                        Organization organization = buildOrganization(resultSet);
-                        organizationMap.put(organization.getId(), organization);
-                        return organization;
+                        return buildOrganization(resultSet);
                     },
                     namedPreparedStatement -> setPreparedStatementParams(namedPreparedStatement, organizationId,
                             applicationAudience, limit, filterQueryBuilder, parentIdFilterQueryBuilder, userID));
-            organizations = new ArrayList<>(organizationMap.values());
         } catch (DataAccessException e) {
             throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS, e);
+        }
+        if (filterQueryBuilder.getHasSubAttribute()) {
+            return new ArrayList<>(organizationMap.values());
         }
         return organizations;
     }
@@ -1533,7 +1533,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                                                FilterQueryBuilder parentIdFilterQueryBuilder, String userID)
             throws OrganizationManagementServerException {
 
-        String sqlStmt = prepareSqlStatement(authorizedSubOrgsOnly, applicationAudience);
+        String sqlStmt = getOrgSqlStatement(authorizedSubOrgsOnly, applicationAudience);
         String getOrgSqlStmtTail = getOrgSqlStmtTail(authorizedSubOrgsOnly, applicationAudience);
         if (filterQueryBuilder.getHasSubAttribute()) {
             sqlStmt = sqlStmt.replace("WHERE", INNER_JOIN_UM_ORG_ATTRIBUTE);
@@ -1552,7 +1552,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                 .map(name -> "'" + name + "'").collect(Collectors.joining(",")));
     }
 
-    private String prepareSqlStatement(boolean authorizedSubOrgsOnly, String applicationAudience) {
+    private String getOrgSqlStatement(boolean authorizedSubOrgsOnly, String applicationAudience) {
 
         if (authorizedSubOrgsOnly) {
             if (StringUtils.isNotBlank(applicationAudience)) {
