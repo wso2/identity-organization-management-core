@@ -404,6 +404,16 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         organizationMgtDAO.addRootOrganization(organization);
     }
 
+    @Override
+    public List<String> getOrganizationsMetaAttributes(boolean recursive, Integer limit, String organizationId,
+                                                       String sortOrder, List<ExpressionNode> expressionNodes,
+                                                       List<ExpressionNode> parentIdExpressionNodes)
+            throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.getOrganizationsMetaAttributes(recursive, limit, organizationId, sortOrder,
+                expressionNodes, parentIdExpressionNodes);
+    }
+
     private TenantDomainCacheEntry getTenantDomainFromCache(String organizationId) {
 
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);

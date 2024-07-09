@@ -145,6 +145,8 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATION_IDS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_BY_NAME;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_META_ATTRIBUTES;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_META_ATTRIBUTES_TAIL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_MSSQL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_ORACLE;
@@ -987,18 +989,16 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                 String operation = expressionNode.getOperation();
                 String value = expressionNode.getValue();
                 String attributeValue = expressionNode.getAttributeValue();
-                if (attributeValue.startsWith(ORGANIZATION_ATTRIBUTES_FIELD_PREFIX)) {
-                    attributeValue = ORGANIZATION_ATTRIBUTES_FIELD;
-                }
                 String attributeName = ATTRIBUTE_COLUMN_MAP.get(attributeValue);
+
+                if (attributeValue.startsWith(ORGANIZATION_ATTRIBUTES_FIELD_PREFIX)) {
+                    attributeName = handleViewAttrKeyColumn(expressionNode, filterQueryBuilder);
+                }
                 if (StringUtils.isNotBlank(attributeName) && StringUtils.isNotBlank(value) && StringUtils
                         .isNotBlank(operation)) {
                     if (VIEW_CREATED_TIME_COLUMN.equals(attributeName) ||
                             VIEW_LAST_MODIFIED_COLUMN.equals(attributeName)) {
                         filterQueryBuilder.addTimestampFilterAttributes(FILTER_PLACEHOLDER_PREFIX);
-                    }
-                    if (VIEW_ATTR_KEY_COLUMN.equals(attributeName)) {
-                        attributeName = handleViewAttrKeyColumn(expressionNode, filterQueryBuilder);
                     }
                     switch (operation) {
                         case EQ: {
@@ -1319,6 +1319,32 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         } catch (TransactionException e) {
             throw handleServerException(ERROR_CODE_ERROR_ADDING_ORGANIZATION, e);
         }
+    }
+
+    @Override
+    public List<String> getOrganizationsMetaAttributes(boolean recursive, Integer limit, String organizationId,
+                                                       String sortOrder, List<ExpressionNode> expressionNodes,
+                                                       List<ExpressionNode> parentIdExpressionNodes)
+            throws OrganizationManagementServerException {
+
+        FilterQueryBuilder filterQueryBuilder = buildFilterQuery(expressionNodes);
+        FilterQueryBuilder parentIdFilterQueryBuilder = buildParentIdFilterQuery(parentIdExpressionNodes);
+
+        String sqlStmt = appendFilterQueries(GET_ORGANIZATIONS_META_ATTRIBUTES, filterQueryBuilder,
+                parentIdFilterQueryBuilder, GET_ORGANIZATIONS_META_ATTRIBUTES_TAIL,
+                recursive, sortOrder);
+
+        List<String> organizationMetaAttributes;
+        NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
+        try {
+            organizationMetaAttributes = namedJdbcTemplate.executeQuery(sqlStmt,
+                    (resultSet, rowNumber) -> resultSet.getString(1),
+                    namedPreparedStatement -> setPreparedStatementParams(namedPreparedStatement, organizationId,
+                            null, limit, filterQueryBuilder, parentIdFilterQueryBuilder, null));
+        } catch (DataAccessException e) {
+            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS, e);
+        }
+        return organizationMetaAttributes;
     }
 
     private void createRootOrganizationHierarchy(String organizationId) throws OrganizationManagementServerException {

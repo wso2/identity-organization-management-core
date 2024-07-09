@@ -575,6 +575,20 @@ public class OrganizationManagerImpl implements OrganizationManager {
         return organization;
     }
 
+    @Override
+    public List<String> getOrganizationsMetaAttributes(Integer limit, String after, String before, String sortOrder,
+                                                       String filter, boolean recursive)
+            throws OrganizationManagementException {
+
+        List<ExpressionNode> expressionNodes = getExpressionNodes(filter, after, before);
+        List<ExpressionNode> filteringByParentIdExpressionNodes = getParentIdExpressionNodes(expressionNodes);
+        String orgId = resolveOrganizationId(getTenantDomain());
+        expressionNodes.removeAll(filteringByParentIdExpressionNodes);
+
+        return organizationManagementDAO.getOrganizationsMetaAttributes(recursive, limit, orgId, sortOrder,
+                expressionNodes, filteringByParentIdExpressionNodes);
+    }
+
     private void updateTenantStatus(String status, String organizationId) throws OrganizationManagementServerException {
 
         if (StringUtils.equals(ACTIVE.toString(), status)) {
