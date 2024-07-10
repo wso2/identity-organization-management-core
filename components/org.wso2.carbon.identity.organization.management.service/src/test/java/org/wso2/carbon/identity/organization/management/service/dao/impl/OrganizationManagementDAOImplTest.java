@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import static java.time.ZoneOffset.UTC;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_ATTRIBUTES_FIELD;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_ATTRIBUTES_FIELD_PREFIX;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationTypes.STRUCTURAL;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.generateUniqueID;
@@ -56,18 +57,27 @@ public class OrganizationManagementDAOImplTest {
     private OrganizationManagementDAO organizationManagementDAO = new OrganizationManagementDAOImpl();
     private static final Calendar CALENDAR = Calendar.getInstance(TimeZone.getTimeZone(UTC));
     private static final String ATTRIBUTE_KEY = "country";
+    private static final String ATTRIBUTE_KEY_REGION = "region";
     private static final String ATTRIBUTE_VALUE = "Sri Lanka";
     private static final String ORG_NAME = "XYZ builders";
+    private static final String CHILD_ORG_NAME = "ABC builders";
+    private static final String ORG_DESCRIPTION = "This is a construction company.";
     private static final String INVALID_DATA = "invalid data";
     private static final String SUPER_ORG_ID = "10084a8d-113f-4211-a0d5-efe36b082211";
     private String orgId;
+    private String childOrgId;
 
     @BeforeClass
     public void setUp() throws Exception {
 
         initiateH2Base();
         mockDataSource();
-        storeChildOrganization(SUPER_ORG_ID);
+
+        orgId = generateUniqueID();
+        childOrgId = generateUniqueID();
+        storeChildOrganization(orgId, ORG_NAME, ORG_DESCRIPTION, SUPER_ORG_ID);
+        storeChildOrganization(childOrgId, CHILD_ORG_NAME, ORG_DESCRIPTION, orgId);
+        storeOrganizationAttributes(childOrgId, ATTRIBUTE_KEY_REGION, ATTRIBUTE_VALUE);
     }
 
     @AfterClass
@@ -207,6 +217,34 @@ public class OrganizationManagementDAOImplTest {
         Assert.assertEquals(organizations.get(0).getAttributes().get(0).getValue(), ATTRIBUTE_VALUE);
     }
 
+    @DataProvider(name = "dataForGetOrganizationsMetaAttributes")
+    public Object[][] dataForGetOrganizationsMetaAttributes() {
+
+        return new Object[][]{
+                {ORGANIZATION_ATTRIBUTES_FIELD, "eq", ATTRIBUTE_KEY, false},
+                {ORGANIZATION_ATTRIBUTES_FIELD, "eq", ATTRIBUTE_KEY_REGION, true},
+        };
+    }
+
+    @Test(dataProvider = "dataForGetOrganizationsMetaAttributes")
+    public void testGetOrganizationsMetaAttributes(String attributeValue, String operation, String value,
+                                                   boolean isRecursive) throws OrganizationManagementServerException {
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+        ExpressionNode expressionNode = getExpressionNode(attributeValue, operation, value);
+        List<ExpressionNode> expressionNodes = new ArrayList<>();
+        expressionNodes.add(expressionNode);
+        List<String> metaAttributes = organizationManagementDAO.getOrganizationsMetaAttributes(isRecursive, 10,
+                                    SUPER_ORG_ID, "DESC", expressionNodes);
+
+        Assert.assertEquals(metaAttributes.size(), 1);
+        if (isRecursive) {
+            Assert.assertEquals(metaAttributes.get(0), ATTRIBUTE_KEY_REGION);
+        } else {
+            Assert.assertEquals(metaAttributes.get(0), ATTRIBUTE_KEY);
+        }
+    }
+
     @DataProvider(name = "dataForHasChildOrganizations")
     public Object[][] dataForHasChildOrganizations() {
 
@@ -220,7 +258,7 @@ public class OrganizationManagementDAOImplTest {
     public void testHasChildOrganizations(String id) throws Exception {
 
         boolean hasChildOrganizations = organizationManagementDAO.hasChildOrganizations(id);
-        if (StringUtils.equals(id, orgId)) {
+        if (StringUtils.equals(id, childOrgId)) {
             Assert.assertFalse(hasChildOrganizations);
         } else if (StringUtils.equals(id, SUPER_ORG_ID)) {
             Assert.assertTrue(hasChildOrganizations);
@@ -257,12 +295,11 @@ public class OrganizationManagementDAOImplTest {
         Assert.assertNull(organizationManagementDAO.getOrganization(id));
     }
 
-    private void storeChildOrganization(String parentId) throws Exception {
+    private void storeChildOrganization(String id, String name, String description, String parentId) throws Exception {
 
-        orgId = generateUniqueID();
-        storeOrganization(orgId, "XYZ builders", "This is a construction company.", parentId);
-        storeOrganizationHierarchy(orgId, parentId);
-        storeOrganizationAttributes(orgId);
+        storeOrganization(id, name, description, parentId);
+        storeOrganizationHierarchy(id, parentId);
+        storeOrganizationAttributes(id, ATTRIBUTE_KEY, ATTRIBUTE_VALUE);
     }
 
     private void storeOrganization(String id, String name, String description, String parentId)
@@ -293,17 +330,25 @@ public class OrganizationManagementDAOImplTest {
             statement.setString(3, "1");
             statement.execute();
         }
+        try (Connection connection = getConnection()) {
+            String sql = "INSERT INTO UM_ORG_HIERARCHY (UM_PARENT_ID, UM_ID, DEPTH) SELECT UM_PARENT_ID, ?, " +
+                    "DEPTH + 1 FROM UM_ORG_HIERARCHY WHERE UM_ORG_HIERARCHY.UM_ID = ? AND UM_PARENT_ID <> UM_ID";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, id);
+            statement.setString(2, parentId);
+            statement.execute();
+        }
     }
 
-    private void storeOrganizationAttributes(String id) throws Exception {
+    private void storeOrganizationAttributes(String id, String attributeKey, String attributeValue) throws Exception {
 
         try (Connection connection = getConnection()) {
             String sql = "INSERT INTO UM_ORG_ATTRIBUTE (UM_ORG_ID, UM_ATTRIBUTE_KEY, UM_ATTRIBUTE_VALUE) VALUES " +
                     "( ?, ?, ?)";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, id);
-            statement.setString(2, ATTRIBUTE_KEY);
-            statement.setString(3, ATTRIBUTE_VALUE);
+            statement.setString(2, attributeKey);
+            statement.setString(3, attributeValue);
             statement.execute();
         }
     }

@@ -723,7 +723,10 @@ public class OrganizationManagementConstants {
                 "organization with ID: %s."),
         ERROR_CODE_ERROR_REVOKING_SHARED_APP_TOKENS("65138", "Error while revoking tokens issued for " +
                 "shared application.", "Server encountered an error while revoking tokens issued for application: " +
-                "%s in organization with ID: %s");
+                "%s in organization with ID: %s"),
+        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS_META_ATTRIBUTES("65139", "Unable to retrieve " +
+                "the organizations' meta attributes.", "Server encountered an error while retrieving " +
+                "the organizations' meta attributes.");
 
         private final String code;
         private final String message;

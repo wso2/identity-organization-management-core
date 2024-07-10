@@ -581,12 +581,9 @@ public class OrganizationManagerImpl implements OrganizationManager {
             throws OrganizationManagementException {
 
         List<ExpressionNode> expressionNodes = getExpressionNodes(filter, after, before);
-        List<ExpressionNode> filteringByParentIdExpressionNodes = getParentIdExpressionNodes(expressionNodes);
         String orgId = resolveOrganizationId(getTenantDomain());
-        expressionNodes.removeAll(filteringByParentIdExpressionNodes);
-
         return organizationManagementDAO.getOrganizationsMetaAttributes(recursive, limit, orgId, sortOrder,
-                expressionNodes, filteringByParentIdExpressionNodes);
+                                                                    expressionNodes);
     }
 
     private void updateTenantStatus(String status, String organizationId) throws OrganizationManagementServerException {
