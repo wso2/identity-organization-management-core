@@ -67,6 +67,8 @@ public class OrganizationManagementConstants {
     public static final String ORGANIZATION_ATTRIBUTES_FIELD_PREFIX = "attributes.";
     public static final String PAGINATION_AFTER = "after";
     public static final String PAGINATION_BEFORE = "before";
+    public static final String PAGINATION_AFTER_ATTRIBUTE = "attributeBefore";
+    public static final String PAGINATION_BEFORE_ATTRIBUTE = "attributeAfter";
     public static final String CREATE_ORGANIZATION_ADMIN_PERMISSION = "/permission/admin/";
     public static final String BASE_ORGANIZATION_PERMISSION = "/permission/admin/manage/identity/organizationmgt";
     public static final String CREATE_ORGANIZATION_PERMISSION = "/permission/admin/manage/identity/organizationmgt/" +
@@ -157,6 +159,8 @@ public class OrganizationManagementConstants {
         attributeColumnMap.put(ORGANIZATION_ATTRIBUTES_FIELD, VIEW_ATTR_KEY_COLUMN);
         attributeColumnMap.put(PAGINATION_AFTER, VIEW_CREATED_TIME_COLUMN);
         attributeColumnMap.put(PAGINATION_BEFORE, VIEW_CREATED_TIME_COLUMN);
+        attributeColumnMap.put(PAGINATION_AFTER_ATTRIBUTE, VIEW_ATTR_KEY_COLUMN);
+        attributeColumnMap.put(PAGINATION_BEFORE_ATTRIBUTE, VIEW_ATTR_KEY_COLUMN);
     }
 
     /**
@@ -232,6 +236,8 @@ public class OrganizationManagementConstants {
                 "'limit' shouldn't be negative."),
         ERROR_CODE_INVALID_CURSOR_FOR_PAGINATION("60026", "Unable to retrieve organizations.", "Invalid " +
                 "cursor used for pagination."),
+        ERROR_CODE_INVALID_CURSOR_FOR_META_ATTRIBUTE_PAGINATION("60027", "Unable to retrieve " +
+                "organizations' meta attributes.", "Invalid cursor used for pagination."),
         ERROR_CODE_UNSUPPORTED_ORGANIZATION_STATUS("60028", "Unsupported status provided.",
                 "Organization status must be 'ACTIVE' or 'DISABLED'."),
         ERROR_CODE_ACTIVE_CHILD_ORGANIZATIONS_EXIST("60029", "Active child organizations exist.",
