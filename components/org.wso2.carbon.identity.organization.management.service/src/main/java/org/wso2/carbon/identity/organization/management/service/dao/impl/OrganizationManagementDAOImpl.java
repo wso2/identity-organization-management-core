@@ -121,7 +121,6 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_ID_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_LAST_MODIFIED_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_NAME_COLUMN;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_ORGANIZATION_ATTRIBUTES_TABLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_PARENT_ID_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_STATUS_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_TENANT_UUID_COLUMN;
@@ -731,8 +730,9 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         String userID =  getUserId();
         String sqlStmt = prepareGetOrganizationQuery(authorizedSubOrgsOnly, recursive, sortOrder, applicationAudience,
                         filterQueryBuilder, parentIdFilterQueryBuilder, userID);
+        boolean isFilteringMetaAttributes = filterQueryBuilder.getMetaAttributeCount() > 1;
 
-        if (filterQueryBuilder.getHasSubAttribute()) {
+        if (isFilteringMetaAttributes) {
             sqlStmt = String.format(GET_ALL_UM_ORG_ATTRIBUTES, sqlStmt);
         }
         List<Organization> organizations;
@@ -741,7 +741,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         try {
             organizations = namedJdbcTemplate.executeQuery(sqlStmt,
                     (resultSet, rowNumber) -> {
-                        if (filterQueryBuilder.getHasSubAttribute()) {
+                        if (isFilteringMetaAttributes) {
                             String orgId = resultSet.getString(1);
                             Organization organization = organizationMap.get(orgId);
                             if (organization == null) {
@@ -761,7 +761,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         } catch (DataAccessException e) {
             throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS, e);
         }
-        if (filterQueryBuilder.getHasSubAttribute()) {
+        if (isFilteringMetaAttributes) {
             return new ArrayList<>(organizationMap.values());
         }
         return organizations;
@@ -1509,8 +1509,12 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
 
         String sqlStmt = getOrgSqlStatement(authorizedSubOrgsOnly, applicationAudience);
         String getOrgSqlStmtTail = getOrgSqlStmtTail(authorizedSubOrgsOnly, applicationAudience);
-        if (filterQueryBuilder.getHasSubAttribute()) {
-            sqlStmt = sqlStmt.replace("WHERE", INNER_JOIN_UM_ORG_ATTRIBUTE);
+
+        if (filterQueryBuilder.getMetaAttributeCount() > 1) {
+            for (String placeholder : filterQueryBuilder.getMetaAttributePlaceholders()) {
+                sqlStmt = sqlStmt.replace("WHERE",
+                        String.format(INNER_JOIN_UM_ORG_ATTRIBUTE, placeholder, placeholder));
+            }
         }
         sqlStmt = appendFilterQueries(sqlStmt, filterQueryBuilder, parentIdFilterQueryBuilder, getOrgSqlStmtTail,
                 recursive, sortOrder);
@@ -1614,11 +1618,11 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
 
     private String handleViewAttrKeyColumn(ExpressionNode expressionNode, FilterQueryBuilder filterQueryBuilder) {
 
-        filterQueryBuilder.setHasSubAttribute(true);
+        String placeholder = filterQueryBuilder.generateMetaAttributePlaceholder();
         String attributeValue = expressionNode.getAttributeValue();
-        String subAttributeName = StringUtils.substringAfter(attributeValue,
-                                                ORGANIZATION_ATTRIBUTES_FIELD + ".");
-        return VIEW_ORGANIZATION_ATTRIBUTES_TABLE + "." + VIEW_ATTR_KEY_COLUMN + " = '" + subAttributeName + "' AND " +
-                VIEW_ORGANIZATION_ATTRIBUTES_TABLE + "." + VIEW_ATTR_VALUE_COLUMN;
+        String subAttributeName = StringUtils.substringAfter(attributeValue, ORGANIZATION_ATTRIBUTES_FIELD + ".");
+
+        return placeholder + "." + VIEW_ATTR_KEY_COLUMN + " = '" + subAttributeName + "' AND " + placeholder + "."
+                + VIEW_ATTR_VALUE_COLUMN;
     }
 }

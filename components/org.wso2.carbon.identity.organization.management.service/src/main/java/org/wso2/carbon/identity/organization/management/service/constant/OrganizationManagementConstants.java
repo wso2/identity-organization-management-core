@@ -93,6 +93,7 @@ public class OrganizationManagementConstants {
     public static final String AND = "and";
     public static final String FILTER_PLACEHOLDER_PREFIX = "FILTER_ID_";
     public static final String PARENT_ID_FILTER_PLACEHOLDER_PREFIX = "FILTER_PARENT_ID_";
+    public static final String META_ATTRIBUTE_PLACEHOLDER_PREFIX = "UM_ORG_ATTRIBUTE_";
     private static final String ORGANIZATION_MANAGEMENT_ERROR_CODE_PREFIX = "ORG-";
     private static final Map<String, String> attributeColumnMap = new HashMap<>();
     public static final Map<String, String> ATTRIBUTE_COLUMN_MAP = Collections.unmodifiableMap(attributeColumnMap);

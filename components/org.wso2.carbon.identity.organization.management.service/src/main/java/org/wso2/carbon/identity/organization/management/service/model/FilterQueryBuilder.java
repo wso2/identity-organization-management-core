@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.META_ATTRIBUTE_PLACEHOLDER_PREFIX;
+
 /**
  * Create filter query builder.
  */
@@ -32,7 +34,8 @@ public class FilterQueryBuilder {
     private List<String> timestampParameters = new ArrayList<>();
     private int count = 1;
     private String filter;
-    private boolean hasSubAttribute;
+    private List<String> metaAttributePlaceholders = new ArrayList<>();
+    private int metaAttributeCount = 1;
 
     /**
      * Get filter query builder attributes.
@@ -97,22 +100,35 @@ public class FilterQueryBuilder {
     }
 
     /**
-     * Get the value of hasSubAttribute.
+     * Get filter query builder meta attribute placeholders.
      *
-     * @return boolean value indicating if the filter contains a sub attribute.
+     * @return List of filter query builder meta attribute placeholders.
      */
-    public boolean getHasSubAttribute() {
+    public List<String> getMetaAttributePlaceholders() {
 
-        return hasSubAttribute;
+        return metaAttributePlaceholders;
     }
 
     /**
-     * Set the value of hasSubAttribute.
+     * Generate and add a filter query builder meta attribute placeholder.
      *
-     * @param hasSubAttribute boolean value indicating if the filter contains a sub attributes.
+     * @return Next meta attribute placeholder.
      */
-    public void setHasSubAttribute(boolean hasSubAttribute) {
+    public String generateMetaAttributePlaceholder() {
 
-        this.hasSubAttribute = hasSubAttribute;
+        String placeholder = META_ATTRIBUTE_PLACEHOLDER_PREFIX + metaAttributeCount;
+        metaAttributePlaceholders.add(placeholder);
+        metaAttributeCount++;
+        return placeholder;
+    }
+
+    /**
+     * Get the current count of meta attribute placeholders.
+     *
+     * @return Meta attribute count.
+     */
+    public int getMetaAttributeCount() {
+
+        return metaAttributeCount;
     }
 }
