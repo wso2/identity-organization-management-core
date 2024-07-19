@@ -67,8 +67,6 @@ public class OrganizationManagementConstants {
     public static final String ORGANIZATION_ATTRIBUTES_FIELD_PREFIX = "attributes.";
     public static final String PAGINATION_AFTER = "after";
     public static final String PAGINATION_BEFORE = "before";
-    public static final String PAGINATION_AFTER_ATTRIBUTE = "attributeBefore";
-    public static final String PAGINATION_BEFORE_ATTRIBUTE = "attributeAfter";
     public static final String CREATE_ORGANIZATION_ADMIN_PERMISSION = "/permission/admin/";
     public static final String BASE_ORGANIZATION_PERMISSION = "/permission/admin/manage/identity/organizationmgt";
     public static final String CREATE_ORGANIZATION_PERMISSION = "/permission/admin/manage/identity/organizationmgt/" +
@@ -82,7 +80,8 @@ public class OrganizationManagementConstants {
     public static final List<String> ALL_ORGANIZATION_PERMISSIONS = Collections.unmodifiableList(Arrays
             .asList(CREATE_ORGANIZATION_PERMISSION, VIEW_ORGANIZATION_PERMISSION, UPDATE_ORGANIZATION_PERMISSION,
                     DELETE_ORGANIZATION_PERMISSION));
-    public static final String ROOT_TENANT_DOMAIN = "RootTenantDomain";
+    public static final String DESC_SORT_ORDER = "DESC";
+    public static final String ASC_SORT_ORDER = "ASC";
 
     public static final String EQ = "eq";
     public static final String CO = "co";
@@ -159,8 +158,6 @@ public class OrganizationManagementConstants {
         attributeColumnMap.put(ORGANIZATION_ATTRIBUTES_FIELD, VIEW_ATTR_KEY_COLUMN);
         attributeColumnMap.put(PAGINATION_AFTER, VIEW_CREATED_TIME_COLUMN);
         attributeColumnMap.put(PAGINATION_BEFORE, VIEW_CREATED_TIME_COLUMN);
-        attributeColumnMap.put(PAGINATION_AFTER_ATTRIBUTE, VIEW_ATTR_KEY_COLUMN);
-        attributeColumnMap.put(PAGINATION_BEFORE_ATTRIBUTE, VIEW_ATTR_KEY_COLUMN);
     }
 
     /**
@@ -234,10 +231,8 @@ public class OrganizationManagementConstants {
                 "The complex query used for filtering is not supported."),
         ERROR_CODE_INVALID_PAGINATION_PARAMETER_NEGATIVE_LIMIT("60025", "Invalid pagination parameters.",
                 "'limit' shouldn't be negative."),
-        ERROR_CODE_INVALID_CURSOR_FOR_PAGINATION("60026", "Unable to retrieve organizations.", "Invalid " +
-                "cursor used for pagination."),
-        ERROR_CODE_INVALID_CURSOR_FOR_META_ATTRIBUTE_PAGINATION("60027", "Unable to retrieve " +
-                "organizations' meta attributes.", "Invalid cursor used for pagination."),
+        ERROR_CODE_INVALID_CURSOR_FOR_PAGINATION("60026", "Unable to retrieve paginated result.",
+                "Invalid cursor used for pagination."),
         ERROR_CODE_UNSUPPORTED_ORGANIZATION_STATUS("60028", "Unsupported status provided.",
                 "Organization status must be 'ACTIVE' or 'DISABLED'."),
         ERROR_CODE_ACTIVE_CHILD_ORGANIZATIONS_EXIST("60029", "Active child organizations exist.",

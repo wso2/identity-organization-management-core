@@ -104,8 +104,11 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.LT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_ATTRIBUTES_FIELD;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_ATTRIBUTES_FIELD_PREFIX;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_CREATED_TIME_FIELD;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationStatus.ACTIVE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationStatus.DISABLED;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PAGINATION_AFTER;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PAGINATION_BEFORE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PARENT_ID_FILTER_PLACEHOLDER_PREFIX;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_OP_ADD;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_OP_REMOVE;
@@ -730,7 +733,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                                                     String applicationAudience)
             throws OrganizationManagementServerException {
 
-        FilterQueryBuilder filterQueryBuilder = buildFilterQuery(expressionNodes);
+        FilterQueryBuilder filterQueryBuilder = buildFilterQuery(expressionNodes, ORGANIZATION_CREATED_TIME_FIELD);
         FilterQueryBuilder parentIdFilterQueryBuilder = buildParentIdFilterQuery(parentIdExpressionNodes);
 
         String userID =  getUserId();
@@ -789,7 +792,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                                                               String applicationAudience)
             throws OrganizationManagementServerException {
 
-        FilterQueryBuilder filterQueryBuilder = buildFilterQuery(expressionNodes);
+        FilterQueryBuilder filterQueryBuilder = buildFilterQuery(expressionNodes, ORGANIZATION_CREATED_TIME_FIELD);
         FilterQueryBuilder parentIdFilterQueryBuilder = buildParentIdFilterQuery(parentIdExpressionNodes);
 
         String userID =  getUserId();
@@ -980,7 +983,8 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         return organization;
     }
 
-    private void appendFilterQuery(List<ExpressionNode> expressionNodes, FilterQueryBuilder filterQueryBuilder)
+    private void appendFilterQuery(List<ExpressionNode> expressionNodes, FilterQueryBuilder filterQueryBuilder,
+                                   String attributeUsedForCursor)
             throws OrganizationManagementServerException {
 
         int count = 1;
@@ -992,6 +996,10 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                 String operation = expressionNode.getOperation();
                 String value = expressionNode.getValue();
                 String attributeValue = expressionNode.getAttributeValue();
+                if (attributeValue.equalsIgnoreCase(PAGINATION_AFTER) ||
+                        attributeValue.equalsIgnoreCase(PAGINATION_BEFORE)) {
+                    attributeValue = attributeUsedForCursor;
+                }
                 String attributeName = ATTRIBUTE_COLUMN_MAP.get(attributeValue);
 
                 if (attributeValue.startsWith(ORGANIZATION_ATTRIBUTES_FIELD_PREFIX)) {
@@ -1344,7 +1352,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                                                        String sortOrder, List<ExpressionNode> expressionNodes)
             throws OrganizationManagementServerException {
 
-        FilterQueryBuilder filterQueryBuilder = buildFilterQuery(expressionNodes);
+        FilterQueryBuilder filterQueryBuilder = buildFilterQuery(expressionNodes, ORGANIZATION_ATTRIBUTES_FIELD);
         String sqlStmt = getOrgMetaAttributesSqlStmt(recursive, sortOrder, filterQueryBuilder);
 
         List<String> organizationMetaAttributes;
@@ -1527,11 +1535,11 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                 && isMSSqlDB();
     }
 
-    private FilterQueryBuilder buildFilterQuery(List<ExpressionNode> expressionNodes)
+    private FilterQueryBuilder buildFilterQuery(List<ExpressionNode> expressionNodes, String attributeUsedForCursor)
             throws OrganizationManagementServerException {
 
         FilterQueryBuilder filterQueryBuilder = new FilterQueryBuilder();
-        appendFilterQuery(expressionNodes, filterQueryBuilder);
+        appendFilterQuery(expressionNodes, filterQueryBuilder, attributeUsedForCursor);
         return filterQueryBuilder;
     }
 
