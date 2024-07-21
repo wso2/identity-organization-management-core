@@ -83,6 +83,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_CHILD_ORGANIZATIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS_BY_NAME;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS_META_ATTRIBUTES;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_DEPTH;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_ID_BY_NAME;
@@ -103,8 +104,11 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.LT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_ATTRIBUTES_FIELD;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_ATTRIBUTES_FIELD_PREFIX;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_CREATED_TIME_FIELD;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationStatus.ACTIVE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationStatus.DISABLED;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PAGINATION_AFTER;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PAGINATION_BEFORE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PARENT_ID_FILTER_PLACEHOLDER_PREFIX;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_OP_ADD;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_OP_REMOVE;
@@ -145,6 +149,10 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATION_IDS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_BY_NAME;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_META_ATTRIBUTES;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_META_ATTRIBUTES_TAIL;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_META_ATTRIBUTES_TAIL_MSSQL;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_META_ATTRIBUTES_TAIL_ORACLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_MSSQL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_ORACLE;
@@ -725,7 +733,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                                                     String applicationAudience)
             throws OrganizationManagementServerException {
 
-        FilterQueryBuilder filterQueryBuilder = buildFilterQuery(expressionNodes);
+        FilterQueryBuilder filterQueryBuilder = buildFilterQuery(expressionNodes, ORGANIZATION_CREATED_TIME_FIELD);
         FilterQueryBuilder parentIdFilterQueryBuilder = buildParentIdFilterQuery(parentIdExpressionNodes);
 
         String userID =  getUserId();
@@ -784,7 +792,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                                                               String applicationAudience)
             throws OrganizationManagementServerException {
 
-        FilterQueryBuilder filterQueryBuilder = buildFilterQuery(expressionNodes);
+        FilterQueryBuilder filterQueryBuilder = buildFilterQuery(expressionNodes, ORGANIZATION_CREATED_TIME_FIELD);
         FilterQueryBuilder parentIdFilterQueryBuilder = buildParentIdFilterQuery(parentIdExpressionNodes);
 
         String userID =  getUserId();
@@ -975,7 +983,8 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         return organization;
     }
 
-    private void appendFilterQuery(List<ExpressionNode> expressionNodes, FilterQueryBuilder filterQueryBuilder)
+    private void appendFilterQuery(List<ExpressionNode> expressionNodes, FilterQueryBuilder filterQueryBuilder,
+                                   String attributeUsedForCursor)
             throws OrganizationManagementServerException {
 
         int count = 1;
@@ -987,18 +996,20 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                 String operation = expressionNode.getOperation();
                 String value = expressionNode.getValue();
                 String attributeValue = expressionNode.getAttributeValue();
-                if (attributeValue.startsWith(ORGANIZATION_ATTRIBUTES_FIELD_PREFIX)) {
-                    attributeValue = ORGANIZATION_ATTRIBUTES_FIELD;
+                if (attributeValue.equalsIgnoreCase(PAGINATION_AFTER) ||
+                        attributeValue.equalsIgnoreCase(PAGINATION_BEFORE)) {
+                    attributeValue = attributeUsedForCursor;
                 }
                 String attributeName = ATTRIBUTE_COLUMN_MAP.get(attributeValue);
+
+                if (attributeValue.startsWith(ORGANIZATION_ATTRIBUTES_FIELD_PREFIX)) {
+                    attributeName = handleViewAttrKeyColumn(expressionNode, filterQueryBuilder);
+                }
                 if (StringUtils.isNotBlank(attributeName) && StringUtils.isNotBlank(value) && StringUtils
                         .isNotBlank(operation)) {
                     if (VIEW_CREATED_TIME_COLUMN.equals(attributeName) ||
                             VIEW_LAST_MODIFIED_COLUMN.equals(attributeName)) {
                         filterQueryBuilder.addTimestampFilterAttributes(FILTER_PLACEHOLDER_PREFIX);
-                    }
-                    if (VIEW_ATTR_KEY_COLUMN.equals(attributeName)) {
-                        attributeName = handleViewAttrKeyColumn(expressionNode, filterQueryBuilder);
                     }
                     switch (operation) {
                         case EQ: {
@@ -1336,6 +1347,43 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         }
     }
 
+    @Override
+    public List<String> getOrganizationsMetaAttributes(boolean recursive, Integer limit, String organizationId,
+                                                       String sortOrder, List<ExpressionNode> expressionNodes)
+            throws OrganizationManagementServerException {
+
+        FilterQueryBuilder filterQueryBuilder = buildFilterQuery(expressionNodes, ORGANIZATION_ATTRIBUTES_FIELD);
+        String sqlStmt = getOrgMetaAttributesSqlStmt(recursive, sortOrder, filterQueryBuilder);
+
+        List<String> organizationMetaAttributes;
+        NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
+        try {
+            organizationMetaAttributes = namedJdbcTemplate.executeQuery(sqlStmt,
+                    (resultSet, rowNumber) -> resultSet.getString(1),
+                    namedPreparedStatement -> setPreparedStatementParams(namedPreparedStatement, organizationId,
+                            null, limit, filterQueryBuilder, new FilterQueryBuilder(), null));
+        } catch (DataAccessException e) {
+            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS_META_ATTRIBUTES, e);
+        }
+        return organizationMetaAttributes;
+    }
+
+    private static String getOrgMetaAttributesSqlStmt(boolean recursive, String sortOrder,
+                                                      FilterQueryBuilder filterQueryBuilder)
+            throws OrganizationManagementServerException {
+
+        String orgSqlStmtTail;
+        if (isOracleDB()) {
+            orgSqlStmtTail = GET_ORGANIZATIONS_META_ATTRIBUTES_TAIL_ORACLE;
+        } else if (isMSSqlDB()) {
+            orgSqlStmtTail = GET_ORGANIZATIONS_META_ATTRIBUTES_TAIL_MSSQL;
+        } else {
+            orgSqlStmtTail = GET_ORGANIZATIONS_META_ATTRIBUTES_TAIL;
+        }
+        return GET_ORGANIZATIONS_META_ATTRIBUTES + filterQueryBuilder.getFilterQuery() +
+                String.format(orgSqlStmtTail, SET_ID, recursive ? "> 0" : "= 1", sortOrder);
+    }
+
     private void equalFilterBuilder(int count, String value, String attributeName, StringBuilder filter,
                                     FilterQueryBuilder filterQueryBuilder) {
 
@@ -1487,11 +1535,11 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                 && isMSSqlDB();
     }
 
-    private FilterQueryBuilder buildFilterQuery(List<ExpressionNode> expressionNodes)
+    private FilterQueryBuilder buildFilterQuery(List<ExpressionNode> expressionNodes, String attributeUsedForCursor)
             throws OrganizationManagementServerException {
 
         FilterQueryBuilder filterQueryBuilder = new FilterQueryBuilder();
-        appendFilterQuery(expressionNodes, filterQueryBuilder);
+        appendFilterQuery(expressionNodes, filterQueryBuilder, attributeUsedForCursor);
         return filterQueryBuilder;
     }
 
