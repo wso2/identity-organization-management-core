@@ -352,7 +352,7 @@ public class SQLConstants {
             "FETCH NEXT :" + SQLPlaceholders.DB_SCHEMA_LIMIT + "; ROWS ONLY";
 
     public static final String INNER_JOIN_UM_ORG_ATTRIBUTE =
-            "INNER JOIN UM_ORG_ATTRIBUTE ON UM_ORG.UM_ID = UM_ORG_ATTRIBUTE.UM_ORG_ID WHERE";
+            "INNER JOIN UM_ORG_ATTRIBUTE %s ON UM_ORG.UM_ID = %s.UM_ORG_ID WHERE";
 
     public static final String GET_ALL_UM_ORG_ATTRIBUTES = "SELECT UM_ORG.UM_ID, UM_ORG.UM_ORG_NAME, " +
             "UM_ORG.UM_CREATED_TIME, UM_ORG.UM_STATUS, UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_KEY, " +

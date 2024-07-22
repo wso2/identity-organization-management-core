@@ -387,6 +387,8 @@ public class OrganizationManagerImplTest {
 
         return new Object[][]{
                 {"attributes.country co S", false},
+                {"attributes.country co S and name eq Greater", false},
+                {"attributes.country sw S and attributes.city ew o", false},
                 {"attributes.country co Z", true},
                 {"attributes.invalid co S", true}
         };
