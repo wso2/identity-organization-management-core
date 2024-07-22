@@ -333,4 +333,24 @@ public interface OrganizationManager {
 
         throw new NotImplementedException();
     }
+
+    /**
+     * List of organizations' meta attributes.
+     *
+     * @param limit     The maximum number of records to be returned.
+     * @param after     The pointer to next page.
+     * @param before    The pointer to previous page.
+     * @param sortOrder The sort order, ascending or descending.
+     * @param filter    The filter string.
+     * @param recursive Determines whether records should be retrieved in a recursive manner.
+     * @return The list of organizations' meta attributes.
+     * @throws OrganizationManagementException The exception thrown when listing organizations' meta attributes.
+     */
+    default List<String> getOrganizationsMetaAttributes(Integer limit, String after, String before, String sortOrder,
+                                                        String filter, boolean recursive)
+            throws OrganizationManagementException {
+
+        throw new OrganizationManagementServerException("getOrganizationsMetaAttributes is not implemented in "
+                + this.getClass().getName());
+    }
 }

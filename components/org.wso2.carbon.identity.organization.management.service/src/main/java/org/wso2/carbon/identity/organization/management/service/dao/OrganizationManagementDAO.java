@@ -409,4 +409,24 @@ public interface OrganizationManagementDAO {
      * @throws OrganizationManagementServerException The server exception thrown when adding a root organization.
      */
     void addRootOrganization(Organization rootOrganization) throws OrganizationManagementServerException;
+
+    /**
+     * Retrieve the list of organizations' meta attributes.
+     *
+     * @param recursive               Determines whether records should be retrieved in a recursive manner.
+     * @param limit                   The maximum number of records to be returned.
+     * @param organizationId          The super organization ID.
+     * @param sortOrder               The sort order, ascending or descending.
+     * @param expressionNodes         The list of filters.
+     * @return the list of organizations' meta attributes.
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the organizations'
+     * meta attributes.
+     */
+    default List<String> getOrganizationsMetaAttributes(boolean recursive, Integer limit, String organizationId,
+                                                        String sortOrder, List<ExpressionNode> expressionNodes)
+            throws OrganizationManagementServerException {
+
+        throw new OrganizationManagementServerException("getOrganizationsMetaAttributes is not implemented in "
+                + this.getClass().getName());
+    }
 }

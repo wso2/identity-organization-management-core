@@ -62,10 +62,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.AND;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ASC_SORT_ORDER;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CO;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CREATOR_EMAIL;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CREATOR_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CREATOR_USERNAME;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DESC_SORT_ORDER;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.EW;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ACTIVE_CHILD_ORGANIZATIONS_EXIST;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ATTRIBUTE_KEY_MISSING;
@@ -322,7 +324,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
                                                               String applicationAudience)
             throws OrganizationManagementException {
 
-        List<ExpressionNode> expressionNodes = getExpressionNodes(filter, after, before);
+        List<ExpressionNode> expressionNodes = getExpressionNodes(filter, after, before, DESC_SORT_ORDER);
         List<ExpressionNode> filteringByParentIdExpressionNodes = getParentIdExpressionNodes(expressionNodes);
         String orgId = resolveOrganizationId(getTenantDomain());
         expressionNodes.removeAll(filteringByParentIdExpressionNodes);
@@ -338,7 +340,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
                                                    String filter, boolean recursive)
             throws OrganizationManagementException {
 
-        List<ExpressionNode> expressionNodes = getExpressionNodes(filter, after, before);
+        List<ExpressionNode> expressionNodes = getExpressionNodes(filter, after, before, DESC_SORT_ORDER);
         List<ExpressionNode> filteringByParentIdExpressionNodes = getParentIdExpressionNodes(expressionNodes);
         String orgId = resolveOrganizationId(getTenantDomain());
         expressionNodes.removeAll(filteringByParentIdExpressionNodes);
@@ -573,6 +575,17 @@ public class OrganizationManagerImpl implements OrganizationManager {
             throw handleServerException(ERROR_CODE_ERROR_CREATING_ROOT_ORGANIZATION, e, String.valueOf(tenantId));
         }
         return organization;
+    }
+
+    @Override
+    public List<String> getOrganizationsMetaAttributes(Integer limit, String after, String before, String sortOrder,
+                                                       String filter, boolean recursive)
+            throws OrganizationManagementException {
+
+        List<ExpressionNode> expressionNodes = getExpressionNodes(filter, after, before, ASC_SORT_ORDER);
+        String orgId = resolveOrganizationId(getTenantDomain());
+        return organizationManagementDAO.getOrganizationsMetaAttributes(recursive, limit, orgId, sortOrder,
+                                                                    expressionNodes);
     }
 
     private void updateTenantStatus(String status, String organizationId) throws OrganizationManagementServerException {
@@ -902,14 +915,19 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
     }
 
-    private List<ExpressionNode> getExpressionNodes(String filter, String after, String before)
+    private List<ExpressionNode> getExpressionNodes(String filter, String after, String before,
+                                                    String paginationSortOrder)
             throws OrganizationManagementClientException {
 
         List<ExpressionNode> expressionNodes = new ArrayList<>();
         if (StringUtils.isBlank(filter)) {
             filter = StringUtils.EMPTY;
         }
-        String paginatedFilter = getPaginatedFilter(filter, after, before);
+        // paginationSortOrder specifies the sorting order for the pagination cursor.
+        // E.g., descending for creation time (most recent first) or ascending for metadata name (alphabetical).
+        String paginatedFilter = paginationSortOrder.equals(ASC_SORT_ORDER) ?
+                getPaginatedFilterForAscendingOrder(filter, after, before) :
+                getPaginatedFilterForDescendingOrder(filter, after, before);
         try {
             if (StringUtils.isNotBlank(paginatedFilter)) {
                 FilterTreeBuilder filterTreeBuilder = new FilterTreeBuilder(paginatedFilter);
@@ -922,8 +940,27 @@ public class OrganizationManagerImpl implements OrganizationManager {
         return expressionNodes;
     }
 
-    private String getPaginatedFilter(String paginatedFilter, String after, String before) throws
-            OrganizationManagementClientException {
+    private String getPaginatedFilterForAscendingOrder(String paginatedFilter, String after, String before)
+            throws OrganizationManagementClientException {
+
+        try {
+            if (StringUtils.isNotBlank(before)) {
+                String decodedString = new String(Base64.getDecoder().decode(before), StandardCharsets.UTF_8);
+                paginatedFilter += StringUtils.isNotBlank(paginatedFilter) ? " and before lt "
+                        + decodedString : "before lt " + decodedString;
+            } else if (StringUtils.isNotBlank(after)) {
+                String decodedString = new String(Base64.getDecoder().decode(after), StandardCharsets.UTF_8);
+                paginatedFilter += StringUtils.isNotBlank(paginatedFilter) ? " and after gt "
+                        + decodedString : "after gt " + decodedString;
+            }
+        } catch (IllegalArgumentException e) {
+            throw handleClientException(ERROR_CODE_INVALID_CURSOR_FOR_PAGINATION);
+        }
+        return paginatedFilter;
+    }
+
+    private String getPaginatedFilterForDescendingOrder(String paginatedFilter, String after, String before)
+            throws OrganizationManagementClientException {
 
         try {
             if (StringUtils.isNotBlank(before)) {

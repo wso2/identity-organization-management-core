@@ -80,7 +80,8 @@ public class OrganizationManagementConstants {
     public static final List<String> ALL_ORGANIZATION_PERMISSIONS = Collections.unmodifiableList(Arrays
             .asList(CREATE_ORGANIZATION_PERMISSION, VIEW_ORGANIZATION_PERMISSION, UPDATE_ORGANIZATION_PERMISSION,
                     DELETE_ORGANIZATION_PERMISSION));
-    public static final String ROOT_TENANT_DOMAIN = "RootTenantDomain";
+    public static final String DESC_SORT_ORDER = "DESC";
+    public static final String ASC_SORT_ORDER = "ASC";
 
     public static final String EQ = "eq";
     public static final String CO = "co";
@@ -231,8 +232,8 @@ public class OrganizationManagementConstants {
                 "The complex query used for filtering is not supported."),
         ERROR_CODE_INVALID_PAGINATION_PARAMETER_NEGATIVE_LIMIT("60025", "Invalid pagination parameters.",
                 "'limit' shouldn't be negative."),
-        ERROR_CODE_INVALID_CURSOR_FOR_PAGINATION("60026", "Unable to retrieve organizations.", "Invalid " +
-                "cursor used for pagination."),
+        ERROR_CODE_INVALID_CURSOR_FOR_PAGINATION("60026", "Unable to retrieve paginated result.",
+                "Invalid cursor used for pagination."),
         ERROR_CODE_UNSUPPORTED_ORGANIZATION_STATUS("60028", "Unsupported status provided.",
                 "Organization status must be 'ACTIVE' or 'DISABLED'."),
         ERROR_CODE_ACTIVE_CHILD_ORGANIZATIONS_EXIST("60029", "Active child organizations exist.",
@@ -724,7 +725,10 @@ public class OrganizationManagementConstants {
                 "organization with ID: %s."),
         ERROR_CODE_ERROR_REVOKING_SHARED_APP_TOKENS("65138", "Error while revoking tokens issued for " +
                 "shared application.", "Server encountered an error while revoking tokens issued for application: " +
-                "%s in organization with ID: %s");
+                "%s in organization with ID: %s"),
+        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS_META_ATTRIBUTES("65139", "Unable to retrieve " +
+                "the organizations' meta attributes.", "Server encountered an error while retrieving " +
+                "the organizations' meta attributes.");
 
         private final String code;
         private final String message;

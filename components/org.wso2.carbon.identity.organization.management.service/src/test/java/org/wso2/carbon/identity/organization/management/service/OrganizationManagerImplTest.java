@@ -85,6 +85,7 @@ public class OrganizationManagerImplTest {
     private static final String ORG_ATTRIBUTE_VALUE_COUNTRY = "Sri Lanka";
     private static final String ORG_ATTRIBUTE_KEY_CITY = "city";
     private static final String ORG_ATTRIBUTE_VALUE_CITY = "Colombo";
+    private static final String ORG_ATTRIBUTE_KEY_CAPITAL = "capital";
     private static final String SUPER_ORG_ID = "10084a8d-113f-4211-a0d5-efe36b082211";
     private static final String ROOT_ORG = "custom-root-org";
     private static final String ORG1_ID = "org_id_1";
@@ -140,11 +141,9 @@ public class OrganizationManagerImplTest {
         Organization organization3 = getOrganization(ORG3_ID, ORG3_NAME, ORG_DESCRIPTION, SUPER_ORG_ID,
                 TENANT.toString());
 
-        OrganizationAttribute organizationAttribute = new OrganizationAttribute(ORG_ATTRIBUTE_KEY_COUNTRY,
-                                                                            ORG_ATTRIBUTE_VALUE_COUNTRY);
-        organization3.setAttribute(organizationAttribute);
-        organizationAttribute = new OrganizationAttribute(ORG_ATTRIBUTE_KEY_CITY, ORG_ATTRIBUTE_VALUE_CITY);
-        organization3.setAttribute(organizationAttribute);
+        setOrganizationAttributes(organization3, ORG_ATTRIBUTE_KEY_COUNTRY, ORG_ATTRIBUTE_VALUE_COUNTRY);
+        setOrganizationAttributes(organization3, ORG_ATTRIBUTE_KEY_CITY, ORG_ATTRIBUTE_VALUE_CITY);
+        setOrganizationAttributes(organization2, ORG_ATTRIBUTE_KEY_CAPITAL, ORG_ATTRIBUTE_VALUE_CITY);
 
         organizationManagementDAO.addOrganization(organization1);
         organizationManagementDAO.addOrganization(organization2);
@@ -435,6 +434,30 @@ public class OrganizationManagerImplTest {
                                         "name co xyz", false);
     }
 
+    @DataProvider(name = "dataForGetOrganizationsMetaAttributes")
+    public Object[][] dataForGetOrganizationsMetaAttributes() {
+
+        return new Object[][]{
+                {"attributes eq country", false},
+                {"attributes sw c and attributes ew try", false},
+                {"attributes co cap", true},
+        };
+    }
+
+    @Test(dataProvider = "dataForGetOrganizationsMetaAttributes")
+    public void testGetOrganizationsMetaAttributes(String filter, boolean isRecursive) throws Exception {
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+        List<String> metaAttributes = organizationManager.getOrganizationsMetaAttributes(10, null,
+                                                                null, "ASC", filter, isRecursive);
+        assertEquals(metaAttributes.size(), 1);
+        if (isRecursive) {
+            assertEquals(metaAttributes.get(0), ORG_ATTRIBUTE_KEY_CAPITAL);
+        } else {
+            assertEquals(metaAttributes.get(0), ORG_ATTRIBUTE_KEY_COUNTRY);
+        }
+    }
+
     @Test(expectedExceptions = OrganizationManagementClientException.class)
     public void testDeleteOrganization() throws Exception {
 
@@ -644,6 +667,12 @@ public class OrganizationManagerImplTest {
     public void testGetParentOrganizationId() throws OrganizationManagementException {
 
         Assert.assertEquals(organizationManager.getParentOrganizationId(ORG2_ID), ORG1_ID);
+    }
+
+    private void setOrganizationAttributes(Organization organization, String key, String value) {
+
+        OrganizationAttribute organizationAttribute = new OrganizationAttribute(key, value);
+        organization.setAttribute(organizationAttribute);
     }
 
     private void mockUtils() {
