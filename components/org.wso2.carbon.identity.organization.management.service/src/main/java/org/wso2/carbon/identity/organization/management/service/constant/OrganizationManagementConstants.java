@@ -422,7 +422,7 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ERROR_EVALUATING_ADD_ORGANIZATION_AUTHORIZATION("65019", "Unable to create the organization.",
                 "Server encountered an error while evaluating authorization of user to create the " +
                         "organization in parent organization with ID: %s."),
-        ERROR_CODE_ERROR_BUILDING_PAGINATED_RESPONSE_URL("65020", "Unable to retrieve the organizations.",
+        ERROR_CODE_ERROR_BUILDING_PAGINATED_RESPONSE_URL("65020", "Unable to retrieve the paginated results.",
                 "Server encountered an error while building paginated response URL."),
         ERROR_CODE_ERROR_MISSING_SUPER("65021", "Unable to create the organization.",
                 "Server encountered an error while retrieving the super organization."),

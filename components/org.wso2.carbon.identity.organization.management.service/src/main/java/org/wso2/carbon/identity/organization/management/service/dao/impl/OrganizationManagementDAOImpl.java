@@ -738,7 +738,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         String userID =  getUserId();
         String sqlStmt = prepareGetOrganizationQuery(authorizedSubOrgsOnly, recursive, sortOrder, applicationAudience,
                         filterQueryBuilder, parentIdFilterQueryBuilder, userID);
-        boolean isFilteringMetaAttributes = filterQueryBuilder.getMetaAttributeCount() > 1;
+        boolean isFilteringMetaAttributes = filterQueryBuilder.getMetaAttributeCount() > 0;
 
         if (isFilteringMetaAttributes) {
             sqlStmt = String.format(GET_ALL_UM_ORG_ATTRIBUTES, sqlStmt);
@@ -1558,7 +1558,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         String sqlStmt = getOrgSqlStatement(authorizedSubOrgsOnly, applicationAudience);
         String getOrgSqlStmtTail = getOrgSqlStmtTail(authorizedSubOrgsOnly, applicationAudience);
 
-        if (filterQueryBuilder.getMetaAttributeCount() > 1) {
+        if (filterQueryBuilder.getMetaAttributeCount() > 0) {
             for (String placeholder : filterQueryBuilder.getMetaAttributePlaceholders()) {
                 sqlStmt = sqlStmt.replace("WHERE",
                         String.format(INNER_JOIN_UM_ORG_ATTRIBUTE, placeholder, placeholder));

@@ -59,6 +59,8 @@ public class OrganizationManagementDAOImplTest {
     private static final String ATTRIBUTE_KEY = "country";
     private static final String ATTRIBUTE_KEY_REGION = "region";
     private static final String ATTRIBUTE_VALUE = "Sri Lanka";
+    private static final String ATTRIBUTE_KEY_CITY = "city";
+    private static final String ATTRIBUTE_VALUE_CITY = "Colombo";
     private static final String ORG_NAME = "XYZ builders";
     private static final String CHILD_ORG_NAME = "ABC builders";
     private static final String ORG_DESCRIPTION = "This is a construction company.";
@@ -76,6 +78,7 @@ public class OrganizationManagementDAOImplTest {
         orgId = generateUniqueID();
         childOrgId = generateUniqueID();
         storeChildOrganization(orgId, ORG_NAME, ORG_DESCRIPTION, SUPER_ORG_ID);
+        storeOrganizationAttributes(orgId, ATTRIBUTE_KEY_CITY, ATTRIBUTE_VALUE_CITY);
         storeChildOrganization(childOrgId, CHILD_ORG_NAME, ORG_DESCRIPTION, orgId);
         storeOrganizationAttributes(childOrgId, ATTRIBUTE_KEY_REGION, ATTRIBUTE_VALUE);
     }
@@ -211,6 +214,38 @@ public class OrganizationManagementDAOImplTest {
         expressionNodes.add(expressionNode);
         List<Organization> organizations = organizationManagementDAO.getOrganizationsList(false, 10,
                                         SUPER_ORG_ID, "DESC", expressionNodes, new ArrayList<>());
+
+        Assert.assertEquals(organizations.get(0).getName(), ORG_NAME);
+    }
+
+    @DataProvider(name = "dataForFilterOrganizationsByMultipleAttributes")
+    public Object[][] dataForFilterOrganizationsByMultipleAttributes() {
+
+        return new Object[][]{
+                {"attributes.country co S and name co XYZ"},
+                {"attributes.country sw S and attributes.country ew a and attributes.city eq Colombo"},
+        };
+    }
+
+    @Test(dataProvider = "dataForFilterOrganizationsByMultipleAttributes")
+    public void testFilterOrganizationsByMultipleAttributes(String filter)
+            throws OrganizationManagementServerException {
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+        List<ExpressionNode> expressionNodes = new ArrayList<>();
+        String[] filters = filter.split(" and ");
+
+        for (String singleFilter : filters) {
+            String[] parts = singleFilter.split(" ");
+            String attributeValue = parts[0];
+            String operation = parts[1];
+            String value = parts[2];
+
+            ExpressionNode expressionNode = getExpressionNode(attributeValue, operation, value);
+            expressionNodes.add(expressionNode);
+        }
+        List<Organization> organizations = organizationManagementDAO.getOrganizationsList(false, 10,
+                SUPER_ORG_ID, "DESC", expressionNodes, new ArrayList<>());
 
         Assert.assertEquals(organizations.get(0).getName(), ORG_NAME);
         Assert.assertEquals(organizations.get(0).getAttributes().get(0).getKey(), ATTRIBUTE_KEY);

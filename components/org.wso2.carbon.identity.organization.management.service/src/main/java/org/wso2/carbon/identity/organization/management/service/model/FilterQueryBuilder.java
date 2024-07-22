@@ -35,7 +35,7 @@ public class FilterQueryBuilder {
     private int count = 1;
     private String filter;
     private List<String> metaAttributePlaceholders = new ArrayList<>();
-    private int metaAttributeCount = 1;
+    private int metaAttributeCount;
 
     /**
      * Get filter query builder attributes.
@@ -116,9 +116,9 @@ public class FilterQueryBuilder {
      */
     public String generateMetaAttributePlaceholder() {
 
+        metaAttributeCount++;
         String placeholder = META_ATTRIBUTE_PLACEHOLDER_PREFIX + metaAttributeCount;
         metaAttributePlaceholders.add(placeholder);
-        metaAttributeCount++;
         return placeholder;
     }
 
