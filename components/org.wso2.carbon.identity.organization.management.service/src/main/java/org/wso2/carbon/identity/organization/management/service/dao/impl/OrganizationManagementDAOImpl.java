@@ -204,6 +204,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_TYPE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_DOMAIN;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_ID;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_VALUE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_LIMIT;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.UPDATE_ORGANIZATION;
@@ -1567,15 +1568,10 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         sqlStmt = appendFilterQueries(sqlStmt, filterQueryBuilder, parentIdFilterQueryBuilder, getOrgSqlStmtTail,
                 recursive, sortOrder);
 
-        String username = getAuthenticatedUsername();
-        if (StringUtils.isNotEmpty(username)) {
-            username = UserCoreUtil.removeDomainFromName(username);
-        }
-
         /* The shared user parent user might be created with user ID if there is business user with same name
         in the child organization. */
-        return sqlStmt.replace(USER_NAME_LIST_PLACEHOLDER, Stream.of(username, userID)
-                .map(name -> "'" + name + "'").collect(Collectors.joining(",")));
+        return sqlStmt.replace(USER_NAME_LIST_PLACEHOLDER, Stream.of(DB_SCHEMA_COLUMN_NAME_USER_NAME,
+                        DB_SCHEMA_COLUMN_NAME_USER_ID).map(name -> ":" + name + ";").collect(Collectors.joining(",")));
     }
 
     private String getOrgSqlStatement(boolean authorizedSubOrgsOnly, String applicationAudience) {
@@ -1633,6 +1629,11 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                                             FilterQueryBuilder parentIdFilterQueryBuilder, String userID)
             throws SQLException {
 
+        String username = getAuthenticatedUsername();
+        if (StringUtils.isNotEmpty(username)) {
+            username = UserCoreUtil.removeDomainFromName(username);
+        }
+        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_NAME, username);
         namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_ID, userID);
         namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_USER_DOMAIN,
                                     getOrganizationUserInvitationPrimaryUserDomain());

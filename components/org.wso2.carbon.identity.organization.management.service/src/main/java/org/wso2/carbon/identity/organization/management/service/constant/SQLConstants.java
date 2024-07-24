@@ -397,6 +397,7 @@ public class SQLConstants {
         public static final String DB_SCHEMA_COLUMN_NAME_KEY = "KEY";
         public static final String DB_SCHEMA_COLUMN_NAME_VALUE = "VALUE";
         public static final String DB_SCHEMA_COLUMN_NAME_USER_ID = "USER_ID";
+        public static final String DB_SCHEMA_COLUMN_NAME_USER_NAME = "USER_NAME";
         public static final String DB_SCHEMA_COLUMN_NAME_TENANT_ID = "TENANT_ID";
         public static final String DB_SCHEMA_COLUMN_NAME_TENANT_DOMAIN = "TENANT_DOMAIN";
         public static final String DB_SCHEMA_LIMIT = "LIMIT";
