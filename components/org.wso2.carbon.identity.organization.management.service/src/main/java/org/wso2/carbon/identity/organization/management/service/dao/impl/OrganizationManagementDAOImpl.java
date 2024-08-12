@@ -142,6 +142,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.DELETE_ORGANIZATION_ATTRIBUTES_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.DELETE_ORGANIZATION_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ALL_UM_ORG_ATTRIBUTES;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ALL_UM_ORG_ATTRIBUTES_ORACLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ANCESTORS_OF_GIVEN_ORG_INCLUDING_ITSELF;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ANCESTOR_ORGANIZATION_ID_WITH_DEPTH;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATIONS;
@@ -742,7 +743,11 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         boolean isFilteringMetaAttributes = filterQueryBuilder.getMetaAttributeCount() > 0;
 
         if (isFilteringMetaAttributes) {
-            sqlStmt = String.format(GET_ALL_UM_ORG_ATTRIBUTES, sqlStmt);
+            if (isOracleDB()) {
+                sqlStmt = String.format(GET_ALL_UM_ORG_ATTRIBUTES_ORACLE, sqlStmt);
+            } else {
+                sqlStmt = String.format(GET_ALL_UM_ORG_ATTRIBUTES, sqlStmt);
+            }
         }
         List<Organization> organizations;
         Map<String, Organization> organizationMap = new HashMap<>();
