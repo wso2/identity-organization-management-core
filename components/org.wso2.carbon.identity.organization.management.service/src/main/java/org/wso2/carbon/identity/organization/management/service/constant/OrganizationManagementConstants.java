@@ -728,7 +728,10 @@ public class OrganizationManagementConstants {
                 "%s in organization with ID: %s"),
         ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS_META_ATTRIBUTES("65139", "Unable to retrieve " +
                 "the organizations' meta attributes.", "Server encountered an error while retrieving " +
-                "the organizations' meta attributes.");
+                "the organizations' meta attributes."),
+        ERROR_CODE_ERROR_VALIDATING_ORGANIZATION_LOGIN_HINT_ATTRIBUTE("65140", "Unable to validate the " +
+                "login hint attribute.", "Server encountered an error while validating the " +
+                "login hint attribute.");
 
         private final String code;
         private final String message;
