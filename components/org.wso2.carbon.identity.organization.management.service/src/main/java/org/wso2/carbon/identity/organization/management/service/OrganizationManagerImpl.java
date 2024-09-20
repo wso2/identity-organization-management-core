@@ -185,8 +185,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
             try {
                 deleteOrganization(organization.getId());
             } catch (OrganizationManagementException exception) {
-                LOG.error("Server encountered error while delete organization as rollback of organization " +
-                        "creation failure", exception);
+                LOG.error("The server encountered an error while deleting the organization due to a rollback " +
+                        "after a failed organization creation.", exception);
             }
             throw e;
         }
