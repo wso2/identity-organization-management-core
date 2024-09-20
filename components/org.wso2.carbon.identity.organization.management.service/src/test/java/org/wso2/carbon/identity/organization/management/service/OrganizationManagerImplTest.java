@@ -678,7 +678,8 @@ public class OrganizationManagerImplTest {
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), NEW_ORG_NAME, ORG_DESCRIPTION,
                 SUPER_ORG_ID, STRUCTURAL.toString());
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
-        OrganizationManagerListener mockOrgMgtListener = OrganizationManagementDataHolder.getInstance().getOrganizationManagerListener();
+        OrganizationManagerListener mockOrgMgtListener = OrganizationManagementDataHolder.getInstance()
+                .getOrganizationManagerListener();
         Mockito.doThrow(new OrganizationManagementException("Server encountered error while executing post listeners."))
                 .when(mockOrgMgtListener).postAddOrganization(sampleOrganization);
         Mockito.doThrow(new OrganizationManagementException("Server encountered error while deleting organization."))
