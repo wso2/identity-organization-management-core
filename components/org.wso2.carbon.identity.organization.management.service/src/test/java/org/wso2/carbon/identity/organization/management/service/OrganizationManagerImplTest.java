@@ -671,6 +671,22 @@ public class OrganizationManagerImplTest {
         Assert.assertEquals(organizationManager.getParentOrganizationId(ORG2_ID), ORG1_ID);
     }
 
+    @Test(expectedExceptions = OrganizationManagementException.class,
+            expectedExceptionsMessageRegExp = ".*Server encountered error while executing post listeners.*")
+    public void testAddOrganizationFailWhileRoleBack() throws Exception {
+
+        Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), NEW_ORG_NAME, ORG_DESCRIPTION,
+                SUPER_ORG_ID, STRUCTURAL.toString());
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+        OrganizationManagerListener mockOrgMgtListener = OrganizationManagementDataHolder.getInstance()
+                .getOrganizationManagerListener();
+        Mockito.doThrow(new OrganizationManagementException("Server encountered error while executing post listeners."))
+                .when(mockOrgMgtListener).postAddOrganization(sampleOrganization);
+        Mockito.doThrow(new OrganizationManagementException("Server encountered error while deleting organization."))
+                .when(mockOrgMgtListener).preDeleteOrganization(sampleOrganization.getId());
+        organizationManager.addOrganization(sampleOrganization);
+    }
+
     private void setOrganizationAttributes(Organization organization, String key, String value) {
 
         OrganizationAttribute organizationAttribute = new OrganizationAttribute(key, value);

@@ -20,6 +20,8 @@ package org.wso2.carbon.identity.organization.management.service;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
@@ -155,6 +157,8 @@ import static org.wso2.carbon.identity.organization.management.service.util.Util
  */
 public class OrganizationManagerImpl implements OrganizationManager {
 
+    private static final Log LOG = LogFactory.getLog(OrganizationManagerImpl.class);
+
     private final OrganizationManagementDAO organizationManagementDAO =
             new CacheBackedOrganizationManagementDAO(new OrganizationManagementDAOImpl());
 
@@ -178,7 +182,12 @@ public class OrganizationManagerImpl implements OrganizationManager {
             getListener().postAddOrganization(organization);
         } catch (OrganizationManagementException e) {
             // Rollback created organization.
-            deleteOrganization(organization.getId());
+            try {
+                deleteOrganization(organization.getId());
+            } catch (OrganizationManagementException exception) {
+                LOG.error("The server encountered an error while deleting the organization due to a rollback " +
+                        "after a failed organization creation.", exception);
+            }
             throw e;
         }
         return organization;
