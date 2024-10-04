@@ -59,6 +59,7 @@ public class OrganizationManagementConstants {
     public static final String PARENT_ID_FIELD = "parentId";
     public static final String ORGANIZATION_NAME_FIELD = "name";
     public static final String ORGANIZATION_ID_FIELD = "id";
+    public static final String ORGANIZATION_ID_PROPERTY = "ORGANIZATION_ID";
     public static final String ORGANIZATION_DESCRIPTION_FIELD = "description";
     public static final String ORGANIZATION_CREATED_TIME_FIELD = "created";
     public static final String ORGANIZATION_LAST_MODIFIED_FIELD = "lastModified";
@@ -731,7 +732,10 @@ public class OrganizationManagementConstants {
                 "the organizations' meta attributes."),
         ERROR_CODE_ERROR_VALIDATING_ORGANIZATION_LOGIN_HINT_ATTRIBUTE("65140", "Unable to validate the " +
                 "login hint attribute.", "Server encountered an error while validating the " +
-                "login hint attribute.");
+                "login hint attribute."),
+        ERROR_CODE_ERROR_DELETING_SHARED_APPLICATION_LINK("65141", "Unable to delete the shared " +
+                "application link", "Server encountered an error while deleting the shared application " +
+                "links for organization: %s.");
 
         private final String code;
         private final String message;
