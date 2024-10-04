@@ -84,6 +84,10 @@ public class OrganizationManagementUtil {
         OrganizationManager organizationManager = OrganizationManagementDataHolder.getInstance()
                 .getOrganizationManager();
         int organizationDepth = organizationManager.getOrganizationDepthInHierarchy(organizationUUID);
+
+        if (organizationDepth == -1) {
+            return false;
+        }
         return organizationDepth >= Utils.getSubOrgStartLevel();
     }
 }
