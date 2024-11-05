@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.organization.management.service.dao;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.organization.management.service.exception.NotImplementedException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.filter.ExpressionNode;
@@ -428,5 +429,19 @@ public interface OrganizationManagementDAO {
 
         throw new OrganizationManagementServerException("getOrganizationsMetaAttributes is not implemented in "
                 + this.getClass().getName());
+    }
+
+    /**
+     * Retrieve the root organization user id.
+     *
+     * @param sharedUserId The shared user id.
+     * @param sharedOrgId The shared organization id.
+     * @return The associated user id.
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the associated user id.
+     */
+    default String getAssociatedUserId(String sharedUserId, String sharedOrgId)
+            throws OrganizationManagementServerException {
+
+        return StringUtils.EMPTY;
     }
 }

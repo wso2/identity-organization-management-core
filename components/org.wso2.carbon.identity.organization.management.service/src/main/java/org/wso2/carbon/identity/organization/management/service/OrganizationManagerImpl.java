@@ -1165,4 +1165,10 @@ public class OrganizationManagerImpl implements OrganizationManager {
             organization.setCreatorEmail(email);
         }
     }
+
+    @Override
+    public String getAssociatedUserId(String sharedUserId, String sharedOrgId) throws OrganizationManagementException {
+
+        return organizationManagementDAO.getAssociatedUserId(sharedUserId, sharedOrgId);
+    }
 }
