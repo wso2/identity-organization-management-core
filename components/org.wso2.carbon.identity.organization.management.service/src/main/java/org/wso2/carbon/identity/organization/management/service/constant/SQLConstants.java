@@ -387,6 +387,9 @@ public class SQLConstants {
             "AND OH.DEPTH %s) ORDER BY UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_KEY %s " +
             "OFFSET 0 ROWS FETCH NEXT :" + SQLPlaceholders.DB_SCHEMA_LIMIT + "; ROWS ONLY;";
 
+    public static final String GET_RESIDENT_USER_ID_OF_SHARED_USER = "SELECT UM_ASSOCIATED_USER_ID FROM UM_ORG_USER_ASSOCIATION " +
+            "WHERE UM_USER_ID = ? AND UM_ORG_ID = ?";
+
     /**
      * SQL Placeholders.
      */

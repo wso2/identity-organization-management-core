@@ -736,8 +736,9 @@ public class OrganizationManagementConstants {
                 "login hint attribute."),
         ERROR_CODE_ERROR_DELETING_SHARED_APPLICATION_LINK("65141", "Unable to delete the shared " +
                 "application link", "Server encountered an error while deleting the shared application " +
-                "links for organization: %s.");
-
+                "links for organization: %s."),
+        ERROR_CODE_ERROR_GETTING_ASSOCIATED_USER_ID("65142", "Error while getting the associated user ID.",
+                "Server encountered an error while getting the associated user ID for the shared user with ID: %s in organization : %s");
         private final String code;
         private final String message;
         private final String description;

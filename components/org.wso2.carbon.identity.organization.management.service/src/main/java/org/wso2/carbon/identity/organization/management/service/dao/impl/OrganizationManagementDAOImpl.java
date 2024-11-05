@@ -73,6 +73,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_SIBLING_ORGANIZATION_BY_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_DELETING_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_DELETING_ORGANIZATION_ATTRIBUTES;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_GETTING_ASSOCIATED_USER_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_PATCHING_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_PATCHING_ORGANIZATION_ADD_ATTRIBUTE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_PATCHING_ORGANIZATION_DELETE_ATTRIBUTE;
@@ -176,6 +177,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_UUID_FROM_TENANT_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_PARENT_ORGANIZATION_STATUS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_RELATIVE_ORG_DEPTH_BETWEEN_ORGANIZATIONS_IN_SAME_BRANCH;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_RESIDENT_USER_ID_OF_SHARED_USER;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_TENANT_DOMAIN_FROM_ORGANIZATION_UUID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_TENANT_UUID_FROM_ORGANIZATION_UUID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INNER_JOIN_UM_ORG_ATTRIBUTE;
@@ -1678,5 +1680,28 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
 
         return placeholder + "." + VIEW_ATTR_KEY_COLUMN + " = '" + subAttributeName + "' AND " + placeholder + "."
                 + VIEW_ATTR_VALUE_COLUMN;
+    }
+
+    @Override
+    public String getAssociatedUserId(String sharedUserId, String sharedOrgId)
+            throws OrganizationManagementServerException {
+
+        NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
+
+        try {
+            String userId = namedJdbcTemplate.fetchSingleRecord(GET_RESIDENT_USER_ID_OF_SHARED_USER,
+                    (resultSet, rowNumber) -> resultSet.getString(1),
+                    namedPreparedStatement -> {
+                        namedPreparedStatement.setString(1, sharedUserId);
+                        namedPreparedStatement.setString(2, sharedOrgId);
+                    });
+            if (StringUtils.isBlank(userId)) {
+                return StringUtils.EMPTY;
+            }
+            return userId;
+        } catch (DataAccessException e) {
+            throw handleServerException(ERROR_CODE_ERROR_GETTING_ASSOCIATED_USER_ID, e, sharedUserId, sharedOrgId);
+        }
+
     }
 }

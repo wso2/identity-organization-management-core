@@ -494,4 +494,11 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
         OrganizationDetailsCacheByOrgId.getInstance().clearCacheEntry(cacheKey, tenantDomain);
     }
+
+    @Override
+    public String getAssociatedUserId(String sharedUserId, String sharedOrgId)
+            throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.getAssociatedUserId(sharedUserId, sharedOrgId);
+    }
 }
