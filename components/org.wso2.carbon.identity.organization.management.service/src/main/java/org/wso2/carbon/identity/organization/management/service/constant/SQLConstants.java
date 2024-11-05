@@ -373,7 +373,7 @@ public class SQLConstants {
             "(SELECT O.UM_ID FROM UM_ORG O JOIN UM_ORG_HIERARCHY OH ON O.UM_ID = OH.UM_ID " +
             "WHERE OH.UM_PARENT_ID = (SELECT UM_ID FROM UM_ORG WHERE %s) " +
             "AND OH.DEPTH %s) ORDER BY UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_KEY %s " +
-            "FETCH FIRST :" + SQLPlaceholders.DB_SCHEMA_LIMIT + "; ROWS ONLY;";
+            "FETCH FIRST :" + SQLPlaceholders.DB_SCHEMA_LIMIT + "; ROWS ONLY";
 
     public static final String GET_ORGANIZATIONS_META_ATTRIBUTES_TAIL_MSSQL = "UM_ORG.UM_ID IN " +
             "(SELECT O.UM_ID FROM UM_ORG O JOIN UM_ORG_HIERARCHY OH ON O.UM_ID = OH.UM_ID " +
