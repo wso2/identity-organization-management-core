@@ -221,11 +221,24 @@ public interface OrganizationManagementDAO {
      * Retrieve the list of child organizations of a given organization.
      *
      * @param organizationId The organization ID.
+     * @param recursive      Determines whether records should be retrieved in a recursive manner.
      * @return the list of the child organizations.
      * @throws OrganizationManagementServerException The server exception thrown when retrieving the child
      *                                               organizations.
      */
     List<BasicOrganization> getChildOrganizations(String organizationId, boolean recursive)
+            throws OrganizationManagementServerException;
+
+    /**
+     * Retrieve the list of child organization IDs of a given organization.
+     *
+     * @param organizationId The organization ID.
+     * @param recursive      Determines whether records should be retrieved in a recursive manner.
+     * @return the ID list of the child organizations.
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the child
+     *                                               organizations.
+     */
+    List<String> getChildOrganizationIds(String organizationId, boolean recursive)
             throws OrganizationManagementServerException;
 
     /**

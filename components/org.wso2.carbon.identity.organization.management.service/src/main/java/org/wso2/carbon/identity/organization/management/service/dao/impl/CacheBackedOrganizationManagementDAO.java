@@ -214,6 +214,13 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
     }
 
     @Override
+    public List<String> getChildOrganizationIds(String organizationId, boolean recursive)
+            throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.getChildOrganizationIds(organizationId, recursive);
+    }
+
+    @Override
     public List<String> getChildOrganizationIds(String organizationId) throws OrganizationManagementServerException {
 
         return organizationMgtDAO.getChildOrganizationIds(organizationId);
