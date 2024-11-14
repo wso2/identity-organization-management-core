@@ -691,24 +691,24 @@ public class OrganizationManagerImplTest {
 
     @Test
     public void testGetChildOrganizationIds() throws Exception {
-        // Mocking Carbon context
+
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
 
         // Non-recursive test case (only direct children)
         List<String> directChildIds = organizationManager.getChildOrganizationsIds(SUPER_ORG_ID, false);
-        Assert.assertNotNull(directChildIds, "Direct child IDs should not be null.");
-        Assert.assertEquals(directChildIds.size(), 2, "Direct child IDs size mismatch.");
-        Assert.assertTrue(directChildIds.contains(ORG1_ID), "Expected ORG1_ID in direct children.");
-        Assert.assertTrue(directChildIds.contains(ORG3_ID), "Expected ORG3_ID in direct children.");
-        Assert.assertFalse(directChildIds.contains(ORG2_ID), "ORG2_ID should not be in direct children for non-recursive.");
+        Assert.assertNotNull(directChildIds);
+        Assert.assertEquals(directChildIds.size(), 2);
+        Assert.assertTrue(directChildIds.contains(ORG1_ID));
+        Assert.assertTrue(directChildIds.contains(ORG3_ID));
+        Assert.assertFalse(directChildIds.contains(ORG2_ID));
 
         // Recursive test case (all levels of children)
         List<String> recursiveChildIds = organizationManager.getChildOrganizationsIds(SUPER_ORG_ID, true);
-        Assert.assertNotNull(recursiveChildIds, "Recursive child IDs should not be null.");
-        Assert.assertEquals(recursiveChildIds.size(), 3, "Recursive child IDs size mismatch.");
-        Assert.assertTrue(recursiveChildIds.contains(ORG1_ID), "Expected ORG1_ID in recursive children.");
-        Assert.assertTrue(recursiveChildIds.contains(ORG2_ID), "Expected ORG2_ID in recursive children.");
-        Assert.assertTrue(recursiveChildIds.contains(ORG3_ID), "Expected ORG3_ID in recursive children.");
+        Assert.assertNotNull(recursiveChildIds);
+        Assert.assertEquals(recursiveChildIds.size(), 3);
+        Assert.assertTrue(recursiveChildIds.contains(ORG1_ID));
+        Assert.assertTrue(recursiveChildIds.contains(ORG2_ID));
+        Assert.assertTrue(recursiveChildIds.contains(ORG3_ID));
     }
 
     private void setOrganizationAttributes(Organization organization, String key, String value) {
