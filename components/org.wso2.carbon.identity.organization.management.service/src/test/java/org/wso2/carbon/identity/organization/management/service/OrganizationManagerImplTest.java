@@ -29,11 +29,13 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.database.utils.jdbc.exceptions.DataAccessException;
 import org.wso2.carbon.identity.common.testng.WithAxisConfiguration;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
 import org.wso2.carbon.identity.organization.management.service.dao.impl.OrganizationManagementDAOImpl;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementClientException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
+import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
 import org.wso2.carbon.identity.organization.management.service.listener.OrganizationManagerListener;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
@@ -685,6 +687,28 @@ public class OrganizationManagerImplTest {
         Mockito.doThrow(new OrganizationManagementException("Server encountered error while deleting organization."))
                 .when(mockOrgMgtListener).preDeleteOrganization(sampleOrganization.getId());
         organizationManager.addOrganization(sampleOrganization);
+    }
+
+    @Test
+    public void testGetChildOrganizationIds() throws Exception {
+        // Mocking Carbon context
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+
+        // Non-recursive test case (only direct children)
+        List<String> directChildIds = organizationManager.getChildOrganizationsIds(SUPER_ORG_ID, false);
+        Assert.assertNotNull(directChildIds, "Direct child IDs should not be null.");
+        Assert.assertEquals(directChildIds.size(), 2, "Direct child IDs size mismatch.");
+        Assert.assertTrue(directChildIds.contains(ORG1_ID), "Expected ORG1_ID in direct children.");
+        Assert.assertTrue(directChildIds.contains(ORG3_ID), "Expected ORG3_ID in direct children.");
+        Assert.assertFalse(directChildIds.contains(ORG2_ID), "ORG2_ID should not be in direct children for non-recursive.");
+
+        // Recursive test case (all levels of children)
+        List<String> recursiveChildIds = organizationManager.getChildOrganizationsIds(SUPER_ORG_ID, true);
+        Assert.assertNotNull(recursiveChildIds, "Recursive child IDs should not be null.");
+        Assert.assertEquals(recursiveChildIds.size(), 3, "Recursive child IDs size mismatch.");
+        Assert.assertTrue(recursiveChildIds.contains(ORG1_ID), "Expected ORG1_ID in recursive children.");
+        Assert.assertTrue(recursiveChildIds.contains(ORG2_ID), "Expected ORG2_ID in recursive children.");
+        Assert.assertTrue(recursiveChildIds.contains(ORG3_ID), "Expected ORG3_ID in recursive children.");
     }
 
     private void setOrganizationAttributes(Organization organization, String key, String value) {
