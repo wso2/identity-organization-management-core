@@ -77,6 +77,7 @@ public class OrganizationManagerImplTest {
     private static final String ORG2_NAME = "XYZ Builders";
     private static final String ORG3_NAME = "Greater";
     private static final String NON_EXISTING_ORG_NAME = "Dummy Builders";
+    private static final String ORG_NAME_WITH_HTML_CONTENT = "<a href=\"evil.com\">Click me</a>";
     private static final String NEW_ORG1_NAME = "ABC Builders New";
     private static final String ORG_DESCRIPTION = "This is a construction company.";
     private static final String NEW_ORG_NAME = "New Org";
@@ -272,6 +273,14 @@ public class OrganizationManagerImplTest {
 
         Organization organization = getOrganization(UUID.randomUUID().toString(), SUPER, ORG_DESCRIPTION, ORG1_NAME,
                 TENANT.toString());
+        organizationManager.addOrganization(organization);
+    }
+
+    @Test(expectedExceptions = OrganizationManagementClientException.class)
+    public void testAddOrganizationWithNameIncludeHTMLContent() throws Exception {
+
+        Organization organization = getOrganization(UUID.randomUUID().toString(), ORG_NAME_WITH_HTML_CONTENT,
+                ORG_DESCRIPTION, ORG1_NAME, TENANT.toString());
         organizationManager.addOrganization(organization);
     }
 
