@@ -722,6 +722,7 @@ public class OrganizationManagerImplTest {
         Assert.assertTrue(recursiveChildIds.contains(ORG1_ID));
         Assert.assertTrue(recursiveChildIds.contains(ORG2_ID));
         Assert.assertTrue(recursiveChildIds.contains(ORG3_ID));
+    }
 
     private void setOrganizationAttributes(Organization organization, String key, String value) {
 
