@@ -759,7 +759,6 @@ public class OrganizationManagerImpl implements OrganizationManager {
         if (hasHtmlContent(organizationName)) {
             throw handleClientException(ERROR_CODE_ORGANIZATION_NAME_CONTAINS_HTML_CONTENT);
         }
-
     }
 
     private void validateParentOrganization(Organization organization) throws OrganizationManagementException {
