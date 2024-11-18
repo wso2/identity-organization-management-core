@@ -475,6 +475,9 @@ public class OrganizationManagerImpl implements OrganizationManager {
     @Override
     public String resolveTenantDomain(String organizationId) throws OrganizationManagementException {
 
+        if (StringUtils.isEmpty(organizationId)) {
+            throw handleClientException(ERROR_CODE_INVALID_ORGANIZATION, organizationId);
+        }
         if (StringUtils.equals(SUPER_ORG_ID, organizationId)) {
             // super tenant domain will be returned.
             return MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
