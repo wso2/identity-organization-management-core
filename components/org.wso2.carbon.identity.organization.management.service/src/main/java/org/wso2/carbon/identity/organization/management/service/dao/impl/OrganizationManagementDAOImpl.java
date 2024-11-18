@@ -585,9 +585,9 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         String sqlStmt = String.format(GET_CHILD_ORGANIZATION_IDS_WITH_RECURSIVE, recursive ? "> 0" : "= 1");
         try {
             return namedJdbcTemplate.executeQuery(sqlStmt,
-                    (resultSet, rowNumber) -> resultSet.getString(1), // Directly retrieve the organization ID
+                    (resultSet, rowNumber) -> resultSet.getString(1),
                     namedPreparedStatement ->
-                            namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_PARENT_ID, organizationId)); // Bind the parameter
+                            namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_PARENT_ID, organizationId));
         } catch (DataAccessException e) {
             throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_CHILD_ORGANIZATIONS, e, organizationId);
         }
