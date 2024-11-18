@@ -696,6 +696,12 @@ public class OrganizationManagerImplTest {
         organizationManager.addOrganization(sampleOrganization);
     }
 
+    @Test(expectedExceptions = OrganizationManagementClientException.class)
+    public void testResolveTenantDomainWithEmptyOrganizationId() throws OrganizationManagementException {
+
+        organizationManager.resolveTenantDomain("");
+    }
+
     private void setOrganizationAttributes(Organization organization, String key, String value) {
 
         OrganizationAttribute organizationAttribute = new OrganizationAttribute(key, value);
