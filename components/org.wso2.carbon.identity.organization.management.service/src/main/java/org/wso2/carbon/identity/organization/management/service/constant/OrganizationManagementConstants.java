@@ -380,6 +380,8 @@ public class OrganizationManagementConstants {
                 "The shared user profile attributes are read only."),
         ERROR_CODE_ORGANIZATION_OWNER_NOT_EXIST("60096", "The assigned organization owner does not exist ",
                 "The assigned organization owner is not found in the tenant with ID: %s"),
+        ERROR_CODE_ORGANIZATION_NAME_CONTAINS_HTML_CONTENT("60097", "Invalid organization name.",
+                "HTML content is not allowed in organization name."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
