@@ -116,8 +116,12 @@ public interface OrganizationManager {
      * @return the list of Child organization IDs.
      * @throws OrganizationManagementException exception is thrown when listing organizations.
      */
-    List<String> getChildOrganizationsIds(String organizationId, boolean recursive)
-            throws OrganizationManagementException;
+    default List<String> getChildOrganizationsIds(String organizationId, boolean recursive)
+            throws OrganizationManagementException {
+
+        throw new NotImplementedException("getChildOrganizationIds(organizationId, recursive) is not " +
+                "implemented in " + this.getClass().getName());
+    }
 
     /**
      * Returns the unique identifiers of the child organizations for a given organization.
