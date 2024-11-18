@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -29,8 +29,6 @@ import org.wso2.carbon.database.utils.jdbc.NamedJdbcTemplate;
 import org.wso2.carbon.database.utils.jdbc.exceptions.DataAccessException;
 import org.wso2.carbon.identity.organization.management.service.OrganizationManager;
 import org.wso2.carbon.identity.organization.management.service.OrganizationManagerImpl;
-import org.wso2.carbon.identity.organization.management.service.OrganizationUserResidentResolverService;
-import org.wso2.carbon.identity.organization.management.service.OrganizationUserResidentResolverServiceImpl;
 import org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementClientException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
@@ -51,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
@@ -74,9 +73,8 @@ public class Utils {
 
     private static final Log LOG = LogFactory.getLog(Utils.class);
     private static DataSource dataSource;
-    private static final OrganizationUserResidentResolverService organizationUserResidentResolverService =
-            new OrganizationUserResidentResolverServiceImpl();
     private static final OrganizationManager organizationManager = new OrganizationManagerImpl();
+    private static final Pattern htmlContentPattern = Pattern.compile(".*<[^>]+(/>|>.*?</[^>]+>).*");
 
     /**
      * Throw an OrganizationManagementClientException upon client side error in organization management.
@@ -629,4 +627,10 @@ public class Utils {
 
         return CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME;
     }
+
+    public static boolean hasHtmlContent(String orgName) {
+
+        return htmlContentPattern.matcher(orgName).find();
+    }
+
 }

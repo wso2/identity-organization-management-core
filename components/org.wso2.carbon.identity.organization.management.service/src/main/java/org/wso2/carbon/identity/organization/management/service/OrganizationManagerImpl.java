@@ -93,6 +93,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_NO_PARENT_ORG;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_HAS_CHILD_ORGANIZATIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_ID_UNDEFINED;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_NAME_CONTAINS_HTML_CONTENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_NAME_EXIST_IN_CHILD_ORGANIZATIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_NAME_RESERVED;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_NOT_FOUND_FOR_TENANT;
@@ -150,6 +151,7 @@ import static org.wso2.carbon.identity.organization.management.service.util.Util
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getUserId;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleClientException;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleServerException;
+import static org.wso2.carbon.identity.organization.management.service.util.Utils.hasHtmlContent;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.isSubOrganization;
 
 /**
@@ -480,6 +482,9 @@ public class OrganizationManagerImpl implements OrganizationManager {
     @Override
     public String resolveTenantDomain(String organizationId) throws OrganizationManagementException {
 
+        if (StringUtils.isEmpty(organizationId)) {
+            throw handleClientException(ERROR_CODE_INVALID_ORGANIZATION, organizationId);
+        }
         if (StringUtils.equals(SUPER_ORG_ID, organizationId)) {
             // super tenant domain will be returned.
             return MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
@@ -760,6 +765,9 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
         if (StringUtils.equalsIgnoreCase(SUPER, organizationName)) {
             throw handleClientException(ERROR_CODE_ORGANIZATION_NAME_RESERVED, SUPER);
+        }
+        if (hasHtmlContent(organizationName)) {
+            throw handleClientException(ERROR_CODE_ORGANIZATION_NAME_CONTAINS_HTML_CONTENT);
         }
     }
 
