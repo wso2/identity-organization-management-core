@@ -238,8 +238,12 @@ public interface OrganizationManagementDAO {
      * @throws OrganizationManagementServerException The server exception thrown when retrieving the child
      *                                               organizations.
      */
-    List<String> getChildOrganizationIds(String organizationId, boolean recursive)
-            throws OrganizationManagementServerException;
+    default List<String> getChildOrganizationIds(String organizationId, boolean recursive)
+            throws OrganizationManagementServerException {
+
+        throw new NotImplementedException("getChildOrganizationIds(organizationId, recursive) is not " +
+                "implemented in " + this.getClass().getName());
+    }
 
     /**
      * Retrieve the list of child organization IDs of a given organization.
