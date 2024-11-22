@@ -701,6 +701,28 @@ public class OrganizationManagerImplTest {
 
         organizationManager.resolveTenantDomain("");
     }
+  
+    @Test
+    public void testGetChildOrganizationIds() throws Exception {
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+
+        // Non-recursive test case (only direct children)
+        List<String> directChildIds = organizationManager.getChildOrganizationsIds(SUPER_ORG_ID, false);
+        Assert.assertNotNull(directChildIds);
+        Assert.assertEquals(directChildIds.size(), 2);
+        Assert.assertTrue(directChildIds.contains(ORG1_ID));
+        Assert.assertTrue(directChildIds.contains(ORG3_ID));
+        Assert.assertFalse(directChildIds.contains(ORG2_ID));
+
+        // Recursive test case (all levels of children)
+        List<String> recursiveChildIds = organizationManager.getChildOrganizationsIds(SUPER_ORG_ID, true);
+        Assert.assertNotNull(recursiveChildIds);
+        Assert.assertEquals(recursiveChildIds.size(), 3);
+        Assert.assertTrue(recursiveChildIds.contains(ORG1_ID));
+        Assert.assertTrue(recursiveChildIds.contains(ORG2_ID));
+        Assert.assertTrue(recursiveChildIds.contains(ORG3_ID));
+    }
 
     private void setOrganizationAttributes(Organization organization, String key, String value) {
 
