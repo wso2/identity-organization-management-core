@@ -286,7 +286,7 @@
         <org.wso2.identity.organization.mgt.imp.pkg.version.range>[1.0.0,2.0.0)
         </org.wso2.identity.organization.mgt.imp.pkg.version.range>
 
-        <carbon.multitenancy.version>4.10.1</carbon.multitenancy.version>
+        <carbon.multitenancy.version>4.11.30</carbon.multitenancy.version>
         <carbon.multitenancy.package.import.version.range>[4.7.0,5.0.0)
         </carbon.multitenancy.package.import.version.range>
 
