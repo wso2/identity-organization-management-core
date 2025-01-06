@@ -47,28 +47,21 @@ public class UtilsTest {
     private RealmService realmService;
     private RealmConfiguration realmConfiguration;
     private MockedStatic<OrganizationManagementConfigUtil> organizationManagementConfigUtil;
-    private MockedStatic<OrganizationManagementDataHolder> organizationManagementDataHolderMockedStatic;
-    private OrganizationManagementDataHolder organizationManagementDataHolder;
 
     @BeforeClass
     public void testInit() {
 
         realmService = mock(DefaultRealmService.class);
         realmConfiguration = mock(RealmConfiguration.class);
-        realmService.setBootstrapRealmConfiguration(realmConfiguration);
+        when(realmService.getBootstrapRealmConfiguration()).thenReturn(realmConfiguration);
         organizationManagementConfigUtil = mockStatic(OrganizationManagementConfigUtil.class);
-        organizationManagementDataHolderMockedStatic = mockStatic(OrganizationManagementDataHolder.class);
-        organizationManagementDataHolder = OrganizationManagementDataHolder.getInstance();
-        organizationManagementDataHolderMockedStatic.when(OrganizationManagementDataHolder::getInstance)
-                .thenReturn(organizationManagementDataHolder);
-        organizationManagementDataHolder.setRealmService(realmService);
+        OrganizationManagementDataHolder.getInstance().setRealmService(realmService);
     }
 
     @AfterClass
     public void testEnd() {
 
         organizationManagementConfigUtil.close();
-        organizationManagementDataHolderMockedStatic.close();
     }
 
     @Test(description = "This test verifies whether the `resolvePrimaryUserStoreDomainName` method returns the default"
