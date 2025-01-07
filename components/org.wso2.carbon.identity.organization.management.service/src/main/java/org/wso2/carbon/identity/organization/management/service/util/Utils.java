@@ -358,9 +358,8 @@ public class Utils {
         if (realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME) != null) {
             return realmConfiguration.getUserStoreProperty(
                     UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME).toUpperCase();
-        } else {
-            return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
         }
+        return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
     }
 
     /**
