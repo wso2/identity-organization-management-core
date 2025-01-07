@@ -23,6 +23,7 @@
         <classes>
             <class name="org.wso2.carbon.identity.organization.management.service.OrganizationManagerImplTest"/>
             <class name="org.wso2.carbon.identity.organization.management.service.dao.impl.OrganizationManagementDAOImplTest"/>
+            <class name="org.wso2.carbon.identity.organization.management.service.util.UtilsTest"/>
         </classes>
     </test>
 </suite>

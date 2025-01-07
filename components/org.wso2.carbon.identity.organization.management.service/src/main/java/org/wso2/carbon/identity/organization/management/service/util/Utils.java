@@ -34,10 +34,12 @@ import org.wso2.carbon.identity.organization.management.service.exception.Organi
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
+import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.Permission;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -332,8 +334,32 @@ public class Utils {
      */
     public static String getOrganizationUserInvitationPrimaryUserDomain() {
 
-        return OrganizationManagementConfigUtil.getProperty(
+        String configuredUserDomain = OrganizationManagementConfigUtil.getProperty(
                 OrganizationManagementConstants.ORGANIZATION_USER_INVITATION_PRIMARY_USER_DOMAIN);
+        if (StringUtils.equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME, configuredUserDomain)) {
+            String configuredPrimaryDomainName = resolvePrimaryUserStoreDomainName();
+            if (!StringUtils.equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME, configuredPrimaryDomainName)) {
+                configuredUserDomain = configuredPrimaryDomainName;
+            }
+        }
+        return configuredUserDomain;
+    }
+
+    /**
+     * This method resolves the primary user store domain name when it is changed
+     * from `PRIMARY` to a different name; otherwise, it returns `PRIMARY`.
+     *
+     * @return Primary user store domain name.
+     */
+    public static String resolvePrimaryUserStoreDomainName() {
+
+        RealmConfiguration realmConfiguration =
+                OrganizationManagementDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration();
+        if (realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME) != null) {
+            return realmConfiguration.getUserStoreProperty(
+                    UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME).toUpperCase();
+        }
+        return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
     }
 
     /**
