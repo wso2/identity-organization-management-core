@@ -382,6 +382,10 @@ public class OrganizationManagementConstants {
                 "The assigned organization owner is not found in the tenant with ID: %s"),
         ERROR_CODE_ORGANIZATION_NAME_CONTAINS_HTML_CONTENT("60097", "Invalid organization name.",
                 "HTML content is not allowed in organization name."),
+        ERROR_CODE_INVALID_EMAIL_DOMAIN("60098", "Invalid email domain.",
+                "Email domain resolved from the authenticated federated IDP is not mapped to the organization: %s"),
+        ERROR_CODE_NO_EMAIL_ATTRIBUTE_FOUND("60099", "No email attribute found",
+                "No email attribute returned by the authenticated federated IDP"),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -738,7 +742,10 @@ public class OrganizationManagementConstants {
                 "login hint attribute."),
         ERROR_CODE_ERROR_DELETING_SHARED_APPLICATION_LINK("65141", "Unable to delete the shared " +
                 "application link", "Server encountered an error while deleting the shared application " +
-                "links for organization: %s.");
+                "links for organization: %s."),
+        ERROR_WHILE_RETRIEVING_ORG_DISCOVERY_ATTRIBUTES("65142",
+                "Error while retrieving organization discovery attributes",
+                "Error while retrieving organization discovery attributes for tenantDomain: %s");
 
         private final String code;
         private final String message;
