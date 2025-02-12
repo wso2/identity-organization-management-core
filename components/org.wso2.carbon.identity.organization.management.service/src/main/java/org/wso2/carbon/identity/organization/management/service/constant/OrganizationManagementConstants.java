@@ -748,7 +748,10 @@ public class OrganizationManagementConstants {
                 "Error while retrieving organization discovery attributes for tenantDomain: %s"),
         ERROR_CODE_ERROR_UPDATE_ORGANIZATION_USER_ASSOCIATIONS("65143",
                 "Unable to update organization user associations.",
-                "Server encountered an error while updating organization user associations for the user.");
+                "Server encountered an error while updating organization user associations for the user."),
+        ERROR_CODE_ERROR_CHECK_ORGANIZATION_USER_ASSOCIATIONS("65144",
+                "Unable to check if organization user associations exist.",
+                "Server encountered an error while checking organization user associations for the user.");
 
         private final String code;
         private final String message;
