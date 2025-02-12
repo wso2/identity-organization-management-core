@@ -750,8 +750,8 @@ public class OrganizationManagementConstants {
                 "Unable to update organization user associations.",
                 "Server encountered an error while updating organization user associations for the user."),
         ERROR_CODE_ERROR_CHECK_ORGANIZATION_USER_ASSOCIATIONS("65144",
-                "Unable to check if organization user associations exists.",
-                "Server encountered an error while checking organization user associations for the user."),;
+                "Unable to check if organization user associations exist.",
+                "Server encountered an error while checking organization user associations for the user.");
 
         private final String code;
         private final String message;
