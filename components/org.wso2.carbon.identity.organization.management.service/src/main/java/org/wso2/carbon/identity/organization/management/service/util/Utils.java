@@ -63,9 +63,11 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_ORG_QUALIFIED_URLS_SUPPORTED_FOR_LEVEL_ONE_ORGS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATH_SEPARATOR;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUB_ORG_START_LEVEL;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.DB2;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.MICROSOFT;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.MYSQL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.ORACLE;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.POSTGRESQL;
 import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_DOMAIN;
 
 /**
@@ -157,6 +159,28 @@ public class Utils {
     public static boolean isMySqlDB() throws OrganizationManagementServerException {
 
         return isDBTypeOf(MYSQL);
+    }
+
+    /**
+     * Check whether the string, "db2", contains in the driver name or db product name.
+     *
+     * @return true if the database type matches the driver type, false otherwise.
+     * @throws OrganizationManagementServerException If error occurred while checking the DB metadata.
+     */
+    public static boolean isDB2DB() throws OrganizationManagementServerException {
+
+        return isDBTypeOf(DB2);
+    }
+
+    /**
+     * Check whether the string, "postgresql", contains in the driver name or db product name.
+     *
+     * @return true if the database type matches the driver type, false otherwise.
+     * @throws OrganizationManagementServerException If error occurred while checking the DB metadata.
+     */
+    public static boolean isPostgreSqlDB() throws OrganizationManagementServerException {
+
+        return isDBTypeOf(POSTGRESQL);
     }
 
     /**

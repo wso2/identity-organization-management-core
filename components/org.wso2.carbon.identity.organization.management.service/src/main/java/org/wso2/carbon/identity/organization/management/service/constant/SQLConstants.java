@@ -25,10 +25,10 @@ public class SQLConstants {
 
     // Database types
     public static final String ORACLE = "oracle";
-
     public static final String MICROSOFT = "microsoft";
-
     public static final String MYSQL = "mysql";
+    public static final String DB2 = "db2";
+    public static final String POSTGRESQL = "postgresql";
 
     public static final String PERMISSION_LIST_PLACEHOLDER = "_PERMISSION_LIST_";
     public static final String USER_NAME_LIST_PLACEHOLDER = "_SHARED_USER_NAMES_";
