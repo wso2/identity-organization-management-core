@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2023-2025, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -85,5 +85,22 @@ public class OrganizationManagementUtil {
                 .getOrganizationManager();
         int organizationDepth = organizationManager.getOrganizationDepthInHierarchy(organizationUUID);
         return organizationDepth >= Utils.getSubOrgStartLevel();
+    }
+
+    /**
+     * Get the tenant domain of the root organization from the tenant domain of a sub-organization.
+     *
+     * @param tenantDomain The tenant domain of the sub-organization to resolve.
+     * @return The tenant domain of the root organization.
+     * @throws OrganizationManagementException If an error occurs while retrieving the root organization tenant domain.
+     */
+    public static String getRootOrgTenantDomainBySubOrgTenantDomain(String tenantDomain)
+            throws OrganizationManagementException {
+
+        OrganizationManager organizationManager = OrganizationManagementDataHolder.getInstance()
+                .getOrganizationManager();
+        String orgId = organizationManager.resolveOrganizationId(tenantDomain);
+        String rootOrganizationId = organizationManager.getPrimaryOrganizationId(orgId);
+        return organizationManager.resolveTenantDomain(rootOrganizationId);
     }
 }
