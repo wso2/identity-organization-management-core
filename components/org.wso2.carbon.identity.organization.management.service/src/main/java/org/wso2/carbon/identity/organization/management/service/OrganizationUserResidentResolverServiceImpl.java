@@ -165,6 +165,7 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                         BasicOrganization basicOrganization = new BasicOrganization();
                         basicOrganization.setId(organizationId);
                         basicOrganization.setName(organizationName.get());
+                        basicOrganization.setOrganizationHandle(associatedTenantDomainForOrg);
                         basicOrganizationList.add(basicOrganization);
                     }
                     AbstractUserStoreManager userStoreManager = getUserStoreManager(associatedTenantDomainForOrg);

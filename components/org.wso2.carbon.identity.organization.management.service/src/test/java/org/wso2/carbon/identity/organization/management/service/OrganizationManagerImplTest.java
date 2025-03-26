@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -40,9 +40,9 @@ import org.wso2.carbon.identity.organization.management.service.model.Organizati
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
 import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.identity.organization.management.util.TestUtils;
-import org.wso2.carbon.user.api.AuthorizationManager;
+import org.wso2.carbon.stratos.common.exception.TenantManagementClientException;
+import org.wso2.carbon.tenant.mgt.services.TenantMgtService;
 import org.wso2.carbon.user.api.Tenant;
-import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 
@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -58,6 +59,8 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.EXISTING_DOMAIN_ERROR_CODE;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_EXISTING_ORGANIZATION_HANDLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationStatus;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationTypes.STRUCTURAL;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationTypes.TENANT;
@@ -74,6 +77,8 @@ public class OrganizationManagerImplTest {
     private static final String ORG1_NAME = "ABC Builders";
     private static final String ORG2_NAME = "XYZ Builders";
     private static final String ORG3_NAME = "Greater";
+    private static final String ORG4_NAME = "ABC Inc";
+    private static final String ORG4_HANDLE = "abc.com";
     private static final String NON_EXISTING_ORG_NAME = "Dummy Builders";
     private static final String ORG_NAME_WITH_HTML_CONTENT = "<a href=\"evil.com\">Click me</a>";
     private static final String NEW_ORG1_NAME = "ABC Builders New";
@@ -92,6 +97,7 @@ public class OrganizationManagerImplTest {
     private static final String ORG2_1 = "org_2_1";
     private static final String ORG3_1 = "org_3_1";
     private static final String ORG3_ID = "org_id_3";
+    private static final String ORG4_ID = "org_id_4";
     private static final String INVALID_PARENT_ID = "invalid_parent_id";
     private static final String INVALID_ORG_ID = "invalid_org_id";
 
@@ -101,13 +107,11 @@ public class OrganizationManagerImplTest {
 
     private RealmService realmService;
 
-    private UserRealm userRealm;
-
-    private AuthorizationManager authorizationManager;
-
     private TenantManager tenantManager;
 
     private Tenant tenant;
+
+    private TenantMgtService tenantMgtService;
 
     private MockedStatic<Utils> mockedUtilities;
 
@@ -116,6 +120,7 @@ public class OrganizationManagerImplTest {
 
         realmService = mock(RealmService.class);
         tenantManager = mock(TenantManager.class);
+        tenantMgtService = mock(TenantMgtService.class);
         tenant = mock(Tenant.class);
         mockUtils();
     }
@@ -127,9 +132,11 @@ public class OrganizationManagerImplTest {
         OrganizationManagementDataHolder.getInstance().setOrganizationManagerListener(mock(
                 OrganizationManagerListener.class));
         OrganizationManagementDataHolder.getInstance().setRealmService(realmService);
+        OrganizationManagementDataHolder.getInstance().setTenantMgtService(tenantMgtService);
 
         TestUtils.initiateH2Base();
         TestUtils.mockDataSource();
+        Mockito.reset(tenantMgtService);
 
         // Super -> org1 -> org2
         //       -> org3
@@ -720,6 +727,30 @@ public class OrganizationManagerImplTest {
         Assert.assertTrue(recursiveChildIds.contains(ORG1_ID));
         Assert.assertTrue(recursiveChildIds.contains(ORG2_ID));
         Assert.assertTrue(recursiveChildIds.contains(ORG3_ID));
+    }
+
+    @Test()
+    public void testAddOrganizationWithExistingOrganizationHandle() throws Exception {
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
+
+        Organization sampleOrganization = getOrganization(
+                ORG4_ID, ORG4_NAME, ORG_DESCRIPTION, SUPER_ORG_ID, TENANT.toString());
+        sampleOrganization.setOrganizationHandle(ORG4_HANDLE);
+
+        TenantManagementClientException tenantManagementClientException =
+                new TenantManagementClientException(EXISTING_DOMAIN_ERROR_CODE, EXISTING_DOMAIN_ERROR_CODE);
+
+        when(tenantMgtService.addTenant(any(org.wso2.carbon.user.core.tenant.Tenant.class)))
+                .thenThrow(tenantManagementClientException);
+
+        try {
+            organizationManager.addOrganization(sampleOrganization);
+        } catch (OrganizationManagementClientException e) {
+            assertEquals(e.getDescription(),
+                    String.format(ERROR_CODE_EXISTING_ORGANIZATION_HANDLE.getDescription(), ORG4_HANDLE));
+        }
     }
 
     private void setOrganizationAttributes(Organization organization, String key, String value) {
