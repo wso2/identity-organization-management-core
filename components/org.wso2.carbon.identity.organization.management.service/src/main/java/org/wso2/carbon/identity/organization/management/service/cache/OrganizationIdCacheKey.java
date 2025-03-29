@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.organization.management.service.cache;
 
+import java.util.Objects;
+
 /**
  * Organization Id cache key.
  */
@@ -59,7 +61,7 @@ public class OrganizationIdCacheKey extends CacheKey {
     public int hashCode() {
 
         int result = super.hashCode();
-        result = 31 * result + orgId.hashCode();
+        result = 31 * result + Objects.hashCode(orgId);
         return result;
     }
 }
