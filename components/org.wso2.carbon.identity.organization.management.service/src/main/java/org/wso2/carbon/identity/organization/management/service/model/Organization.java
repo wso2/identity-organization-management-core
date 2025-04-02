@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -41,6 +41,7 @@ public class Organization {
     private List<OrganizationAttribute> attributes = new ArrayList<>();
     private List<ChildOrganizationDO> childOrganizations = new ArrayList<>();
     private List<String> permissions = new ArrayList<>();
+    private String organizationHandle;
 
     public String getId() {
 
@@ -187,5 +188,15 @@ public class Organization {
     public void setPermissions(List<String> permissions) {
 
         this.permissions = permissions;
+    }
+
+    public String getOrganizationHandle() {
+
+        return organizationHandle;
+    }
+
+    public void setOrganizationHandle(String organizationHandle) {
+
+        this.organizationHandle = organizationHandle;
     }
 }
