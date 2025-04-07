@@ -190,11 +190,21 @@ public class Organization {
         this.permissions = permissions;
     }
 
+    /**
+     * Returns the organization handle.
+     *
+     * @return The organization handle.
+     */
     public String getOrganizationHandle() {
 
         return organizationHandle;
     }
 
+    /**
+     * Sets the organization handle.
+     *
+     * @param organizationHandle The organization handle to set.
+     */
     public void setOrganizationHandle(String organizationHandle) {
 
         this.organizationHandle = organizationHandle;
