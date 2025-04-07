@@ -42,6 +42,7 @@ import org.wso2.carbon.identity.organization.management.service.model.Organizati
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
 import org.wso2.carbon.identity.organization.management.service.model.ParentOrganizationDO;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
+import org.wso2.carbon.identity.organization.management.service.model.TenantTypeOrganization;
 import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.stratos.common.exception.TenantManagementClientException;
 import org.wso2.carbon.stratos.common.exception.TenantMgtException;
@@ -70,7 +71,6 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.CREATOR_USERNAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DESC_SORT_ORDER;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.EW;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.EXISTING_DOMAIN_ERROR_CODE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ACTIVE_CHILD_ORGANIZATIONS_EXIST;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ATTRIBUTE_KEY_MISSING;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ATTRIBUTE_VALUE_MISSING;
@@ -155,6 +155,7 @@ import static org.wso2.carbon.identity.organization.management.service.util.Util
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.handleServerException;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.hasHtmlContent;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.isSubOrganization;
+import static org.wso2.carbon.stratos.common.constants.TenantConstants.ErrorMessage.ERROR_CODE_EXISTING_DOMAIN;
 
 /**
  * This class implements the {@link OrganizationManager} interface.
@@ -178,8 +179,14 @@ public class OrganizationManagerImpl implements OrganizationManager {
         organizationManagementDAO.addOrganization(organization);
 
         // Create a tenant for tenant type organization.
-        createTenant(organization.getOrganizationHandle(), organization);
-
+        if (organization instanceof TenantTypeOrganization) {
+            String organizationHandle = organization.getOrganizationHandle();
+            if (StringUtils.isBlank(organizationHandle)) {
+                organizationHandle = organization.getId();
+                organization.setOrganizationHandle(organizationHandle);
+            }
+            createTenant(organizationHandle, organization);
+        }
         try {
             getListener().postAddOrganization(organization);
         } catch (OrganizationManagementException e) {
@@ -205,7 +212,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
     public boolean isOrganizationExistByHandle(String organizationHandle) throws OrganizationManagementServerException {
 
         try {
-            return getTenantMgtService().isDomainAvailable(organizationHandle);
+            return !getTenantMgtService().isDomainAvailable(organizationHandle);
         } catch (TenantMgtException e) {
             throw handleServerException(ERROR_CODE_ERROR_CHECKING_ORGANIZATION_EXIST_BY_HANDLE, e);
         }
@@ -290,14 +297,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
     public List<BasicOrganization> getChildOrganizations(String organizationId, boolean recursive)
             throws OrganizationManagementException {
 
-        List<BasicOrganization> organizations
-                = organizationManagementDAO.getChildOrganizations(organizationId, recursive);
-
-        // Iterate through organizations and set the organization handle for each.
-        for (BasicOrganization organization : organizations) {
-            organization.setOrganizationHandle(resolveTenantDomain(organization.getId()));
-        }
-        return organizations;
+        return organizationManagementDAO.getChildOrganizations(organizationId, recursive);
     }
 
     @Override
@@ -365,17 +365,11 @@ public class OrganizationManagerImpl implements OrganizationManager {
         String orgId = resolveOrganizationId(getTenantDomain());
         expressionNodes.removeAll(filteringByParentIdExpressionNodes);
 
-        List<BasicOrganization> organizations = authorizedSubOrgsOnly ?
+        return authorizedSubOrgsOnly ?
                 organizationManagementDAO.getUserAuthorizedOrganizations(recursive, limit, orgId, sortOrder,
                                     expressionNodes, filteringByParentIdExpressionNodes, applicationAudience) :
                 organizationManagementDAO.getOrganizations(recursive, limit, orgId, sortOrder, expressionNodes,
                                     filteringByParentIdExpressionNodes);
-
-        // Iterate through organizations and set the organization handle for each.
-        for (BasicOrganization organization : organizations) {
-            organization.setOrganizationHandle(resolveTenantDomain(organization.getId()));
-        }
-        return organizations;
     }
 
     private List<Organization> getOrganizationList(Integer limit, String after, String before, String sortOrder,
@@ -387,14 +381,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
         String orgId = resolveOrganizationId(getTenantDomain());
         expressionNodes.removeAll(filteringByParentIdExpressionNodes);
 
-        List<Organization> organizations = organizationManagementDAO.getOrganizationsList(
-                recursive, limit, orgId, sortOrder, expressionNodes, filteringByParentIdExpressionNodes);
-
-        // Iterate through organizations and set the organization handle for each.
-        for (Organization organization : organizations) {
-            organization.setOrganizationHandle(resolveTenantDomain(organization.getId()));
-        }
-        return organizations;
+        return organizationManagementDAO.getOrganizationsList(recursive, limit, orgId, sortOrder, expressionNodes,
+                                                            filteringByParentIdExpressionNodes);
     }
 
     private List<ExpressionNode> getParentIdExpressionNodes(List<ExpressionNode> expressionNodes)
@@ -1090,13 +1078,12 @@ public class OrganizationManagerImpl implements OrganizationManager {
                     .SUPER_TENANT_DOMAIN_NAME);
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(organization.getCreatorUsername());
-            getTenantMgtService().addTenant(
-                    createTenantInfoBean(domain, organization));
+            getTenantMgtService().addTenant(createTenantInfoBean(domain, organization));
         } catch (TenantMgtException e) {
             // Rollback created organization.
             deleteOrganization(organization.getId());
             if (e instanceof TenantManagementClientException) {
-                if (StringUtils.equals(EXISTING_DOMAIN_ERROR_CODE, e.getErrorCode())) {
+                if (StringUtils.equals(ERROR_CODE_EXISTING_DOMAIN.getCode(), e.getErrorCode())) {
                     throw handleClientException(ERROR_CODE_EXISTING_ORGANIZATION_HANDLE, domain);
                 }
                 throw handleClientException(ERROR_CODE_INVALID_TENANT_TYPE_ORGANIZATION);

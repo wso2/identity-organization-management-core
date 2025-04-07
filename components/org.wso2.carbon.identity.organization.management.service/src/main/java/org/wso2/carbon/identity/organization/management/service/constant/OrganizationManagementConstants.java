@@ -84,7 +84,6 @@ public class OrganizationManagementConstants {
     public static final String ROOT_TENANT_DOMAIN = "RootTenantDomain";
     public static final String DESC_SORT_ORDER = "DESC";
     public static final String ASC_SORT_ORDER = "ASC";
-    public static final String EXISTING_DOMAIN_ERROR_CODE = "TM-60009";
 
     public static final String EQ = "eq";
     public static final String CO = "co";
@@ -387,6 +386,8 @@ public class OrganizationManagementConstants {
                 "Email domain resolved from the authenticated federated IDP is not mapped to the organization: %s"),
         ERROR_CODE_NO_EMAIL_ATTRIBUTE_FOUND("60099", "No email attribute found",
                 "No email attribute returned by the authenticated federated IDP"),
+        ERROR_CODE_EXISTING_ORGANIZATION_HANDLE("60100", "Unable to create the organization.",
+                "The given organization handle %s already exists. Please use a different handle."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -753,9 +754,7 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ERROR_CHECK_ORGANIZATION_USER_ASSOCIATIONS("65144",
                 "Unable to check if organization user associations exist.",
                 "Server encountered an error while checking organization user associations for the user."),
-        ERROR_CODE_EXISTING_ORGANIZATION_HANDLE("65145", "Unable to create the organization.",
-                "The given organization handle %s already exists. Please use a different handle."),
-        ERROR_CODE_ERROR_CHECKING_ORGANIZATION_EXIST_BY_HANDLE("65146",
+        ERROR_CODE_ERROR_CHECKING_ORGANIZATION_EXIST_BY_HANDLE("65145",
                 "Error while checking if the organization exists.",
                 "Server encountered an error while checking if the organization with handle: %s exists.");
 

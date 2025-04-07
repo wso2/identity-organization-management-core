@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -49,15 +49,6 @@ public interface OrganizationManager {
      * @throws OrganizationManagementException The exception thrown when checking the organization existence.
      */
     boolean isOrganizationExistByName(String organizationName) throws OrganizationManagementException;
-
-    /**
-     * Check if the {@link Organization} exists by handle.
-     *
-     * @param organizationHandle The organization handle.
-     * @return true if the organization exists.
-     * @throws OrganizationManagementException The exception thrown when checking the organization existence.
-     */
-    boolean isOrganizationExistByHandle(String organizationHandle) throws OrganizationManagementException;
 
     /**
      * Check if the {@link Organization} exists by name in hierarchy.
@@ -375,6 +366,19 @@ public interface OrganizationManager {
             throws OrganizationManagementException {
 
         throw new OrganizationManagementServerException("getOrganizationsMetaAttributes is not implemented in "
+                + this.getClass().getName());
+    }
+
+    /**
+     * Check if the {@link Organization} exists by handle.
+     *
+     * @param organizationHandle The organization handle.
+     * @return true if the organization exists.
+     * @throws OrganizationManagementException The exception thrown when checking the organization existence.
+     */
+    default boolean isOrganizationExistByHandle(String organizationHandle) throws OrganizationManagementException {
+
+        throw new NotImplementedException("isOrganizationExistByHandle is not implemented in "
                 + this.getClass().getName());
     }
 }
