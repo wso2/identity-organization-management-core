@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -28,6 +28,7 @@ import org.wso2.carbon.identity.organization.management.service.constant.Organiz
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.filter.ExpressionNode;
+import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
 import org.wso2.carbon.identity.organization.management.service.model.ParentOrganizationDO;
@@ -39,10 +40,12 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
 import static java.time.ZoneOffset.UTC;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ASC_SORT_ORDER;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_ATTRIBUTES_FIELD;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ORGANIZATION_ATTRIBUTES_FIELD_PREFIX;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationTypes.STRUCTURAL;
@@ -62,7 +65,9 @@ public class OrganizationManagementDAOImplTest {
     private static final String ATTRIBUTE_KEY_CITY = "city";
     private static final String ATTRIBUTE_VALUE_CITY = "Colombo";
     private static final String ORG_NAME = "XYZ builders";
+    private static final String ORG_HANDLE = "xyzbuilders";
     private static final String CHILD_ORG_NAME = "ABC builders";
+    private static final String CHILD_ORG_HANDLE = "abcbuilders";
     private static final String ORG_DESCRIPTION = "This is a construction company.";
     private static final String INVALID_DATA = "invalid data";
     private static final String SUPER_ORG_ID = "10084a8d-113f-4211-a0d5-efe36b082211";
@@ -77,9 +82,9 @@ public class OrganizationManagementDAOImplTest {
 
         orgId = generateUniqueID();
         childOrgId = generateUniqueID();
-        storeChildOrganization(orgId, ORG_NAME, ORG_DESCRIPTION, SUPER_ORG_ID);
+        storeChildOrganization(orgId, ORG_NAME, ORG_HANDLE, ORG_DESCRIPTION, SUPER_ORG_ID);
         storeOrganizationAttributes(orgId, ATTRIBUTE_KEY_CITY, ATTRIBUTE_VALUE_CITY);
-        storeChildOrganization(childOrgId, CHILD_ORG_NAME, ORG_DESCRIPTION, orgId);
+        storeChildOrganization(childOrgId, CHILD_ORG_NAME, CHILD_ORG_HANDLE, ORG_DESCRIPTION, orgId);
         storeOrganizationAttributes(childOrgId, ATTRIBUTE_KEY_REGION, ATTRIBUTE_VALUE);
     }
 
@@ -168,6 +173,22 @@ public class OrganizationManagementDAOImplTest {
         Organization organization = organizationManagementDAO.getOrganization(orgId);
         Assert.assertEquals(organization.getName(), ORG_NAME);
         Assert.assertEquals(organization.getParent().getId(), SUPER_ORG_ID);
+    }
+
+    @Test
+    public void testGetChildOrganizations() throws Exception {
+
+        List<BasicOrganization> organizations = organizationManagementDAO.getChildOrganizations(orgId, false);
+        Assert.assertEquals(organizations.get(0).getOrganizationHandle(), CHILD_ORG_HANDLE);
+    }
+
+    @Test
+    public void testGetBasicOrganizationList() throws Exception {
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+        List<BasicOrganization> organizations = organizationManagementDAO.getOrganizations(false, 10,
+                SUPER_ORG_ID, ASC_SORT_ORDER, Collections.emptyList(), Collections.emptyList());
+        Assert.assertEquals(organizations.get(0).getName(), ORG_NAME);
     }
 
     @DataProvider(name = "dataForFilterOrganizationsByPrimaryAttributes")
@@ -324,20 +345,21 @@ public class OrganizationManagementDAOImplTest {
     public void testDeleteOrganization() throws Exception {
 
         String id = generateUniqueID();
-        storeOrganization(id, "Dummy organization",
+        storeOrganization(id, "Dummy organization", "dummyorg",
                 "This is a sample organization to test the delete functionality.", SUPER_ORG_ID);
         organizationManagementDAO.deleteOrganization(id);
         Assert.assertNull(organizationManagementDAO.getOrganization(id));
     }
 
-    private void storeChildOrganization(String id, String name, String description, String parentId) throws Exception {
+    private void storeChildOrganization(String id, String name, String handle, String description, String parentId)
+            throws Exception {
 
-        storeOrganization(id, name, description, parentId);
+        storeOrganization(id, name, handle, description, parentId);
         storeOrganizationHierarchy(id, parentId);
         storeOrganizationAttributes(id, ATTRIBUTE_KEY, ATTRIBUTE_VALUE);
     }
 
-    private void storeOrganization(String id, String name, String description, String parentId)
+    private void storeOrganization(String id, String name, String handle, String description, String parentId)
             throws Exception {
 
         try (Connection connection = getConnection()) {
@@ -353,6 +375,7 @@ public class OrganizationManagementDAOImplTest {
             statement.setString(7, STRUCTURAL.toString());
             statement.execute();
         }
+        TestUtils.storeAssociatedTenant(handle, id);
     }
 
     private void storeOrganizationHierarchy(String id, String parentId) throws Exception {

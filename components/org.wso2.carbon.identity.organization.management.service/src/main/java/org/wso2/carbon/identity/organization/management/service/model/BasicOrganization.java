@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -28,6 +28,7 @@ public class BasicOrganization {
     private String name;
     private String status;
     private String created;
+    private String organizationHandle;
 
     public String getId() {
 
@@ -67,5 +68,25 @@ public class BasicOrganization {
     public void setStatus(String status) {
 
         this.status = status;
+    }
+
+    /**
+     * Returns the organization handle.
+     *
+     * @return The organization handle.
+     */
+    public String getOrganizationHandle() {
+
+        return organizationHandle;
+    }
+
+    /**
+     * Sets the organization handle.
+     *
+     * @param organizationHandle The organization handle to set.
+     */
+    public void setOrganizationHandle(String organizationHandle) {
+
+        this.organizationHandle = organizationHandle;
     }
 }
