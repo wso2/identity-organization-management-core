@@ -370,5 +370,13 @@ public interface OrganizationManager {
                 + this.getClass().getName());
     }
 
+    /**
+     * Retrieves a map of organization IDs to their corresponding organization names.
+     *
+     * @param orgIdList The list of organization IDs to retrieve names for.
+     * @return A map where each key is an organization ID and the corresponding value is the organization name.
+     *         If the input list is null or empty, an empty map will be returned.
+     * @throws OrganizationManagementException If an error occurs while retrieving organization names for the given IDs.
+     */
     Map<String, String> getOrganizationIdToNameMap(List<String> orgIdList) throws OrganizationManagementException;
 }

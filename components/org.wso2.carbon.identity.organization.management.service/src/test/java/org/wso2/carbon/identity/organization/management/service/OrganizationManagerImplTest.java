@@ -728,15 +728,15 @@ public class OrganizationManagerImplTest {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
 
-        List<String> orgNames = new ArrayList<>();
-        orgNames.add(SUPER_ORG_ID);
-        orgNames.add(ORG1_ID);
-        orgNames.add(ORG2_ID);
-        orgNames.add(ORG3_ID);
+        List<String> orgIds = new ArrayList<>();
+        orgIds.add(SUPER_ORG_ID);
+        orgIds.add(ORG1_ID);
+        orgIds.add(ORG2_ID);
+        orgIds.add(ORG3_ID);
 
-        Map<String, String> orgIdToNameMap = organizationManager.getOrganizationIdToNameMap(orgNames);
+        Map<String, String> orgIdToNameMap = organizationManager.getOrganizationIdToNameMap(orgIds);
         Assert.assertNotNull(orgIdToNameMap);
-        Assert.assertNotEquals(orgIdToNameMap.size(), 0);
+        Assert.assertEquals(orgIdToNameMap.size(), 4);
         Assert.assertEquals(orgIdToNameMap.get(SUPER_ORG_ID), SUPER);
         Assert.assertEquals(orgIdToNameMap.get(ORG1_ID), ORG1_NAME);
         Assert.assertEquals(orgIdToNameMap.get(ORG2_ID), ORG2_NAME);

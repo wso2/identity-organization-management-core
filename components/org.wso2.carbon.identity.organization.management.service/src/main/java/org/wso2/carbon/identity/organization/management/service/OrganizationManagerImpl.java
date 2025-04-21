@@ -565,14 +565,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         if (orgIdList == null || orgIdList.isEmpty()) {
             return Collections.emptyMap();
         }
-
-        Map<String, String> result = new HashMap<>();
-        for (String id : new HashSet<>(orgIdList)) {
-            if (id != null) {
-                result.put(id, getOrganizationNameById(id));
-            }
-        }
-        return result;
+        return organizationManagementDAO.getOrganizationNamesByIds(orgIdList);
     }
 
     private void updateTenantStatus(String status, String organizationId) throws OrganizationManagementServerException {
