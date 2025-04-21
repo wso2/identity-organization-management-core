@@ -26,6 +26,7 @@ import org.wso2.carbon.identity.organization.management.service.model.Organizati
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Organization manager service interface.
@@ -368,4 +369,6 @@ public interface OrganizationManager {
         throw new OrganizationManagementServerException("getOrganizationsMetaAttributes is not implemented in "
                 + this.getClass().getName());
     }
+
+    Map<String, String> getOrganizationIdToNameMap(List<String> orgIdList) throws OrganizationManagementException;
 }

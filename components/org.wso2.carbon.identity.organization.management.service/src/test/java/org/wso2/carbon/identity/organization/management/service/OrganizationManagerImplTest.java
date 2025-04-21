@@ -49,6 +49,7 @@ import org.wso2.carbon.user.core.tenant.TenantManager;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -720,6 +721,26 @@ public class OrganizationManagerImplTest {
         Assert.assertTrue(recursiveChildIds.contains(ORG1_ID));
         Assert.assertTrue(recursiveChildIds.contains(ORG2_ID));
         Assert.assertTrue(recursiveChildIds.contains(ORG3_ID));
+    }
+
+    @Test
+    public void testGetOrganizationIdToNameMap() throws OrganizationManagementException {
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+
+        List<String> orgNames = new ArrayList<>();
+        orgNames.add(SUPER_ORG_ID);
+        orgNames.add(ORG1_ID);
+        orgNames.add(ORG2_ID);
+        orgNames.add(ORG3_ID);
+
+        Map<String, String> orgIdToNameMap = organizationManager.getOrganizationIdToNameMap(orgNames);
+        Assert.assertNotNull(orgIdToNameMap);
+        Assert.assertNotEquals(orgIdToNameMap.size(), 0);
+        Assert.assertEquals(orgIdToNameMap.get(SUPER_ORG_ID), SUPER);
+        Assert.assertEquals(orgIdToNameMap.get(ORG1_ID), ORG1_NAME);
+        Assert.assertEquals(orgIdToNameMap.get(ORG2_ID), ORG2_NAME);
+        Assert.assertEquals(orgIdToNameMap.get(ORG3_ID), ORG3_NAME);
     }
 
     private void setOrganizationAttributes(Organization organization, String key, String value) {
