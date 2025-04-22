@@ -89,6 +89,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_DEPTH;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_ID_BY_NAME;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_NAMES_IN_BATCH;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_NAME_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_PERMISSIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_STATUS;
@@ -1415,11 +1416,10 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                             namedPreparedStatement.setString(i + 1, orgIds.get(i));
                         }
                     });
-
             return idNameEntries.stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         } catch (DataAccessException e) {
-            throw new OrganizationManagementException("Error fetching organization names in batch", e);
+            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_NAMES_IN_BATCH, e);
         }
     }
 

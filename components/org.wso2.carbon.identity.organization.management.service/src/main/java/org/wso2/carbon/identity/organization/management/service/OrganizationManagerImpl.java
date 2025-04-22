@@ -615,7 +615,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
     public Map<String, String> getOrganizationIdToNameMap(List<String> orgIdList)
             throws OrganizationManagementException {
 
-        if (orgIdList == null || orgIdList.isEmpty()) {
+        if (CollectionUtils.isEmpty(orgIdList)) {
             return Collections.emptyMap();
         }
         return organizationManagementDAO.getOrganizationNamesByIds(orgIdList);

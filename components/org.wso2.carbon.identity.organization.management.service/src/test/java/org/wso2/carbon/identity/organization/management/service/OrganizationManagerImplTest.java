@@ -743,6 +743,31 @@ public class OrganizationManagerImplTest {
         Assert.assertEquals(orgIdToNameMap.get(ORG3_ID), ORG3_NAME);
     }
 
+    @Test
+    public void testGetOrganizationIdToNameMapWithInvalidOrgIds() throws OrganizationManagementException {
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+
+        List<String> orgIds = new ArrayList<>();
+        orgIds.add("Invalid_org_id");
+
+        Map<String, String> orgIdToNameMap = organizationManager.getOrganizationIdToNameMap(orgIds);
+        Assert.assertNotNull(orgIdToNameMap);
+        Assert.assertEquals(orgIdToNameMap.size(), 0);
+    }
+
+    @Test
+    public void testGetOrganizationIdToNameMapWithEmptyOrgList() throws OrganizationManagementException {
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+
+        List<String> orgIds = new ArrayList<>();
+
+        Map<String, String> orgIdToNameMap = organizationManager.getOrganizationIdToNameMap(orgIds);
+        Assert.assertNotNull(orgIdToNameMap);
+        Assert.assertEquals(orgIdToNameMap.size(), 0);
+    }
+
     private void setOrganizationAttributes(Organization organization, String key, String value) {
 
         OrganizationAttribute organizationAttribute = new OrganizationAttribute(key, value);
