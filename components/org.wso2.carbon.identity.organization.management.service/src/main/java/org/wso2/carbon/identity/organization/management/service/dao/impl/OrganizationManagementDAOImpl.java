@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -145,11 +145,11 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ALL_UM_ORG_ATTRIBUTES_ORACLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ANCESTORS_OF_GIVEN_ORG_INCLUDING_ITSELF;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ANCESTOR_ORGANIZATION_ID_WITH_DEPTH;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATIONS;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATIONS_INCLUDING_ORG_HANDLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATION_IDS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_IMMEDIATE_OR_ALL_CHILD_ORG_IDS;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_BY_NAME;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_INCLUDING_ORG_HANDLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_META_ATTRIBUTES;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_META_ATTRIBUTES_TAIL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_META_ATTRIBUTES_TAIL_MSSQL;
@@ -157,11 +157,11 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_MSSQL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_ORACLE;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_INCLUDING_ORG_HANDLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_TAIL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_TAIL_MSSQL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_TAIL_ORACLE;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_INCLUDING_ORG_HANDLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_TAIL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_TAIL_MSSQL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_TAIL_ORACLE;
@@ -560,7 +560,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             throws OrganizationManagementServerException {
 
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
-        String sqlStmt = String.format(GET_CHILD_ORGANIZATIONS, recursive ? "> 0" : "= 1");
+        String sqlStmt = String.format(GET_CHILD_ORGANIZATIONS_INCLUDING_ORG_HANDLE, recursive ? "> 0" : "= 1");
         try {
             return namedJdbcTemplate.executeQuery(sqlStmt,
                     (resultSet, rowNumber) -> {
@@ -568,6 +568,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                         organization.setId(resultSet.getString(1));
                         organization.setName(resultSet.getString(2));
                         organization.setCreated(resultSet.getTimestamp(3).toString());
+                        organization.setOrganizationHandle(resultSet.getString(4));
                         return organization;
                     },
                     namedPreparedStatement ->
@@ -805,6 +806,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         organization.setName(resultSet.getString(2));
         organization.setCreated(resultSet.getTimestamp(3).toInstant());
         organization.setStatus(resultSet.getString(4));
+        organization.setOrganizationHandle(resultSet.getString(5));
         return organization;
     }
 
@@ -832,6 +834,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                         organization.setName(resultSet.getString(2));
                         organization.setCreated(resultSet.getTimestamp(3).toString());
                         organization.setStatus(resultSet.getString(4));
+                        organization.setOrganizationHandle(resultSet.getString(5));
                         return organization;
                     },
                     namedPreparedStatement -> setPreparedStatementParams(namedPreparedStatement, organizationId,
@@ -1600,11 +1603,11 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
 
         if (authorizedSubOrgsOnly) {
             if (StringUtils.isNotBlank(applicationAudience)) {
-                return GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS;
+                return GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_INCLUDING_ORG_HANDLE;
             }
-            return GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS;
+            return GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_INCLUDING_ORG_HANDLE;
         }
-        return GET_ORGANIZATIONS;
+        return GET_ORGANIZATIONS_INCLUDING_ORG_HANDLE;
     }
 
     private String getOrgSqlStmtTail(boolean authorizedSubOrgsOnly, String applicationAudience)

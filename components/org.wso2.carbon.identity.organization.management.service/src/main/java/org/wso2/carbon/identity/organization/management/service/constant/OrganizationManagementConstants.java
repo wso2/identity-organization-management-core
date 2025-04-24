@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -386,6 +386,8 @@ public class OrganizationManagementConstants {
                 "Email domain resolved from the authenticated federated IDP is not mapped to the organization: %s"),
         ERROR_CODE_NO_EMAIL_ATTRIBUTE_FOUND("60099", "No email attribute found",
                 "No email attribute returned by the authenticated federated IDP"),
+        ERROR_CODE_EXISTING_ORGANIZATION_HANDLE("60100", "Unable to create the organization.",
+                "The given organization handle %s already exists. Please use a different handle."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -751,7 +753,10 @@ public class OrganizationManagementConstants {
                 "Server encountered an error while updating organization user associations for the user."),
         ERROR_CODE_ERROR_CHECK_ORGANIZATION_USER_ASSOCIATIONS("65144",
                 "Unable to check if organization user associations exist.",
-                "Server encountered an error while checking organization user associations for the user.");
+                "Server encountered an error while checking organization user associations for the user."),
+        ERROR_CODE_ERROR_CHECKING_ORGANIZATION_EXIST_BY_HANDLE("65145",
+                "Error while checking if the organization exists.",
+                "Server encountered an error while checking if the organization with handle: %s exists.");
 
         private final String code;
         private final String message;
