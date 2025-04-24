@@ -43,7 +43,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -1409,28 +1408,25 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
 
         try {
-            List<Map.Entry<String, String>> idNameEntries = namedJdbcTemplate.executeQuery(
-                    sql,
-                    (resultSet, rowNumber) -> new AbstractMap.SimpleEntry<>(
-                            resultSet.getString(VIEW_ID_COLUMN),
-                            resultSet.getString(VIEW_NAME_COLUMN)),
+            Map<String, String> orgIdToNameMap = new HashMap<>();
+            List<String> invalidOrgIds = new ArrayList<>();
+
+            namedJdbcTemplate.executeQuery(sql, (resultSet, rowNumber) -> {
+                        String key = resultSet.getString(VIEW_NAME_COLUMN);
+                        String value = resultSet.getString(VIEW_NAME_COLUMN);
+                        if (value != null) {
+                            orgIdToNameMap.put(key, value);
+                        } else {
+                            invalidOrgIds.add(key);
+                        }
+                        return null;
+                    },
                     namedPreparedStatement -> {
                         int index = 1;
                         for (String orgId : orgIds) {
                             namedPreparedStatement.setString(index++, orgId);
                         }
                     });
-
-            Map<String, String> orgIdToNameMap = new HashMap<>();
-            List<String> invalidOrgIds = new ArrayList<>();
-
-            for (Map.Entry<String, String> entry : idNameEntries) {
-                if (entry.getValue() != null) {
-                    orgIdToNameMap.put(entry.getKey(), entry.getValue());
-                } else {
-                    invalidOrgIds.add(entry.getKey());
-                }
-            }
             if (LOG.isDebugEnabled()) {
                 String invalidIdsString = String.join(", ", invalidOrgIds);
                 LOG.debug("Invalid org ids found while getOrganizationNamesByIds: " + invalidIdsString);
