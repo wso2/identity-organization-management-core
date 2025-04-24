@@ -1402,7 +1402,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                 .map(id -> "?")
                 .collect(Collectors.joining(", "));
 
-        String sql = GET_ORGANIZATION_NAME_BY_ID_MAP + placeholders + ")";
+        String sql = String.format(GET_ORGANIZATION_NAME_BY_ID_MAP, placeholders);
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
 
         try {
@@ -1412,12 +1412,27 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                             resultSet.getString(VIEW_ID_COLUMN),
                             resultSet.getString(VIEW_NAME_COLUMN)),
                     namedPreparedStatement -> {
-                        for (int i = 0; i < orgIds.size(); i++) {
-                            namedPreparedStatement.setString(i + 1, orgIds.get(i));
+                        int index = 1;
+                        for (String orgId : orgIds) {
+                            namedPreparedStatement.setString(index++, orgId);
                         }
                     });
-            return idNameEntries.stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+            Map<String, String> orgIdToNameMap = new HashMap<>();
+            List<String> invalidOrgIds = new ArrayList<>();
+
+            for (Map.Entry<String, String> entry : idNameEntries) {
+                if (entry.getValue() != null) {
+                    orgIdToNameMap.put(entry.getKey(), entry.getValue());
+                } else {
+                    invalidOrgIds.add(entry.getKey());
+                }
+            }
+            if (LOG.isDebugEnabled()) {
+                String invalidIdsString = String.join(", ", invalidOrgIds);
+                LOG.debug("Invalid org ids found while getOrganizationNamesByIds: " + invalidIdsString);
+            }
+            return orgIdToNameMap;
         } catch (DataAccessException e) {
             throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_NAMES_IN_BATCH, e);
         }

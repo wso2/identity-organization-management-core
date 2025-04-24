@@ -393,7 +393,7 @@ public class SQLConstants {
             "OFFSET 0 ROWS FETCH NEXT :" + SQLPlaceholders.DB_SCHEMA_LIMIT + "; ROWS ONLY;";
 
     public static final String GET_ORGANIZATION_NAME_BY_ID_MAP = "SELECT UM_ID, UM_ORG_NAME FROM UM_ORG " +
-            "WHERE UM_ID IN (";
+            "WHERE UM_ID IN (%s)";
 
     /**
      * SQL Placeholders.

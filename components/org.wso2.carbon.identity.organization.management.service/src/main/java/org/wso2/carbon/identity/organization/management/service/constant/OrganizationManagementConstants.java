@@ -752,7 +752,7 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ERROR_CHECK_ORGANIZATION_USER_ASSOCIATIONS("65144",
                 "Unable to check if organization user associations exist.",
                 "Server encountered an error while checking organization user associations for the user."),
-        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_NAMES_IN_BATCH("60100",
+        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_NAMES_IN_BATCH("65145",
                 "Error in retrieving organization names in batch.",
                 "Server encountered an error while retrieving organization names for given organization ids");
 

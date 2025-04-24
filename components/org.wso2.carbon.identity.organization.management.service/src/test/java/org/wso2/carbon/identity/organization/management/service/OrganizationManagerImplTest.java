@@ -48,6 +48,8 @@ import org.wso2.carbon.user.core.tenant.TenantManager;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -743,29 +745,31 @@ public class OrganizationManagerImplTest {
         Assert.assertEquals(orgIdToNameMap.get(ORG3_ID), ORG3_NAME);
     }
 
-    @Test
-    public void testGetOrganizationIdToNameMapWithInvalidOrgIds() throws OrganizationManagementException {
+    @DataProvider(name = "dataForGetOrganizationIdToNameMapWithInvalidInput")
+    public Object[][] dataForGetOrganizationIdToNameMapWithInvalidInput() {
 
-        TestUtils.mockCarbonContext(SUPER_ORG_ID);
-
-        List<String> orgIds = new ArrayList<>();
-        orgIds.add("Invalid_org_id");
-
-        Map<String, String> orgIdToNameMap = organizationManager.getOrganizationIdToNameMap(orgIds);
-        Assert.assertNotNull(orgIdToNameMap);
-        Assert.assertEquals(orgIdToNameMap.size(), 0);
+        return new Object[][]{
+                { Collections.emptyList() },
+                { Collections.singletonList("Invalid_org_id") },
+                { Arrays.asList("Invalid_org_id_1", SUPER_ORG_ID) },
+                { Arrays.asList(SUPER_ORG_ID, "Invalid_org_id_1") }
+        };
     }
 
-    @Test
-    public void testGetOrganizationIdToNameMapWithEmptyOrgList() throws OrganizationManagementException {
+    @Test(dataProvider = "dataForGetOrganizationIdToNameMapWithInvalidInput")
+    public void testGetOrganizationIdToNameMapWithInvalidInput(List<String> orgIds) throws OrganizationManagementException {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
 
-        List<String> orgIds = new ArrayList<>();
-
         Map<String, String> orgIdToNameMap = organizationManager.getOrganizationIdToNameMap(orgIds);
         Assert.assertNotNull(orgIdToNameMap);
-        Assert.assertEquals(orgIdToNameMap.size(), 0);
+
+        if (orgIds.size() <= 1) {
+            Assert.assertEquals(orgIdToNameMap.size(), 0);
+        } else {
+            Assert.assertEquals(orgIdToNameMap.size(), 1);
+            Assert.assertEquals(orgIdToNameMap.get(SUPER_ORG_ID), SUPER);
+        }
     }
 
     private void setOrganizationAttributes(Organization organization, String key, String value) {
