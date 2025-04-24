@@ -381,7 +381,7 @@ public interface OrganizationManager {
     default Map<String, String> getOrganizationIdToNameMap(List<String> orgIdList)
             throws OrganizationManagementException {
 
-        throw new OrganizationManagementServerException("getOrganizationsMetaAttributes is not implemented in "
+        throw new OrganizationManagementServerException("getOrganizationIdToNameMap is not implemented in "
                 + this.getClass().getName());
     }
 }

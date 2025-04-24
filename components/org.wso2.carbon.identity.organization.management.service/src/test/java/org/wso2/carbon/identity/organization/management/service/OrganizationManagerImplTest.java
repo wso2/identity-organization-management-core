@@ -50,6 +50,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -725,51 +726,58 @@ public class OrganizationManagerImplTest {
         Assert.assertTrue(recursiveChildIds.contains(ORG3_ID));
     }
 
-    @Test
-    public void testGetOrganizationIdToNameMap() throws OrganizationManagementException {
+    @DataProvider(name = "dataForGetOrganizationIdToNameMap")
+    public Object[][] dataForGetOrganizationIdToNameMap() {
+
+        List<String> orgIds = Arrays.asList(SUPER_ORG_ID, ORG1_ID, ORG2_ID, ORG3_ID);
+
+        Map<String, String> expectedMap = new HashMap<>();
+        expectedMap.put(SUPER_ORG_ID, SUPER);
+        expectedMap.put(ORG1_ID, ORG1_NAME);
+        expectedMap.put(ORG2_ID, ORG2_NAME);
+        expectedMap.put(ORG3_ID, ORG3_NAME);
+
+        return new Object[][] {
+                { orgIds, expectedMap }
+        };
+    }
+
+    @Test(dataProvider = "dataForGetOrganizationIdToNameMap")
+    public void testGetOrganizationIdToNameMap(List<String> orgIds, Map<String, String> expectedMap)
+            throws OrganizationManagementException {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
 
-        List<String> orgIds = new ArrayList<>();
-        orgIds.add(SUPER_ORG_ID);
-        orgIds.add(ORG1_ID);
-        orgIds.add(ORG2_ID);
-        orgIds.add(ORG3_ID);
+        Map<String, String> actualMap = organizationManager.getOrganizationIdToNameMap(orgIds);
 
-        Map<String, String> orgIdToNameMap = organizationManager.getOrganizationIdToNameMap(orgIds);
-        Assert.assertNotNull(orgIdToNameMap);
-        Assert.assertEquals(orgIdToNameMap.size(), 4);
-        Assert.assertEquals(orgIdToNameMap.get(SUPER_ORG_ID), SUPER);
-        Assert.assertEquals(orgIdToNameMap.get(ORG1_ID), ORG1_NAME);
-        Assert.assertEquals(orgIdToNameMap.get(ORG2_ID), ORG2_NAME);
-        Assert.assertEquals(orgIdToNameMap.get(ORG3_ID), ORG3_NAME);
+        Assert.assertNotNull(actualMap);
+        Assert.assertEquals(actualMap, expectedMap);
     }
 
     @DataProvider(name = "dataForGetOrganizationIdToNameMapWithInvalidInput")
     public Object[][] dataForGetOrganizationIdToNameMapWithInvalidInput() {
 
-        return new Object[][]{
-                { Collections.emptyList() },
-                { Collections.singletonList("Invalid_org_id") },
-                { Arrays.asList("Invalid_org_id_1", SUPER_ORG_ID) },
-                { Arrays.asList(SUPER_ORG_ID, "Invalid_org_id_1") }
+        Map<String, String> mapWithSuperOrg = new HashMap<>();
+        mapWithSuperOrg.put(SUPER_ORG_ID, SUPER);
+
+        return new Object[][] {
+                { Collections.emptyList(), Collections.emptyMap() },
+                { Collections.singletonList("Invalid_org_id"), Collections.emptyMap() },
+                { Arrays.asList("Invalid_org_id_1", SUPER_ORG_ID), mapWithSuperOrg },
+                { Arrays.asList(SUPER_ORG_ID, "Invalid_org_id_1"), mapWithSuperOrg }
         };
     }
 
     @Test(dataProvider = "dataForGetOrganizationIdToNameMapWithInvalidInput")
-    public void testGetOrganizationIdToNameMapWithInvalidInput(List<String> orgIds) throws OrganizationManagementException {
+    public void testGetOrganizationIdToNameMapWithInvalidInput(List<String> orgIds, Map<String, String> expectedMap)
+            throws OrganizationManagementException {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
 
-        Map<String, String> orgIdToNameMap = organizationManager.getOrganizationIdToNameMap(orgIds);
-        Assert.assertNotNull(orgIdToNameMap);
+        Map<String, String> actualMap = organizationManager.getOrganizationIdToNameMap(orgIds);
 
-        if (orgIds.size() <= 1) {
-            Assert.assertEquals(orgIdToNameMap.size(), 0);
-        } else {
-            Assert.assertEquals(orgIdToNameMap.size(), 1);
-            Assert.assertEquals(orgIdToNameMap.get(SUPER_ORG_ID), SUPER);
-        }
+        Assert.assertNotNull(actualMap);
+        Assert.assertEquals(actualMap, expectedMap);
     }
 
     private void setOrganizationAttributes(Organization organization, String key, String value) {
