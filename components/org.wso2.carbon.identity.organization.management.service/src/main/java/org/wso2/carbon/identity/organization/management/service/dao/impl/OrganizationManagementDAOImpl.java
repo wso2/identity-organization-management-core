@@ -1412,7 +1412,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             List<String> invalidOrgIds = new ArrayList<>();
 
             namedJdbcTemplate.executeQuery(sql, (resultSet, rowNumber) -> {
-                        String key = resultSet.getString(VIEW_NAME_COLUMN);
+                        String key = resultSet.getString(VIEW_ID_COLUMN);
                         String value = resultSet.getString(VIEW_NAME_COLUMN);
                         if (value != null) {
                             orgIdToNameMap.put(key, value);
