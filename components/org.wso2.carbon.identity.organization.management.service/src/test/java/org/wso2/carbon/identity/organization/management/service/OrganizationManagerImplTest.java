@@ -814,8 +814,8 @@ public class OrganizationManagerImplTest {
         }
     }
 
-    @DataProvider(name = "dataForGetOrganizationIdToNameMap")
-    public Object[][] dataForGetOrganizationIdToNameMap() {
+    @DataProvider(name = "dataForGetBasicOrganizationDetailsByOrgIDs")
+    public Object[][] dataForGetBasicOrganizationDetailsByOrgIDs() {
 
         List<String> orgIds = Arrays.asList(ORG1_ID, ORG2_ID, ORG3_ID);
 
@@ -828,8 +828,8 @@ public class OrganizationManagerImplTest {
         };
     }
 
-    @Test(dataProvider = "dataForGetOrganizationIdToNameMap")
-    public void testGetOrganizationIdToNameMap(List<String> orgIds, List<String> expectedIds,
+    @Test(dataProvider = "dataForGetBasicOrganizationDetailsByOrgIDs")
+    public void testGetBasicOrganizationDetailsByOrgIDs(List<String> orgIds, List<String> expectedIds,
                                                List<String> expectedNames, List<String> expectedOrganizationHandles)
             throws OrganizationManagementException {
 
@@ -848,8 +848,8 @@ public class OrganizationManagerImplTest {
         }
     }
 
-    @DataProvider(name = "dataForGetOrganizationIdToNameMapWithInvalidInput")
-    public Object[][] dataForGetOrganizationIdToNameMapWithInvalidInput() {
+    @DataProvider(name = "dataForGetBasicOrganizationDetailsByOrgIDsWithInvalidInput")
+    public Object[][] dataForGetBasicOrganizationDetailsByOrgIDsWithInvalidInput() {
 
         List<String> orgIdList1 = Collections.emptyList();
         List<String> orgIdList2 = Collections.singletonList("Invalid_org_id");
@@ -864,8 +864,8 @@ public class OrganizationManagerImplTest {
         };
     }
 
-    @Test(dataProvider = "dataForGetOrganizationIdToNameMapWithInvalidInput")
-    public void testGetOrganizationIdToNameMapWithInvalidInput(List<String> orgIds, int expectedMapSize,
+    @Test(dataProvider = "dataForGetBasicOrganizationDetailsByOrgIDsWithInvalidInput")
+    public void testGetBasicOrganizationDetailsByOrgIDsWithInvalidInput(List<String> orgIds, int expectedMapSize,
                                                                String expectedId, String expectedName,
                                                                String expectedOrgHandle)
             throws OrganizationManagementException {

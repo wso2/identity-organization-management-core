@@ -394,7 +394,7 @@ public interface OrganizationManager {
     default Map<String, BasicOrganization> getBasicOrganizationDetailsByOrgIDs(List<String> orgIdList)
             throws OrganizationManagementException {
 
-        throw new OrganizationManagementServerException("getOrganizationIdToNameMap is not implemented in "
+        throw new OrganizationManagementServerException("getBasicOrganizationDetailsByOrgIDs is not implemented in "
                 + this.getClass().getName());
     }
 }
