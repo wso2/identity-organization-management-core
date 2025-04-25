@@ -450,16 +450,16 @@ public interface OrganizationManagementDAO {
     }
 
     /**
-     * Retrieve a map of organization IDs to their corresponding organization names.
+     * Retrieve a map of organization IDs to their corresponding {@link BasicOrganization} details.
      *
-     * @param orgIds The list of organization IDs to fetch names for.
-     * @return A map where the key is the organization ID and the value is the organization name.
-     * @throws OrganizationManagementException If an error occurs while retrieving organization names.
+     * @param orgIds The list of organization IDs to fetch details for.
+     * @return A map where the key is the organization ID and the value is the corresponding {@link BasicOrganization} object.
+     * @throws OrganizationManagementException If an error occurs while retrieving organization details.
      */
     default Map<String, BasicOrganization> getBasicOrganizationDetailsByOrgIDs(List<String> orgIds)
             throws OrganizationManagementException {
 
-        throw new OrganizationManagementServerException("getOrganizationNamesByIds is not implemented in "
+        throw new OrganizationManagementServerException("getBasicOrganizationDetailsByOrgIDs is not implemented in "
                 + this.getClass().getName());
     }
 }

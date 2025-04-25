@@ -384,12 +384,12 @@ public interface OrganizationManager {
     }
 
     /**
-     * Retrieves a map of organization IDs to their corresponding organization names.
+     * Retrieves a map of organization IDs to their corresponding {@link BasicOrganization} details.
      *
-     * @param orgIdList The list of organization IDs to retrieve names for.
-     * @return A map where each key is an organization ID and the corresponding value is the organization name.
+     * @param orgIdList The list of organization IDs to retrieve details for.
+     * @return A map where each key is an organization ID and the corresponding value is a {@link BasicOrganization} object.
      *         If the input list is null or empty, an empty map will be returned.
-     * @throws OrganizationManagementException If an error occurs while retrieving organization names for the given IDs.
+     * @throws OrganizationManagementException If an error occurs while retrieving organization details for the given IDs.
      */
     default Map<String, BasicOrganization> getBasicOrganizationDetailsByOrgIDs(List<String> orgIdList)
             throws OrganizationManagementException {

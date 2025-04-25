@@ -88,7 +88,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_DEPTH;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_ID_BY_NAME;
-import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_NAMES_IN_BATCH;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_NAMES_BY_ORGANIZATION_IDS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_NAME_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_PERMISSIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_STATUS;
@@ -173,7 +173,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_DEPTH_IN_HIERARCHY_MSSQL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_DEPTH_IN_HIERARCHY_ORACLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_NAME_BY_ID;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_NAME_BY_ID_MAP;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_BASIC_ORG_DETAILS_BY_ORG_IDS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_PERMISSIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_STATUS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_TYPE;
@@ -1406,7 +1406,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                 .map(id -> "?")
                 .collect(Collectors.joining(", "));
 
-        String sql = String.format(GET_ORGANIZATION_NAME_BY_ID_MAP, placeholders);
+        String sql = String.format(GET_BASIC_ORG_DETAILS_BY_ORG_IDS, placeholders);
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
 
         try {
@@ -1445,7 +1445,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             }
             return basicOrganizationDetailsMap;
         } catch (DataAccessException e) {
-            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_NAMES_IN_BATCH, e);
+            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_NAMES_BY_ORGANIZATION_IDS, e);
         }
     }
 

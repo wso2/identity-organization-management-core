@@ -758,8 +758,8 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ERROR_CHECKING_ORGANIZATION_EXIST_BY_HANDLE("65145",
                 "Error while checking if the organization exists.",
                 "Server encountered an error while checking if the organization with handle: %s exists."),
-        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_NAMES_IN_BATCH("65146",
-                "Error in retrieving organization names in batch.",
+        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_NAMES_BY_ORGANIZATION_IDS("65146",
+                "Error in retrieving organization names by organization ids.",
                 "Server encountered an error while retrieving organization names for given organization ids");
 
         private final String code;
