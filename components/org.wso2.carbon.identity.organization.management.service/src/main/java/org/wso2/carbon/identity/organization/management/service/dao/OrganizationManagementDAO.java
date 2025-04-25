@@ -453,7 +453,8 @@ public interface OrganizationManagementDAO {
      * Retrieve a map of organization IDs to their corresponding {@link BasicOrganization} details.
      *
      * @param orgIds The list of organization IDs to fetch details for.
-     * @return A map where the key is the organization ID and the value is the corresponding {@link BasicOrganization} object.
+     * @return A map where the key is the organization ID and
+     * the value is the corresponding {@link BasicOrganization} object.
      * @throws OrganizationManagementException If an error occurs while retrieving organization details.
      */
     default Map<String, BasicOrganization> getBasicOrganizationDetailsByOrgIDs(List<String> orgIds)
