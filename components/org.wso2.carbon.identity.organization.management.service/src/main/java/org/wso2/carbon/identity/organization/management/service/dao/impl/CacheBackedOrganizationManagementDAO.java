@@ -423,9 +423,10 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
     }
 
     @Override
-    public Map<String, String> getOrganizationNamesByIds(List<String> orgIds) throws OrganizationManagementException {
+    public Map<String, BasicOrganization> getBasicOrganizationDetailsByOrgIDs(List<String> orgIds)
+            throws OrganizationManagementException {
 
-        return organizationMgtDAO.getOrganizationNamesByIds(orgIds);
+        return organizationMgtDAO.getBasicOrganizationDetailsByOrgIDs(orgIds);
     }
 
     private TenantDomainCacheEntry getTenantDomainFromCache(String organizationId) {

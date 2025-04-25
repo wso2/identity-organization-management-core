@@ -391,7 +391,7 @@ public interface OrganizationManager {
      *         If the input list is null or empty, an empty map will be returned.
      * @throws OrganizationManagementException If an error occurs while retrieving organization names for the given IDs.
      */
-    default Map<String, String> getOrganizationIdToNameMap(List<String> orgIdList)
+    default Map<String, BasicOrganization> getBasicOrganizationDetailsByOrgIDs(List<String> orgIdList)
             throws OrganizationManagementException {
 
         throw new OrganizationManagementServerException("getOrganizationIdToNameMap is not implemented in "

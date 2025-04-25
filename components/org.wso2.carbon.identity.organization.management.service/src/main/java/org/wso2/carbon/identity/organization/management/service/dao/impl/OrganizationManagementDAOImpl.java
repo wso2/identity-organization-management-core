@@ -129,6 +129,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_NAME_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_PARENT_ID_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_STATUS_COLUMN;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_TENANT_DOMAIN_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_TENANT_UUID_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_TYPE_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.CHECK_CHILD_OF_PARENT;
@@ -1398,7 +1399,8 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
     }
 
     @Override
-    public Map<String, String> getOrganizationNamesByIds(List<String> orgIds) throws OrganizationManagementException {
+    public Map<String, BasicOrganization> getBasicOrganizationDetailsByOrgIDs(List<String> orgIds)
+            throws OrganizationManagementException {
 
         String placeholders = orgIds.stream()
                 .map(id -> "?")
@@ -1408,16 +1410,26 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
 
         try {
-            Map<String, String> orgIdToNameMap = new HashMap<>();
+            Map<String, BasicOrganization> basicOrganizationDetailsMap = new HashMap<>();
             List<String> invalidOrgIds = new ArrayList<>();
 
             namedJdbcTemplate.executeQuery(sql, (resultSet, rowNumber) -> {
-                        String key = resultSet.getString(VIEW_ID_COLUMN);
-                        String value = resultSet.getString(VIEW_NAME_COLUMN);
-                        if (value != null) {
-                            orgIdToNameMap.put(key, value);
+                        String orgId = resultSet.getString(VIEW_ID_COLUMN);
+                        String orgName = resultSet.getString(VIEW_NAME_COLUMN);
+                        String status = resultSet.getString(VIEW_STATUS_COLUMN);
+                        String created = resultSet.getString(VIEW_CREATED_TIME_COLUMN);
+                        String organizationHandle = resultSet.getString(VIEW_TENANT_DOMAIN_COLUMN);
+
+                        if (StringUtils.isNotBlank(orgName)) {
+                            BasicOrganization basicOrganization = new BasicOrganization();
+                            basicOrganization.setId(orgId);
+                            basicOrganization.setName(orgName);
+                            basicOrganization.setStatus(status);
+                            basicOrganization.setCreated(created);
+                            basicOrganization.setOrganizationHandle(organizationHandle);
+                            basicOrganizationDetailsMap.put(orgId, basicOrganization);
                         } else {
-                            invalidOrgIds.add(key);
+                            invalidOrgIds.add(orgId);
                         }
                         return null;
                     },
@@ -1431,7 +1443,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                 String invalidIdsString = String.join(", ", invalidOrgIds);
                 LOG.debug("Invalid org ids found while getOrganizationNamesByIds: " + invalidIdsString);
             }
-            return orgIdToNameMap;
+            return basicOrganizationDetailsMap;
         } catch (DataAccessException e) {
             throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_NAMES_IN_BATCH, e);
         }

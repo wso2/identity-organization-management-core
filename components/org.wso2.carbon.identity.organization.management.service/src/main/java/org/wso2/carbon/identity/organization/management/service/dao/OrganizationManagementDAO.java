@@ -456,7 +456,8 @@ public interface OrganizationManagementDAO {
      * @return A map where the key is the organization ID and the value is the organization name.
      * @throws OrganizationManagementException If an error occurs while retrieving organization names.
      */
-    default Map<String, String> getOrganizationNamesByIds(List<String> orgIds) throws OrganizationManagementException {
+    default Map<String, BasicOrganization> getBasicOrganizationDetailsByOrgIDs(List<String> orgIds)
+            throws OrganizationManagementException {
 
         throw new OrganizationManagementServerException("getOrganizationNamesByIds is not implemented in "
                 + this.getClass().getName());

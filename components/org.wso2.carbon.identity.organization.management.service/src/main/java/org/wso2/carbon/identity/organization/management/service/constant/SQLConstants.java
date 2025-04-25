@@ -435,8 +435,9 @@ public class SQLConstants {
             "AND OH.DEPTH %s) ORDER BY UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_KEY %s " +
             "OFFSET 0 ROWS FETCH NEXT :" + SQLPlaceholders.DB_SCHEMA_LIMIT + "; ROWS ONLY;";
 
-    public static final String GET_ORGANIZATION_NAME_BY_ID_MAP = "SELECT UM_ID, UM_ORG_NAME FROM UM_ORG " +
-            "WHERE UM_ID IN (%s)";
+    public static final String GET_ORGANIZATION_NAME_BY_ID_MAP = "SELECT U.UM_ID, U.UM_ORG_NAME, U.UM_STATUS, " +
+            "U.UM_CREATED_TIME, T.UM_DOMAIN_NAME FROM UM_ORG U JOIN UM_TENANT T ON U.UM_ID = T.UM_ORG_UUID " +
+            "WHERE U.UM_ID IN (%s)";
 
     /**
      * SQL Placeholders.

@@ -633,13 +633,13 @@ public class OrganizationManagerImpl implements OrganizationManager {
     }
 
     @Override
-    public Map<String, String> getOrganizationIdToNameMap(List<String> orgIdList)
+    public Map<String, BasicOrganization> getBasicOrganizationDetailsByOrgIDs(List<String> orgIdList)
             throws OrganizationManagementException {
 
         if (CollectionUtils.isEmpty(orgIdList)) {
             return Collections.emptyMap();
         }
-        return organizationManagementDAO.getOrganizationNamesByIds(orgIdList);
+        return organizationManagementDAO.getBasicOrganizationDetailsByOrgIDs(orgIdList);
     }
 
     private void updateTenantStatus(String status, String organizationId) throws OrganizationManagementServerException {
