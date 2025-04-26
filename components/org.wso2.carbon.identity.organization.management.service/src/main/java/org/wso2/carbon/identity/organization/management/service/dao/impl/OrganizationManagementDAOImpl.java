@@ -1414,32 +1414,29 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             List<String> invalidOrgIds = new ArrayList<>();
 
             namedJdbcTemplate.executeQuery(sql, (resultSet, rowNumber) -> {
-                        String orgId = resultSet.getString(VIEW_ID_COLUMN);
-                        String orgName = resultSet.getString(VIEW_NAME_COLUMN);
-                        String status = resultSet.getString(VIEW_STATUS_COLUMN);
-                        String created = resultSet.getString(VIEW_CREATED_TIME_COLUMN);
-                        String organizationHandle = resultSet.getString(VIEW_TENANT_DOMAIN_COLUMN);
+                    String orgId = resultSet.getString(VIEW_ID_COLUMN);
+                    String orgName = resultSet.getString(VIEW_NAME_COLUMN);
 
-                        if (StringUtils.isNotBlank(orgName)) {
-                            BasicOrganization basicOrganization = new BasicOrganization();
-                            basicOrganization.setId(orgId);
-                            basicOrganization.setName(orgName);
-                            basicOrganization.setStatus(status);
-                            basicOrganization.setCreated(created);
-                            basicOrganization.setOrganizationHandle(organizationHandle);
-                            basicOrganizationDetailsMap.put(orgId, basicOrganization);
-                        } else {
-                            invalidOrgIds.add(orgId);
-                        }
-                        return null;
-                    },
-                    namedPreparedStatement -> {
-                        int index = 1;
-                        for (String orgId : orgIds) {
-                            namedPreparedStatement.setString(index++, orgId);
-                        }
-                    });
-            if (LOG.isDebugEnabled()) {
+                if (StringUtils.isNotBlank(orgName)) {
+                    BasicOrganization basicOrganization = new BasicOrganization();
+                    basicOrganization.setId(orgId);
+                    basicOrganization.setName(orgName);
+                    basicOrganization.setStatus(resultSet.getString(VIEW_STATUS_COLUMN));
+                    basicOrganization.setCreated(resultSet.getString(VIEW_CREATED_TIME_COLUMN));
+                    basicOrganization.setOrganizationHandle(resultSet.getString(VIEW_TENANT_DOMAIN_COLUMN));
+                    basicOrganizationDetailsMap.put(orgId, basicOrganization);
+                } else {
+                    invalidOrgIds.add(orgId);
+                }
+                return null;
+                },
+                namedPreparedStatement -> {
+                    int index = 1;
+                    for (String orgId : orgIds) {
+                        namedPreparedStatement.setString(index++, orgId);
+                    }
+                });
+            if (LOG.isDebugEnabled() && !invalidOrgIds.isEmpty()) {
                 String invalidIdsString = String.join(", ", invalidOrgIds);
                 LOG.debug("Invalid org ids found while getOrganizationNamesByIds: " + invalidIdsString);
             }
