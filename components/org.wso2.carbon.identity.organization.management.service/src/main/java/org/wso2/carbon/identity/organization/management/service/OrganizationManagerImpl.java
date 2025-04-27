@@ -59,7 +59,9 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -628,6 +630,16 @@ public class OrganizationManagerImpl implements OrganizationManager {
         String orgId = resolveOrganizationId(getTenantDomain());
         return organizationManagementDAO.getOrganizationsMetaAttributes(recursive, limit, orgId, sortOrder,
                                                                     expressionNodes);
+    }
+
+    @Override
+    public Map<String, BasicOrganization> getBasicOrganizationDetailsByOrgIDs(List<String> orgIdList)
+            throws OrganizationManagementException {
+
+        if (CollectionUtils.isEmpty(orgIdList)) {
+            return Collections.emptyMap();
+        }
+        return organizationManagementDAO.getBasicOrganizationDetailsByOrgIDs(orgIdList);
     }
 
     private void updateTenantStatus(String status, String organizationId) throws OrganizationManagementServerException {

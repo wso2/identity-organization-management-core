@@ -28,6 +28,7 @@ import org.wso2.carbon.database.utils.jdbc.exceptions.DataAccessException;
 import org.wso2.carbon.database.utils.jdbc.exceptions.TransactionException;
 import org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
+import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.filter.ExpressionNode;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
@@ -86,6 +87,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS_META_ATTRIBUTES;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_DEPTH;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_DETAILS_BY_ORGANIZATION_IDS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_ID_BY_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_NAME_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_PERMISSIONS;
@@ -127,6 +129,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_NAME_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_PARENT_ID_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_STATUS_COLUMN;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_TENANT_DOMAIN_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_TENANT_UUID_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_TYPE_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.CHECK_CHILD_OF_PARENT;
@@ -145,6 +148,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ALL_UM_ORG_ATTRIBUTES_ORACLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ANCESTORS_OF_GIVEN_ORG_INCLUDING_ITSELF;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ANCESTOR_ORGANIZATION_ID_WITH_DEPTH;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_BASIC_ORG_DETAILS_BY_ORG_IDS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATIONS_INCLUDING_ORG_HANDLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATION_IDS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_IMMEDIATE_OR_ALL_CHILD_ORG_IDS;
@@ -1392,6 +1396,54 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS_META_ATTRIBUTES, e);
         }
         return organizationMetaAttributes;
+    }
+
+    @Override
+    public Map<String, BasicOrganization> getBasicOrganizationDetailsByOrgIDs(List<String> orgIds)
+            throws OrganizationManagementException {
+
+        String placeholders = orgIds.stream()
+                .map(id -> "?")
+                .collect(Collectors.joining(", "));
+
+        String sql = String.format(GET_BASIC_ORG_DETAILS_BY_ORG_IDS, placeholders);
+        NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
+
+        try {
+            Map<String, BasicOrganization> basicOrganizationDetailsMap = new HashMap<>();
+            List<String> invalidOrgIds = new ArrayList<>();
+
+            namedJdbcTemplate.executeQuery(sql, (resultSet, rowNumber) -> {
+                    String orgId = resultSet.getString(VIEW_ID_COLUMN);
+                    String orgName = resultSet.getString(VIEW_NAME_COLUMN);
+
+                if (StringUtils.isNotBlank(orgName)) {
+                    BasicOrganization basicOrganization = new BasicOrganization();
+                    basicOrganization.setId(orgId);
+                    basicOrganization.setName(orgName);
+                    basicOrganization.setStatus(resultSet.getString(VIEW_STATUS_COLUMN));
+                    basicOrganization.setCreated(resultSet.getString(VIEW_CREATED_TIME_COLUMN));
+                    basicOrganization.setOrganizationHandle(resultSet.getString(VIEW_TENANT_DOMAIN_COLUMN));
+                    basicOrganizationDetailsMap.put(orgId, basicOrganization);
+                } else {
+                    invalidOrgIds.add(orgId);
+                }
+                return null;
+                },
+                namedPreparedStatement -> {
+                    int index = 1;
+                    for (String orgId : orgIds) {
+                        namedPreparedStatement.setString(index++, orgId);
+                    }
+                });
+            if (LOG.isDebugEnabled() && !invalidOrgIds.isEmpty()) {
+                String invalidIdsString = String.join(", ", invalidOrgIds);
+                LOG.debug("Invalid org ids found while getOrganizationNamesByIds: " + invalidIdsString);
+            }
+            return basicOrganizationDetailsMap;
+        } catch (DataAccessException e) {
+            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_DETAILS_BY_ORGANIZATION_IDS, e);
+        }
     }
 
     private static String getOrgMetaAttributesSqlStmt(boolean recursive, String sortOrder,

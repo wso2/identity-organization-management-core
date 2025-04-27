@@ -39,6 +39,7 @@ import org.wso2.carbon.identity.organization.management.service.exception.Organi
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
 import org.wso2.carbon.identity.organization.management.service.listener.OrganizationManagerListener;
+import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
@@ -54,7 +55,10 @@ import org.wso2.carbon.user.core.tenant.TenantManager;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -112,6 +116,8 @@ public class OrganizationManagerImplTest {
     private static final String ORG4_ID = "org_id_4";
     private static final String INVALID_PARENT_ID = "invalid_parent_id";
     private static final String INVALID_ORG_ID = "invalid_org_id";
+    private static final String ORG_CREATED = "createdTime";
+    private static final String ORG_STATUS = "ACTIVE";
 
     private OrganizationManagerImpl organizationManager;
 
@@ -805,6 +811,72 @@ public class OrganizationManagerImplTest {
             assertEquals(ORG2_HANDLE, bean.getDomain());
         } else {
             assertEquals(ORG_ID, bean.getDomain());
+        }
+    }
+
+    @DataProvider(name = "dataForGetBasicOrganizationDetailsByOrgIDs")
+    public Object[][] dataForGetBasicOrganizationDetailsByOrgIDs() {
+
+        List<String> orgIds = Arrays.asList(ORG1_ID, ORG2_ID, ORG3_ID);
+
+        List<String> expectedIds = Arrays.asList(ORG1_ID, ORG2_ID, ORG3_ID);
+        List<String> expectedNames = Arrays.asList(ORG1_NAME, ORG2_NAME, ORG3_NAME);
+        List<String> expectedOrganizationHandles = Arrays.asList(ORG1_HANDLE, ORG2_HANDLE, ORG3_HANDLE);
+
+        return new Object[][] {
+                { orgIds, expectedIds, expectedNames, expectedOrganizationHandles }
+        };
+    }
+
+    @Test(dataProvider = "dataForGetBasicOrganizationDetailsByOrgIDs")
+    public void testGetBasicOrganizationDetailsByOrgIDs(List<String> orgIds, List<String> expectedIds,
+                                               List<String> expectedNames, List<String> expectedOrganizationHandles)
+            throws OrganizationManagementException {
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+
+        Map<String, BasicOrganization> actualMap = organizationManager.getBasicOrganizationDetailsByOrgIDs(orgIds);
+        Assert.assertNotNull(actualMap);
+
+        for (String orgId : orgIds) {
+            BasicOrganization org = actualMap.get(orgId);
+            int index = orgIds.indexOf(orgId);
+
+            Assert.assertEquals(org.getId(), expectedIds.get(index));
+            Assert.assertEquals(org.getName(), expectedNames.get(index));
+            Assert.assertEquals(org.getOrganizationHandle(), expectedOrganizationHandles.get(index));
+        }
+    }
+
+    @DataProvider(name = "dataForGetBasicOrganizationDetailsByOrgIDsWithInvalidInput")
+    public Object[][] dataForGetBasicOrganizationDetailsByOrgIDsWithInvalidInput() {
+
+        List<String> orgIdList1 = Collections.emptyList();
+        List<String> orgIdList2 = Collections.singletonList("Invalid_org_id");
+        List<String> orgIdList3 = Arrays.asList("Invalid_org_id_1", ORG1_ID);
+        List<String> orgIdList4 = Arrays.asList(ORG1_ID, "Invalid_org_id_1");
+
+        return new Object[][] {
+                { orgIdList1, 0, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY},
+                { orgIdList2, 0, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY},
+                { orgIdList3, 1, ORG1_ID, ORG1_NAME, ORG1_HANDLE},
+                { orgIdList4, 1, ORG1_ID, ORG1_NAME, ORG1_HANDLE}
+        };
+    }
+
+    @Test(dataProvider = "dataForGetBasicOrganizationDetailsByOrgIDsWithInvalidInput")
+    public void testGetBasicOrganizationDetailsByOrgIDsWithInvalidInput(List<String> orgIds, int expectedMapSize,
+                                                               String expectedId, String expectedName,
+                                                               String expectedOrgHandle)
+            throws OrganizationManagementException {
+
+        Map<String, BasicOrganization> actualMap = organizationManager.getBasicOrganizationDetailsByOrgIDs(orgIds);
+        Assert.assertEquals(actualMap.size(), expectedMapSize);
+        if (!actualMap.isEmpty()) {
+            BasicOrganization org = actualMap.get(ORG1_ID);
+            Assert.assertEquals(org.getId(), expectedId);
+            Assert.assertEquals(org.getName(), expectedName);
+            Assert.assertEquals(org.getOrganizationHandle(), expectedOrgHandle);
         }
     }
 

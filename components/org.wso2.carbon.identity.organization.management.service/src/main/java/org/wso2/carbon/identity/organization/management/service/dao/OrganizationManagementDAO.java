@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.organization.management.service.dao;
 
 import org.wso2.carbon.identity.organization.management.service.exception.NotImplementedException;
+import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.filter.ExpressionNode;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
@@ -27,6 +28,7 @@ import org.wso2.carbon.identity.organization.management.service.model.PatchOpera
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -444,6 +446,21 @@ public interface OrganizationManagementDAO {
             throws OrganizationManagementServerException {
 
         throw new OrganizationManagementServerException("getOrganizationsMetaAttributes is not implemented in "
+                + this.getClass().getName());
+    }
+
+    /**
+     * Retrieve a map of organization IDs to their corresponding {@link BasicOrganization} details.
+     *
+     * @param orgIds The list of organization IDs to fetch details for.
+     * @return A map where the key is the organization ID and
+     * the value is the corresponding {@link BasicOrganization} object.
+     * @throws OrganizationManagementException If an error occurs while retrieving organization details.
+     */
+    default Map<String, BasicOrganization> getBasicOrganizationDetailsByOrgIDs(List<String> orgIds)
+            throws OrganizationManagementException {
+
+        throw new OrganizationManagementServerException("getBasicOrganizationDetailsByOrgIDs is not implemented in "
                 + this.getClass().getName());
     }
 }

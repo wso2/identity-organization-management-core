@@ -48,6 +48,7 @@ public class OrganizationManagementConstants {
     public static final String VIEW_ATTR_VALUE_COLUMN = "UM_ATTRIBUTE_VALUE";
     public static final String VIEW_TYPE_COLUMN = "UM_ORG_TYPE";
     public static final String VIEW_TENANT_UUID_COLUMN = "UM_TENANT_UUID";
+    public static final String VIEW_TENANT_DOMAIN_COLUMN = "UM_DOMAIN_NAME";
     public static final String VIEW_ORGANIZATION_ATTRIBUTES_TABLE = "UM_ORG_ATTRIBUTE";
     public static final String PATCH_OP_ADD = "ADD";
     public static final String PATCH_OP_REMOVE = "REMOVE";
@@ -756,7 +757,10 @@ public class OrganizationManagementConstants {
                 "Server encountered an error while checking organization user associations for the user."),
         ERROR_CODE_ERROR_CHECKING_ORGANIZATION_EXIST_BY_HANDLE("65145",
                 "Error while checking if the organization exists.",
-                "Server encountered an error while checking if the organization with handle: %s exists.");
+                "Server encountered an error while checking if the organization with handle: %s exists."),
+        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_DETAILS_BY_ORGANIZATION_IDS("65146",
+                "Error in retrieving organization details by organization ids.",
+                "Server encountered an error while retrieving organization details for given organization ids");
 
         private final String code;
         private final String message;

@@ -25,6 +25,7 @@ import org.wso2.carbon.identity.organization.management.service.cache.Organizati
 import org.wso2.carbon.identity.organization.management.service.cache.TenantDomainCacheByOrgId;
 import org.wso2.carbon.identity.organization.management.service.cache.TenantDomainCacheEntry;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
+import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.filter.ExpressionNode;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
@@ -33,6 +34,7 @@ import org.wso2.carbon.identity.organization.management.service.model.PatchOpera
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_ORGANIZATION_DEPTH_IN_HIERARCHY;
@@ -418,6 +420,13 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
 
         return organizationMgtDAO.getOrganizationsMetaAttributes(recursive, limit, organizationId, sortOrder,
                 expressionNodes);
+    }
+
+    @Override
+    public Map<String, BasicOrganization> getBasicOrganizationDetailsByOrgIDs(List<String> orgIds)
+            throws OrganizationManagementException {
+
+        return organizationMgtDAO.getBasicOrganizationDetailsByOrgIDs(orgIds);
     }
 
     private TenantDomainCacheEntry getTenantDomainFromCache(String organizationId) {
