@@ -380,8 +380,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
             } else if (StringUtils.equals(attributeValue, ORGANIZATION_CREATED_TIME_FIELD) ||
                     StringUtils.equals(attributeValue, ORGANIZATION_LAST_MODIFIED_FIELD)) {
                 if (SW.equals(operation) || EW.equals(operation) || CO.equals(operation)) {
-                    throw handleClientException(ERROR_CODE_UNSUPPORTED_FILTER_OPERATION_FOR_ATTRIBUTE, operation,
-                                            attributeValue);
+                    throw handleClientException(ERROR_CODE_UNSUPPORTED_FILTER_OPERATION_FOR_ATTRIBUTE,
+                            operation, attributeValue);
                 }
                 try {
                     Timestamp.valueOf(expressionNode.getValue());
