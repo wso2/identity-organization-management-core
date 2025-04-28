@@ -438,7 +438,7 @@ public class OrganizationManagerImplTest {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         List<Organization> organizations = organizationManager.getOrganizationsList(10, null, null,
-                                                                        "ASC", filter, false);
+                "ASC", filter, false);
         if (isEmptyList) {
             assertTrue(organizations.isEmpty());
         } else {
@@ -456,7 +456,7 @@ public class OrganizationManagerImplTest {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         organizationManager.getOrganizationsList(10, null, null, "ASC",
-                                        "invalid_attribute co xyz", false);
+                "invalid_attribute co xyz", false);
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
@@ -464,7 +464,7 @@ public class OrganizationManagerImplTest {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         organizationManager.getOrganizationsList(10, null, null, "ASC",
-                                        "name co xyz or name co abc", false);
+                "name co xyz or name co abc", false);
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
@@ -472,7 +472,7 @@ public class OrganizationManagerImplTest {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         organizationManager.getOrganizationsList(10, "MjAyNjkzMjg=", null, "ASC",
-                                        "name co xyz", false);
+                "name co xyz", false);
     }
 
     @DataProvider(name = "dataForGetOrganizationsMetaAttributes")
@@ -490,7 +490,7 @@ public class OrganizationManagerImplTest {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         List<String> metaAttributes = organizationManager.getOrganizationsMetaAttributes(10, null,
-                                                                null, "ASC", filter, isRecursive);
+                null, "ASC", filter, isRecursive);
         assertEquals(metaAttributes.size(), 1);
         if (isRecursive) {
             assertEquals(metaAttributes.get(0), ORG_ATTRIBUTE_KEY_CAPITAL);
@@ -731,7 +731,7 @@ public class OrganizationManagerImplTest {
 
         organizationManager.resolveTenantDomain("");
     }
-  
+
     @Test
     public void testGetChildOrganizationIds() throws Exception {
 
@@ -789,7 +789,7 @@ public class OrganizationManagerImplTest {
     @Test(dataProvider = "organizationHandleDataProvider")
     public void testAddOrganizationWithOrganizationHandle(boolean isHandleProvided) throws Exception {
 
-        TenantTypeOrganization tenantTypeOrganization = new TenantTypeOrganization(ORG2_HANDLE);
+        TenantTypeOrganization tenantTypeOrganization = new TenantTypeOrganization(ORG_ID);
         tenantTypeOrganization.setId(ORG_ID);
         tenantTypeOrganization.setName(NEW_ORG_NAME);
         if (isHandleProvided) {
@@ -808,9 +808,9 @@ public class OrganizationManagerImplTest {
         verify(tenantMgtService).addTenant(tenantArgumentCaptor.capture());
         Tenant bean = tenantArgumentCaptor.getValue();
         if (isHandleProvided) {
-            assertEquals(ORG2_HANDLE, bean.getDomain());
+            assertEquals(bean.getDomain(), ORG2_HANDLE);
         } else {
-            assertEquals(ORG_ID, bean.getDomain());
+            assertEquals(bean.getDomain(), ORG_ID);
         }
     }
 

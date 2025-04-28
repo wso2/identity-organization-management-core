@@ -184,7 +184,10 @@ public class OrganizationManagerImpl implements OrganizationManager {
         if (organization instanceof TenantTypeOrganization) {
             String organizationHandle = organization.getOrganizationHandle();
             if (StringUtils.isBlank(organizationHandle)) {
-                organizationHandle = organization.getId();
+                organizationHandle = ((TenantTypeOrganization) organization).getDomainName();
+                if (StringUtils.isBlank(organizationHandle)) {
+                    organizationHandle = organization.getId();
+                }
                 organization.setOrganizationHandle(organizationHandle);
             }
             createTenant(organizationHandle, organization);
@@ -383,8 +386,8 @@ public class OrganizationManagerImpl implements OrganizationManager {
         String orgId = resolveOrganizationId(getTenantDomain());
         expressionNodes.removeAll(filteringByParentIdExpressionNodes);
 
-        return organizationManagementDAO.getOrganizationsList(recursive, limit, orgId, sortOrder, expressionNodes,
-                                                            filteringByParentIdExpressionNodes);
+        return organizationManagementDAO.getOrganizationsList(
+                recursive, limit, orgId, sortOrder, expressionNodes, filteringByParentIdExpressionNodes);
     }
 
     private List<ExpressionNode> getParentIdExpressionNodes(List<ExpressionNode> expressionNodes)
@@ -401,7 +404,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
                     StringUtils.equals(attributeValue, ORGANIZATION_LAST_MODIFIED_FIELD)) {
                 if (SW.equals(operation) || EW.equals(operation) || CO.equals(operation)) {
                     throw handleClientException(ERROR_CODE_UNSUPPORTED_FILTER_OPERATION_FOR_ATTRIBUTE, operation,
-                                            attributeValue);
+                            attributeValue);
                 }
                 try {
                     Timestamp.valueOf(expressionNode.getValue());
