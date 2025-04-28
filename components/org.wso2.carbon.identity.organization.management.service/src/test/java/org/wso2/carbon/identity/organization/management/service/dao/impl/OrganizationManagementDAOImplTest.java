@@ -210,7 +210,7 @@ public class OrganizationManagementDAOImplTest {
         List<ExpressionNode> expressionNodes = new ArrayList<>();
         expressionNodes.add(expressionNode);
         List<Organization> organizations = organizationManagementDAO.getOrganizationsList(false, 10,
-                                        SUPER_ORG_ID, "DESC", expressionNodes, new ArrayList<>());
+                SUPER_ORG_ID, "DESC", expressionNodes, new ArrayList<>());
 
         Assert.assertEquals(organizations.get(0).getName(), ORG_NAME);
         Assert.assertTrue(organizations.get(0).getAttributes().isEmpty());
@@ -234,7 +234,7 @@ public class OrganizationManagementDAOImplTest {
         List<ExpressionNode> expressionNodes = new ArrayList<>();
         expressionNodes.add(expressionNode);
         List<Organization> organizations = organizationManagementDAO.getOrganizationsList(false, 10,
-                                        SUPER_ORG_ID, "DESC", expressionNodes, new ArrayList<>());
+                SUPER_ORG_ID, "DESC", expressionNodes, new ArrayList<>());
 
         Assert.assertEquals(organizations.get(0).getName(), ORG_NAME);
     }
@@ -291,7 +291,7 @@ public class OrganizationManagementDAOImplTest {
         List<ExpressionNode> expressionNodes = new ArrayList<>();
         expressionNodes.add(expressionNode);
         List<String> metaAttributes = organizationManagementDAO.getOrganizationsMetaAttributes(isRecursive, 10,
-                                    SUPER_ORG_ID, "DESC", expressionNodes);
+                SUPER_ORG_ID, "DESC", expressionNodes);
 
         Assert.assertEquals(metaAttributes.size(), 1);
         if (isRecursive) {
