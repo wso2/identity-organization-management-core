@@ -647,17 +647,16 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
     private void updateTenantStatus(String status, String organizationId) throws OrganizationManagementServerException {
 
+        String tenantDomain = organizationManagementDAO.resolveTenantDomain(organizationId);
         if (StringUtils.equals(ACTIVE.toString(), status)) {
             try {
-                String tenantDomain = organizationManagementDAO.resolveTenantDomain(organizationId);
                 getTenantMgtService().activateTenant(getRealmService().getTenantManager().getTenantId(tenantDomain));
             } catch (TenantMgtException | UserStoreException e) {
                 throw handleServerException(ERROR_CODE_ERROR_ACTIVATING_ORGANIZATION_TENANT, e, organizationId);
             }
         } else {
             try {
-                getTenantMgtService().deactivateTenant(getRealmService().getTenantManager()
-                        .getTenantId(organizationId));
+                getTenantMgtService().deactivateTenant(getRealmService().getTenantManager().getTenantId(tenantDomain));
             } catch (TenantMgtException | UserStoreException e) {
                 throw handleServerException(ERROR_CODE_ERROR_DEACTIVATING_ORGANIZATION_TENANT, e, organizationId);
             }
