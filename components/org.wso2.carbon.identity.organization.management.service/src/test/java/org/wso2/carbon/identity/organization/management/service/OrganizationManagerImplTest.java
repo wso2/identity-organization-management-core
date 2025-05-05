@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,8 +19,11 @@
 package org.wso2.carbon.identity.organization.management.service;
 
 import org.apache.commons.lang.StringUtils;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -33,31 +36,42 @@ import org.wso2.carbon.identity.organization.management.service.dao.Organization
 import org.wso2.carbon.identity.organization.management.service.dao.impl.OrganizationManagementDAOImpl;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementClientException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
+import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
 import org.wso2.carbon.identity.organization.management.service.listener.OrganizationManagerListener;
+import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
+import org.wso2.carbon.identity.organization.management.service.model.TenantTypeOrganization;
 import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.identity.organization.management.util.TestUtils;
-import org.wso2.carbon.user.api.AuthorizationManager;
+import org.wso2.carbon.stratos.common.exception.TenantManagementClientException;
+import org.wso2.carbon.stratos.common.exception.TenantMgtException;
+import org.wso2.carbon.tenant.mgt.services.TenantMgtService;
 import org.wso2.carbon.user.api.Tenant;
-import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_EXISTING_ORGANIZATION_HANDLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationStatus;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationTypes.STRUCTURAL;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationTypes.TENANT;
@@ -67,6 +81,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_PATH_ORG_ATTRIBUTES;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_PATH_ORG_DESCRIPTION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_PATH_ORG_NAME;
+import static org.wso2.carbon.stratos.common.constants.TenantConstants.ErrorMessage.ERROR_CODE_EXISTING_DOMAIN;
 
 public class OrganizationManagerImplTest {
 
@@ -74,6 +89,11 @@ public class OrganizationManagerImplTest {
     private static final String ORG1_NAME = "ABC Builders";
     private static final String ORG2_NAME = "XYZ Builders";
     private static final String ORG3_NAME = "Greater";
+    private static final String ORG4_NAME = "ABC Inc";
+    private static final String ORG1_HANDLE = "abcbuilders";
+    private static final String ORG2_HANDLE = "xyzbuilders";
+    private static final String ORG3_HANDLE = "greater";
+    private static final String ORG4_HANDLE = "abc.com";
     private static final String NON_EXISTING_ORG_NAME = "Dummy Builders";
     private static final String ORG_NAME_WITH_HTML_CONTENT = "<a href=\"evil.com\">Click me</a>";
     private static final String NEW_ORG1_NAME = "ABC Builders New";
@@ -86,14 +106,18 @@ public class OrganizationManagerImplTest {
     private static final String ORG_ATTRIBUTE_VALUE_CITY = "Colombo";
     private static final String ORG_ATTRIBUTE_KEY_CAPITAL = "capital";
     private static final String SUPER_ORG_ID = "10084a8d-113f-4211-a0d5-efe36b082211";
+    private static final String ORG_ID = "9f1c2e3a-45b6-4f21-9d3b-7a6f1e8a9c12";
     private static final String ROOT_ORG = "custom-root-org";
     private static final String ORG1_ID = "org_id_1";
     private static final String ORG2_ID = "org_id_2";
     private static final String ORG2_1 = "org_2_1";
     private static final String ORG3_1 = "org_3_1";
     private static final String ORG3_ID = "org_id_3";
+    private static final String ORG4_ID = "org_id_4";
     private static final String INVALID_PARENT_ID = "invalid_parent_id";
     private static final String INVALID_ORG_ID = "invalid_org_id";
+    private static final String ORG_CREATED = "createdTime";
+    private static final String ORG_STATUS = "ACTIVE";
 
     private OrganizationManagerImpl organizationManager;
 
@@ -101,21 +125,25 @@ public class OrganizationManagerImplTest {
 
     private RealmService realmService;
 
-    private UserRealm userRealm;
-
-    private AuthorizationManager authorizationManager;
-
     private TenantManager tenantManager;
 
     private Tenant tenant;
 
+    private TenantMgtService tenantMgtService;
+
     private MockedStatic<Utils> mockedUtilities;
+
+    @Captor
+    private ArgumentCaptor<org.wso2.carbon.user.core.tenant.Tenant> tenantArgumentCaptor;
 
     @BeforeClass
     public void init() {
 
+        MockitoAnnotations.openMocks(this);
+
         realmService = mock(RealmService.class);
         tenantManager = mock(TenantManager.class);
+        tenantMgtService = mock(TenantMgtService.class);
         tenant = mock(Tenant.class);
         mockUtils();
     }
@@ -127,9 +155,11 @@ public class OrganizationManagerImplTest {
         OrganizationManagementDataHolder.getInstance().setOrganizationManagerListener(mock(
                 OrganizationManagerListener.class));
         OrganizationManagementDataHolder.getInstance().setRealmService(realmService);
+        OrganizationManagementDataHolder.getInstance().setTenantMgtService(tenantMgtService);
 
         TestUtils.initiateH2Base();
         TestUtils.mockDataSource();
+        Mockito.reset(tenantMgtService);
 
         // Super -> org1 -> org2
         //       -> org3
@@ -144,9 +174,9 @@ public class OrganizationManagerImplTest {
         setOrganizationAttributes(organization3, ORG_ATTRIBUTE_KEY_CITY, ORG_ATTRIBUTE_VALUE_CITY);
         setOrganizationAttributes(organization2, ORG_ATTRIBUTE_KEY_CAPITAL, ORG_ATTRIBUTE_VALUE_CITY);
 
-        organizationManagementDAO.addOrganization(organization1);
-        organizationManagementDAO.addOrganization(organization2);
-        organizationManagementDAO.addOrganization(organization3);
+        addOrganization(organization1, ORG1_HANDLE);
+        addOrganization(organization2, ORG2_HANDLE);
+        addOrganization(organization3, ORG3_HANDLE);
     }
 
     @AfterMethod
@@ -194,6 +224,8 @@ public class OrganizationManagerImplTest {
                 ORG_DESCRIPTION, ORG1_ID, TENANT.toString());
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG1_ID);
+        when(realmService.getTenantManager()).thenReturn(tenantManager);
+        when(tenantManager.getTenantId(anyString())).thenReturn(1);
         Organization addedOrganization = organizationManager.addOrganization(sampleOrganization);
         assertNotNull(addedOrganization.getId(), "Created organization id cannot be null");
         assertEquals(addedOrganization.getName(), sampleOrganization.getName());
@@ -406,7 +438,7 @@ public class OrganizationManagerImplTest {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         List<Organization> organizations = organizationManager.getOrganizationsList(10, null, null,
-                                                                        "ASC", filter, false);
+                "ASC", filter, false);
         if (isEmptyList) {
             assertTrue(organizations.isEmpty());
         } else {
@@ -424,7 +456,7 @@ public class OrganizationManagerImplTest {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         organizationManager.getOrganizationsList(10, null, null, "ASC",
-                                        "invalid_attribute co xyz", false);
+                "invalid_attribute co xyz", false);
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
@@ -432,7 +464,7 @@ public class OrganizationManagerImplTest {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         organizationManager.getOrganizationsList(10, null, null, "ASC",
-                                        "name co xyz or name co abc", false);
+                "name co xyz or name co abc", false);
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
@@ -440,7 +472,7 @@ public class OrganizationManagerImplTest {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         organizationManager.getOrganizationsList(10, "MjAyNjkzMjg=", null, "ASC",
-                                        "name co xyz", false);
+                "name co xyz", false);
     }
 
     @DataProvider(name = "dataForGetOrganizationsMetaAttributes")
@@ -458,7 +490,7 @@ public class OrganizationManagerImplTest {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         List<String> metaAttributes = organizationManager.getOrganizationsMetaAttributes(10, null,
-                                                                null, "ASC", filter, isRecursive);
+                null, "ASC", filter, isRecursive);
         assertEquals(metaAttributes.size(), 1);
         if (isRecursive) {
             assertEquals(metaAttributes.get(0), ORG_ATTRIBUTE_KEY_CAPITAL);
@@ -699,7 +731,7 @@ public class OrganizationManagerImplTest {
 
         organizationManager.resolveTenantDomain("");
     }
-  
+
     @Test
     public void testGetChildOrganizationIds() throws Exception {
 
@@ -722,6 +754,147 @@ public class OrganizationManagerImplTest {
         Assert.assertTrue(recursiveChildIds.contains(ORG3_ID));
     }
 
+    @Test()
+    public void testAddOrganizationWithExistingOrganizationHandle() throws Exception {
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
+
+        Organization sampleOrganization = getOrganization(
+                ORG4_ID, ORG4_NAME, ORG_DESCRIPTION, SUPER_ORG_ID, TENANT.toString());
+        sampleOrganization.setOrganizationHandle(ORG4_HANDLE);
+
+        TenantManagementClientException tenantManagementClientException = new TenantManagementClientException(
+                ERROR_CODE_EXISTING_DOMAIN.getCode(), ERROR_CODE_EXISTING_DOMAIN.getMessage());
+
+        when(tenantMgtService.addTenant(any(org.wso2.carbon.user.core.tenant.Tenant.class)))
+                .thenThrow(tenantManagementClientException);
+
+        try {
+            organizationManager.addOrganization(sampleOrganization);
+        } catch (OrganizationManagementClientException e) {
+            assertEquals(e.getDescription(),
+                    String.format(ERROR_CODE_EXISTING_ORGANIZATION_HANDLE.getDescription(), ORG4_HANDLE));
+        }
+    }
+
+    @DataProvider(name = "organizationHandleDataProvider")
+    public Object[][] organizationHandleDataProvider() {
+
+        return new Object[][]{
+                {true}, {false}
+        };
+    }
+
+    @Test(dataProvider = "organizationHandleDataProvider")
+    public void testAddOrganizationWithOrganizationHandle(boolean isHandleProvided) throws Exception {
+
+        TenantTypeOrganization tenantTypeOrganization = new TenantTypeOrganization(ORG_ID);
+        tenantTypeOrganization.setId(ORG_ID);
+        tenantTypeOrganization.setName(NEW_ORG_NAME);
+        if (isHandleProvided) {
+            tenantTypeOrganization.setOrganizationHandle(ORG2_HANDLE);
+        }
+        tenantTypeOrganization.setStatus(OrganizationStatus.ACTIVE.toString());
+        tenantTypeOrganization.getParent().setId(SUPER_ORG_ID);
+        tenantTypeOrganization.setType(TENANT.toString());
+        tenantTypeOrganization.setCreated(Instant.now());
+        tenantTypeOrganization.setLastModified(Instant.now());
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+        organizationManager.addOrganization(tenantTypeOrganization);
+
+        verify(tenantMgtService).addTenant(any(org.wso2.carbon.user.core.tenant.Tenant.class));
+        verify(tenantMgtService).addTenant(tenantArgumentCaptor.capture());
+        Tenant bean = tenantArgumentCaptor.getValue();
+        if (isHandleProvided) {
+            assertEquals(bean.getDomain(), ORG2_HANDLE);
+        } else {
+            assertEquals(bean.getDomain(), ORG_ID);
+        }
+    }
+
+    @DataProvider(name = "dataForGetBasicOrganizationDetailsByOrgIDs")
+    public Object[][] dataForGetBasicOrganizationDetailsByOrgIDs() {
+
+        List<String> orgIds = Arrays.asList(ORG1_ID, ORG2_ID, ORG3_ID);
+
+        List<String> expectedIds = Arrays.asList(ORG1_ID, ORG2_ID, ORG3_ID);
+        List<String> expectedNames = Arrays.asList(ORG1_NAME, ORG2_NAME, ORG3_NAME);
+        List<String> expectedOrganizationHandles = Arrays.asList(ORG1_HANDLE, ORG2_HANDLE, ORG3_HANDLE);
+
+        return new Object[][] {
+                { orgIds, expectedIds, expectedNames, expectedOrganizationHandles }
+        };
+    }
+
+    @Test(dataProvider = "dataForGetBasicOrganizationDetailsByOrgIDs")
+    public void testGetBasicOrganizationDetailsByOrgIDs(List<String> orgIds, List<String> expectedIds,
+                                               List<String> expectedNames, List<String> expectedOrganizationHandles)
+            throws OrganizationManagementException {
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+
+        Map<String, BasicOrganization> actualMap = organizationManager.getBasicOrganizationDetailsByOrgIDs(orgIds);
+        Assert.assertNotNull(actualMap);
+
+        for (String orgId : orgIds) {
+            BasicOrganization org = actualMap.get(orgId);
+            int index = orgIds.indexOf(orgId);
+
+            Assert.assertEquals(org.getId(), expectedIds.get(index));
+            Assert.assertEquals(org.getName(), expectedNames.get(index));
+            Assert.assertEquals(org.getOrganizationHandle(), expectedOrganizationHandles.get(index));
+        }
+    }
+
+    @DataProvider(name = "dataForGetBasicOrganizationDetailsByOrgIDsWithInvalidInput")
+    public Object[][] dataForGetBasicOrganizationDetailsByOrgIDsWithInvalidInput() {
+
+        List<String> orgIdList1 = Collections.emptyList();
+        List<String> orgIdList2 = Collections.singletonList("Invalid_org_id");
+        List<String> orgIdList3 = Arrays.asList("Invalid_org_id_1", ORG1_ID);
+        List<String> orgIdList4 = Arrays.asList(ORG1_ID, "Invalid_org_id_1");
+
+        return new Object[][] {
+                { orgIdList1, 0, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY},
+                { orgIdList2, 0, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY},
+                { orgIdList3, 1, ORG1_ID, ORG1_NAME, ORG1_HANDLE},
+                { orgIdList4, 1, ORG1_ID, ORG1_NAME, ORG1_HANDLE}
+        };
+    }
+
+    @Test(dataProvider = "dataForGetBasicOrganizationDetailsByOrgIDsWithInvalidInput")
+    public void testGetBasicOrganizationDetailsByOrgIDsWithInvalidInput(List<String> orgIds, int expectedMapSize,
+                                                               String expectedId, String expectedName,
+                                                               String expectedOrgHandle)
+            throws OrganizationManagementException {
+
+        Map<String, BasicOrganization> actualMap = organizationManager.getBasicOrganizationDetailsByOrgIDs(orgIds);
+        Assert.assertEquals(actualMap.size(), expectedMapSize);
+        if (!actualMap.isEmpty()) {
+            BasicOrganization org = actualMap.get(ORG1_ID);
+            Assert.assertEquals(org.getId(), expectedId);
+            Assert.assertEquals(org.getName(), expectedName);
+            Assert.assertEquals(org.getOrganizationHandle(), expectedOrgHandle);
+        }
+    }
+
+    @Test()
+    public void testCheckOrganizationExistByHandle() throws Exception {
+
+        when(tenantMgtService.isDomainAvailable(ORG1_HANDLE)).thenReturn(false);
+        assertTrue(organizationManager.isOrganizationExistByHandle(ORG1_HANDLE));
+    }
+
+    @Test(expectedExceptions = OrganizationManagementServerException.class)
+    public void testCheckOrganizationExistByHandleException() throws Exception {
+
+        when(tenantMgtService.isDomainAvailable(ORG1_HANDLE)).thenThrow(
+                new TenantMgtException("Error checking domain availability."));
+        organizationManager.isOrganizationExistByHandle(ORG1_HANDLE);
+    }
+
     private void setOrganizationAttributes(Organization organization, String key, String value) {
 
         OrganizationAttribute organizationAttribute = new OrganizationAttribute(key, value);
@@ -736,9 +909,10 @@ public class OrganizationManagerImplTest {
         mockedUtilities.when(() -> Utils.getTenantDomain(-1234)).thenReturn("carbon.super");
     }
 
-    private Organization getOrganization(String id, String name, String description, String parent, String type) {
+    private TenantTypeOrganization getOrganization(String id, String name, String description, String parent,
+                                                   String type) {
 
-        Organization organization = new Organization();
+        TenantTypeOrganization organization = new TenantTypeOrganization(name);
         organization.setId(id);
         organization.setName(name);
         organization.setDescription(description);
@@ -748,5 +922,11 @@ public class OrganizationManagerImplTest {
         organization.setCreated(Instant.now());
         organization.setLastModified(Instant.now());
         return organization;
+    }
+
+    private void addOrganization(Organization organization, String tenantDomain) throws Exception {
+
+        organizationManagementDAO.addOrganization(organization);
+        TestUtils.storeAssociatedTenant(tenantDomain, organization.getId());
     }
 }
