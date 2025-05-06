@@ -40,6 +40,7 @@ import org.wso2.carbon.identity.organization.management.service.model.BasicOrgan
 import org.wso2.carbon.identity.organization.management.service.model.ChildOrganizationDO;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
+import org.wso2.carbon.identity.organization.management.service.model.OrganizationNode;
 import org.wso2.carbon.identity.organization.management.service.model.ParentOrganizationDO;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
 import org.wso2.carbon.identity.organization.management.service.model.TenantTypeOrganization;
@@ -303,6 +304,12 @@ public class OrganizationManagerImpl implements OrganizationManager {
             throws OrganizationManagementException {
 
         return organizationManagementDAO.getChildOrganizations(organizationId, recursive);
+    }
+
+    public List<OrganizationNode> getChildOrganizationGraph(String organizationId, boolean recursive)
+            throws OrganizationManagementException {
+
+        return organizationManagementDAO.getChildOrganizationGraph(organizationId, recursive);
     }
 
     @Override
