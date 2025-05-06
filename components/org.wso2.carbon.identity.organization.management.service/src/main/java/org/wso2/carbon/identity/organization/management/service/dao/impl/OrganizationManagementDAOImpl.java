@@ -35,6 +35,7 @@ import org.wso2.carbon.identity.organization.management.service.model.BasicOrgan
 import org.wso2.carbon.identity.organization.management.service.model.FilterQueryBuilder;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
+import org.wso2.carbon.identity.organization.management.service.model.OrganizationNode;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
 import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -150,6 +151,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ANCESTOR_ORGANIZATION_ID_WITH_DEPTH;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_BASIC_ORG_DETAILS_BY_ORG_IDS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATIONS_INCLUDING_ORG_HANDLE;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATION_HIERARCHY;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATION_IDS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_IMMEDIATE_OR_ALL_CHILD_ORG_IDS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_BY_NAME;
@@ -580,6 +582,92 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         } catch (DataAccessException e) {
             throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_CHILD_ORGANIZATIONS, e, organizationId);
         }
+    }
+
+    @Override
+    public List<OrganizationNode> getChildOrganizationGraph(String organizationId, boolean recursive)
+            throws OrganizationManagementServerException {
+
+        NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
+        // Use the new SQL constant
+        String sqlStmt = String.format(GET_CHILD_ORGANIZATION_HIERARCHY, recursive ? "> 0" : "= 1");
+
+        // Use a temporary class or map to hold raw results, including parentId.
+        class RawOrgData {
+            String id;
+            String name;
+            String parentId;
+            String created;
+            String handle;
+            int depth; // Depth relative to the query's root parentId.
+        }
+
+        List<RawOrgData> rawResults;
+        try {
+            rawResults = namedJdbcTemplate.executeQuery(sqlStmt,
+                    (resultSet, rowNumber) -> {
+                        RawOrgData data = new RawOrgData();
+                        data.id = resultSet.getString(1);
+                        data.name = resultSet.getString(2);
+                        data.parentId = resultSet.getString(3); // Get the parent ID.
+                        data.created = resultSet.getTimestamp(4).toString();
+                        data.handle = resultSet.getString(5); // Corresponds to UM_DOMAIN_NAME.
+                        data.depth = resultSet.getInt(6);      // Get the depth.
+                        return data;
+                    },
+                    namedPreparedStatement ->
+                            namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_PARENT_ID, organizationId));
+
+        } catch (DataAccessException e) {
+            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_CHILD_ORGANIZATIONS, e, organizationId);
+        }
+
+        if (CollectionUtils.isEmpty(rawResults)) {
+            return new ArrayList<>(); // No children found.
+        }
+
+        // --- Build the graph ---
+        Map<String, OrganizationNode> nodeMap = new HashMap<>();
+
+        // First pass: Create all node objects.
+        for (RawOrgData data : rawResults) {
+            OrganizationNode node = new OrganizationNode(
+                    data.id,
+                    data.name,
+                    data.created,
+                    data.handle,
+                    data.parentId,
+                    data.depth
+            );
+            nodeMap.put(data.id, node);
+        }
+
+        // Second pass: Link children to parents
+        List<OrganizationNode> topLevelNodes = new ArrayList<>(); // Nodes that are direct children of 'organizationId'.
+        for (RawOrgData data : rawResults) {
+            OrganizationNode currentNode = nodeMap.get(data.id); // Should always exist from the first pass.
+
+            // Check if the parent from the DB result (data.parentId) exists in our map.
+            OrganizationNode parentNode = nodeMap.get(data.parentId);
+
+            if (parentNode != null) {
+                // If the parent node exists within the fetched results, link it.
+                parentNode.addChild(currentNode);
+            } else if (data.parentId.equals(organizationId)) {
+                // If the parent is the initial organizationId we queried for,
+                // this is a top-level node for our result list.
+                topLevelNodes.add(currentNode);
+            }
+            /* If parentNode is null and data.parentId is not the root organizationId,
+             it means the parent is outside the scope of the current query result
+             (e.g., querying a sub-subtree non-recursively). This is expected.*/
+        }
+
+        /* If recursive was false, topLevelNodes is already correct.
+         If recursive was true, the logic above correctly identifies the direct children
+         of 'organizationId' based on the parentId field fetched from the DB. */
+
+        return topLevelNodes;
     }
 
     @Override
