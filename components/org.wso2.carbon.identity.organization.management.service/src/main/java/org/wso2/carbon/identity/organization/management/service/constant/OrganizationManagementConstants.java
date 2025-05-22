@@ -760,7 +760,13 @@ public class OrganizationManagementConstants {
                 "Server encountered an error while checking if the organization with handle: %s exists."),
         ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_DETAILS_BY_ORGANIZATION_IDS("65146",
                 "Error in retrieving organization details by organization ids.",
-                "Server encountered an error while retrieving organization details for given organization ids");
+                "Server encountered an error while retrieving organization details for given organization ids"),
+        ERROR_CODE_ERROR_RETRIEVING_APPLICATION_SHARED_ACCESS_STATUS("65147",
+                "Error in retrieving application shared access status.",
+                "Server encountered an error while retrieving application shared access status."),
+        ERROR_CODE_ERROR_SHARING_APPLICATION_NAME_CONFLICT("65148",
+                "Error in sharing application due to name conflict.",
+                "Server encountered an error while sharing application due to name conflict.");
 
         private final String code;
         private final String message;
