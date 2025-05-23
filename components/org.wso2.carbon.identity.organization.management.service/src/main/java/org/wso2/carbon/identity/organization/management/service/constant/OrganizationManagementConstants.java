@@ -765,8 +765,9 @@ public class OrganizationManagementConstants {
                 "Error in retrieving application shared access status.",
                 "Server encountered an error while retrieving application shared access status."),
         ERROR_CODE_ERROR_SHARING_APPLICATION_NAME_CONFLICT("65148",
-                "Error in sharing application due to name conflict.",
-                "Server encountered an error while sharing application due to name conflict.");
+                "Organization %s has a non shared application with name %s.",
+                "Server encountered an error while sharing application to organization %s due to a non shared " +
+                        "application with name %s.");
 
         private final String code;
         private final String message;
