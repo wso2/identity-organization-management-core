@@ -25,22 +25,21 @@ import java.util.List;
  * Represents an organization node in the organization tree.
  */
 public class OrganizationNode {
+
     private String id;
     private String name;
     private String created;
-    private String organizationHandle; // Corresponds to UM_DOMAIN_NAME
-    private String parentId; // Keep track of the parent ID from the DB result
-    private int depth; // Keep track of depth relative to the initial parent query
+    private String organizationHandle;
+    private String parentId;
     private List<OrganizationNode> children;
 
-    public OrganizationNode(String id, String name, String created, String organizationHandle, String parentId,
-                            int depth) {
+    public OrganizationNode(String id, String name, String created, String organizationHandle, String parentId) {
+
         this.id = id;
         this.name = name;
         this.created = created;
         this.organizationHandle = organizationHandle;
         this.parentId = parentId;
-        this.depth = depth;
         this.children = new ArrayList<>();
     }
 
@@ -94,16 +93,6 @@ public class OrganizationNode {
         this.parentId = parentId;
     }
 
-    public int getDepth() {
-
-        return depth;
-    }
-
-    public void setDepth(int depth) {
-
-        this.depth = depth;
-    }
-
     public List<OrganizationNode> getChildren() {
 
         return children;
@@ -126,7 +115,6 @@ public class OrganizationNode {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", parentId='" + parentId + '\'' +
-                ", depth=" + depth +
                 ", childrenCount=" + children.size() +
                 '}';
     }

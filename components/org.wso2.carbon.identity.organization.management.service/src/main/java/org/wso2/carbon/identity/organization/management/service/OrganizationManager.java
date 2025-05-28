@@ -110,6 +110,15 @@ public interface OrganizationManager {
     List<BasicOrganization> getChildOrganizations(String organizationId, boolean recursive)
             throws OrganizationManagementException;
 
+
+    /**
+     * Returns the list of child organizations for a given organization in a tree structure.
+     *
+     * @param organizationId The organization ID.
+     * @param recursive      If true, retrieves the entire child organization tree recursively.
+     * @return the list of Child organizations in a tree structure ({@link OrganizationNode}).
+     * @throws OrganizationManagementException exception is thrown when listing organizations.
+     */
     default List<OrganizationNode> getChildOrganizationGraph(String organizationId, boolean recursive)
             throws OrganizationManagementException {
 

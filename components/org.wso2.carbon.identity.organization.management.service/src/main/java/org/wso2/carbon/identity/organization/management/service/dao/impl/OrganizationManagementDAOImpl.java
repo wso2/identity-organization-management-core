@@ -589,31 +589,17 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             throws OrganizationManagementServerException {
 
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
-        // Use the new SQL constant
         String sqlStmt = String.format(GET_CHILD_ORGANIZATION_HIERARCHY, recursive ? "> 0" : "= 1");
-
-        // Use a temporary class or map to hold raw results, including parentId.
-        class RawOrgData {
-            String id;
-            String name;
-            String parentId;
-            String created;
-            String handle;
-            int depth; // Depth relative to the query's root parentId.
-        }
-
-        List<RawOrgData> rawResults;
+        List<OrganizationNode> rawResults;
         try {
             rawResults = namedJdbcTemplate.executeQuery(sqlStmt,
                     (resultSet, rowNumber) -> {
-                        RawOrgData data = new RawOrgData();
-                        data.id = resultSet.getString(1);
-                        data.name = resultSet.getString(2);
-                        data.parentId = resultSet.getString(3); // Get the parent ID.
-                        data.created = resultSet.getTimestamp(4).toString();
-                        data.handle = resultSet.getString(5); // Corresponds to UM_DOMAIN_NAME.
-                        data.depth = resultSet.getInt(6);      // Get the depth.
-                        return data;
+                        String id = resultSet.getString(1);
+                        String name = resultSet.getString(2);
+                        String parentId = resultSet.getString(3);
+                        String created = resultSet.getTimestamp(4).toString();
+                        String handle = resultSet.getString(5);
+                        return new OrganizationNode(id, name, created, handle, parentId);
                     },
                     namedPreparedStatement ->
                             namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_PARENT_ID, organizationId));
@@ -630,30 +616,21 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         Map<String, OrganizationNode> nodeMap = new HashMap<>();
 
         // First pass: Create all node objects.
-        for (RawOrgData data : rawResults) {
-            OrganizationNode node = new OrganizationNode(
-                    data.id,
-                    data.name,
-                    data.created,
-                    data.handle,
-                    data.parentId,
-                    data.depth
-            );
-            nodeMap.put(data.id, node);
+        for (OrganizationNode node : rawResults) {
+            nodeMap.put(node.getId(), node);
         }
-
-        // Second pass: Link children to parents
+        // Second pass: Link children to parents.
         List<OrganizationNode> topLevelNodes = new ArrayList<>(); // Nodes that are direct children of 'organizationId'.
-        for (RawOrgData data : rawResults) {
-            OrganizationNode currentNode = nodeMap.get(data.id); // Should always exist from the first pass.
+        for (OrganizationNode data : rawResults) {
+            OrganizationNode currentNode = nodeMap.get(data.getId()); // Should always exist from the first pass.
 
             // Check if the parent from the DB result (data.parentId) exists in our map.
-            OrganizationNode parentNode = nodeMap.get(data.parentId);
+            OrganizationNode parentNode = nodeMap.get(data.getParentId());
 
             if (parentNode != null) {
                 // If the parent node exists within the fetched results, link it.
                 parentNode.addChild(currentNode);
-            } else if (data.parentId.equals(organizationId)) {
+            } else if (data.getParentId().equals(organizationId)) {
                 // If the parent is the initial organizationId we queried for,
                 // this is a top-level node for our result list.
                 topLevelNodes.add(currentNode);

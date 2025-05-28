@@ -306,6 +306,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         return organizationManagementDAO.getChildOrganizations(organizationId, recursive);
     }
 
+    @Override
     public List<OrganizationNode> getChildOrganizationGraph(String organizationId, boolean recursive)
             throws OrganizationManagementException {
 

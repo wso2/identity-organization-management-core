@@ -120,7 +120,7 @@ public class OrganizationManagementDAOImplTest {
         storeChildOrganization(greatGrandChildOrgId, GREAT_GRANDCHILD_ORG_NAME, GREAT_GRANDCHILD_ORG_HANDLE,
                 ORG_DESCRIPTION, grandChildOrgId1);
 
-        // Create organization with no children
+        // Create organization with no children.
         storeChildOrganization(orgWithNoChildrenId, ORG_WITH_NO_CHILDREN_NAME, ORG_WITH_NO_CHILDREN_HANDLE,
                 "No child organization.", SUPER_ORG_ID);
     }
@@ -450,12 +450,6 @@ public class OrganizationManagementDAOImplTest {
         Assert.assertEquals(greatGrandChild.getName(), GREAT_GRANDCHILD_ORG_NAME);
         Assert.assertEquals(greatGrandChild.getChildren().size(), 0);
 
-        // Verify the depth values.
-        Assert.assertEquals(rootNode.getDepth(), 1);
-        Assert.assertEquals(grandChild1.getDepth(), 2);
-        Assert.assertEquals(grandChild2.getDepth(), 2);
-        Assert.assertEquals(greatGrandChild.getDepth(), 3);
-
         // Now test for org with no children (recursive).
         List<OrganizationNode> noChildrenRecursiveGraph = organizationManagementDAO.getChildOrganizationGraph(
                 orgWithNoChildrenId, true);
@@ -466,7 +460,8 @@ public class OrganizationManagementDAOImplTest {
 
     @Test
     public void testGetChildOrganizationGraph_NoChildren() throws Exception {
-        // Should return an empty list for org with no children
+
+        // Should return an empty list for org with no children.
         List<OrganizationNode> result = organizationManagementDAO.getChildOrganizationGraph(orgWithNoChildrenId, false);
         Assert.assertNotNull(result, "Result should not be null");
         Assert.assertTrue(result.isEmpty(), "Result should be empty for org with no children");
