@@ -769,7 +769,7 @@ public class OrganizationManagementConstants {
                 "Server encountered an error while sharing application to organization %s due to a non shared " +
                         "application with name %s."),
         ERROR_CODE_ERROR_SHARING_APPLICATION_ROLE_CONFLICT("65149", "Organization %s has a non shared role with " +
-                "name %s, ", "Server encountered an error while sharing application to organization %s " +
+                "name %s.", "Server encountered an error while sharing application to organization %s " +
                 "due to a non shared role with name %s.");
 
         private final String code;
