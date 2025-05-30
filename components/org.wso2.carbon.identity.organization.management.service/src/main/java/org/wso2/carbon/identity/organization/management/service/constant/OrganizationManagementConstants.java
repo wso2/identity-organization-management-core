@@ -770,7 +770,10 @@ public class OrganizationManagementConstants {
                         "application with name %s."),
         ERROR_CODE_ERROR_SHARING_APPLICATION_ROLE_CONFLICT("65149", "Organization %s has a non shared role with " +
                 "name %s.", "Server encountered an error while sharing application to organization %s " +
-                "due to a non shared role with name %s.");
+                "due to a non shared role with name %s."),
+        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_ID_BY_HANDLE("65150",
+                "Unable to retrieve organization ID.",
+                "Server encountered an error while retrieving organization ID for handle: %s.");
 
         private final String code;
         private final String message;
