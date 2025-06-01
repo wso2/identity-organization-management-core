@@ -23,6 +23,7 @@ import org.wso2.carbon.identity.organization.management.service.exception.Organi
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
+import org.wso2.carbon.identity.organization.management.service.model.OrganizationNode;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
 
 import java.util.List;
@@ -108,6 +109,22 @@ public interface OrganizationManager {
      */
     List<BasicOrganization> getChildOrganizations(String organizationId, boolean recursive)
             throws OrganizationManagementException;
+
+
+    /**
+     * Returns the list of child organizations for a given organization in a tree structure.
+     *
+     * @param organizationId The organization ID.
+     * @param recursive      If true, retrieves the entire child organization tree recursively.
+     * @return the list of Child organizations in a tree structure ({@link OrganizationNode}).
+     * @throws OrganizationManagementException exception is thrown when listing organizations.
+     */
+    default List<OrganizationNode> getChildOrganizationGraph(String organizationId, boolean recursive)
+            throws OrganizationManagementException {
+
+        throw new NotImplementedException("getChildOrganizationGraph(organizationId, recursive) is not " +
+                "implemented in " + this.getClass().getName());
+    }
 
     /**
      * Returns the unique identifiers of the child organizations for a given organization.

@@ -288,6 +288,15 @@ public class SQLConstants {
             "WHERE UM_ORG_HIERARCHY.UM_PARENT_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID +
             "; AND UM_ORG_HIERARCHY.DEPTH %s";
 
+    public static final String GET_CHILD_ORGANIZATION_HIERARCHY =
+            "SELECT UM_ORG.UM_ID, UM_ORG.UM_ORG_NAME, UM_ORG.UM_PARENT_ID, " +
+                    "UM_ORG.UM_CREATED_TIME, UM_TENANT.UM_DOMAIN_NAME " +
+                    "FROM UM_ORG " +
+                    "JOIN UM_TENANT ON UM_TENANT.UM_ORG_UUID = UM_ORG.UM_ID " +
+                    "JOIN UM_ORG_HIERARCHY ON UM_ORG.UM_ID = UM_ORG_HIERARCHY.UM_ID " +
+                    "WHERE UM_ORG_HIERARCHY.UM_PARENT_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID +
+                    "; AND UM_ORG_HIERARCHY.DEPTH %s";
+
     public static final String GET_IMMEDIATE_OR_ALL_CHILD_ORG_IDS = "SELECT UM_ORG.UM_ID FROM UM_ORG " +
             "JOIN UM_ORG_HIERARCHY ON UM_ORG.UM_ID = UM_ORG_HIERARCHY.UM_ID " +
             "WHERE UM_ORG_HIERARCHY.UM_PARENT_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID +
