@@ -409,6 +409,13 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
     }
 
     @Override
+    public boolean isAncestorOrg(String currentOrgId, String parentOrgId)
+            throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.isAncestorOrg(currentOrgId, parentOrgId);
+    }
+
+    @Override
     public String getAnAncestorOrganizationIdInGivenDepth(String organizationId, int depth)
             throws OrganizationManagementServerException {
 

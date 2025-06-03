@@ -328,6 +328,17 @@ public interface OrganizationManager {
             throws OrganizationManagementServerException;
 
     /**
+     * Returns whether the org is an ancestor of the current org.
+     *
+     * @param currentOrgId    Current organization id.
+     * @param parentOrgId     Parent organization id.
+     * @return true if the first organization is an ancestor of the second organization,
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the relative depth.
+     */
+    boolean isAncestorOrg(String currentOrgId, String parentOrgId)
+            throws OrganizationManagementServerException;
+
+    /**
      * Get the parent organization id of the given organization.
      *
      * @param organizationId ID of the organization which needs the parent organization id.
