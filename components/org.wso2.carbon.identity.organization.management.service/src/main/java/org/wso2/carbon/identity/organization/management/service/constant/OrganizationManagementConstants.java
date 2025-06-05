@@ -140,6 +140,7 @@ public class OrganizationManagementConstants {
     public static final String CREATOR_EMAIL = "creator.email";
     public static final String ORGANIZATION_USER_INVITATION_PRIMARY_USER_DOMAIN =
             "OrganizationUserInvitation.PrimaryUserDomain";
+    public static final String ORGANIZATION_DISCOVERY_DEFAULT_PARAM = "OrganizationDiscovery.DefaultParam";
 
     /**
      * Contains constants related to filter operations.
