@@ -140,6 +140,7 @@ public class OrganizationManagementConstants {
     public static final String CREATOR_EMAIL = "creator.email";
     public static final String ORGANIZATION_USER_INVITATION_PRIMARY_USER_DOMAIN =
             "OrganizationUserInvitation.PrimaryUserDomain";
+    public static final String ORGANIZATION_DISCOVERY_DEFAULT_PARAM = "OrganizationDiscovery.DefaultParam";
 
     /**
      * Contains constants related to filter operations.
@@ -773,7 +774,10 @@ public class OrganizationManagementConstants {
                 "due to a non shared role with name %s."),
         ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_ID_BY_HANDLE("65150",
                 "Unable to retrieve organization ID.",
-                "Server encountered an error while retrieving organization ID for handle: %s.");
+                "Server encountered an error while retrieving organization ID for handle: %s."),
+        ERROR_CODE_ERROR_RESOLVING_THE_DEFAULT_DISCOVERY_PARAM("65151",
+                "Unable to resolve the default discovery param.",
+                "Server encountered an error while resolving the discovery param of root organization.");
 
         private final String code;
         private final String message;

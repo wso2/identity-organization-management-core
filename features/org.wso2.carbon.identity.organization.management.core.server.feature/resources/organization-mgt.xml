@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+  ~ Copyright (c) 2023-2025, WSO2 LLC. (http://www.wso2.com).
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -77,5 +77,12 @@
         <DefaultAcceptURL>/accountrecoveryendpoint/acceptinvitation.do</DefaultAcceptURL>
         <AssociationWaitTime>5000</AssociationWaitTime>
     </OrganizationUserInvitation>
+
+    <!--
+        Set this to 'orgHandle' or 'orgName' to define the default discovery parameter used to resolve the organization.
+    -->
+    <OrganizationDiscovery>
+        <DefaultParam>orgHandle</DefaultParam>
+    </OrganizationDiscovery>
 
 </OrganizationManagement>
