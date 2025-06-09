@@ -710,6 +710,7 @@ public class OrganizationManagerImplTest {
 
         assertTrue(organizationManager.isAncestorOrg(ORG1_ID, SUPER_ORG_ID));
         assertFalse(organizationManager.isAncestorOrg(SUPER_ORG_ID, ORG1_ID));
+        assertFalse(organizationManager.isAncestorOrg(ORG1_ID, ORG1_ID));
     }
 
     @Test
