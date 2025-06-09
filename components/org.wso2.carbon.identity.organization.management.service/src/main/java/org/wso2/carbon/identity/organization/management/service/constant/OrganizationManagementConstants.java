@@ -770,7 +770,10 @@ public class OrganizationManagementConstants {
                         "application with name %s."),
         ERROR_CODE_ERROR_SHARING_APPLICATION_ROLE_CONFLICT("65149", "Organization %s has a non shared role with " +
                 "name %s.", "Server encountered an error while sharing application to organization %s " +
-                "due to a non shared role with name %s.");
+                "due to a non shared role with name %s."),
+        ERROR_CODE_ERROR_CHECKING_IS_ANCESTOR_ORGANIZATION("65150", "Unable to check if organization " +
+                "is an ancestor organization.", "Server encountered an error while checking if " +
+                "organizations %s is an ancestor organization of organizations %s.");
 
         private final String code;
         private final String message;

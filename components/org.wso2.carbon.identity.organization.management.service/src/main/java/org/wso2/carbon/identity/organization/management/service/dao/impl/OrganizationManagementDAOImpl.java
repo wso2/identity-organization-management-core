@@ -69,6 +69,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_CHILD_ORGANIZATION_BY_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_IF_CHILD_OF_PARENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_IF_IMMEDIATE_CHILD_OF_PARENT;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_IS_ANCESTOR_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_ORGANIZATION_ATTRIBUTE_KEY_EXIST;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_ORGANIZATION_EXIST_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_ORGANIZATION_EXIST_BY_NAME;
@@ -153,6 +154,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATIONS_INCLUDING_ORG_HANDLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATION_HIERARCHY;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATION_IDS;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_DEPTH_TO_ANCESTOR_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_IMMEDIATE_OR_ALL_CHILD_ORG_IDS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_BY_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_INCLUDING_ORG_HANDLE;
@@ -1380,6 +1382,28 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         } catch (DataAccessException e) {
             throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_RELATIVE_ORGANIZATION_DEPTH_IN_BRANCH, e,
                     firstOrgId, secondOrgId);
+        }
+    }
+
+    @Override
+    public boolean isAncestorOrg(String currentOrgId, String parentOrgId)
+            throws OrganizationManagementServerException {
+
+        if (StringUtils.equals(currentOrgId, parentOrgId)) {
+            return false;
+        }
+        try {
+            String depth = Utils.getNewTemplate().fetchSingleRecord(
+                    GET_DEPTH_TO_ANCESTOR_ORGANIZATION,
+                    (resultSet, rowNumber) -> resultSet.getString(1),
+                    namedPreparedStatement -> {
+                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_PARENT_ID, parentOrgId);
+                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, currentOrgId);
+                    });
+            return depth != null;
+        } catch (DataAccessException e) {
+            throw handleServerException(ERROR_CODE_ERROR_CHECKING_IS_ANCESTOR_ORGANIZATION, e,
+                    parentOrgId, currentOrgId);
         }
     }
 
