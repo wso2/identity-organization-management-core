@@ -68,6 +68,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
@@ -705,6 +706,13 @@ public class OrganizationManagerImplTest {
     }
 
     @Test
+    public void testIsAncestorOrg() throws OrganizationManagementException {
+
+        assertTrue(organizationManager.isAncestorOrg(ORG1_ID, SUPER_ORG_ID));
+        assertFalse(organizationManager.isAncestorOrg(SUPER_ORG_ID, ORG1_ID));
+    }
+
+    @Test
     public void testGetParentOrganizationId() throws OrganizationManagementException {
 
         Assert.assertEquals(organizationManager.getParentOrganizationId(ORG2_ID), ORG1_ID);
@@ -743,7 +751,7 @@ public class OrganizationManagerImplTest {
         Assert.assertEquals(directChildIds.size(), 2);
         Assert.assertTrue(directChildIds.contains(ORG1_ID));
         Assert.assertTrue(directChildIds.contains(ORG3_ID));
-        Assert.assertFalse(directChildIds.contains(ORG2_ID));
+        assertFalse(directChildIds.contains(ORG2_ID));
 
         // Recursive test case (all levels of children)
         List<String> recursiveChildIds = organizationManager.getChildOrganizationsIds(SUPER_ORG_ID, true);
