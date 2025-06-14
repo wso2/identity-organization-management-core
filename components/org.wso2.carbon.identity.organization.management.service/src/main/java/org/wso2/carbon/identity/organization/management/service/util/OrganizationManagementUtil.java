@@ -27,6 +27,8 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUPER_ORG_ID;
+
 /**
  * This class provides utility functions for the Organization Management.
  */
@@ -102,5 +104,23 @@ public class OrganizationManagementUtil {
         String orgId = organizationManager.resolveOrganizationId(tenantDomain);
         String rootOrganizationId = organizationManager.getPrimaryOrganizationId(orgId);
         return organizationManager.resolveTenantDomain(rootOrganizationId);
+    }
+
+    /**
+     * Get the name of the Super Root Organization.
+     *
+     * <p>
+     * This method provides the proper way to retrieve the Super Organization name.
+     * Please avoid using the hardcoded "SUPER" constant in implementations.
+     * </p>
+     *
+     * @return The name of the Super Root Organization.
+     * @throws OrganizationManagementException If an error occurs while retrieving the Super Root Organization name.
+     */
+    public static String getSuperRootOrgName() throws OrganizationManagementException {
+
+        OrganizationManager organizationManager = OrganizationManagementDataHolder.getInstance()
+                .getOrganizationManager();
+        return organizationManager.getOrganizationNameById(SUPER_ORG_ID);
     }
 }
