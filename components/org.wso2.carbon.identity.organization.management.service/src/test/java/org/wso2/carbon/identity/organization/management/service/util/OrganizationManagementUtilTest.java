@@ -29,6 +29,8 @@ import org.wso2.carbon.identity.organization.management.service.internal.Organiz
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUPER;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUPER_ORG_ID;
 
 /**
  * Unit tests for Organization Management Util class.
@@ -62,5 +64,14 @@ public class OrganizationManagementUtilTest {
         verify(organizationManager).resolveOrganizationId(tenantDomain);
         verify(organizationManager).getPrimaryOrganizationId(organizationId);
         verify(organizationManager).resolveTenantDomain(rootOrganizationId);
+    }
+
+    @Test
+    public void testGetSuperRootOrgName() throws OrganizationManagementException {
+
+        when(organizationManager.getOrganizationNameById(SUPER_ORG_ID)).thenReturn(SUPER);
+
+        assertEquals(OrganizationManagementUtil.getSuperRootOrgName(), SUPER);
+        verify(organizationManager).getOrganizationNameById(SUPER_ORG_ID);
     }
 }
