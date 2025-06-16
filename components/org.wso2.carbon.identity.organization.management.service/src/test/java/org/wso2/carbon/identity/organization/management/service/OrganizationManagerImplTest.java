@@ -118,6 +118,7 @@ public class OrganizationManagerImplTest {
     private static final String INVALID_ORG_ID = "invalid_org_id";
     private static final String ORG_CREATED = "createdTime";
     private static final String ORG_STATUS = "ACTIVE";
+    private static final String NEW_SUPER_ORG_NAME = "New Super Org";
 
     private OrganizationManagerImpl organizationManager;
 
@@ -393,6 +394,16 @@ public class OrganizationManagerImplTest {
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(null);
     }
 
+    @Test
+    public void testGetSelfOrganization() throws Exception {
+
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
+        Organization organization = organizationManager.getSelfOrganization();
+        assertEquals(organization.getName(), SUPER);
+        assertEquals(organization.getId(), SUPER_ORG_ID);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(null);
+    }
+
     @Test(expectedExceptions = OrganizationManagementClientException.class)
     public void testGetParentOrganizationFromChildOrganization() throws Exception {
 
@@ -530,7 +541,18 @@ public class OrganizationManagerImplTest {
         assertNotNull(patchedOrganization);
         assertEquals(patchedOrganization.getDescription(), NEW_ORG_DESCRIPTION);
         assertEquals(patchedOrganization.getName(), ORG1_NAME);
+    }
 
+    @Test
+    public void testSelfPatchOrganization() throws Exception {
+
+        List<PatchOperation> patchOperations = new ArrayList<>();
+        PatchOperation patchOperation = new PatchOperation(PATCH_OP_REPLACE, PATCH_PATH_ORG_NAME, NEW_SUPER_ORG_NAME);
+        patchOperations.add(patchOperation);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
+        Organization patchedOrganization = organizationManager.patchSelfOrganization(patchOperations);
+        assertNotNull(patchedOrganization);
+        assertEquals(patchedOrganization.getName(), NEW_SUPER_ORG_NAME);
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
