@@ -82,7 +82,7 @@
         Set this to 'orgHandle' or 'orgName' to define the default discovery parameter used to resolve the organization.
     -->
     <OrganizationDiscovery>
-        <DefaultParam>orgHandle</DefaultParam>
+        <DefaultParam>orgName</DefaultParam>
     </OrganizationDiscovery>
 
 </OrganizationManagement>
