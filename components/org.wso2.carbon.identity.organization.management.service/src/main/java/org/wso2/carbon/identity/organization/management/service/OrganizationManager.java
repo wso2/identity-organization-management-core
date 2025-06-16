@@ -415,4 +415,28 @@ public interface OrganizationManager {
         throw new OrganizationManagementServerException("getBasicOrganizationDetailsByOrgIDs is not implemented in "
                 + this.getClass().getName());
     }
+
+    /**
+     * Retrieve the {@link Organization} associated with the currently accessing organization.
+     *
+     * @return the organization object.
+     * @throws OrganizationManagementException The exception thrown when retrieving an organization.
+     */
+    default Organization getSelfOrganization() throws OrganizationManagementException {
+
+        throw new NotImplementedException("getSelfOrganization is not implemented in " + this.getClass().getName());
+    }
+
+    /**
+     * Patch the organization associated with the currently accessing organization.
+     *
+     * @param patchOperations The list of patch operations.
+     * @return the patched organization.
+     * @throws OrganizationManagementException The exception thrown when patching an organization.
+     */
+    default Organization patchSelfOrganization(List<PatchOperation> patchOperations)
+            throws OrganizationManagementException {
+
+        throw new NotImplementedException("patchSelfOrganization is not implemented in " + this.getClass().getName());
+    }
 }

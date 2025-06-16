@@ -466,7 +466,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         if (!isOrganizationExistById(organizationId)) {
             throw handleClientException(ERROR_CODE_INVALID_ORGANIZATION, organizationId);
         }
-        validateOrganizationPatchOperations(patchOperations, organizationId);
+        validateOrganizationPatchOperations(patchOperations, organizationId, false);
 
         getListener().prePatchOrganization(organizationId, patchOperations);
         organizationManagementDAO.patchOrganization(organizationId, Instant.now(), patchOperations);
@@ -651,6 +651,51 @@ public class OrganizationManagerImpl implements OrganizationManager {
             return Collections.emptyMap();
         }
         return organizationManagementDAO.getBasicOrganizationDetailsByOrgIDs(orgIdList);
+    }
+
+    @Override
+    public Organization getSelfOrganization() throws OrganizationManagementException {
+
+        String requestInvokingOrganizationId = getOrganizationId();
+        if (StringUtils.isBlank(requestInvokingOrganizationId)) {
+            throw handleClientException(ERROR_CODE_ORGANIZATION_ID_UNDEFINED);
+        }
+        String organizationId = requestInvokingOrganizationId.trim();
+        getListener().preGetOrganization(organizationId);
+
+        Organization organization = organizationManagementDAO.getOrganization(organizationId);
+        if (organization == null) {
+            throw handleClientException(ERROR_CODE_INVALID_ORGANIZATION, organizationId);
+        }
+        organization.setOrganizationHandle(resolveTenantDomain(organization.getId()));
+
+        getListener().postGetOrganization(organizationId, organization);
+        return organization;
+    }
+
+    @Override
+    public Organization patchSelfOrganization(List<PatchOperation> patchOperations)
+            throws OrganizationManagementException {
+
+        String requestInvokingOrganizationId = getOrganizationId();
+        if (StringUtils.isBlank(requestInvokingOrganizationId)) {
+            throw handleClientException(ERROR_CODE_ORGANIZATION_ID_UNDEFINED);
+        }
+        String organizationId = requestInvokingOrganizationId.trim();
+        if (!isOrganizationExistById(organizationId)) {
+            throw handleClientException(ERROR_CODE_INVALID_ORGANIZATION, organizationId);
+        }
+        validateOrganizationPatchOperations(patchOperations, organizationId, true);
+
+        getListener().prePatchOrganization(organizationId, patchOperations);
+        organizationManagementDAO.patchOrganization(organizationId, Instant.now(), patchOperations);
+        patchTenantStatus(patchOperations, organizationId);
+
+        getListener().postPatchOrganization(organizationId, patchOperations);
+
+        Organization organization = organizationManagementDAO.getOrganization(organizationId);
+        organization.setOrganizationHandle(resolveTenantDomain(organization.getId()));
+        return organization;
     }
 
     private void updateTenantStatus(String status, String organizationId) throws OrganizationManagementServerException {
@@ -865,11 +910,12 @@ public class OrganizationManagerImpl implements OrganizationManager {
         validateOrganizationAttributes(organization.getAttributes());
     }
 
-    private void validateOrganizationPatchOperations(List<PatchOperation> patchOperations, String organizationId)
+    private void validateOrganizationPatchOperations(List<PatchOperation> patchOperations, String organizationId,
+                                                     boolean isSelfOrganizationUpdate)
             throws OrganizationManagementException {
 
         for (PatchOperation patchOperation : patchOperations) {
-            // Validate requested patch operation.
+
             if (StringUtils.isBlank(patchOperation.getOp())) {
                 throw handleClientException(ERROR_CODE_PATCH_OPERATION_UNDEFINED, organizationId);
             }
@@ -878,76 +924,80 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 throw handleClientException(ERROR_CODE_INVALID_PATCH_OPERATION, op);
             }
 
-            // Validate path.
             if (StringUtils.isBlank(patchOperation.getPath())) {
                 throw handleClientException(ERROR_CODE_PATCH_REQUEST_PATH_UNDEFINED);
             }
             String path = patchOperation.getPath().trim();
 
-            /*
-            Check if it is a supported path for patching.
-            Fields such as the parentId can't be modified with the current implementation.
-             */
-            if (!(path.equals(PATCH_PATH_ORG_NAME) || path.equals(PATCH_PATH_ORG_DESCRIPTION) ||
-                    path.equals(PATCH_PATH_ORG_STATUS) || path.startsWith(PATCH_PATH_ORG_ATTRIBUTES))) {
-                throw handleClientException(ERROR_CODE_PATCH_REQUEST_INVALID_PATH, path);
-            }
-
-            // Validate value.
             String value;
-            // Value is mandatory for Add and Replace operations.
             if (StringUtils.isBlank(patchOperation.getValue()) && !PATCH_OP_REMOVE.equals(op)) {
                 throw handleClientException(ERROR_CODE_PATCH_REQUEST_VALUE_UNDEFINED);
             } else {
-                // Avoid NPEs down the road.
                 value = patchOperation.getValue() != null ? patchOperation.getValue().trim() : "";
             }
 
-            // Mandatory fields can only be 'Replaced'.
+            if (isSelfOrganizationUpdate) {
+                validatePatchForSelfOrgUpdate(path);
+            } else {
+                validatePatchForOrgUpdate(path, op, value, organizationId);
+            }
+
             if (!op.equals(PATCH_OP_REPLACE) && !(path.equals(PATCH_PATH_ORG_DESCRIPTION) ||
                     path.startsWith(PATCH_PATH_ORG_ATTRIBUTES))) {
                 throw handleClientException(ERROR_CODE_PATCH_REQUEST_MANDATORY_FIELD_INVALID_OPERATION, op, path);
             }
 
-            // Check whether the new organization name is reserved.
             if (path.equals(PATCH_PATH_ORG_NAME)) {
-                if (StringUtils.equals(SUPER_ORG_ID, organizationId)) {
-                    throw handleClientException(ERROR_CODE_SUPER_ORG_RENAME, organizationId);
-                }
                 validateOrganizationNameField(value);
                 Organization organization = organizationManagementDAO.getOrganization(organizationId);
                 if (!organization.getName().equals(value)) {
-                    // If trying to patch a new name, need to check the availability.
                     validateOrgNameUniqueness(organization.getParent().getId(), value);
-                }
-            }
-
-            if (StringUtils.equals(PATCH_PATH_ORG_STATUS, path)) {
-                validateOrganizationStatusUpdate(value, organizationId);
-            }
-
-            if (path.startsWith(PATCH_PATH_ORG_ATTRIBUTES)) {
-                String attributeKey = path.replace(PATCH_PATH_ORG_ATTRIBUTES, "").trim();
-                // Attribute key can not be empty.
-                if (StringUtils.isBlank(attributeKey)) {
-                    throw handleClientException(ERROR_CODE_PATCH_REQUEST_ATTRIBUTE_KEY_UNDEFINED);
-                }
-                boolean attributeExist = organizationManagementDAO.isAttributeExistByKey(organizationId, attributeKey);
-                // If attribute key to be added already exists, update its value.
-                if (op.equals(PATCH_OP_ADD) && attributeExist) {
-                    op = PATCH_OP_REPLACE;
-                }
-                if (op.equals(PATCH_OP_REMOVE) && !attributeExist) {
-                    throw handleClientException(ERROR_CODE_PATCH_REQUEST_REMOVE_NON_EXISTING_ATTRIBUTE, attributeKey);
-                }
-                if (op.equals(PATCH_OP_REPLACE) && !attributeExist) {
-                    throw handleClientException(ERROR_CODE_PATCH_REQUEST_REPLACE_NON_EXISTING_ATTRIBUTE, attributeKey);
                 }
             }
 
             patchOperation.setOp(op);
             patchOperation.setPath(path);
             patchOperation.setValue(value);
+        }
+    }
+
+    private void validatePatchForOrgUpdate(String path, String op, String value, String organizationId)
+            throws OrganizationManagementException {
+
+        if (!(PATCH_PATH_ORG_NAME.equals(path) ||
+                PATCH_PATH_ORG_DESCRIPTION.equals(path) ||
+                PATCH_PATH_ORG_STATUS.equals(path) ||
+                path.startsWith(PATCH_PATH_ORG_ATTRIBUTES))) {
+            throw handleClientException(ERROR_CODE_PATCH_REQUEST_INVALID_PATH, path);
+        }
+
+        if (path.startsWith(PATCH_PATH_ORG_ATTRIBUTES)) {
+            String attributeKey = path.replace(PATCH_PATH_ORG_ATTRIBUTES, "").trim();
+            if (StringUtils.isBlank(attributeKey)) {
+                throw handleClientException(ERROR_CODE_PATCH_REQUEST_ATTRIBUTE_KEY_UNDEFINED);
+            }
+            boolean attributeExist = organizationManagementDAO.isAttributeExistByKey(organizationId, attributeKey);
+
+            if (op.equals(PATCH_OP_ADD) && attributeExist) {
+                op = PATCH_OP_REPLACE;
+            }
+            if (op.equals(PATCH_OP_REMOVE) && !attributeExist) {
+                throw handleClientException(ERROR_CODE_PATCH_REQUEST_REMOVE_NON_EXISTING_ATTRIBUTE, attributeKey);
+            }
+            if (op.equals(PATCH_OP_REPLACE) && !attributeExist) {
+                throw handleClientException(ERROR_CODE_PATCH_REQUEST_REPLACE_NON_EXISTING_ATTRIBUTE, attributeKey);
+            }
+        }
+
+        if (StringUtils.equals(PATCH_PATH_ORG_STATUS, path)) {
+            validateOrganizationStatusUpdate(value, organizationId);
+        }
+    }
+
+    private void validatePatchForSelfOrgUpdate(String path) throws OrganizationManagementException {
+
+        if (!PATCH_PATH_ORG_NAME.equals(path)) {
+            throw handleClientException(ERROR_CODE_PATCH_REQUEST_INVALID_PATH, path);
         }
     }
 
