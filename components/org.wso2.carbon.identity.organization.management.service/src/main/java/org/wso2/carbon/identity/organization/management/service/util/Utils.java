@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -559,6 +559,43 @@ public class Utils {
             UserCoreUtil.removeSkipPasswordPatternValidationThreadLocal();
             UserCoreUtil.removeSkipUsernamePatternValidationThreadLocal();
         }
+    }
+
+    /**
+     * Get the version that will be used to create new organizations.
+     *
+     * @return New organization version.
+     */
+    public static String getNewOrganizationVersion() {
+
+        return OrganizationManagementConfigUtil.getProperty(
+                OrganizationManagementConstants.OrganizationVersion.NEW_ORGANIZATION_VERSION_PROPERTY);
+    }
+
+    /**
+     * Check whether login and registration config inheritance is enabled for the organization identified by the
+     * given tenant domain.
+     * <p>
+     * Login & registration configuration inheritance is considered to be enabled if the organization version is
+     * greater than or equal to v1.0.0
+     *
+     * @param tenantDomain Tenant domain.
+     * @return True if login and registration config inheritance is enabled, false otherwise.
+     */
+    public static boolean isLoginAndRegistrationConfigInheritanceEnabled(String tenantDomain) {
+
+        try {
+            String orgVersion = organizationManager.getOrganization(
+                    organizationManager.resolveOrganizationId(tenantDomain), false, false).getVersion();
+            if (StringUtils.isBlank(orgVersion)) {
+                return false;
+            }
+
+            return orgVersion.compareTo(OrganizationManagementConstants.OrganizationVersion.ORG_VERSION_V1) >= 0;
+        } catch (OrganizationManagementException e) {
+            LOG.error("Error while resolving organization ID for tenant domain: " + tenantDomain, e);
+        }
+        return false;
     }
 
     /**

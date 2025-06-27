@@ -43,6 +43,7 @@ public class UtilsTest {
 
     private static final String CHANGED_PRIMARY_USER_STORE_DOMAIN_NAME = "WSO2.ORG";
     private static final String SECONDARY_DOMAIN_NAME = "DEFAULT";
+    private static final String NEW_ORG_VERSION = "v1.0.0";
 
     private RealmService realmService;
     private RealmConfiguration realmConfiguration;
@@ -129,5 +130,17 @@ public class UtilsTest {
                 SECONDARY_DOMAIN_NAME,
                 "The `getOrganizationUserInvitationPrimaryUserDomain` method does not return the configured"
                         + " domain name");
+    }
+
+    @Test(description = "Test getNewOrganizationVersion returns the configured organization version")
+    public void testGetNewOrganizationVersion() {
+
+        organizationManagementConfigUtil.when(() -> OrganizationManagementConfigUtil.getProperty(
+                        OrganizationManagementConstants.OrganizationVersion.NEW_ORGANIZATION_VERSION_PROPERTY))
+                .thenReturn(NEW_ORG_VERSION);
+
+        String result = Utils.getNewOrganizationVersion();
+        assertEquals(result, NEW_ORG_VERSION,
+                "getNewOrganizationVersion should return the configured organization version");
     }
  }

@@ -43,6 +43,7 @@ public class OrganizationManagementConstants {
     public static final String VIEW_CREATED_TIME_COLUMN = "UM_CREATED_TIME";
     public static final String VIEW_LAST_MODIFIED_COLUMN = "UM_LAST_MODIFIED";
     public static final String VIEW_STATUS_COLUMN = "UM_STATUS";
+    public static final String VIEW_ORG_VERSION_COLUMN = "UM_ORG_VERSION";
     public static final String VIEW_PARENT_ID_COLUMN = "UM_PARENT_ID";
     public static final String VIEW_ATTR_KEY_COLUMN = "UM_ATTRIBUTE_KEY";
     public static final String VIEW_ATTR_VALUE_COLUMN = "UM_ATTRIBUTE_VALUE";
@@ -56,6 +57,7 @@ public class OrganizationManagementConstants {
     public static final String PATCH_PATH_ORG_NAME = "/name";
     public static final String PATCH_PATH_ORG_DESCRIPTION = "/description";
     public static final String PATCH_PATH_ORG_STATUS = "/status";
+    public static final String PATCH_PATH_ORG_VERSION = "/version";
     public static final String PATCH_PATH_ORG_ATTRIBUTES = "/attributes/";
     public static final String PARENT_ID_FIELD = "parentId";
     public static final String ORGANIZATION_NAME_FIELD = "name";
@@ -140,6 +142,39 @@ public class OrganizationManagementConstants {
     public static final String CREATOR_EMAIL = "creator.email";
     public static final String ORGANIZATION_USER_INVITATION_PRIMARY_USER_DOMAIN =
             "OrganizationUserInvitation.PrimaryUserDomain";
+
+    /**
+     * Contains constants related to organization versioning.
+     * This class maintains a list of supported organization versions as well as the latest and base versions.
+     */
+    public static class OrganizationVersion {
+
+        public static final String NEW_ORGANIZATION_VERSION_PROPERTY = "OrganizationVersioning.NewOrganizationVersion";
+        public static final String ORG_VERSION_V0 = "v0.0.0";
+        public static final String ORG_VERSION_V1 = "v1.0.0";
+
+        public static final String LATEST_ORG_VERSION = ORG_VERSION_V1;
+        public static final String BASE_ORG_VERSION = ORG_VERSION_V0;
+
+        /**
+         * Organization version enum.
+         */
+        public enum OrganizationVersions {
+
+            V0(ORG_VERSION_V0),
+            V1(ORG_VERSION_V1);
+
+            private final String version;
+
+            OrganizationVersions(String value) {
+                this.version = value;
+            }
+
+            public String getVersion() {
+                return version;
+            }
+        }
+    }
 
     /**
      * Contains constants related to filter operations.
@@ -389,6 +424,10 @@ public class OrganizationManagementConstants {
                 "No email attribute returned by the authenticated federated IDP"),
         ERROR_CODE_EXISTING_ORGANIZATION_HANDLE("60100", "Unable to create the organization.",
                 "The given organization handle %s already exists. Please use a different handle."),
+        ERROR_CODE_ORGANIZATION_VERSION_UPDATE_NOT_ALLOWED("60101", "Organization version update not allowed.",
+                "Organization version update is not allowed for the organization with ID: %s."),
+        ERROR_CODE_UNSUPPORTED_ORGANIZATION_VERSION("60102", "Unsupported organization version.",
+                "The organization version: %s is not supported."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -770,7 +809,10 @@ public class OrganizationManagementConstants {
                         "application with name %s."),
         ERROR_CODE_ERROR_SHARING_APPLICATION_ROLE_CONFLICT("65149", "Organization %s has a non shared role with " +
                 "name %s.", "Server encountered an error while sharing application to organization %s " +
-                "due to a non shared role with name %s.");
+                "due to a non shared role with name %s."),
+        ERROR_CODE_INVALID_NEW_ORGANIZATION_VERSION_CONFIGURED("65150",
+                "Invalid new organization version configuration.",
+                "Configured new organization version is not valid.");
 
         private final String code;
         private final String message;
