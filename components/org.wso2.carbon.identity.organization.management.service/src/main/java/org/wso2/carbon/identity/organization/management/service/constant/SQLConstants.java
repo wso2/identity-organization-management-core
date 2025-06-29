@@ -358,6 +358,11 @@ public class SQLConstants {
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID + "; AND UM_PARENT_ID = :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";";
 
+    public static final String GET_DEPTH_TO_ANCESTOR_ORGANIZATION = "SELECT DEPTH FROM " +
+            "UM_ORG_HIERARCHY WHERE " +
+            "UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + "; AND " +
+            "UM_PARENT_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID + ";";
+
     public static final String GET_ANCESTOR_ORGANIZATION_ID_WITH_DEPTH = "SELECT UM_PARENT_ID, DEPTH FROM " +
             "UM_ORG_HIERARCHY WHERE UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + "; AND DEPTH = :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_DEPTH + ";";

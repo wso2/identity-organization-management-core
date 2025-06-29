@@ -581,6 +581,13 @@ public class OrganizationManagerImpl implements OrganizationManager {
     }
 
     @Override
+    public boolean isAncestorOrg(String currentOrgId, String parentOrgId)
+            throws OrganizationManagementServerException {
+
+        return organizationManagementDAO.isAncestorOrg(currentOrgId, parentOrgId);
+    }
+
+    @Override
     public String getParentOrganizationId(String organizationId) throws OrganizationManagementException {
 
         if (SUPER_ORG_ID.equals(organizationId)) {
