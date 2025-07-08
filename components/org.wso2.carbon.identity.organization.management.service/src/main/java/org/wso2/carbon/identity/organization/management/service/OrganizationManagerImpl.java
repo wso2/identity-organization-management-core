@@ -1354,7 +1354,11 @@ public class OrganizationManagerImpl implements OrganizationManager {
     private void setOrganizationVersion(Organization organization)
             throws OrganizationManagementServerException {
 
-        String parentId = organization.getParent().getId();
+        String parentId = null;
+        if (organization.getParent() != null) {
+            parentId = organization.getParent().getId();
+        }
+
         if (StringUtils.isBlank(parentId) ||
                 getOrganizationDepthInHierarchy(parentId) + 1 < Utils.getSubOrgStartLevel()) {
             String configuredNewOrgVersion = Utils.getNewOrganizationVersion();

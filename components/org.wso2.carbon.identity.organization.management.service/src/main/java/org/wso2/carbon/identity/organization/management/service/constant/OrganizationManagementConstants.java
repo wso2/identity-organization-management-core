@@ -167,6 +167,7 @@ public class OrganizationManagementConstants {
             private final String version;
 
             OrganizationVersions(String value) {
+
                 this.version = value;
             }
 
@@ -424,7 +425,7 @@ public class OrganizationManagementConstants {
                 "No email attribute returned by the authenticated federated IDP"),
         ERROR_CODE_EXISTING_ORGANIZATION_HANDLE("60100", "Unable to create the organization.",
                 "The given organization handle %s already exists. Please use a different handle."),
-        ERROR_CODE_ORGANIZATION_VERSION_UPDATE_NOT_ALLOWED("60101", "Organization version update not allowed.",
+        ERROR_CODE_ORGANIZATION_VERSION_UPDATE_NOT_ALLOWED("60101", "Organization version update is not allowed.",
                 "Organization version update is not allowed for the organization with ID: %s."),
         ERROR_CODE_UNSUPPORTED_ORGANIZATION_VERSION("60102", "Unsupported organization version.",
                 "The organization version: %s is not supported."),
