@@ -78,4 +78,9 @@
         <AssociationWaitTime>5000</AssociationWaitTime>
     </OrganizationUserInvitation>
 
+    <!-- Organization versioning related configurations. -->
+    <OrganizationVersioning>
+        <NewOrganizationVersion>v0.0.0</NewOrganizationVersion>
+    </OrganizationVersioning>
+
 </OrganizationManagement>

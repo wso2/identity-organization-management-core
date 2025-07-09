@@ -1361,7 +1361,14 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
         if (StringUtils.isBlank(parentId) ||
                 getOrganizationDepthInHierarchy(parentId) + 1 < Utils.getSubOrgStartLevel()) {
-            String configuredNewOrgVersion = Utils.getNewOrganizationVersion();
+            String configuredNewOrgVersion;
+            if (StringUtils.isNotBlank(Utils.getNewOrganizationVersion())) {
+                configuredNewOrgVersion = Utils.getNewOrganizationVersion();
+            } else {
+                configuredNewOrgVersion = OrganizationManagementConstants.OrganizationVersion
+                        .BASE_ORG_VERSION;
+            }
+
             if (Stream.of(OrganizationManagementConstants.OrganizationVersion.OrganizationVersions.values()).noneMatch(
                     version -> StringUtils.equals(version.getVersion(), configuredNewOrgVersion))) {
                 throw handleServerException(ERROR_CODE_INVALID_NEW_ORGANIZATION_VERSION_CONFIGURED, null);
