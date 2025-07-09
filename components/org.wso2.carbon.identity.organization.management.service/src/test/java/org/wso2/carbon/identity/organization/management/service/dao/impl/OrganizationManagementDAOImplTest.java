@@ -143,6 +143,7 @@ public class OrganizationManagementDAOImplTest {
         organization.setCreated(Instant.now());
         organization.setLastModified(Instant.now());
         organization.setStatus(OrganizationManagementConstants.OrganizationStatus.ACTIVE.toString());
+        organization.setVersion(OrganizationManagementConstants.OrganizationVersion.BASE_ORG_VERSION);
         organization.setType(STRUCTURAL.toString());
 
         ParentOrganizationDO parentOrganizationDO = new ParentOrganizationDO();

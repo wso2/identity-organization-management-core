@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -32,6 +32,7 @@ public class OrganizationRowDataCollector {
     private String type;
     private int tenantId;
     private String status;
+    private String version;
     private Instant created;
     private Instant lastModified;
     private String attributeKey;
@@ -125,6 +126,26 @@ public class OrganizationRowDataCollector {
     public void setStatus(String status) {
 
         this.status = status;
+    }
+
+    /**
+     * Returns the version of the organization.
+     *
+     * @return Version of the organization.
+     */
+    public String getVersion() {
+
+        return version;
+    }
+
+    /**
+     * Sets the version of the organization.
+     *
+     * @param version Version of the organization.
+     */
+    public void setVersion(String version) {
+
+        this.version = version;
     }
 
     public String getType() {

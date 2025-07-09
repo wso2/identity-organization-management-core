@@ -44,6 +44,7 @@ import org.wso2.carbon.identity.organization.management.service.model.Organizati
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
 import org.wso2.carbon.identity.organization.management.service.model.TenantTypeOrganization;
+import org.wso2.carbon.identity.organization.management.service.util.OrganizationManagementUtil;
 import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.identity.organization.management.util.TestUtils;
 import org.wso2.carbon.stratos.common.exception.TenantManagementClientException;
@@ -65,6 +66,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -81,6 +83,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_PATH_ORG_ATTRIBUTES;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_PATH_ORG_DESCRIPTION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_PATH_ORG_NAME;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_PATH_ORG_VERSION;
 import static org.wso2.carbon.stratos.common.constants.TenantConstants.ErrorMessage.ERROR_CODE_EXISTING_DOMAIN;
 
 public class OrganizationManagerImplTest {
@@ -119,6 +122,8 @@ public class OrganizationManagerImplTest {
     private static final String ORG_CREATED = "createdTime";
     private static final String ORG_STATUS = "ACTIVE";
     private static final String NEW_SUPER_ORG_NAME = "New Super Org";
+    private static final String V0 = "v0.0.0";
+    private static final String V1 = "v1.0.0";
 
     private OrganizationManagerImpl organizationManager;
 
@@ -165,11 +170,11 @@ public class OrganizationManagerImplTest {
         // Super -> org1 -> org2
         //       -> org3
         Organization organization1 = getOrganization(ORG1_ID, ORG1_NAME, ORG_DESCRIPTION, SUPER_ORG_ID,
-                STRUCTURAL.toString());
+                STRUCTURAL.toString(), V0);
         Organization organization2 = getOrganization(ORG2_ID, ORG2_NAME, ORG_DESCRIPTION, ORG1_ID,
-                STRUCTURAL.toString());
+                STRUCTURAL.toString(), V0);
         Organization organization3 = getOrganization(ORG3_ID, ORG3_NAME, ORG_DESCRIPTION, SUPER_ORG_ID,
-                TENANT.toString());
+                TENANT.toString(), V0);
 
         setOrganizationAttributes(organization3, ORG_ATTRIBUTE_KEY_COUNTRY, ORG_ATTRIBUTE_VALUE_COUNTRY);
         setOrganizationAttributes(organization3, ORG_ATTRIBUTE_KEY_CITY, ORG_ATTRIBUTE_VALUE_CITY);
@@ -196,7 +201,7 @@ public class OrganizationManagerImplTest {
     public void testAddOrganizationUnderSuperTenant() throws Exception {
 
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), NEW_ORG_NAME, ORG_DESCRIPTION,
-                SUPER_ORG_ID, STRUCTURAL.toString());
+                SUPER_ORG_ID, STRUCTURAL.toString(), V0);
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         Organization addedOrganization = organizationManager.addOrganization(sampleOrganization);
         assertNotNull(addedOrganization.getId(), "Created organization id cannot be null");
@@ -208,7 +213,7 @@ public class OrganizationManagerImplTest {
 
         // Root_1
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ROOT_ORG, ORG_DESCRIPTION,
-                null, TENANT.toString());
+                null, TENANT.toString(), V0);
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         when(realmService.getTenantManager()).thenReturn(tenantManager);
         when(tenantManager.getTenant(anyInt())).thenReturn(tenant);
@@ -222,7 +227,7 @@ public class OrganizationManagerImplTest {
 
         // Super -> org1 -> org2_1
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG2_1,
-                ORG_DESCRIPTION, ORG1_ID, TENANT.toString());
+                ORG_DESCRIPTION, ORG1_ID, TENANT.toString(), V0);
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG1_ID);
         when(realmService.getTenantManager()).thenReturn(tenantManager);
@@ -237,7 +242,7 @@ public class OrganizationManagerImplTest {
 
         // Super -> org1 -> org2 -> org3_1
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG3_1,
-                ORG_DESCRIPTION, ORG2_ID, TENANT.toString());
+                ORG_DESCRIPTION, ORG2_ID, TENANT.toString(), V0);
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG1_ID);
         organizationManager.addOrganization(sampleOrganization);
@@ -252,7 +257,7 @@ public class OrganizationManagerImplTest {
             Operation = Super -> ORG2
          */
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG2_NAME, ORG_DESCRIPTION,
-                SUPER_ORG_ID, TENANT.toString());
+                SUPER_ORG_ID, TENANT.toString(), V0);
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         organizationManager.addOrganization(sampleOrganization);
     }
@@ -269,9 +274,10 @@ public class OrganizationManagerImplTest {
             Root organizations after test = ORG1, ORG2
          */
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG2_NAME, ORG_DESCRIPTION,
-                SUPER_ORG_ID, TENANT.toString());
+                SUPER_ORG_ID, TENANT.toString(), V0);
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(2);
+        mockedUtilities.when(Utils::getNewOrganizationVersion).thenReturn(V0);
         organizationManager.addOrganization(sampleOrganization);
     }
 
@@ -284,7 +290,7 @@ public class OrganizationManagerImplTest {
             Operation = ORG2 -> ORG1
          */
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), ORG1_NAME, ORG_DESCRIPTION,
-                ORG2_ID, TENANT.toString());
+                ORG2_ID, TENANT.toString(), V0);
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG2_ID);
         organizationManager.addOrganization(sampleOrganization);
@@ -294,7 +300,7 @@ public class OrganizationManagerImplTest {
     public void testAddOrganizationWithInvalidParentId() throws Exception {
 
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(),
-                NEW_ORG_NAME, ORG_DESCRIPTION, INVALID_PARENT_ID, STRUCTURAL.toString());
+                NEW_ORG_NAME, ORG_DESCRIPTION, INVALID_PARENT_ID, STRUCTURAL.toString(), V0);
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         organizationManager.addOrganization(sampleOrganization);
     }
@@ -303,7 +309,7 @@ public class OrganizationManagerImplTest {
     public void testAddOrganizationWithReservedName() throws Exception {
 
         Organization organization = getOrganization(UUID.randomUUID().toString(), SUPER, ORG_DESCRIPTION, ORG1_NAME,
-                TENANT.toString());
+                TENANT.toString(), V0);
         organizationManager.addOrganization(organization);
     }
 
@@ -311,7 +317,7 @@ public class OrganizationManagerImplTest {
     public void testAddOrganizationWithNameIncludeHTMLContent() throws Exception {
 
         Organization organization = getOrganization(UUID.randomUUID().toString(), ORG_NAME_WITH_HTML_CONTENT,
-                ORG_DESCRIPTION, ORG1_NAME, TENANT.toString());
+                ORG_DESCRIPTION, ORG1_NAME, TENANT.toString(), V0);
         organizationManager.addOrganization(organization);
     }
 
@@ -334,7 +340,7 @@ public class OrganizationManagerImplTest {
     public void testAddOrganizationRequiredFieldsMissing(String orgName, String parentId) throws Exception {
 
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(),
-                orgName, ORG_DESCRIPTION, parentId, TENANT.toString());
+                orgName, ORG_DESCRIPTION, parentId, TENANT.toString(), V0);
         organizationManager.addOrganization(sampleOrganization);
     }
 
@@ -359,7 +365,7 @@ public class OrganizationManagerImplTest {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         Organization organization = getOrganization(UUID.randomUUID().toString(), NEW_ORG_NAME, ORG_DESCRIPTION,
-                SUPER_ORG_ID, STRUCTURAL.toString());
+                SUPER_ORG_ID, STRUCTURAL.toString(), V0);
         List<OrganizationAttribute> organizationAttributeList = new ArrayList<>();
         OrganizationAttribute organizationAttribute = new OrganizationAttribute(attributeKey, attributeValue);
         organizationAttributeList.add(organizationAttribute);
@@ -371,7 +377,7 @@ public class OrganizationManagerImplTest {
     public void testAddOrganizationDuplicateAttributeKeys() throws Exception {
 
         Organization organization = getOrganization(UUID.randomUUID().toString(), NEW_ORG_NAME, ORG_DESCRIPTION,
-                SUPER_ORG_ID, STRUCTURAL.toString());
+                SUPER_ORG_ID, STRUCTURAL.toString(), V0);
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         List<OrganizationAttribute> organizationAttributeList = new ArrayList<>();
         OrganizationAttribute organizationAttribute1 = new OrganizationAttribute(ORG_ATTRIBUTE_KEY_COUNTRY,
@@ -555,6 +561,116 @@ public class OrganizationManagerImplTest {
         assertEquals(patchedOrganization.getName(), NEW_SUPER_ORG_NAME);
     }
 
+    @Test
+    public void testPatchRootOrgVersion() throws Exception {
+
+        try (MockedStatic<OrganizationManagementUtil> organizationManagementUtilMockedStatic =
+                     mockStatic(OrganizationManagementUtil.class)) {
+            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                    .thenReturn(false);
+            List<PatchOperation> patchOperations = new ArrayList<>();
+            PatchOperation patchOperation = new PatchOperation(PATCH_OP_REPLACE, PATCH_PATH_ORG_VERSION,
+                    V1);
+            patchOperations.add(patchOperation);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
+            Organization patchedOrganization = organizationManager.patchOrganization(SUPER_ORG_ID, patchOperations);
+            assertNotNull(patchedOrganization);
+            assertEquals(patchedOrganization.getVersion(), V1);
+        }
+    }
+
+    @Test(expectedExceptions = OrganizationManagementClientException.class)
+    public void testPatchSubOrgVersion() throws Exception {
+
+        try (MockedStatic<OrganizationManagementUtil> organizationManagementUtilMockedStatic =
+                     mockStatic(OrganizationManagementUtil.class)) {
+            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                    .thenReturn(true);
+            List<PatchOperation> patchOperations = new ArrayList<>();
+            PatchOperation patchOperation = new PatchOperation(PATCH_OP_REPLACE, PATCH_PATH_ORG_VERSION,
+                    V1);
+            patchOperations.add(patchOperation);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
+            organizationManager.patchOrganization(ORG1_ID, patchOperations);
+        }
+
+    }
+
+    @Test
+    public void testGetSubOrgUnderV1Root() throws Exception {
+
+        try (MockedStatic<OrganizationManagementUtil> organizationManagementUtilMockedStatic =
+                     mockStatic(OrganizationManagementUtil.class)) {
+            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                    .thenReturn(false);
+            List<PatchOperation> patchOperations = new ArrayList<>();
+            PatchOperation patchOperation = new PatchOperation(PATCH_OP_REPLACE, PATCH_PATH_ORG_VERSION,
+                    V1);
+            patchOperations.add(patchOperation);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
+            organizationManager.patchOrganization(SUPER_ORG_ID, patchOperations);
+
+            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                    .thenReturn(true);
+            mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(1);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
+            Organization organization = organizationManager.getOrganization(ORG1_ID, false, false);
+            assertEquals(organization.getName(), ORG1_NAME);
+            assertEquals(organization.getVersion(), V1);
+        }
+    }
+
+    @Test
+    public void testGetSelfOrganizationVersionUnderV1Root() throws Exception {
+
+        try (MockedStatic<OrganizationManagementUtil> organizationManagementUtilMockedStatic =
+                     mockStatic(OrganizationManagementUtil.class)) {
+            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                    .thenReturn(false);
+            List<PatchOperation> patchOperations = new ArrayList<>();
+            PatchOperation patchOperation = new PatchOperation(PATCH_OP_REPLACE, PATCH_PATH_ORG_VERSION,
+                    V1);
+            patchOperations.add(patchOperation);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
+            organizationManager.patchOrganization(SUPER_ORG_ID, patchOperations);
+
+            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                    .thenReturn(true);
+            mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(1);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG1_ID);
+            Organization organization = organizationManager.getSelfOrganization();
+            assertEquals(organization.getName(), ORG1_NAME);
+            assertEquals(organization.getVersion(), V1);
+        }
+    }
+
+    @Test
+    public void testSelfPatchRootOrganizationVersion() throws Exception {
+
+        List<PatchOperation> patchOperations = new ArrayList<>();
+        PatchOperation patchOperation = new PatchOperation(PATCH_OP_REPLACE, PATCH_PATH_ORG_VERSION, V1);
+        patchOperations.add(patchOperation);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
+        Organization patchedOrganization = organizationManager.patchSelfOrganization(patchOperations);
+        assertNotNull(patchedOrganization);
+        assertEquals(patchedOrganization.getVersion(), V1);
+    }
+
+    @Test(expectedExceptions = OrganizationManagementClientException.class)
+    public void testSelfPatchSubOrganizationVersion() throws Exception {
+
+        try (MockedStatic<OrganizationManagementUtil> organizationManagementUtilMockedStatic =
+                     mockStatic(OrganizationManagementUtil.class)) {
+            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                    .thenReturn(true);
+            List<PatchOperation> patchOperations = new ArrayList<>();
+            PatchOperation patchOperation = new PatchOperation(PATCH_OP_REPLACE, PATCH_PATH_ORG_VERSION, V1);
+            patchOperations.add(patchOperation);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG1_ID);
+            organizationManager.patchSelfOrganization(patchOperations);
+        }
+    }
+
     @Test(expectedExceptions = OrganizationManagementClientException.class)
     public void testPatchOrganizationWithEmptyOrganizationId() throws Exception {
 
@@ -664,7 +780,7 @@ public class OrganizationManagerImplTest {
     public void testUpdateOrganization() throws Exception {
 
         Organization sampleOrganization = getOrganization(ORG1_ID, NEW_ORG1_NAME, NEW_ORG_DESCRIPTION, SUPER_ORG_ID,
-                STRUCTURAL.toString());
+                STRUCTURAL.toString(), V0);
         Organization updatedOrganization = organizationManager.updateOrganization(ORG1_ID, ORG1_NAME,
                 sampleOrganization);
         assertEquals(NEW_ORG_DESCRIPTION, updatedOrganization.getDescription());
@@ -676,14 +792,14 @@ public class OrganizationManagerImplTest {
     public void testUpdateOrganizationWithEmptyOrganizationId() throws Exception {
 
         organizationManager.updateOrganization(StringUtils.EMPTY, ORG1_NAME,
-                getOrganization(ORG1_ID, ORG1_NAME, NEW_ORG_DESCRIPTION, SUPER_ORG_ID, STRUCTURAL.toString()));
+                getOrganization(ORG1_ID, ORG1_NAME, NEW_ORG_DESCRIPTION, SUPER_ORG_ID, STRUCTURAL.toString(), V0));
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
     public void testUpdateOrganizationWithInvalidOrganizationId() throws Exception {
 
         organizationManager.updateOrganization(INVALID_ORG_ID, ORG1_NAME, getOrganization(INVALID_ORG_ID, ORG1_NAME,
-                NEW_ORG_DESCRIPTION, SUPER_ORG_ID, STRUCTURAL.toString()));
+                NEW_ORG_DESCRIPTION, SUPER_ORG_ID, STRUCTURAL.toString(), V0));
     }
 
     @DataProvider(name = "dataForGetOrganizationDepth")
@@ -737,7 +853,7 @@ public class OrganizationManagerImplTest {
     public void testAddOrganizationFailWhileRoleBack() throws Exception {
 
         Organization sampleOrganization = getOrganization(UUID.randomUUID().toString(), NEW_ORG_NAME, ORG_DESCRIPTION,
-                SUPER_ORG_ID, STRUCTURAL.toString());
+                SUPER_ORG_ID, STRUCTURAL.toString(), V0);
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
         OrganizationManagerListener mockOrgMgtListener = OrganizationManagementDataHolder.getInstance()
                 .getOrganizationManagerListener();
@@ -783,7 +899,7 @@ public class OrganizationManagerImplTest {
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
 
         Organization sampleOrganization = getOrganization(
-                ORG4_ID, ORG4_NAME, ORG_DESCRIPTION, SUPER_ORG_ID, TENANT.toString());
+                ORG4_ID, ORG4_NAME, ORG_DESCRIPTION, SUPER_ORG_ID, TENANT.toString(), V0);
         sampleOrganization.setOrganizationHandle(ORG4_HANDLE);
 
         TenantManagementClientException tenantManagementClientException = new TenantManagementClientException(
@@ -932,7 +1048,7 @@ public class OrganizationManagerImplTest {
     }
 
     private TenantTypeOrganization getOrganization(String id, String name, String description, String parent,
-                                                   String type) {
+                                                   String type, String version) {
 
         TenantTypeOrganization organization = new TenantTypeOrganization(name);
         organization.setId(id);
@@ -941,6 +1057,7 @@ public class OrganizationManagerImplTest {
         organization.setStatus(OrganizationStatus.ACTIVE.toString());
         organization.getParent().setId(parent);
         organization.setType(type);
+        organization.setVersion(version);
         organization.setCreated(Instant.now());
         organization.setLastModified(Instant.now());
         return organization;

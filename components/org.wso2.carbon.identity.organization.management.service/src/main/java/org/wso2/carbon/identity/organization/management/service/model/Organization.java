@@ -29,6 +29,7 @@ public class Organization {
 
     private String id;
     private String name;
+    private String version;
     private String description;
     private String status;
     private String type;
@@ -188,6 +189,26 @@ public class Organization {
     public void setPermissions(List<String> permissions) {
 
         this.permissions = permissions;
+    }
+
+    /**
+     * Returns the version of the organization.
+     *
+     * @return The version of the organization.
+     */
+    public String getVersion() {
+
+        return version;
+    }
+
+    /**
+     * Sets the version of the organization.
+     *
+     * @param version The version to set.
+     */
+    public void setVersion(String version) {
+
+        this.version = version;
     }
 
     /**
