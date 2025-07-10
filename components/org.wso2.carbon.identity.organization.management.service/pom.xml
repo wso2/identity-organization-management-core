@@ -159,10 +159,12 @@
                 <version>${jacoco.version}</version>
                 <configuration>
                     <excludes>
-                        <exclude>org.wso2.carbon.identity.organization.management.service.internal/*.class</exclude>
-                        <exclude>org.wso2.carbon.identity.organization.management.service.exception/*.class</exclude>
-                        <exclude>org.wso2.carbon.identity.organization.management.service.model/*.class</exclude>
-                        <exclude>org.wso2.carbon.identity.organization.management.service.constant*.class</exclude>
+                        <exclude>org/wso2/carbon/identity/organization/management/service/internal/*.class</exclude>
+                        <exclude>org/wso2/carbon/identity/organization/management/service/exception/*.class</exclude>
+                        <exclude>org/wso2/carbon/identity/organization/management/service/model/*.class</exclude>
+                        <exclude>org/wso2/carbon/identity/organization/management/service/constant/*.class</exclude>
+                        <exclude>org/wso2/carbon/identity/organization/management/service/dao/OrganizationManagementDAO.class</exclude>
+                        <exclude>org/wso2/carbon/identity/organization/management/service/OrganizationManager.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>
