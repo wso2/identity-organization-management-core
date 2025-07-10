@@ -39,6 +39,7 @@ import org.wso2.carbon.identity.organization.management.service.exception.Organi
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
 import org.wso2.carbon.identity.organization.management.service.listener.OrganizationManagerListener;
+import org.wso2.carbon.identity.organization.management.service.model.AncestorOrganizationDO;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
@@ -70,8 +71,8 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_EXISTING_ORGANIZATION_HANDLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationStatus;
@@ -206,6 +207,7 @@ public class OrganizationManagerImplTest {
         Organization addedOrganization = organizationManager.addOrganization(sampleOrganization);
         assertNotNull(addedOrganization.getId(), "Created organization id cannot be null");
         assertEquals(addedOrganization.getName(), sampleOrganization.getName());
+        assertFalse(addedOrganization.hasChildren());
     }
 
     @Test
@@ -220,6 +222,7 @@ public class OrganizationManagerImplTest {
         Organization addedOrganization = organizationManager.addRootOrganization(1, sampleOrganization);
         assertNotNull(addedOrganization.getId(), "Created root organization id cannot be null");
         assertEquals(addedOrganization.getName(), sampleOrganization.getName());
+        assertFalse(addedOrganization.hasChildren());
     }
 
     @Test
@@ -235,6 +238,7 @@ public class OrganizationManagerImplTest {
         Organization addedOrganization = organizationManager.addOrganization(sampleOrganization);
         assertNotNull(addedOrganization.getId(), "Created organization id cannot be null");
         assertEquals(addedOrganization.getName(), sampleOrganization.getName());
+        assertFalse(addedOrganization.hasChildren());
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
@@ -397,6 +401,7 @@ public class OrganizationManagerImplTest {
         Organization organization = organizationManager.getOrganization(ORG1_ID, false, false);
         assertEquals(organization.getName(), ORG1_NAME);
         assertEquals(organization.getParent().getId(), SUPER_ORG_ID);
+        assertTrue(organization.hasChildren());
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(null);
     }
 
@@ -407,6 +412,7 @@ public class OrganizationManagerImplTest {
         Organization organization = organizationManager.getSelfOrganization();
         assertEquals(organization.getName(), SUPER);
         assertEquals(organization.getId(), SUPER_ORG_ID);
+        assertTrue(organization.hasChildren());
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(null);
     }
 
@@ -436,6 +442,7 @@ public class OrganizationManagerImplTest {
         assertEquals(organization.getName(), ORG1_NAME);
         assertEquals(organization.getParent().getId(), SUPER_ORG_ID);
         assertEquals(organization.getChildOrganizations().size(), 1);
+        assertTrue(organization.hasChildren());
     }
 
     @DataProvider(name = "dataForFilterOrganizationsByMetaAttributes")
@@ -461,6 +468,7 @@ public class OrganizationManagerImplTest {
         } else {
             assertEquals(organizations.size(), 1);
             assertEquals(organizations.get(0).getName(), ORG3_NAME);
+            assertFalse(organizations.get(0).hasChildren());
             assertEquals(organizations.get(0).getAttributes().get(0).getKey(), ORG_ATTRIBUTE_KEY_COUNTRY);
             assertEquals(organizations.get(0).getAttributes().get(0).getValue(), ORG_ATTRIBUTE_VALUE_COUNTRY);
             assertEquals(organizations.get(0).getAttributes().get(1).getKey(), ORG_ATTRIBUTE_KEY_CITY);
@@ -517,13 +525,6 @@ public class OrganizationManagerImplTest {
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
-    public void testDeleteOrganization() throws Exception {
-
-        organizationManager.deleteOrganization(ORG2_ID);
-        assertNull(organizationManager.getOrganization(ORG2_ID, false, false));
-    }
-
-    @Test(expectedExceptions = OrganizationManagementClientException.class)
     public void testDeleteOrganizationWithEmptyOrganizationId() throws Exception {
 
         organizationManager.deleteOrganization(StringUtils.EMPTY);
@@ -547,6 +548,7 @@ public class OrganizationManagerImplTest {
         assertNotNull(patchedOrganization);
         assertEquals(patchedOrganization.getDescription(), NEW_ORG_DESCRIPTION);
         assertEquals(patchedOrganization.getName(), ORG1_NAME);
+        assertTrue(patchedOrganization.hasChildren());
     }
 
     @Test
@@ -559,6 +561,7 @@ public class OrganizationManagerImplTest {
         Organization patchedOrganization = organizationManager.patchSelfOrganization(patchOperations);
         assertNotNull(patchedOrganization);
         assertEquals(patchedOrganization.getName(), NEW_SUPER_ORG_NAME);
+        assertTrue(patchedOrganization.hasChildren());
     }
 
     @Test
@@ -1031,6 +1034,63 @@ public class OrganizationManagerImplTest {
         when(tenantMgtService.isDomainAvailable(ORG1_HANDLE)).thenThrow(
                 new TenantMgtException("Error checking domain availability."));
         organizationManager.isOrganizationExistByHandle(ORG1_HANDLE);
+    }
+
+    @DataProvider(name = "dataForAncestorsOrgTest")
+    public Object[][] dataForAncestorsOrgTest() {
+
+        List<AncestorOrganizationDO> ancestors = Arrays.asList(
+                new AncestorOrganizationDO(SUPER_ORG_ID, SUPER, 0),
+                new AncestorOrganizationDO(ORG1_ID, ORG1_NAME, 1)
+        );
+
+        return new Object[][]{
+                {ORG1_ID, SUPER_ORG_ID, ancestors.subList(0, 1)},
+                {ORG2_ID, SUPER_ORG_ID, ancestors},
+                {ORG2_ID, ORG1_ID, ancestors.subList(1, 2)},
+                {ORG2_ID, ORG2_ID, Collections.emptyList()},
+        };
+    }
+
+    @Test(dataProvider = "dataForAncestorsOrgTest")
+    public void testReturnedAncestorsOfOrg(String organizationId, String requestInitiatedOrgId,
+                                           List<AncestorOrganizationDO> expectedAncestors)
+            throws OrganizationManagementException {
+
+        try (MockedStatic<OrganizationManagementUtil> organizationManagementUtilMockedStatic =
+                     mockStatic(OrganizationManagementUtil.class)) {
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(requestInitiatedOrgId);
+            Organization organization = organizationManager.getOrganization(organizationId, false, false, true);
+            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                    .thenReturn(false);
+            List<AncestorOrganizationDO> ancestors = organization.getAncestors();
+            Assert.assertEquals(ancestors.size(), expectedAncestors.size(),
+                    "The number of ancestors returned does not match the expected count.");
+            for (int i = 0; i < ancestors.size(); i++) {
+                AncestorOrganizationDO expectedAncestor = expectedAncestors.get(i);
+                AncestorOrganizationDO actualAncestor = ancestors.get(i);
+                Assert.assertEquals(actualAncestor.getId(), expectedAncestor.getId(),
+                        "The ancestor ID does not match the expected value.");
+                Assert.assertEquals(actualAncestor.getName(), expectedAncestor.getName(),
+                        "The ancestor name does not match the expected value.");
+                Assert.assertEquals(actualAncestor.getDepth(), expectedAncestor.getDepth(),
+                        "The ancestor depth does not match the expected value.");
+            }
+        }
+    }
+
+    @Test(dependsOnMethods = "testReturnedAncestorsOfOrg")
+    public void testChildrenStatusOfOrganizationOnChildDeletion() throws OrganizationManagementException {
+
+        // Assert ORG_1 has children.
+        Organization organization1 = organizationManager.getOrganization(ORG1_ID, false, false, false);
+        assertTrue(organization1.hasChildren());
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG1_ID);
+        // Delete ORG_2.
+        organizationManager.deleteOrganization(ORG2_ID);
+        // Assert ORG_1 don't have children.
+        organization1 = organizationManager.getOrganization(ORG1_ID, false, false, false);
+        assertFalse(organization1.hasChildren());
     }
 
     private void setOrganizationAttributes(Organization organization, String key, String value) {

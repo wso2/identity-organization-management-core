@@ -27,6 +27,17 @@ public class AncestorOrganizationDO {
     private String name;
     private int depth;
 
+    public AncestorOrganizationDO() {
+
+    }
+
+    public AncestorOrganizationDO(String id, String name, int depth) {
+
+        this.id = id;
+        this.name = name;
+        this.depth = depth;
+    }
+
     /**
      * Get the ID of the ancestor organization.
      *
