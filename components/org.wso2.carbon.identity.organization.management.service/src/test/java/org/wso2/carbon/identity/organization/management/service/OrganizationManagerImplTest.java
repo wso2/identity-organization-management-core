@@ -1036,8 +1036,23 @@ public class OrganizationManagerImplTest {
         organizationManager.isOrganizationExistByHandle(ORG1_HANDLE);
     }
 
-    @DataProvider(name = "dataForAncestorsOrgTest")
-    public Object[][] dataForAncestorsOrgTest() {
+    @Test
+    public void testAncestorsNotIncludedWhenNotRequested() throws OrganizationManagementException {
+
+        try (MockedStatic<OrganizationManagementUtil> organizationManagementUtilMockedStatic =
+                     mockStatic(OrganizationManagementUtil.class)) {
+            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                    .thenReturn(false);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
+            Organization organization = organizationManager.getOrganization(ORG2_ID, false, false, false);
+            List<AncestorOrganizationDO> ancestors = organization.getAncestors();
+            Assert.assertEquals(ancestors.size(), 0,
+                    "The number of ancestors returned for  organization should be zero.");
+        }
+    }
+
+    @DataProvider(name = "dataForTestGetAncestorsOfOrganization")
+    public Object[][] dataForTestGetAncestorsOfOrganization() {
 
         List<AncestorOrganizationDO> ancestors = Arrays.asList(
                 new AncestorOrganizationDO(SUPER_ORG_ID, SUPER, 0),
@@ -1052,17 +1067,18 @@ public class OrganizationManagerImplTest {
         };
     }
 
-    @Test(dataProvider = "dataForAncestorsOrgTest")
-    public void testReturnedAncestorsOfOrg(String organizationId, String requestInitiatedOrgId,
+    @Test(dataProvider = "dataForTestGetAncestorsOfOrganization")
+    public void testGetAncestorsOfOrganization(String organizationId, String requestInitiatedOrgId,
                                            List<AncestorOrganizationDO> expectedAncestors)
             throws OrganizationManagementException {
 
         try (MockedStatic<OrganizationManagementUtil> organizationManagementUtilMockedStatic =
                      mockStatic(OrganizationManagementUtil.class)) {
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(requestInitiatedOrgId);
-            Organization organization = organizationManager.getOrganization(organizationId, false, false, true);
             organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
                     .thenReturn(false);
+           mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(1);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(requestInitiatedOrgId);
+            Organization organization = organizationManager.getOrganization(organizationId, false, false, true);
             List<AncestorOrganizationDO> ancestors = organization.getAncestors();
             Assert.assertEquals(ancestors.size(), expectedAncestors.size(),
                     "The number of ancestors returned does not match the expected count.");
@@ -1079,7 +1095,29 @@ public class OrganizationManagerImplTest {
         }
     }
 
-    @Test(dependsOnMethods = "testReturnedAncestorsOfOrg")
+    @Test
+    public void testAncestorRetrievalWithCustomSubOrgStartLevel() throws OrganizationManagementException {
+
+        try (MockedStatic<OrganizationManagementUtil> organizationManagementUtilMockedStatic =
+                     mockStatic(OrganizationManagementUtil.class)) {
+            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                    .thenReturn(false);
+            mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(2);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG1_ID);
+            Organization organization = organizationManager.getOrganization(ORG2_ID, false, false, true);
+            List<AncestorOrganizationDO> ancestors = organization.getAncestors();
+            Assert.assertEquals(ancestors.size(), 1,
+                    "The number of ancestors returned should be one when sub-org start level is set to 2.");
+            AncestorOrganizationDO ancestor = ancestors.get(0);
+            Assert.assertEquals(ancestor.getId(), ORG1_ID,
+                    "The ancestor ID should match the parent organization ID.");
+            Assert.assertEquals(ancestor.getName(), ORG1_NAME,
+                    "The ancestor name should match the parent organization name.");
+            Assert.assertEquals(ancestor.getDepth(), 0, "The ancestor depth should be 0.");
+        }
+    }
+
+    @Test
     public void testChildrenStatusOfOrganizationOnChildDeletion() throws OrganizationManagementException {
 
         // Assert ORG_1 has children.
