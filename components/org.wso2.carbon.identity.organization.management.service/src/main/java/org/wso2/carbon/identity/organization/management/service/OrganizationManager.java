@@ -99,6 +99,13 @@ public interface OrganizationManager {
     Organization getOrganization(String organizationId, boolean showChildren, boolean includePermissions)
             throws OrganizationManagementException;
 
+    default Organization getOrganization(String organizationId, boolean showChildren, boolean includePermissions,
+                                         boolean showAncestorOrganizations) throws OrganizationManagementException {
+
+        throw new NotImplementedException(
+                "getOrganization with ancestor organizations is not implemented in " + this.getClass().getName());
+    }
+
     /**
      * Returns the list of child organizations for a given organization.
      *

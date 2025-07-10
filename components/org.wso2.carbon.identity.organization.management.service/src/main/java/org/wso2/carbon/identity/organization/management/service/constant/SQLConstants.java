@@ -553,6 +553,13 @@ public class SQLConstants {
             "U.UM_CREATED_TIME, T.UM_DOMAIN_NAME FROM UM_ORG U JOIN UM_TENANT T ON U.UM_ID = T.UM_ORG_UUID " +
             "WHERE U.UM_ID IN (%s)";
 
+    public static final String GET_ANCESTOR_ORG_DETAILS = "SELECT H.UM_PARENT_ID, O.UM_ORG_NAME, (( " +
+            "SELECT MAX(DEPTH) FROM UM_ORG_HIERARCHY WHERE UM_ID = :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";) - H.DEPTH) AS DEPTH " +
+            "FROM UM_ORG_HIERARCHY H JOIN UM_ORG O ON H.UM_PARENT_ID = O.UM_ID " +
+            "WHERE H.UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + "; AND H.DEPTH > 0 " +
+            "ORDER BY H.DEPTH DESC";
+
     /**
      * SQL Placeholders.
      */

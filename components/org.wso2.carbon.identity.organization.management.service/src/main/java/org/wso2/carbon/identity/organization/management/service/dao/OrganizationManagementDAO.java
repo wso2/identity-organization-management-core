@@ -22,6 +22,7 @@ import org.wso2.carbon.identity.organization.management.service.exception.NotImp
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.filter.ExpressionNode;
+import org.wso2.carbon.identity.organization.management.service.model.AncestorOrganizationDO;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationNode;
@@ -478,6 +479,21 @@ public interface OrganizationManagementDAO {
             throws OrganizationManagementException {
 
         throw new OrganizationManagementServerException("getBasicOrganizationDetailsByOrgIDs is not implemented in "
+                + this.getClass().getName());
+    }
+
+    /**
+     * Retrieve the ancestor organizations of a given organization.
+     *
+     * @param organizationId The organization ID.
+     * @return List of ancestor organizations.
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the ancestor
+     *                                               organizations.
+     */
+    default List<AncestorOrganizationDO> getAncestorOrganizations(String organizationId)
+            throws OrganizationManagementServerException {
+
+        throw new OrganizationManagementServerException("getAncestorOrganizations is not implemented in "
                 + this.getClass().getName());
     }
 }

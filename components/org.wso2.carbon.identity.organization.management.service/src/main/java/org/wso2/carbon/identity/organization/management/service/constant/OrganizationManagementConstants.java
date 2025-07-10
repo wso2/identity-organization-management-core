@@ -51,6 +51,8 @@ public class OrganizationManagementConstants {
     public static final String VIEW_TENANT_UUID_COLUMN = "UM_TENANT_UUID";
     public static final String VIEW_TENANT_DOMAIN_COLUMN = "UM_DOMAIN_NAME";
     public static final String VIEW_ORGANIZATION_ATTRIBUTES_TABLE = "UM_ORG_ATTRIBUTE";
+    public static final String VIEW_DEPTH_COLUMN = "DEPTH";
+    public static final String VIEW_HAS_CHILDREN_COLUMN = "HAS_CHILDREN";
     public static final String PATCH_OP_ADD = "ADD";
     public static final String PATCH_OP_REMOVE = "REMOVE";
     public static final String PATCH_OP_REPLACE = "REPLACE";
