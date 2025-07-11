@@ -732,10 +732,10 @@ public class OrganizationManagerImpl implements OrganizationManager {
     /**
      * Get the ancestors of the given organization up to the request initiated organization.
      *
-     * @param organizationId
-     * @param requestInitiatedOrgId
-     * @return
-     * @throws OrganizationManagementServerException
+     * @param organizationId        The organization id to get the ancestors.
+     * @param requestInitiatedOrgId The organization id of the request initiator.
+     * @return List of ancestor organizations up to the request initiated organization.
+     * @throws OrganizationManagementServerException If an error occurs while retrieving the ancestor organizations.
      */
     private List<AncestorOrganizationDO> getAncestorOrganizations(String organizationId, String requestInitiatedOrgId)
             throws OrganizationManagementServerException {
