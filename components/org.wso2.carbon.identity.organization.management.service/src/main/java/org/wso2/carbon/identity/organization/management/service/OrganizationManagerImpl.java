@@ -36,6 +36,7 @@ import org.wso2.carbon.identity.organization.management.service.filter.Node;
 import org.wso2.carbon.identity.organization.management.service.filter.OperationNode;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
 import org.wso2.carbon.identity.organization.management.service.listener.OrganizationManagerListener;
+import org.wso2.carbon.identity.organization.management.service.model.AncestorOrganizationDO;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.ChildOrganizationDO;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
@@ -264,9 +265,20 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 () -> handleClientException(ERROR_CODE_INVALID_ORGANIZATION_ID, organizationId));
     }
 
+    /**
+     * @deprecated Use {@link #getOrganization(String, boolean, boolean, boolean)} instead.
+     */
+    @Deprecated
     @Override
     public Organization getOrganization(String organizationId, boolean showChildren, boolean includePermissions) throws
             OrganizationManagementException {
+
+        return getOrganization(organizationId, showChildren, includePermissions, false);
+    }
+
+    @Override
+    public Organization getOrganization(String organizationId, boolean showChildren, boolean includePermissions,
+                                         boolean showAncestorOrganizations) throws OrganizationManagementException {
 
         if (StringUtils.isBlank(organizationId)) {
             throw handleClientException(ERROR_CODE_ORGANIZATION_ID_UNDEFINED);
@@ -301,6 +313,12 @@ public class OrganizationManagerImpl implements OrganizationManager {
             if (CollectionUtils.isNotEmpty(permissions)) {
                 organization.setPermissions(permissions);
             }
+        }
+
+        if (showAncestorOrganizations) {
+            List<AncestorOrganizationDO> ancestorOrganizations =
+                    getAncestorOrganizations(organizationId, requestInvokingOrganizationId);
+            organization.setAncestors(ancestorOrganizations);
         }
 
         organization.setOrganizationHandle(resolveTenantDomain(organization.getId()));
@@ -709,6 +727,47 @@ public class OrganizationManagerImpl implements OrganizationManager {
         getListener().postGetOrganization(organizationId, organization);
         resolveInheritedOrganizationVersion(organization);
         return organization;
+    }
+
+    /**
+     * Get the ancestors of the given organization up to the request initiated organization.
+     *
+     * @param organizationId        The organization id to get the ancestors.
+     * @param requestInitiatedOrgId The organization id of the request initiator.
+     * @return List of ancestor organizations up to the request initiated organization.
+     * @throws OrganizationManagementServerException If an error occurs while retrieving the ancestor organizations.
+     */
+    private List<AncestorOrganizationDO> getAncestorOrganizations(String organizationId, String requestInitiatedOrgId)
+            throws OrganizationManagementServerException {
+
+        if (StringUtils.equals(organizationId, requestInitiatedOrgId)) {
+            // If the organization id is same as the request initiated organization id, return an empty list.
+            return Collections.emptyList();
+        }
+        List<AncestorOrganizationDO> ancestorOrganizations =
+                organizationManagementDAO.getAncestorOrganizations(organizationId);
+        /*
+        Remove the organization which has depth less that Utils.getSubOrgStartLevel() - 1 to start the list from
+        and adjust the depth of existing ones to start from 0.
+         */
+        if (CollectionUtils.isNotEmpty(ancestorOrganizations)) {
+            int rootOrgLevel = Utils.getSubOrgStartLevel() - 1;
+            ancestorOrganizations = ancestorOrganizations.stream()
+                    .filter(ancestor -> ancestor.getDepth() >= rootOrgLevel)
+                    .peek(ancestor -> ancestor.setDepth(ancestor.getDepth() - rootOrgLevel))
+                    .collect(Collectors.toList());
+        }
+        // Remove if any org with less depth compared to requestInitiatedOrg id.
+        if (StringUtils.isNotBlank(requestInitiatedOrgId)) {
+            int index = ancestorOrganizations.stream()
+                    .map(AncestorOrganizationDO::getId)
+                    .collect(Collectors.toList())
+                    .indexOf(requestInitiatedOrgId);
+            if (index != -1) {
+                ancestorOrganizations = ancestorOrganizations.subList(index, ancestorOrganizations.size());
+            }
+        }
+        return ancestorOrganizations;
     }
 
     @Override

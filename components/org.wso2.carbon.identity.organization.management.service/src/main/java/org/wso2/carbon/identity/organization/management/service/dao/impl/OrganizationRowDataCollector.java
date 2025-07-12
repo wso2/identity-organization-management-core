@@ -35,6 +35,7 @@ public class OrganizationRowDataCollector {
     private String version;
     private Instant created;
     private Instant lastModified;
+    private boolean hasChildren;
     private String attributeKey;
     private String attributeValue;
 
@@ -166,5 +167,25 @@ public class OrganizationRowDataCollector {
     public void setTenantId(int tenantId) {
 
         this.tenantId = tenantId;
+    }
+
+    /**
+     * Returns whether the organization has children.
+     *
+     * @return true if the organization has children, false otherwise.
+     */
+    public boolean hasChildren() {
+
+        return hasChildren;
+    }
+
+    /**
+     * Sets whether the organization has children.
+     *
+     * @param hasChildren true if the organization has children, false otherwise.
+     */
+    public void setHasChildren(boolean hasChildren) {
+
+        this.hasChildren = hasChildren;
     }
 }

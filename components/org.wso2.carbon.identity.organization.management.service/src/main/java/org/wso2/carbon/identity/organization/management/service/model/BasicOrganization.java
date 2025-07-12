@@ -29,6 +29,7 @@ public class BasicOrganization {
     private String status;
     private String created;
     private String organizationHandle;
+    private boolean hasChildren;
 
     public String getId() {
 
@@ -88,5 +89,25 @@ public class BasicOrganization {
     public void setOrganizationHandle(String organizationHandle) {
 
         this.organizationHandle = organizationHandle;
+    }
+
+    /**
+     * Returns whether the organization has child organizations.
+     *
+     * @return True if the organization has child organizations, false otherwise.
+     */
+    public boolean hasChildren() {
+
+        return hasChildren;
+    }
+
+    /**
+     * Sets whether the organization has child organizations.
+     *
+     * @param hasChildren True if the organization has child organizations, false otherwise.
+     */
+    public void setHasChildren(boolean hasChildren) {
+
+        this.hasChildren = hasChildren;
     }
 }
