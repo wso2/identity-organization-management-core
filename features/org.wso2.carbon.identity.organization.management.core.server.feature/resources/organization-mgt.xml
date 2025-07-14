@@ -85,4 +85,8 @@
         <DefaultParam>orgName</DefaultParam>
     </OrganizationDiscovery>
 
+    <!-- Organization versioning related configurations. -->
+    <OrganizationVersioning>
+        <NewOrganizationVersion>v0.0.0</NewOrganizationVersion>
+    </OrganizationVersioning>
 </OrganizationManagement>

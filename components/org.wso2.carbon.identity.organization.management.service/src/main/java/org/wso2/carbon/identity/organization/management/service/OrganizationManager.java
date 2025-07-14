@@ -23,6 +23,7 @@ import org.wso2.carbon.identity.organization.management.service.exception.Organi
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
+import org.wso2.carbon.identity.organization.management.service.model.OrganizationNode;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
 
 import java.util.List;
@@ -98,6 +99,13 @@ public interface OrganizationManager {
     Organization getOrganization(String organizationId, boolean showChildren, boolean includePermissions)
             throws OrganizationManagementException;
 
+    default Organization getOrganization(String organizationId, boolean showChildren, boolean includePermissions,
+                                         boolean showAncestorOrganizations) throws OrganizationManagementException {
+
+        throw new NotImplementedException(
+                "getOrganization with ancestor organizations is not implemented in " + this.getClass().getName());
+    }
+
     /**
      * Returns the list of child organizations for a given organization.
      *
@@ -108,6 +116,22 @@ public interface OrganizationManager {
      */
     List<BasicOrganization> getChildOrganizations(String organizationId, boolean recursive)
             throws OrganizationManagementException;
+
+
+    /**
+     * Returns the list of child organizations for a given organization in a tree structure.
+     *
+     * @param organizationId The organization ID.
+     * @param recursive      If true, retrieves the entire child organization tree recursively.
+     * @return the list of Child organizations in a tree structure ({@link OrganizationNode}).
+     * @throws OrganizationManagementException exception is thrown when listing organizations.
+     */
+    default List<OrganizationNode> getChildOrganizationGraph(String organizationId, boolean recursive)
+            throws OrganizationManagementException {
+
+        throw new NotImplementedException("getChildOrganizationGraph(organizationId, recursive) is not " +
+                "implemented in " + this.getClass().getName());
+    }
 
     /**
      * Returns the unique identifiers of the child organizations for a given organization.
@@ -397,5 +421,29 @@ public interface OrganizationManager {
 
         throw new OrganizationManagementServerException("getBasicOrganizationDetailsByOrgIDs is not implemented in "
                 + this.getClass().getName());
+    }
+
+    /**
+     * Retrieve the {@link Organization} associated with the currently accessing organization.
+     *
+     * @return the organization object.
+     * @throws OrganizationManagementException The exception thrown when retrieving an organization.
+     */
+    default Organization getSelfOrganization() throws OrganizationManagementException {
+
+        throw new NotImplementedException("getSelfOrganization is not implemented in " + this.getClass().getName());
+    }
+
+    /**
+     * Patch the organization associated with the currently accessing organization.
+     *
+     * @param patchOperations The list of patch operations.
+     * @return the patched organization.
+     * @throws OrganizationManagementException The exception thrown when patching an organization.
+     */
+    default Organization patchSelfOrganization(List<PatchOperation> patchOperations)
+            throws OrganizationManagementException {
+
+        throw new NotImplementedException("patchSelfOrganization is not implemented in " + this.getClass().getName());
     }
 }

@@ -31,6 +31,7 @@ import org.wso2.carbon.identity.organization.management.service.filter.Expressio
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
+import org.wso2.carbon.identity.organization.management.service.model.OrganizationNode;
 import org.wso2.carbon.identity.organization.management.service.model.ParentOrganizationDO;
 import org.wso2.carbon.identity.organization.management.util.TestUtils;
 
@@ -41,7 +42,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import static java.time.ZoneOffset.UTC;
@@ -74,6 +77,21 @@ public class OrganizationManagementDAOImplTest {
     private String orgId;
     private String childOrgId;
 
+    // For testing organization graph.
+    private String grandChildOrgId1;
+    private String grandChildOrgId2;
+    private String greatGrandChildOrgId;
+    private static final String GRANDCHILD_ORG_NAME_1 = "DEF builders";
+    private static final String GRANDCHILD_ORG_HANDLE_1 = "defbuilders";
+    private static final String GRANDCHILD_ORG_NAME_2 = "GHI builders";
+    private static final String GRANDCHILD_ORG_HANDLE_2 = "ghibuilders";
+    private static final String GREAT_GRANDCHILD_ORG_NAME = "JKL builders";
+    private static final String GREAT_GRANDCHILD_ORG_HANDLE = "jklbuilders";
+
+    private String orgWithNoChildrenId;
+    private static final String ORG_WITH_NO_CHILDREN_NAME = "Lonely Org";
+    private static final String ORG_WITH_NO_CHILDREN_HANDLE = "lonelyorg";
+
     @BeforeClass
     public void setUp() throws Exception {
 
@@ -82,10 +100,29 @@ public class OrganizationManagementDAOImplTest {
 
         orgId = generateUniqueID();
         childOrgId = generateUniqueID();
-        storeChildOrganization(orgId, ORG_NAME, ORG_HANDLE, ORG_DESCRIPTION, SUPER_ORG_ID);
+        grandChildOrgId1 = generateUniqueID();
+        grandChildOrgId2 = generateUniqueID();
+        greatGrandChildOrgId = generateUniqueID();
+        orgWithNoChildrenId = generateUniqueID();
+
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put(ATTRIBUTE_KEY, ATTRIBUTE_VALUE);
+        storeChildOrganization(orgId, ORG_NAME, ORG_HANDLE, ORG_DESCRIPTION, SUPER_ORG_ID, attributes);
         storeOrganizationAttributes(orgId, ATTRIBUTE_KEY_CITY, ATTRIBUTE_VALUE_CITY);
         storeChildOrganization(childOrgId, CHILD_ORG_NAME, CHILD_ORG_HANDLE, ORG_DESCRIPTION, orgId);
         storeOrganizationAttributes(childOrgId, ATTRIBUTE_KEY_REGION, ATTRIBUTE_VALUE);
+
+        // Create grandchild and great-grandchild organizations for graph testing.
+        storeChildOrganization(grandChildOrgId1, GRANDCHILD_ORG_NAME_1, GRANDCHILD_ORG_HANDLE_1,
+                ORG_DESCRIPTION, childOrgId);
+        storeChildOrganization(grandChildOrgId2, GRANDCHILD_ORG_NAME_2, GRANDCHILD_ORG_HANDLE_2,
+                ORG_DESCRIPTION, childOrgId);
+        storeChildOrganization(greatGrandChildOrgId, GREAT_GRANDCHILD_ORG_NAME, GREAT_GRANDCHILD_ORG_HANDLE,
+                ORG_DESCRIPTION, grandChildOrgId1);
+
+        // Create organization with no children.
+        storeChildOrganization(orgWithNoChildrenId, ORG_WITH_NO_CHILDREN_NAME, ORG_WITH_NO_CHILDREN_HANDLE,
+                "No child organization.", SUPER_ORG_ID);
     }
 
     @AfterClass
@@ -106,6 +143,7 @@ public class OrganizationManagementDAOImplTest {
         organization.setCreated(Instant.now());
         organization.setLastModified(Instant.now());
         organization.setStatus(OrganizationManagementConstants.OrganizationStatus.ACTIVE.toString());
+        organization.setVersion(OrganizationManagementConstants.OrganizationVersion.BASE_ORG_VERSION);
         organization.setType(STRUCTURAL.toString());
 
         ParentOrganizationDO parentOrganizationDO = new ParentOrganizationDO();
@@ -351,12 +389,101 @@ public class OrganizationManagementDAOImplTest {
         Assert.assertNull(organizationManagementDAO.getOrganization(id));
     }
 
-    private void storeChildOrganization(String id, String name, String handle, String description, String parentId)
-            throws Exception {
+    @Test
+    public void testGetChildOrganizationGraph() throws Exception {
+
+        // Test non-recursive first (should only return immediate children).
+        List<OrganizationNode> nonRecursiveGraph = organizationManagementDAO.getChildOrganizationGraph(orgId, false);
+
+        // Should have only 1 node (the immediate child).
+        Assert.assertEquals(nonRecursiveGraph.size(), 1);
+
+        // Verify the immediate child.
+        OrganizationNode immediateChildNode = nonRecursiveGraph.get(0);
+        Assert.assertEquals(immediateChildNode.getId(), childOrgId);
+        Assert.assertEquals(immediateChildNode.getName(), CHILD_ORG_NAME);
+
+        // Should have no children since we're not recursive.
+        Assert.assertTrue(immediateChildNode.getChildren().isEmpty());
+
+        // Now test recursive (should return the full hierarchy).
+        List<OrganizationNode> recursiveGraph = organizationManagementDAO.getChildOrganizationGraph(orgId, true);
+
+        // Should still have 1 top-level node.
+        Assert.assertEquals(recursiveGraph.size(), 1);
+
+        // Get the root node.
+        OrganizationNode rootNode = recursiveGraph.get(0);
+        Assert.assertEquals(rootNode.getId(), childOrgId);
+        Assert.assertEquals(rootNode.getName(), CHILD_ORG_NAME);
+
+        // Root node should have 2 children.
+        Assert.assertEquals(rootNode.getChildren().size(), 2);
+
+        // Find grandchild1 node, which should contain great-grandchild.
+        OrganizationNode grandChild1 = null;
+        OrganizationNode grandChild2 = null;
+
+        for (OrganizationNode child : rootNode.getChildren()) {
+            if (child.getId().equals(grandChildOrgId1)) {
+                grandChild1 = child;
+            } else if (child.getId().equals(grandChildOrgId2)) {
+                grandChild2 = child;
+            }
+        }
+
+        Assert.assertNotNull(grandChild1, "Grandchild 1 node should be present");
+        Assert.assertNotNull(grandChild2, "Grandchild 2 node should be present");
+
+        Assert.assertEquals(grandChild1.getName(), GRANDCHILD_ORG_NAME_1);
+
+        Assert.assertEquals(grandChild2.getName(), GRANDCHILD_ORG_NAME_2);
+
+        // grandChild1 should have 1 child (the great-grandchild).
+        Assert.assertEquals(grandChild1.getChildren().size(), 1);
+
+        // grandChild2 should have 0 children.
+        Assert.assertEquals(grandChild2.getChildren().size(), 0);
+
+        // Verify great-grandchild.
+        OrganizationNode greatGrandChild = grandChild1.getChildren().get(0);
+        Assert.assertEquals(greatGrandChild.getId(), greatGrandChildOrgId);
+        Assert.assertEquals(greatGrandChild.getName(), GREAT_GRANDCHILD_ORG_NAME);
+        Assert.assertEquals(greatGrandChild.getChildren().size(), 0);
+
+        // Now test for org with no children (recursive).
+        List<OrganizationNode> noChildrenRecursiveGraph = organizationManagementDAO.getChildOrganizationGraph(
+                orgWithNoChildrenId, true);
+        Assert.assertNotNull(noChildrenRecursiveGraph, "Graph should not be null even if no children");
+        Assert.assertTrue(noChildrenRecursiveGraph.isEmpty(), "Graph should be empty for org with no children" +
+                " (recursive)");
+    }
+
+    @Test
+    public void testGetChildOrganizationGraph_NoChildren() throws Exception {
+
+        // Should return an empty list for org with no children.
+        List<OrganizationNode> result = organizationManagementDAO.getChildOrganizationGraph(orgWithNoChildrenId, false);
+        Assert.assertNotNull(result, "Result should not be null");
+        Assert.assertTrue(result.isEmpty(), "Result should be empty for org with no children");
+    }
+
+    private void storeChildOrganization(String id, String name, String handle, String description, String parentId,
+                                        Map<String, String> attributes) throws Exception {
 
         storeOrganization(id, name, handle, description, parentId);
         storeOrganizationHierarchy(id, parentId);
-        storeOrganizationAttributes(id, ATTRIBUTE_KEY, ATTRIBUTE_VALUE);
+        if (attributes != null) {
+            for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                storeOrganizationAttributes(id, entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    private void storeChildOrganization(String id, String name, String handle, String description, String parentId)
+            throws Exception {
+
+        storeChildOrganization(id, name, handle, description, parentId, null);
     }
 
     private void storeOrganization(String id, String name, String handle, String description, String parentId)

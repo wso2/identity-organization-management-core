@@ -70,9 +70,7 @@ public class OrganizationManagementServiceComponent {
             bundleContext.registerService(OrganizationManagementInitialize.class.getName(),
                     new OrganizationManagementInitializeImpl(), null);
             OrganizationManagementDataHolder.getInstance().initDataSource();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Organization Management component activated successfully.");
-            }
+            LOG.debug("Organization Management component activated successfully.");
         } catch (Exception e) {
             LOG.error("Error while activating Organization Management module.", e);
         }
@@ -92,9 +90,7 @@ public class OrganizationManagementServiceComponent {
     )
     protected void setRealmService(RealmService realmService) {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Setting the Realm Service.");
-        }
+        LOG.debug("Setting the Realm Service.");
         OrganizationManagementDataHolder.getInstance().setRealmService(realmService);
     }
 
@@ -105,9 +101,7 @@ public class OrganizationManagementServiceComponent {
      */
     protected void unsetRealmService(RealmService realmService) {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Unsetting the Realm Service.");
-        }
+        LOG.debug("Unsetting the Realm Service.");
         OrganizationManagementDataHolder.getInstance().setRealmService(null);
     }
 
@@ -119,17 +113,13 @@ public class OrganizationManagementServiceComponent {
             unbind = "unsetTenantMgtService")
     protected void setTenantMgtService(TenantMgtService tenantMgtService) {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Setting the Tenant Management Service.");
-        }
+        LOG.debug("Setting the Tenant Management Service.");
         OrganizationManagementDataHolder.getInstance().setTenantMgtService(tenantMgtService);
     }
 
     protected void unsetTenantMgtService(TenantMgtService tenantMgtService) {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Unsetting the Tenant Management Service.");
-        }
+        LOG.debug("Unsetting the Tenant Management Service.");
         OrganizationManagementDataHolder.getInstance().setTenantMgtService(null);
     }
 

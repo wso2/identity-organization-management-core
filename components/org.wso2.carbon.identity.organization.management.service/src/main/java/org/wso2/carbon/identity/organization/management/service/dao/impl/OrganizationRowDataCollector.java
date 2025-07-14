@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -32,8 +32,10 @@ public class OrganizationRowDataCollector {
     private String type;
     private int tenantId;
     private String status;
+    private String version;
     private Instant created;
     private Instant lastModified;
+    private boolean hasChildren;
     private String attributeKey;
     private String attributeValue;
 
@@ -127,6 +129,26 @@ public class OrganizationRowDataCollector {
         this.status = status;
     }
 
+    /**
+     * Returns the version of the organization.
+     *
+     * @return Version of the organization.
+     */
+    public String getVersion() {
+
+        return version;
+    }
+
+    /**
+     * Sets the version of the organization.
+     *
+     * @param version Version of the organization.
+     */
+    public void setVersion(String version) {
+
+        this.version = version;
+    }
+
     public String getType() {
 
         return type;
@@ -145,5 +167,25 @@ public class OrganizationRowDataCollector {
     public void setTenantId(int tenantId) {
 
         this.tenantId = tenantId;
+    }
+
+    /**
+     * Returns whether the organization has children.
+     *
+     * @return true if the organization has children, false otherwise.
+     */
+    public boolean hasChildren() {
+
+        return hasChildren;
+    }
+
+    /**
+     * Sets whether the organization has children.
+     *
+     * @param hasChildren true if the organization has children, false otherwise.
+     */
+    public void setHasChildren(boolean hasChildren) {
+
+        this.hasChildren = hasChildren;
     }
 }

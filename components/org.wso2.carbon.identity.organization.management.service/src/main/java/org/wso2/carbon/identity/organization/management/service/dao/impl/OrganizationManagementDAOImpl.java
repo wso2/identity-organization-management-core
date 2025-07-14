@@ -31,10 +31,12 @@ import org.wso2.carbon.identity.organization.management.service.dao.Organization
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.filter.ExpressionNode;
+import org.wso2.carbon.identity.organization.management.service.model.AncestorOrganizationDO;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.FilterQueryBuilder;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
+import org.wso2.carbon.identity.organization.management.service.model.OrganizationNode;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
 import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -119,14 +121,18 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_PATH_ORG_DESCRIPTION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_PATH_ORG_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_PATH_ORG_STATUS;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATCH_PATH_ORG_VERSION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SW;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_ATTR_KEY_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_ATTR_VALUE_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_CREATED_TIME_COLUMN;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_DEPTH_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_DESCRIPTION_COLUMN;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_HAS_CHILDREN_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_ID_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_LAST_MODIFIED_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_NAME_COLUMN;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_ORG_VERSION_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_PARENT_ID_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_STATUS_COLUMN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.VIEW_TENANT_DOMAIN_COLUMN;
@@ -144,16 +150,18 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.DELETE_ORGANIZATION_ATTRIBUTE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.DELETE_ORGANIZATION_ATTRIBUTES_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.DELETE_ORGANIZATION_BY_ID;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ALL_UM_ORG_ATTRIBUTES;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ALL_UM_ORG_ATTRIBUTES_ORACLE;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ALL_UM_ORG_ATTRIBUTES_WITH_ORG_VERSION;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ALL_UM_ORG_ATTRIBUTES_WITH_ORG_VERSION_ORACLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ANCESTORS_OF_GIVEN_ORG_INCLUDING_ITSELF;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ANCESTOR_ORGANIZATION_ID_WITH_DEPTH;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ANCESTOR_ORG_DETAILS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_BASIC_ORG_DETAILS_BY_ORG_IDS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATIONS_INCLUDING_ORG_HANDLE;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATION_HIERARCHY;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATION_IDS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_IMMEDIATE_OR_ALL_CHILD_ORG_IDS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_BY_NAME;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_INCLUDING_ORG_HANDLE;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_INCLUDING_ORG_HANDLE_AND_VERSION;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_META_ATTRIBUTES;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_META_ATTRIBUTES_TAIL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_META_ATTRIBUTES_TAIL_MSSQL;
@@ -161,15 +169,12 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_MSSQL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_TAIL_ORACLE;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_INCLUDING_ORG_HANDLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_TAIL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_TAIL_MSSQL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_TAIL_ORACLE;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_INCLUDING_ORG_HANDLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_TAIL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_TAIL_MSSQL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_TAIL_ORACLE;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_DEPTH_IN_HIERARCHY;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_DEPTH_IN_HIERARCHY_MSSQL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_DEPTH_IN_HIERARCHY_ORACLE;
@@ -179,6 +184,9 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_TYPE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_UUID_FROM_TENANT_DOMAIN;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_UUID_FROM_TENANT_ID;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORG_WITH_VERSION_AND_USER_ASSOCIATIONS_INCLUDING_ORG_HANDLE;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORG_WITH_VERSION_AND_USER_ROLE_ASSOCIATIONS_INCLUDING_ORG_HANDLE;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORG_WITH_VERSION_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_PARENT_ORGANIZATION_STATUS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_RELATIVE_ORG_DEPTH_BETWEEN_ORGANIZATIONS_IN_SAME_BRANCH;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_TENANT_DOMAIN_FROM_ORGANIZATION_UUID;
@@ -187,10 +195,10 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INSERT_ATTRIBUTE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INSERT_IMMEDIATE_ORGANIZATION_HIERARCHY;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INSERT_IMMEDIATE_ORGANIZATION_HIERARCHY_ORACLE;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INSERT_ORGANIZATION;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INSERT_ORG_WITH_VERSION;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INSERT_OTHER_ORGANIZATION_HIERARCHY;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INSERT_ROOT_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INSERT_ROOT_ORGANIZATION_HIERARCHY;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.INSERT_ROOT_ORG_WITH_VERSION;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.PATCH_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.PATCH_ORGANIZATION_CONCLUDE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.PERMISSION_LIST_PLACEHOLDER;
@@ -212,10 +220,11 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_VALUE;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_VERSION;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.SQLPlaceholders.DB_SCHEMA_LIMIT;
-import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.UPDATE_ORGANIZATION;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.UPDATE_ORGANIZATION_ATTRIBUTE_VALUE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.UPDATE_ORGANIZATION_LAST_MODIFIED;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.UPDATE_ORG_WITH_VERSION;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.USER_NAME_LIST_PLACEHOLDER;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getAllowedPermissions;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getAuthenticatedUsername;
@@ -240,7 +249,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
         try {
             namedJdbcTemplate.withTransaction(template -> {
-                template.executeInsert(INSERT_ORGANIZATION, namedPreparedStatement -> {
+                template.executeInsert(INSERT_ORG_WITH_VERSION, namedPreparedStatement -> {
                     namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, organization.getId());
                     namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_NAME, organization.getName());
                     namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_DESCRIPTION, organization.getDescription());
@@ -251,6 +260,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                     namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_STATUS, organization.getStatus());
                     namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_PARENT_ID, organization.getParent().getId());
                     namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_TYPE, organization.getType());
+                    namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_VERSION, organization.getVersion());
                 }, organization, false);
                 if (CollectionUtils.isNotEmpty(organization.getAttributes())) {
                     addOrganizationAttributes(organization);
@@ -372,7 +382,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         List<OrganizationRowDataCollector> organizationRowDataCollectors;
         try {
             organizationRowDataCollectors = namedJdbcTemplate
-                    .executeQuery(GET_ORGANIZATION_BY_ID,
+                    .executeQuery(GET_ORG_WITH_VERSION_BY_ID,
                             (resultSet, rowNumber) -> {
                                 OrganizationRowDataCollector collector = new OrganizationRowDataCollector();
                                 collector.setId(organizationId);
@@ -385,6 +395,8 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                                 collector.setCreated(resultSet.getTimestamp(VIEW_CREATED_TIME_COLUMN, CALENDAR)
                                         .toInstant());
                                 collector.setStatus(resultSet.getString(VIEW_STATUS_COLUMN));
+                                collector.setVersion(resultSet.getString(VIEW_ORG_VERSION_COLUMN));
+                                collector.setHasChildren(resultSet.getInt(VIEW_HAS_CHILDREN_COLUMN) == 1);
                                 collector.setAttributeKey(resultSet.getString(VIEW_ATTR_KEY_COLUMN));
                                 collector.setAttributeValue(resultSet.getString(VIEW_ATTR_VALUE_COLUMN));
                                 return collector;
@@ -522,12 +534,13 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
         try {
             namedJdbcTemplate.withTransaction(template -> {
-                template.executeUpdate(UPDATE_ORGANIZATION, namedPreparedStatement -> {
+                template.executeUpdate(UPDATE_ORG_WITH_VERSION, namedPreparedStatement -> {
                     namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_NAME, organization.getName());
                     namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_DESCRIPTION, organization.getDescription());
                     namedPreparedStatement.setTimeStamp(DB_SCHEMA_COLUMN_NAME_LAST_MODIFIED,
                             Timestamp.from(organization.getLastModified()), CALENDAR);
                     namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_STATUS, organization.getStatus());
+                    namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_VERSION, organization.getVersion());
                     namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, organizationId);
                 });
                 deleteOrganizationAttributes(organizationId);
@@ -580,6 +593,69 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         } catch (DataAccessException e) {
             throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_CHILD_ORGANIZATIONS, e, organizationId);
         }
+    }
+
+    @Override
+    public List<OrganizationNode> getChildOrganizationGraph(String organizationId, boolean recursive)
+            throws OrganizationManagementServerException {
+
+        NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
+        String sqlStmt = String.format(GET_CHILD_ORGANIZATION_HIERARCHY, recursive ? "> 0" : "= 1");
+        List<OrganizationNode> rawResults;
+        try {
+            rawResults = namedJdbcTemplate.executeQuery(sqlStmt,
+                    (resultSet, rowNumber) -> {
+                        String id = resultSet.getString(1);
+                        String name = resultSet.getString(2);
+                        String parentId = resultSet.getString(3);
+                        String created = resultSet.getTimestamp(4).toString();
+                        String handle = resultSet.getString(5);
+                        return new OrganizationNode(id, name, created, handle, parentId);
+                    },
+                    namedPreparedStatement ->
+                            namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_PARENT_ID, organizationId));
+
+        } catch (DataAccessException e) {
+            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_CHILD_ORGANIZATIONS, e, organizationId);
+        }
+
+        if (CollectionUtils.isEmpty(rawResults)) {
+            return new ArrayList<>(); // No children found.
+        }
+
+        // --- Build the graph ---
+        Map<String, OrganizationNode> nodeMap = new HashMap<>();
+
+        // First pass: Create all node objects.
+        for (OrganizationNode node : rawResults) {
+            nodeMap.put(node.getId(), node);
+        }
+        // Second pass: Link children to parents.
+        List<OrganizationNode> topLevelNodes = new ArrayList<>(); // Nodes that are direct children of 'organizationId'.
+        for (OrganizationNode data : rawResults) {
+            OrganizationNode currentNode = nodeMap.get(data.getId()); // Should always exist from the first pass.
+
+            // Check if the parent from the DB result (data.parentId) exists in our map.
+            OrganizationNode parentNode = nodeMap.get(data.getParentId());
+
+            if (parentNode != null) {
+                // If the parent node exists within the fetched results, link it.
+                parentNode.addChild(currentNode);
+            } else if (data.getParentId().equals(organizationId)) {
+                // If the parent is the initial organizationId we queried for,
+                // this is a top-level node for our result list.
+                topLevelNodes.add(currentNode);
+            }
+            /* If parentNode is null and data.parentId is not the root organizationId,
+             it means the parent is outside the scope of the current query result
+             (e.g., querying a sub-subtree non-recursively). This is expected.*/
+        }
+
+        /* If recursive was false, topLevelNodes is already correct.
+         If recursive was true, the logic above correctly identifies the direct children
+         of 'organizationId' based on the parentId field fetched from the DB. */
+
+        return topLevelNodes;
     }
 
     @Override
@@ -766,9 +842,9 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
 
         if (isFilteringMetaAttributes) {
             if (isOracleDB()) {
-                sqlStmt = String.format(GET_ALL_UM_ORG_ATTRIBUTES_ORACLE, sqlStmt);
+                sqlStmt = String.format(GET_ALL_UM_ORG_ATTRIBUTES_WITH_ORG_VERSION_ORACLE, sqlStmt);
             } else {
-                sqlStmt = String.format(GET_ALL_UM_ORG_ATTRIBUTES, sqlStmt);
+                sqlStmt = String.format(GET_ALL_UM_ORG_ATTRIBUTES_WITH_ORG_VERSION, sqlStmt);
             }
         }
         List<Organization> organizations;
@@ -785,8 +861,8 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                                 organizationMap.put(orgId, organization);
                             }
                             OrganizationAttribute organizationAttribute = new OrganizationAttribute();
-                            organizationAttribute.setKey(resultSet.getString(5));
-                            organizationAttribute.setValue(resultSet.getString(6));
+                            organizationAttribute.setKey(resultSet.getString(8));
+                            organizationAttribute.setValue(resultSet.getString(9));
                             organization.setAttribute(organizationAttribute);
                             return organization;
                         }
@@ -811,6 +887,8 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         organization.setCreated(resultSet.getTimestamp(3).toInstant());
         organization.setStatus(resultSet.getString(4));
         organization.setOrganizationHandle(resultSet.getString(5));
+        organization.setVersion(resultSet.getString(6));
+        organization.setHasChildren(resultSet.getInt(7) == 1);
         return organization;
     }
 
@@ -875,6 +953,8 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             sb.append(VIEW_DESCRIPTION_COLUMN);
         } else if (path.equals(PATCH_PATH_ORG_STATUS)) {
             sb.append(VIEW_STATUS_COLUMN);
+        } else if (path.equals(PATCH_PATH_ORG_VERSION)) {
+            sb.append(VIEW_ORG_VERSION_COLUMN);
         }
         sb.append(PATCH_ORGANIZATION_CONCLUDE);
         String query = sb.toString();
@@ -999,6 +1079,8 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                 organization.setCreated(collector.getCreated());
                 organization.setLastModified(collector.getLastModified());
                 organization.setStatus(collector.getStatus());
+                organization.setVersion(collector.getVersion());
+                organization.setHasChildren(collector.hasChildren());
             }
             List<OrganizationAttribute> attributes = organization.getAttributes();
             List<String> attributeKeys = new ArrayList<>();
@@ -1341,7 +1423,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
         try {
             namedJdbcTemplate.withTransaction(template -> {
-                template.executeInsert(INSERT_ROOT_ORGANIZATION, namedPreparedStatement -> {
+                template.executeInsert(INSERT_ROOT_ORG_WITH_VERSION, namedPreparedStatement -> {
                     namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, rootOrganization.getId());
                     namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_NAME, rootOrganization.getName());
                     namedPreparedStatement.setTimeStamp(DB_SCHEMA_COLUMN_NAME_CREATED_TIME,
@@ -1350,6 +1432,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                             Timestamp.from(rootOrganization.getLastModified()), CALENDAR);
                     namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_STATUS, rootOrganization.getStatus());
                     namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_TYPE, rootOrganization.getType());
+                    namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_VERSION, rootOrganization.getVersion());
                 }, rootOrganization, false);
                 if (CollectionUtils.isNotEmpty(rootOrganization.getAttributes())) {
                     addOrganizationAttributes(rootOrganization);
@@ -1443,6 +1526,29 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             return basicOrganizationDetailsMap;
         } catch (DataAccessException e) {
             throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_DETAILS_BY_ORGANIZATION_IDS, e);
+        }
+    }
+
+    @Override
+    public List<AncestorOrganizationDO> getAncestorOrganizations(String organizationId)
+            throws OrganizationManagementServerException {
+
+        NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
+        List<AncestorOrganizationDO> ancestors;
+        try {
+            ancestors = namedJdbcTemplate.executeQuery(GET_ANCESTOR_ORG_DETAILS,
+                    (resultSet, rowNumber) -> {
+                        AncestorOrganizationDO ancestorOrganizationDO = new AncestorOrganizationDO();
+                        ancestorOrganizationDO.setId(resultSet.getString(VIEW_PARENT_ID_COLUMN));
+                        ancestorOrganizationDO.setName(resultSet.getString(VIEW_NAME_COLUMN));
+                        ancestorOrganizationDO.setDepth(resultSet.getInt(VIEW_DEPTH_COLUMN));
+                        return ancestorOrganizationDO;
+                    },
+                    namedPreparedStatement -> namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID,
+                            organizationId));
+            return ancestors;
+        } catch (DataAccessException e) {
+            throw handleServerException(ERROR_CODE_ERROR_WHILE_RETRIEVING_ANCESTORS, e, organizationId);
         }
     }
 
@@ -1638,8 +1744,12 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
 
         if (filterQueryBuilder.getMetaAttributeCount() > 0) {
             for (String placeholder : filterQueryBuilder.getMetaAttributePlaceholders()) {
-                sqlStmt = sqlStmt.replace("WHERE",
-                        String.format(INNER_JOIN_UM_ORG_ATTRIBUTE, placeholder, placeholder));
+                int lastIndex = sqlStmt.lastIndexOf("WHERE");
+                if (lastIndex != -1) {
+                    String replacement = String.format(INNER_JOIN_UM_ORG_ATTRIBUTE, placeholder, placeholder);
+                    sqlStmt = sqlStmt.substring(0, lastIndex) + replacement +
+                            sqlStmt.substring(lastIndex + "WHERE".length());
+                }
             }
         }
         sqlStmt = appendFilterQueries(sqlStmt, filterQueryBuilder, parentIdFilterQueryBuilder, getOrgSqlStmtTail,
@@ -1655,11 +1765,11 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
 
         if (authorizedSubOrgsOnly) {
             if (StringUtils.isNotBlank(applicationAudience)) {
-                return GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_INCLUDING_ORG_HANDLE;
+                return GET_ORG_WITH_VERSION_AND_USER_ROLE_ASSOCIATIONS_INCLUDING_ORG_HANDLE;
             }
-            return GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_INCLUDING_ORG_HANDLE;
+            return GET_ORG_WITH_VERSION_AND_USER_ASSOCIATIONS_INCLUDING_ORG_HANDLE;
         }
-        return GET_ORGANIZATIONS_INCLUDING_ORG_HANDLE;
+        return GET_ORGANIZATIONS_INCLUDING_ORG_HANDLE_AND_VERSION;
     }
 
     private String getOrgSqlStmtTail(boolean authorizedSubOrgsOnly, String applicationAudience)

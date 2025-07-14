@@ -43,6 +43,7 @@ public class OrganizationManagementConstants {
     public static final String VIEW_CREATED_TIME_COLUMN = "UM_CREATED_TIME";
     public static final String VIEW_LAST_MODIFIED_COLUMN = "UM_LAST_MODIFIED";
     public static final String VIEW_STATUS_COLUMN = "UM_STATUS";
+    public static final String VIEW_ORG_VERSION_COLUMN = "UM_ORG_VERSION";
     public static final String VIEW_PARENT_ID_COLUMN = "UM_PARENT_ID";
     public static final String VIEW_ATTR_KEY_COLUMN = "UM_ATTRIBUTE_KEY";
     public static final String VIEW_ATTR_VALUE_COLUMN = "UM_ATTRIBUTE_VALUE";
@@ -50,12 +51,15 @@ public class OrganizationManagementConstants {
     public static final String VIEW_TENANT_UUID_COLUMN = "UM_TENANT_UUID";
     public static final String VIEW_TENANT_DOMAIN_COLUMN = "UM_DOMAIN_NAME";
     public static final String VIEW_ORGANIZATION_ATTRIBUTES_TABLE = "UM_ORG_ATTRIBUTE";
+    public static final String VIEW_DEPTH_COLUMN = "DEPTH";
+    public static final String VIEW_HAS_CHILDREN_COLUMN = "HAS_CHILDREN";
     public static final String PATCH_OP_ADD = "ADD";
     public static final String PATCH_OP_REMOVE = "REMOVE";
     public static final String PATCH_OP_REPLACE = "REPLACE";
     public static final String PATCH_PATH_ORG_NAME = "/name";
     public static final String PATCH_PATH_ORG_DESCRIPTION = "/description";
     public static final String PATCH_PATH_ORG_STATUS = "/status";
+    public static final String PATCH_PATH_ORG_VERSION = "/version";
     public static final String PATCH_PATH_ORG_ATTRIBUTES = "/attributes/";
     public static final String PARENT_ID_FIELD = "parentId";
     public static final String ORGANIZATION_NAME_FIELD = "name";
@@ -142,6 +146,40 @@ public class OrganizationManagementConstants {
             "OrganizationUserInvitation.PrimaryUserDomain";
     public static final String ORGANIZATION_DISCOVERY_DEFAULT_PARAM = "OrganizationDiscovery.DefaultParam";
     public static final String DEFAULT_DISCOVERY_DEFAULT_PARAM = "orgName";
+
+    /**
+     * Contains constants related to organization versioning.
+     * This class maintains a list of supported organization versions as well as the latest and base versions.
+     */
+    public static class OrganizationVersion {
+
+        public static final String NEW_ORGANIZATION_VERSION_PROPERTY = "OrganizationVersioning.NewOrganizationVersion";
+        public static final String ORG_VERSION_V0 = "v0.0.0";
+        public static final String ORG_VERSION_V1 = "v1.0.0";
+
+        public static final String LATEST_ORG_VERSION = ORG_VERSION_V1;
+        public static final String BASE_ORG_VERSION = ORG_VERSION_V0;
+
+        /**
+         * Organization version enum.
+         */
+        public enum OrganizationVersions {
+
+            V0(ORG_VERSION_V0),
+            V1(ORG_VERSION_V1);
+
+            private final String version;
+
+            OrganizationVersions(String value) {
+
+                this.version = value;
+            }
+
+            public String getVersion() {
+                return version;
+            }
+        }
+    }
 
     /**
      * Contains constants related to filter operations.
@@ -391,6 +429,10 @@ public class OrganizationManagementConstants {
                 "No email attribute returned by the authenticated federated IDP"),
         ERROR_CODE_EXISTING_ORGANIZATION_HANDLE("60100", "Unable to create the organization.",
                 "The given organization handle %s already exists. Please use a different handle."),
+        ERROR_CODE_ORGANIZATION_VERSION_UPDATE_NOT_ALLOWED("60101", "Organization version update is not allowed.",
+                "Organization version update is not allowed for the organization with ID: %s."),
+        ERROR_CODE_UNSUPPORTED_ORGANIZATION_VERSION("60102", "Unsupported organization version.",
+                "The organization version: %s is not supported."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -778,7 +820,10 @@ public class OrganizationManagementConstants {
                 "Server encountered an error while retrieving organization ID for handle: %s."),
         ERROR_CODE_ERROR_RESOLVING_THE_DEFAULT_DISCOVERY_PARAM("65151",
                 "Unable to resolve the default discovery param.",
-                "Server encountered an error while resolving the discovery param.");
+                "Server encountered an error while resolving the discovery param."),
+        ERROR_CODE_INVALID_NEW_ORGANIZATION_VERSION_CONFIGURED("65150",
+                "Invalid new organization version configuration.",
+                "Configured new organization version is not valid.");
 
         private final String code;
         private final String message;

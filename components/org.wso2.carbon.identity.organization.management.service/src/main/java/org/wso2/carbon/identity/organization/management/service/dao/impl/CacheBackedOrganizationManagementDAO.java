@@ -28,8 +28,10 @@ import org.wso2.carbon.identity.organization.management.service.dao.Organization
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.filter.ExpressionNode;
+import org.wso2.carbon.identity.organization.management.service.model.AncestorOrganizationDO;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
+import org.wso2.carbon.identity.organization.management.service.model.OrganizationNode;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
 
 import java.time.Instant;
@@ -213,6 +215,13 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
             throws OrganizationManagementServerException {
 
         return organizationMgtDAO.getChildOrganizations(organizationId, recursive);
+    }
+
+    @Override
+    public List<OrganizationNode> getChildOrganizationGraph(String organizationId, boolean recursive)
+            throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.getChildOrganizationGraph(organizationId, recursive);
     }
 
     @Override
@@ -427,6 +436,13 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
             throws OrganizationManagementException {
 
         return organizationMgtDAO.getBasicOrganizationDetailsByOrgIDs(orgIds);
+    }
+
+    @Override
+    public List<AncestorOrganizationDO> getAncestorOrganizations(String organizationId)
+            throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.getAncestorOrganizations(organizationId);
     }
 
     private TenantDomainCacheEntry getTenantDomainFromCache(String organizationId) {

@@ -29,6 +29,7 @@ public class Organization {
 
     private String id;
     private String name;
+    private String version;
     private String description;
     private String status;
     private String type;
@@ -42,6 +43,8 @@ public class Organization {
     private List<ChildOrganizationDO> childOrganizations = new ArrayList<>();
     private List<String> permissions = new ArrayList<>();
     private String organizationHandle;
+    private boolean hasChildren;
+    private List<AncestorOrganizationDO> ancestors = new ArrayList<>();
 
     public String getId() {
 
@@ -191,6 +194,26 @@ public class Organization {
     }
 
     /**
+     * Returns the version of the organization.
+     *
+     * @return The version of the organization.
+     */
+    public String getVersion() {
+
+        return version;
+    }
+
+    /**
+     * Sets the version of the organization.
+     *
+     * @param version The version to set.
+     */
+    public void setVersion(String version) {
+
+        this.version = version;
+    }
+
+    /**
      * Returns the organization handle.
      *
      * @return The organization handle.
@@ -208,5 +231,45 @@ public class Organization {
     public void setOrganizationHandle(String organizationHandle) {
 
         this.organizationHandle = organizationHandle;
+    }
+
+    /**
+     * Returns the list of ancestor organizations.
+     *
+     * @return List of ancestor organizations.
+     */
+    public List<AncestorOrganizationDO> getAncestors() {
+
+        return ancestors;
+    }
+
+    /**
+     * Sets the list of ancestor organizations.
+     *
+     * @param ancestors List of ancestor organizations to set.
+     */
+    public void setAncestors(List<AncestorOrganizationDO> ancestors) {
+
+        this.ancestors = ancestors;
+    }
+
+    /**
+     * Returns whether the organization has child organizations.
+     *
+     * @return True if the organization has child organizations, false otherwise.
+     */
+    public boolean hasChildren() {
+
+        return hasChildren;
+    }
+
+    /**
+     * Sets whether the organization has child organizations.
+     *
+     * @param hasChildren True if the organization has child organizations, false otherwise.
+     */
+    public void setHasChildren(boolean hasChildren) {
+
+        this.hasChildren = hasChildren;
     }
 }
