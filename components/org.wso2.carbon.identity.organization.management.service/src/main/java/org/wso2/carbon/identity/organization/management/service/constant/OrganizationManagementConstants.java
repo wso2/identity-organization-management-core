@@ -144,6 +144,8 @@ public class OrganizationManagementConstants {
     public static final String CREATOR_EMAIL = "creator.email";
     public static final String ORGANIZATION_USER_INVITATION_PRIMARY_USER_DOMAIN =
             "OrganizationUserInvitation.PrimaryUserDomain";
+    public static final String ORGANIZATION_DISCOVERY_DEFAULT_PARAM = "OrganizationDiscovery.DefaultParam";
+    public static final String DEFAULT_DISCOVERY_DEFAULT_PARAM = "orgName";
 
     /**
      * Contains constants related to organization versioning.
@@ -815,7 +817,13 @@ public class OrganizationManagementConstants {
                 "due to a non shared role with name %s."),
         ERROR_CODE_INVALID_NEW_ORGANIZATION_VERSION_CONFIGURED("65150",
                 "Invalid new organization version configuration.",
-                "Configured new organization version is not valid.");
+                "Configured new organization version is not valid."),
+        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_ID_BY_HANDLE("65151",
+                "Unable to retrieve organization ID.",
+                "Server encountered an error while retrieving organization ID for handle: %s."),
+        ERROR_CODE_ERROR_RESOLVING_THE_DEFAULT_DISCOVERY_PARAM("65152",
+                "Unable to resolve the default discovery parameter.",
+                "Server encountered an error while resolving the default discovery parameter.");
 
         private final String code;
         private final String message;

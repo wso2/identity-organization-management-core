@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.organization.management.service.util;
 import org.mockito.MockedStatic;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
@@ -34,6 +35,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_DISCOVERY_DEFAULT_PARAM;
 
 /**
  * Unit tests for Utils class.
@@ -43,6 +45,7 @@ public class UtilsTest {
 
     private static final String CHANGED_PRIMARY_USER_STORE_DOMAIN_NAME = "WSO2.ORG";
     private static final String SECONDARY_DOMAIN_NAME = "DEFAULT";
+    private static final String ORG_HANDLE = "orgHandle";
     private static final String NEW_ORG_VERSION = "v1.0.0";
 
     private RealmService realmService;
@@ -130,6 +133,26 @@ public class UtilsTest {
                 SECONDARY_DOMAIN_NAME,
                 "The `getOrganizationUserInvitationPrimaryUserDomain` method does not return the configured"
                         + " domain name");
+    }
+
+    @DataProvider(name = "discoveryDefaultParamProvider")
+    public Object[][] discoveryDefaultParamProvider() {
+
+        return new Object[][] {
+                { ORG_HANDLE, ORG_HANDLE },
+                { null, DEFAULT_DISCOVERY_DEFAULT_PARAM }
+        };
+    }
+
+    @Test(dataProvider = "discoveryDefaultParamProvider",
+            description = "This test verifies whether the `getOrganizationDiscoveryDefaultParam` method " +
+                    "returns the configured value or else the default value.")
+    public void testGetOrganizationDiscoveryDefaultParam(String configuredParam, String expectedParam) {
+
+        organizationManagementConfigUtil.when(() -> OrganizationManagementConfigUtil.getProperty(
+                eq(OrganizationManagementConstants.ORGANIZATION_DISCOVERY_DEFAULT_PARAM))).thenReturn(configuredParam);
+
+        assertEquals(Utils.getOrganizationDiscoveryDefaultParam(), expectedParam);
     }
 
     @Test(description = "Test getNewOrganizationVersion returns the configured organization version")

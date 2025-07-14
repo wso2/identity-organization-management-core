@@ -56,6 +56,7 @@ import java.util.regex.Pattern;
 import javax.sql.DataSource;
 
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.B2B_APPLICATION_ROLE_SUPPORT_ENABLED;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_DISCOVERY_DEFAULT_PARAM;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_SUB_ORG_LEVEL;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_DB_METADATA;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CREATING_NEW_SYSTEM_ROLE;
@@ -559,6 +560,21 @@ public class Utils {
             UserCoreUtil.removeSkipPasswordPatternValidationThreadLocal();
             UserCoreUtil.removeSkipUsernamePatternValidationThreadLocal();
         }
+    }
+
+    /**
+     * Get the organization discovery default parameter.
+     *
+     * @return Organization discovery default parameter.
+     */
+    public static String getOrganizationDiscoveryDefaultParam() {
+
+        String discoveryDefaultParam = OrganizationManagementConfigUtil.getProperty(
+                OrganizationManagementConstants.ORGANIZATION_DISCOVERY_DEFAULT_PARAM);
+        if (StringUtils.isNotEmpty(discoveryDefaultParam)) {
+            return discoveryDefaultParam;
+        }
+        return DEFAULT_DISCOVERY_DEFAULT_PARAM;
     }
 
     /**
