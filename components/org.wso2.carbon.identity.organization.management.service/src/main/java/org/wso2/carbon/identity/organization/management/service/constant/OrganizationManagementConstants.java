@@ -141,6 +141,7 @@ public class OrganizationManagementConstants {
     public static final String ORGANIZATION_USER_INVITATION_PRIMARY_USER_DOMAIN =
             "OrganizationUserInvitation.PrimaryUserDomain";
     public static final String ORGANIZATION_DISCOVERY_DEFAULT_PARAM = "OrganizationDiscovery.DefaultParam";
+    public static final String DEFAULT_DISCOVERY_DEFAULT_PARAM = "orgName";
 
     /**
      * Contains constants related to filter operations.
@@ -777,7 +778,7 @@ public class OrganizationManagementConstants {
                 "Server encountered an error while retrieving organization ID for handle: %s."),
         ERROR_CODE_ERROR_RESOLVING_THE_DEFAULT_DISCOVERY_PARAM("65151",
                 "Unable to resolve the default discovery param.",
-                "Server encountered an error while resolving the discovery param of root organization.");
+                "Server encountered an error while resolving the discovery param.");
 
         private final String code;
         private final String message;
