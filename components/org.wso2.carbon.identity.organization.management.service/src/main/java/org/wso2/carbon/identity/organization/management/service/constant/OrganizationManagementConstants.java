@@ -815,15 +815,15 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ERROR_SHARING_APPLICATION_ROLE_CONFLICT("65149", "Organization %s has a non shared role with " +
                 "name %s.", "Server encountered an error while sharing application to organization %s " +
                 "due to a non shared role with name %s."),
-        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_ID_BY_HANDLE("65150",
-                "Unable to retrieve organization ID.",
-                "Server encountered an error while retrieving organization ID for handle: %s."),
-        ERROR_CODE_ERROR_RESOLVING_THE_DEFAULT_DISCOVERY_PARAM("65151",
-                "Unable to resolve the default discovery param.",
-                "Server encountered an error while resolving the discovery param."),
         ERROR_CODE_INVALID_NEW_ORGANIZATION_VERSION_CONFIGURED("65150",
                 "Invalid new organization version configuration.",
-                "Configured new organization version is not valid.");
+                "Configured new organization version is not valid."),
+        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_ID_BY_HANDLE("65151",
+                "Unable to retrieve organization ID.",
+                "Server encountered an error while retrieving organization ID for handle: %s."),
+        ERROR_CODE_ERROR_RESOLVING_THE_DEFAULT_DISCOVERY_PARAM("65152",
+                "Unable to resolve the default discovery parameter.",
+                "Server encountered an error while resolving the default discovery parameter.");
 
         private final String code;
         private final String message;
