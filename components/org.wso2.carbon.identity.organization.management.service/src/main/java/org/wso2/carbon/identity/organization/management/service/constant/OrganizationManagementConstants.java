@@ -433,6 +433,32 @@ public class OrganizationManagementConstants {
                 "Organization version update is not allowed for the organization with ID: %s."),
         ERROR_CODE_UNSUPPORTED_ORGANIZATION_VERSION("60102", "Unsupported organization version.",
                 "The organization version: %s is not supported."),
+        ERROR_CODE_INVALID_SHARE_APP_REQUEST_NO_ORGANIZATIONS("60103", "Invalid share application request.",
+                "The share application request must contain at least one organization to share with."),
+        ERROR_CODE_INVALID_SHARE_APPLICATION_NO_OPERATIONS("60104", "Invalid share application update request.",
+                "The update request must contain at least one operation to perform."),
+        ERROR_CODE_UNSUPPORTED_POLICY("60105", "Unsupported policy.",
+                "The provided policy '%s' is not supported."),
+        ERROR_CODE_ROLE_AUDIENCE_MISSING("60106", "Missing role audience.",
+                "Role audience must be specified in the update request."),
+        ERROR_CODE_ROLE_DISPLAY_NAME_MISSING("60107", "Missing role display name.",
+                "Role display name must be specified in the update request."),
+        ERROR_CODE_ROLE_AUDIENCE_TYPE_MISSING("60108", "Missing audience type.",
+                "Role audience type must be specified in the update request."),
+        ERROR_CODE_ROLE_AUDIENCE_DISPLAY_MISSING("60109", "Missing audience display name.",
+                "Role audience display must be specified in the update request."),
+        ERROR_CODE_ROLE_SHARING_ROLES_MISSING("60110", "Missing roles for role sharing.",
+                "Roles must be specified when role sharing mode is 'SELECTED'."),
+        ERROR_CODE_ROLE_SHARING_ROLES_NOT_ALLOWED("60111", "Unexpected roles in role sharing.",
+                "Roles can only be provided when the role sharing mode is 'SELECTED'."),
+        ERROR_CODE_UNSUPPORTED_ROLE_SHARING_MODE("60112", "Unsupported role sharing mode.",
+                "The provided role sharing mode '%s' is not supported."),
+        ERROR_CODE_ROLE_SHARING_OBJECT_NOT_A_MAP("60113", "Invalid role sharing object.",
+                "Expected a Map structure for the role sharing object."),
+        ERROR_CODE_INVALID_SHARE_OPERATION_TYPE("60114", "Invalid share operation type.",
+                "The operation type '%s' is not supported. Only ADD and REMOVE are allowed."),
+        ERROR_CODE_UNSUPPORTED_SHARE_OPERATION_PATH("60115", "Unsupported path attribute.",
+                "The path attribute '%s' is not supported for application share operations."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -823,7 +849,10 @@ public class OrganizationManagementConstants {
                 "Server encountered an error while retrieving organization ID for handle: %s."),
         ERROR_CODE_ERROR_RESOLVING_THE_DEFAULT_DISCOVERY_PARAM("65152",
                 "Unable to resolve the default discovery parameter.",
-                "Server encountered an error while resolving the default discovery parameter.");
+                "Server encountered an error while resolving the default discovery parameter."),
+        ERROR_CODE_ADDING_SHARED_RESOURCE_ATTRIBUTES_FAILED("65153",
+                "Failed to add shared resource attributes.",
+                "An error occurred while adding the shared resource attributes for policy ID: %s.");
 
         private final String code;
         private final String message;
