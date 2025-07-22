@@ -156,6 +156,8 @@ public class OrganizationManagementConstants {
         public static final String NEW_ORGANIZATION_VERSION_PROPERTY = "OrganizationVersioning.NewOrganizationVersion";
         public static final String ORG_VERSION_V0 = "v0.0.0";
         public static final String ORG_VERSION_V1 = "v1.0.0";
+        public static final String ORG_VERSION_PREFIX = "v";
+        public static final String ORG_VERSION_DELIMITER_REGEX = "\\.";
 
         public static final String LATEST_ORG_VERSION = ORG_VERSION_V1;
         public static final String BASE_ORG_VERSION = ORG_VERSION_V0;
