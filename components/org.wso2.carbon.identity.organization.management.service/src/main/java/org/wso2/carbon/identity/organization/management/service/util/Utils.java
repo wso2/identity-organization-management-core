@@ -614,7 +614,7 @@ public class Utils {
      * equal to or greater than v1.0.0
      *
      * @param tenantDomain Tenant domain of the organization.
-     * @return true if the version is v1.0.0 or above, false otherwise.
+     * @return true if claim and OIDC scope inheritance is enabled, false otherwise.
      */
     public static boolean isClaimAndOIDCScopeInheritanceEnabled(String tenantDomain) {
 
@@ -642,12 +642,9 @@ public class Utils {
                     .split(ORG_VERSION_DELIMITER_REGEX);
             String[] minVersionComponents = minimumApplicableVersion.replace(ORG_VERSION_PREFIX, StringUtils.EMPTY)
                     .split(ORG_VERSION_DELIMITER_REGEX);
-            int length = Math.max(orgVersionComponents.length, minVersionComponents.length);
-            for (int i = 0; i < length; i++) {
-                int orgVersionComponent = (i < orgVersionComponents.length) ?
-                        Integer.parseInt(orgVersionComponents[i]) : 0;
-                int minVersionComponent = (i < minVersionComponents.length) ?
-                        Integer.parseInt(minVersionComponents[i]) : 0;
+            for (int i = 0; i < orgVersionComponents.length; i++) {
+                int orgVersionComponent = Integer.parseInt(orgVersionComponents[i]);
+                int minVersionComponent = Integer.parseInt(minVersionComponents[i]);
                 if (orgVersionComponent > minVersionComponent) {
                     return true;
                 }
