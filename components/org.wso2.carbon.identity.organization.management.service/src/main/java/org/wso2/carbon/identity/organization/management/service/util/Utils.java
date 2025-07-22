@@ -607,6 +607,22 @@ public class Utils {
     }
 
     /**
+     * Check whether claim and OIDC claim inheritance is enabled for the organization identified by the given tenant
+     * domain.
+     *
+     * Claim and OIDC claim inheritance is considered to be enabled if the organization version is
+     * equal to or greater than v1.0.0
+     *
+     * @param tenantDomain Tenant domain of the organization.
+     * @return true if the version is v1.0.0 or above, false otherwise.
+     */
+    public static boolean isClaimAndOIDCScopeInheritanceEnabled(String tenantDomain) {
+
+        return isOrgVersionApplicable(tenantDomain,
+                OrganizationManagementConstants.OrganizationVersion.ORG_VERSION_V1);
+    }
+
+    /**
      * Checks whether the current organization version is greater than or equal to the minimum
      *
      * @param tenantDomain             Tenant domain of the organization.
