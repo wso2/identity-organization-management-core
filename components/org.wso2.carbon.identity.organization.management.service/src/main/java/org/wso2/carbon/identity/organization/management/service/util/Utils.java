@@ -62,6 +62,8 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CREATING_NEW_SYSTEM_ROLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_CARBON_ROLE_VALIDATION_ENABLED_FOR_LEVEL_ONE_ORGS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_ORG_QUALIFIED_URLS_SUPPORTED_FOR_LEVEL_ONE_ORGS;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationVersion.ORG_VERSION_DELIMITER_REGEX;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationVersion.ORG_VERSION_PREFIX;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATH_SEPARATOR;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUB_ORG_START_LEVEL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.DB2;
@@ -600,14 +602,59 @@ public class Utils {
      */
     public static boolean isLoginAndRegistrationConfigInheritanceEnabled(String tenantDomain) {
 
+        return isOrgVersionApplicable(tenantDomain,
+                OrganizationManagementConstants.OrganizationVersion.ORG_VERSION_V1);
+    }
+
+    /**
+     * Check whether claim and OIDC claim inheritance is enabled for the organization identified by the given tenant
+     * domain.
+     *
+     * Claim and OIDC claim inheritance is considered to be enabled if the organization version is
+     * equal to or greater than v1.0.0
+     *
+     * @param tenantDomain Tenant domain of the organization.
+     * @return true if claim and OIDC scope inheritance is enabled, false otherwise.
+     */
+    public static boolean isClaimAndOIDCScopeInheritanceEnabled(String tenantDomain) {
+
+        return isOrgVersionApplicable(tenantDomain,
+                OrganizationManagementConstants.OrganizationVersion.ORG_VERSION_V1);
+    }
+
+    /**
+     * Checks whether the current organization version is greater than or equal to the minimum
+     *
+     * @param tenantDomain             Tenant domain of the organization.
+     * @param minimumApplicableVersion The minimum applicable version.
+     * @return true if the org version is greater than or equal to the minimum applicable version.
+     */
+    private static boolean isOrgVersionApplicable(String tenantDomain, String minimumApplicableVersion) {
+
         try {
             String orgVersion = organizationManager.getOrganization(
                     organizationManager.resolveOrganizationId(tenantDomain), false, false).getVersion();
-            if (StringUtils.isBlank(orgVersion)) {
+            if (StringUtils.isBlank(orgVersion) || StringUtils.isBlank(minimumApplicableVersion)) {
                 return false;
             }
-
-            return orgVersion.compareTo(OrganizationManagementConstants.OrganizationVersion.ORG_VERSION_V1) >= 0;
+            // Semantic version comparison
+            String[] orgVersionComponents = orgVersion.replace(ORG_VERSION_PREFIX, StringUtils.EMPTY)
+                    .split(ORG_VERSION_DELIMITER_REGEX);
+            String[] minVersionComponents = minimumApplicableVersion.replace(ORG_VERSION_PREFIX, StringUtils.EMPTY)
+                    .split(ORG_VERSION_DELIMITER_REGEX);
+            for (int i = 0; i < orgVersionComponents.length; i++) {
+                int orgVersionComponent = Integer.parseInt(orgVersionComponents[i]);
+                int minVersionComponent = Integer.parseInt(minVersionComponents[i]);
+                if (orgVersionComponent > minVersionComponent) {
+                    return true;
+                }
+                if (orgVersionComponent < minVersionComponent) {
+                    return false;
+                }
+            }
+            // If the comparison didn't return anything within the "for" block,
+            // it means both versions are equal, therefore, we return true.
+            return true;
         } catch (OrganizationManagementException e) {
             LOG.error("Error while resolving organization ID for tenant domain: " + tenantDomain, e);
         }
