@@ -562,7 +562,9 @@ public class SQLConstants {
             "OFFSET 0 ROWS FETCH NEXT :" + SQLPlaceholders.DB_SCHEMA_LIMIT + "; ROWS ONLY;";
 
     public static final String GET_BASIC_ORG_DETAILS_BY_ORG_IDS = "SELECT U.UM_ID, U.UM_ORG_NAME, U.UM_STATUS, " +
-            "U.UM_CREATED_TIME, T.UM_DOMAIN_NAME FROM UM_ORG U JOIN UM_TENANT T ON U.UM_ID = T.UM_ORG_UUID " +
+            "U.UM_CREATED_TIME, T.UM_DOMAIN_NAME, CASE WHEN EXISTS " +
+            "( SELECT 1 FROM UM_ORG C WHERE C.UM_PARENT_ID = U.UM_ID ) THEN 1 ELSE 0 END AS HAS_CHILDREN " +
+            "FROM UM_ORG U JOIN UM_TENANT T ON U.UM_ID = T.UM_ORG_UUID " +
             "WHERE U.UM_ID IN (%s)";
 
     public static final String GET_ANCESTOR_ORG_DETAILS = "SELECT H.UM_PARENT_ID, O.UM_ORG_NAME, (( " +

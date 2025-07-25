@@ -1507,6 +1507,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                     basicOrganization.setStatus(resultSet.getString(VIEW_STATUS_COLUMN));
                     basicOrganization.setCreated(resultSet.getString(VIEW_CREATED_TIME_COLUMN));
                     basicOrganization.setOrganizationHandle(resultSet.getString(VIEW_TENANT_DOMAIN_COLUMN));
+                    basicOrganization.setHasChildren(resultSet.getInt(VIEW_HAS_CHILDREN_COLUMN) == 1);
                     basicOrganizationDetailsMap.put(orgId, basicOrganization);
                 } else {
                     invalidOrgIds.add(orgId);
