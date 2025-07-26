@@ -963,15 +963,18 @@ public class OrganizationManagerImplTest {
         List<String> expectedIds = Arrays.asList(ORG1_ID, ORG2_ID, ORG3_ID);
         List<String> expectedNames = Arrays.asList(ORG1_NAME, ORG2_NAME, ORG3_NAME);
         List<String> expectedOrganizationHandles = Arrays.asList(ORG1_HANDLE, ORG2_HANDLE, ORG3_HANDLE);
+        List<Boolean> expectedHasChildren = Arrays.asList(true, false, false);
 
         return new Object[][] {
-                { orgIds, expectedIds, expectedNames, expectedOrganizationHandles }
+                { orgIds, expectedIds, expectedNames, expectedOrganizationHandles, expectedHasChildren }
         };
     }
 
     @Test(dataProvider = "dataForGetBasicOrganizationDetailsByOrgIDs")
     public void testGetBasicOrganizationDetailsByOrgIDs(List<String> orgIds, List<String> expectedIds,
-                                               List<String> expectedNames, List<String> expectedOrganizationHandles)
+                                                        List<String> expectedNames,
+                                                        List<String> expectedOrganizationHandles,
+                                                        List<Boolean> expectedHasChildren)
             throws OrganizationManagementException {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
@@ -986,6 +989,7 @@ public class OrganizationManagerImplTest {
             Assert.assertEquals(org.getId(), expectedIds.get(index));
             Assert.assertEquals(org.getName(), expectedNames.get(index));
             Assert.assertEquals(org.getOrganizationHandle(), expectedOrganizationHandles.get(index));
+            Assert.assertEquals(org.hasChildren(), expectedHasChildren.get(index).booleanValue());
         }
     }
 
@@ -1123,12 +1127,18 @@ public class OrganizationManagerImplTest {
         // Assert ORG_1 has children.
         Organization organization1 = organizationManager.getOrganization(ORG1_ID, false, false, false);
         assertTrue(organization1.hasChildren());
+        BasicOrganization basicOrganization = organizationManager.getBasicOrganizationDetailsByOrgIDs(
+                Collections.singletonList(ORG1_ID)).get(ORG1_ID);
+        assertTrue(basicOrganization.hasChildren());
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG1_ID);
         // Delete ORG_2.
         organizationManager.deleteOrganization(ORG2_ID);
         // Assert ORG_1 don't have children.
         organization1 = organizationManager.getOrganization(ORG1_ID, false, false, false);
         assertFalse(organization1.hasChildren());
+        basicOrganization = organizationManager.getBasicOrganizationDetailsByOrgIDs(
+                Collections.singletonList(ORG1_ID)).get(ORG1_ID);
+        assertFalse(basicOrganization.hasChildren());
     }
 
     private void setOrganizationAttributes(Organization organization, String key, String value) {
