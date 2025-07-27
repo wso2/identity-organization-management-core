@@ -25,6 +25,7 @@
             <class name="org.wso2.carbon.identity.organization.management.service.dao.impl.OrganizationManagementDAOImplTest"/>
             <class name="org.wso2.carbon.identity.organization.management.service.util.UtilsTest"/>
             <class name="org.wso2.carbon.identity.organization.management.service.util.OrganizationManagementUtilTest"/>
+            <class name="org.wso2.carbon.identity.organization.management.service.dao.impl.CacheBackedOrganizationManagementDAOTest"/>
         </classes>
     </test>
 </suite>

@@ -29,6 +29,7 @@ import org.wso2.carbon.identity.organization.management.service.dao.Organization
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.filter.ExpressionNode;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
+import org.wso2.carbon.identity.organization.management.service.model.MinimalOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationNode;
@@ -211,6 +212,19 @@ public class OrganizationManagementDAOImplTest {
         Organization organization = organizationManagementDAO.getOrganization(orgId);
         Assert.assertEquals(organization.getName(), ORG_NAME);
         Assert.assertEquals(organization.getParent().getId(), SUPER_ORG_ID);
+    }
+
+    @Test
+    public void testGetMinimalOrganization() throws Exception {
+
+        MinimalOrganization minimalOrganization = organizationManagementDAO.getMinimalOrganization(orgId, null);
+        Assert.assertEquals(minimalOrganization.getId(), orgId);
+        Assert.assertEquals(minimalOrganization.getName(), ORG_NAME);
+        Assert.assertEquals(minimalOrganization.getStatus(),
+                OrganizationManagementConstants.OrganizationStatus.ACTIVE.toString());
+        Assert.assertNotNull(minimalOrganization.getCreated());
+        Assert.assertEquals(minimalOrganization.getOrganizationHandle(), ORG_HANDLE);
+        Assert.assertEquals(minimalOrganization.getDepth(), 1);
     }
 
     @Test

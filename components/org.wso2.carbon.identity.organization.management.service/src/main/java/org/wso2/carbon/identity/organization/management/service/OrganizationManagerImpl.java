@@ -39,6 +39,7 @@ import org.wso2.carbon.identity.organization.management.service.listener.Organiz
 import org.wso2.carbon.identity.organization.management.service.model.AncestorOrganizationDO;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.ChildOrganizationDO;
+import org.wso2.carbon.identity.organization.management.service.model.MinimalOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationNode;
@@ -796,10 +797,10 @@ public class OrganizationManagerImpl implements OrganizationManager {
     }
 
     @Override
-    public BasicOrganization getBasicOrganization(String organizationId, String associatedTenantDomain)
+    public MinimalOrganization getMinimalOrganization(String organizationId, String associatedTenantDomain)
             throws OrganizationManagementException {
 
-        return organizationManagementDAO.getBasicOrganization(organizationId, associatedTenantDomain);
+        return organizationManagementDAO.getMinimalOrganization(organizationId, associatedTenantDomain);
     }
 
     private void updateTenantStatus(String status, String organizationId) throws OrganizationManagementServerException {

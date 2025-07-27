@@ -34,6 +34,7 @@ import org.wso2.carbon.identity.organization.management.service.filter.Expressio
 import org.wso2.carbon.identity.organization.management.service.model.AncestorOrganizationDO;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.FilterQueryBuilder;
+import org.wso2.carbon.identity.organization.management.service.model.MinimalOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationNode;
@@ -84,6 +85,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RESOLVING_ORGANIZATION_ID_FROM_TENANT_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RESOLVING_TENANT_DOMAIN_FROM_ORGANIZATION_DOMAIN;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_CHILD_ORGANIZATIONS;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_MINIMAL_ORGANIZATION_DETAILS_BY_ORGANIZATION_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS_BY_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS_META_ATTRIBUTES;
@@ -160,6 +162,9 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATION_HIERARCHY;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_CHILD_ORGANIZATION_IDS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_IMMEDIATE_OR_ALL_CHILD_ORG_IDS;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_MINIMAL_ORG_DETAILS_BY_ORG_ID;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_MINIMAL_ORG_DETAILS_BY_ORG_ID_MSSQL;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_MINIMAL_ORG_DETAILS_BY_ORG_ID_ORACLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_BY_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_INCLUDING_ORG_HANDLE_AND_VERSION;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATIONS_META_ATTRIBUTES;
@@ -1550,6 +1555,37 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             return ancestors;
         } catch (DataAccessException e) {
             throw handleServerException(ERROR_CODE_ERROR_WHILE_RETRIEVING_ANCESTORS, e, organizationId);
+        }
+    }
+
+    @Override
+    public MinimalOrganization getMinimalOrganization(String organizationId, String associatedTenantDomain)
+            throws OrganizationManagementException {
+
+        String getMinimalOrgQuery = GET_MINIMAL_ORG_DETAILS_BY_ORG_ID;
+        if (isOracleDB()) {
+            getMinimalOrgQuery = GET_MINIMAL_ORG_DETAILS_BY_ORG_ID_ORACLE;
+        } else if (isMSSqlDB()) {
+            getMinimalOrgQuery = GET_MINIMAL_ORG_DETAILS_BY_ORG_ID_MSSQL;
+        }
+
+        NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
+        try {
+            return namedJdbcTemplate.fetchSingleRecord(getMinimalOrgQuery,
+                    (resultSet, rowNumber) -> new MinimalOrganization.Builder()
+                            .id(resultSet.getString(VIEW_ID_COLUMN))
+                            .name(resultSet.getString(VIEW_NAME_COLUMN))
+                            .status(resultSet.getString(VIEW_STATUS_COLUMN))
+                            .created(resultSet.getString(VIEW_CREATED_TIME_COLUMN))
+                            .organizationHandle(resultSet.getString(VIEW_TENANT_DOMAIN_COLUMN))
+                            .depth(resultSet.getInt(VIEW_DEPTH_COLUMN))
+                            .build(),
+                    namedPreparedStatement -> {
+                        namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, organizationId);
+                    });
+        } catch (DataAccessException e) {
+            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_MINIMAL_ORGANIZATION_DETAILS_BY_ORGANIZATION_ID, e,
+                    organizationId);
         }
     }
 

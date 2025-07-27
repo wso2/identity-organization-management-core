@@ -21,22 +21,22 @@ package org.wso2.carbon.identity.organization.management.service.cache;
 /**
  * Cache for organization information against organization Id.
  */
-public class BasicOrganizationCacheByOrgId extends BaseCache<OrganizationIdCacheKey, BasicOrganizationCacheEntry> {
+public class MinimalOrganizationCacheByOrgId extends BaseCache<OrganizationIdCacheKey, MinimalOrganizationCacheEntry> {
 
-    private static final String CACHE_NAME = "BasicOrganizationCacheByOrgId";
-    private static final BasicOrganizationCacheByOrgId INSTANCE = new BasicOrganizationCacheByOrgId();
+    private static final String CACHE_NAME = "MinimalOrganizationCacheByOrgId";
+    private static final MinimalOrganizationCacheByOrgId INSTANCE = new MinimalOrganizationCacheByOrgId();
 
-    private BasicOrganizationCacheByOrgId() {
+    private MinimalOrganizationCacheByOrgId() {
 
         super(CACHE_NAME);
     }
 
     /**
-     * Get Basic organization cache by organization id instance.
+     * Get minimal organization cache by organization id instance.
      *
-     * @return Basic organization cache by organization id instance.
+     * @return Minimal organization cache by organization id instance.
      */
-    public static BasicOrganizationCacheByOrgId getInstance() {
+    public static MinimalOrganizationCacheByOrgId getInstance() {
 
         return INSTANCE;
     }

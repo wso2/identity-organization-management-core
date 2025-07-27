@@ -22,6 +22,7 @@ import org.wso2.carbon.identity.organization.management.service.exception.NotImp
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
+import org.wso2.carbon.identity.organization.management.service.model.MinimalOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationNode;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
@@ -448,17 +449,17 @@ public interface OrganizationManager {
     }
 
     /**
-     * Retrieve the basic organization details for a given organization id.
+     * Retrieve the organization details for a given organization id.
      *
      * @param organizationId         The organization id.
      * @param associatedTenantDomain The tenant domain associated with the organization.
      *                               If null, the value will be resolved using organization id.
-     * @return The basic organization details.
-     * @throws OrganizationManagementException If an error occurs while retrieving the basic organization details.
+     * @return The minimal organization details.
+     * @throws OrganizationManagementException If an error occurs while retrieving the minimal organization details.
      */
-    default BasicOrganization getBasicOrganization(String organizationId, String associatedTenantDomain)
+    default MinimalOrganization getMinimalOrganization(String organizationId, String associatedTenantDomain)
             throws OrganizationManagementException {
 
-        throw new NotImplementedException("getBasicOrganization is not implemented in " + this.getClass().getName());
+        throw new NotImplementedException("getMinimalOrganization is not implemented in " + this.getClass().getName());
     }
 }

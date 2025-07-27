@@ -41,6 +41,7 @@ import org.wso2.carbon.identity.organization.management.service.internal.Organiz
 import org.wso2.carbon.identity.organization.management.service.listener.OrganizationManagerListener;
 import org.wso2.carbon.identity.organization.management.service.model.AncestorOrganizationDO;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
+import org.wso2.carbon.identity.organization.management.service.model.MinimalOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationAttribute;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
@@ -1023,6 +1024,34 @@ public class OrganizationManagerImplTest {
             Assert.assertEquals(org.getName(), expectedName);
             Assert.assertEquals(org.getOrganizationHandle(), expectedOrgHandle);
         }
+    }
+
+    @Test
+    public void testGetMinimalOrganizationWithTenantDomain() throws OrganizationManagementException {
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+        mockedUtilities.when(() -> Utils.getTenantId(ORG1_HANDLE)).thenReturn(1);
+        MinimalOrganization minimalOrganization = organizationManager.getMinimalOrganization(ORG1_ID, ORG1_HANDLE);
+        Assert.assertNotNull(minimalOrganization);
+        Assert.assertEquals(minimalOrganization.getId(), ORG1_ID);
+        Assert.assertEquals(minimalOrganization.getName(), ORG1_NAME);
+        Assert.assertEquals(minimalOrganization.getOrganizationHandle(), ORG1_HANDLE);
+        Assert.assertEquals(minimalOrganization.getStatus(), "ACTIVE");
+        Assert.assertEquals(minimalOrganization.getDepth(), 1);
+    }
+
+    @Test
+    public void testGetMinimalOrganizationWithoutTenantDomain() throws OrganizationManagementException {
+
+        TestUtils.mockCarbonContext(SUPER_ORG_ID);
+        mockedUtilities.when(() -> Utils.getTenantId(ORG1_HANDLE)).thenReturn(1);
+        MinimalOrganization minimalOrganization = organizationManager.getMinimalOrganization(ORG1_ID, null);
+        Assert.assertNotNull(minimalOrganization);
+        Assert.assertEquals(minimalOrganization.getId(), ORG1_ID);
+        Assert.assertEquals(minimalOrganization.getName(), ORG1_NAME);
+        Assert.assertEquals(minimalOrganization.getOrganizationHandle(), ORG1_HANDLE);
+        Assert.assertEquals(minimalOrganization.getStatus(), "ACTIVE");
+        Assert.assertEquals(minimalOrganization.getDepth(), 1);
     }
 
     @Test()
