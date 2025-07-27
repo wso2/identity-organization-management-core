@@ -446,4 +446,19 @@ public interface OrganizationManager {
 
         throw new NotImplementedException("patchSelfOrganization is not implemented in " + this.getClass().getName());
     }
+
+    /**
+     * Retrieve the basic organization details for a given organization id.
+     *
+     * @param organizationId         The organization id.
+     * @param associatedTenantDomain The tenant domain associated with the organization.
+     *                               If null, the value will be resolved using organization id.
+     * @return The basic organization details.
+     * @throws OrganizationManagementException If an error occurs while retrieving the basic organization details.
+     */
+    default BasicOrganization getBasicOrganization(String organizationId, String associatedTenantDomain)
+            throws OrganizationManagementException {
+
+        throw new NotImplementedException("getBasicOrganization is not implemented in " + this.getClass().getName());
+    }
 }

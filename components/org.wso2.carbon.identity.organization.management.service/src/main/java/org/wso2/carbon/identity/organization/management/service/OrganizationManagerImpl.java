@@ -795,6 +795,13 @@ public class OrganizationManagerImpl implements OrganizationManager {
         return organization;
     }
 
+    @Override
+    public BasicOrganization getBasicOrganization(String organizationId, String associatedTenantDomain)
+            throws OrganizationManagementException {
+
+        return organizationManagementDAO.getBasicOrganization(organizationId, associatedTenantDomain);
+    }
+
     private void updateTenantStatus(String status, String organizationId) throws OrganizationManagementServerException {
 
         String tenantDomain = organizationManagementDAO.resolveTenantDomain(organizationId);
