@@ -18,15 +18,11 @@
 
 package org.wso2.carbon.identity.organization.management.service.model;
 
-import java.io.Serializable;
-
 /**
  * This class represents the model of an organization.
  * This model is used for pagination purposes in get organizations API call.
  */
-public class BasicOrganization implements Serializable {
-
-    private static final long serialVersionUID = 202310121234567890L;
+public class BasicOrganization {
 
     private String id;
     private String name;
