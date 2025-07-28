@@ -1578,6 +1578,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                             .status(resultSet.getString(VIEW_STATUS_COLUMN))
                             .created(resultSet.getString(VIEW_CREATED_TIME_COLUMN))
                             .organizationHandle(resultSet.getString(VIEW_TENANT_DOMAIN_COLUMN))
+                            .parentOrganizationId(resultSet.getString(VIEW_PARENT_ID_COLUMN))
                             .depth(resultSet.getInt(VIEW_DEPTH_COLUMN))
                             .build(),
                     namedPreparedStatement -> {

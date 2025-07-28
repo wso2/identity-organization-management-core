@@ -60,7 +60,6 @@ public class CacheBackedOrganizationManagementDAOTest {
     private static final int TEST_ORG_DEPTH = 1;
 
     private static final String TEST_PARENT_ORG_ID = "2bb16581-c7ec-4a3b-a3c5-1f48b8028eec";
-    private static final String TEST_PARENT_ORG_TENANT_DOMAIN = "wso2.com";
 
     OrganizationManagementDAO organizationManagementDAO;
     CacheBackedOrganizationManagementDAO cacheBackedOrganizationManagementDAO;
@@ -85,6 +84,7 @@ public class CacheBackedOrganizationManagementDAOTest {
                 .status(TEST_ORG_STATUS)
                 .created(TEST_ORG_CREATED_TIME)
                 .organizationHandle(TEST_ORG_TENANT_DOMAIN)
+                .parentOrganizationId(TEST_PARENT_ORG_ID)
                 .depth(TEST_ORG_DEPTH)
                 .build();
     }
@@ -117,6 +117,7 @@ public class CacheBackedOrganizationManagementDAOTest {
         assertEquals(result.getStatus(), TEST_ORG_STATUS);
         assertEquals(result.getCreated(), TEST_ORG_CREATED_TIME);
         assertEquals(result.getOrganizationHandle(), TEST_ORG_TENANT_DOMAIN);
+        assertEquals(result.getParentOrganizationId(), TEST_PARENT_ORG_ID);
         assertEquals(result.getDepth(), TEST_ORG_DEPTH);
 
         // Check cache
@@ -129,6 +130,7 @@ public class CacheBackedOrganizationManagementDAOTest {
         assertEquals(minimalOrganizationFromCache.getStatus(), result.getStatus());
         assertEquals(minimalOrganizationFromCache.getCreated(), result.getCreated());
         assertEquals(minimalOrganizationFromCache.getOrganizationHandle(), result.getOrganizationHandle());
+        assertEquals(minimalOrganizationFromCache.getParentOrganizationId(), result.getParentOrganizationId());
         assertEquals(minimalOrganizationFromCache.getDepth(), result.getDepth());
     }
 
@@ -146,6 +148,7 @@ public class CacheBackedOrganizationManagementDAOTest {
         assertEquals(result.getStatus(), TEST_ORG_STATUS);
         assertEquals(result.getCreated(), TEST_ORG_CREATED_TIME);
         assertEquals(result.getOrganizationHandle(), TEST_ORG_TENANT_DOMAIN);
+        assertEquals(result.getParentOrganizationId(), TEST_PARENT_ORG_ID);
         assertEquals(result.getDepth(), TEST_ORG_DEPTH);
         verify(organizationManagementDAO, never()).getBasicOrganizationDetailsByOrgIDs(any());
     }

@@ -29,6 +29,7 @@ public class MinimalOrganization {
     private final String status;
     private final String created;
     private final String organizationHandle;
+    private final String parentOrganizationId;
     private final int depth;
 
     private MinimalOrganization(Builder builder) {
@@ -38,6 +39,7 @@ public class MinimalOrganization {
         this.status = builder.status;
         this.created = builder.created;
         this.organizationHandle = builder.organizationHandle;
+        this.parentOrganizationId = builder.parentOrganizationId;
         this.depth = builder.depth;
     }
 
@@ -92,6 +94,16 @@ public class MinimalOrganization {
     }
 
     /**
+     * Returns the ID of the parent organization.
+     *
+     * @return The ID of the parent organization.
+     */
+    public String getParentOrganizationId() {
+
+        return parentOrganizationId;
+    }
+
+    /**
      * Returns the depth of the organization in the hierarchy.
      *
      * @return The depth of the organization.
@@ -111,6 +123,7 @@ public class MinimalOrganization {
         private String status;
         private String created;
         private String organizationHandle;
+        private String parentOrganizationId;
         private int depth;
 
         public Builder id(String id) {
@@ -140,6 +153,12 @@ public class MinimalOrganization {
         public Builder organizationHandle(String organizationHandle) {
 
             this.organizationHandle = organizationHandle;
+            return this;
+        }
+
+        public Builder parentOrganizationId(String parentOrganizationId) {
+
+            this.parentOrganizationId = parentOrganizationId;
             return this;
         }
 

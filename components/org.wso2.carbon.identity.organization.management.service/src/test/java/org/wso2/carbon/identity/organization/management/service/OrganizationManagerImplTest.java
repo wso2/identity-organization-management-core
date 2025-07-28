@@ -1036,6 +1036,7 @@ public class OrganizationManagerImplTest {
         Assert.assertEquals(minimalOrganization.getId(), ORG1_ID);
         Assert.assertEquals(minimalOrganization.getName(), ORG1_NAME);
         Assert.assertEquals(minimalOrganization.getOrganizationHandle(), ORG1_HANDLE);
+        Assert.assertEquals(minimalOrganization.getParentOrganizationId(), SUPER_ORG_ID);
         Assert.assertEquals(minimalOrganization.getStatus(), "ACTIVE");
         Assert.assertEquals(minimalOrganization.getDepth(), 1);
     }
@@ -1050,6 +1051,7 @@ public class OrganizationManagerImplTest {
         Assert.assertEquals(minimalOrganization.getId(), ORG1_ID);
         Assert.assertEquals(minimalOrganization.getName(), ORG1_NAME);
         Assert.assertEquals(minimalOrganization.getOrganizationHandle(), ORG1_HANDLE);
+        Assert.assertEquals(minimalOrganization.getParentOrganizationId(), SUPER_ORG_ID);
         Assert.assertEquals(minimalOrganization.getStatus(), "ACTIVE");
         Assert.assertEquals(minimalOrganization.getDepth(), 1);
     }

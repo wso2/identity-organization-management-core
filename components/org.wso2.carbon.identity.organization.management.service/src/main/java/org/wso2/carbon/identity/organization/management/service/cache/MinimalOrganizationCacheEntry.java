@@ -32,6 +32,7 @@ public class MinimalOrganizationCacheEntry extends CacheEntry {
     private String status;
     private String created;
     private String organizationHandle;
+    private String parentOrganizationId;
     private int depth;
 
     public MinimalOrganizationCacheEntry(MinimalOrganization minimalOrganization) {
@@ -41,6 +42,7 @@ public class MinimalOrganizationCacheEntry extends CacheEntry {
         this.status = minimalOrganization.getStatus();
         this.created = minimalOrganization.getCreated();
         this.organizationHandle = minimalOrganization.getOrganizationHandle();
+        this.parentOrganizationId = minimalOrganization.getParentOrganizationId();
         this.depth = minimalOrganization.getDepth();
     }
 
@@ -52,6 +54,7 @@ public class MinimalOrganizationCacheEntry extends CacheEntry {
                 .status(this.status)
                 .created(this.created)
                 .organizationHandle(this.organizationHandle)
+                .parentOrganizationId(this.parentOrganizationId)
                 .depth(this.depth)
                 .build();
     }
@@ -63,6 +66,7 @@ public class MinimalOrganizationCacheEntry extends CacheEntry {
         this.status = minimalOrganization.getStatus();
         this.created = minimalOrganization.getCreated();
         this.organizationHandle = minimalOrganization.getOrganizationHandle();
+        this.parentOrganizationId = minimalOrganization.getParentOrganizationId();
         this.depth = minimalOrganization.getDepth();
     }
 }

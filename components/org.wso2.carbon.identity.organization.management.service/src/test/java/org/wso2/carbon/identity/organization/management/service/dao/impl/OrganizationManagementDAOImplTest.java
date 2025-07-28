@@ -224,6 +224,7 @@ public class OrganizationManagementDAOImplTest {
                 OrganizationManagementConstants.OrganizationStatus.ACTIVE.toString());
         Assert.assertNotNull(minimalOrganization.getCreated());
         Assert.assertEquals(minimalOrganization.getOrganizationHandle(), ORG_HANDLE);
+        Assert.assertEquals(minimalOrganization.getParentOrganizationId(), SUPER_ORG_ID);
         Assert.assertEquals(minimalOrganization.getDepth(), 1);
     }
 
