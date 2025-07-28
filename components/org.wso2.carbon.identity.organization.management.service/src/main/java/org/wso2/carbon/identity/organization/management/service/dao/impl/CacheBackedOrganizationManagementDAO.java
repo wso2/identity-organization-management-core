@@ -471,6 +471,9 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         if (minimalOrganization != null) {
             LOG.debug("Minimal Organization entry fetched from DB for organization id: " + organizationId +
                     ". Updating cache.");
+            // Resolving tenantDomain from the fetched object to prevent organization getting cached against
+            // wrong tenant domain passed to the method.
+            tenantDomain = minimalOrganization.getOrganizationHandle();
             MinimalOrganizationCacheByOrgId.getInstance()
                     .addToCache(cacheKey, new MinimalOrganizationCacheEntry(minimalOrganization), tenantDomain);
         } else {

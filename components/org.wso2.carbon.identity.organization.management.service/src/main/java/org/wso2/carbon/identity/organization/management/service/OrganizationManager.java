@@ -450,6 +450,8 @@ public interface OrganizationManager {
 
     /**
      * Retrieve the organization details for a given organization id.
+     * Since this method is used in runtime, passing the associated tenant domain which is already resolved to avoid
+     * extra queries to resolve the tenant domain inside the service.
      *
      * @param organizationId         The organization id.
      * @param associatedTenantDomain The tenant domain associated with the organization.
