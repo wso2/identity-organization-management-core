@@ -31,6 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
 import org.wso2.carbon.identity.organization.management.service.dao.impl.OrganizationManagementDAOImpl;
@@ -1054,6 +1055,14 @@ public class OrganizationManagerImplTest {
         Assert.assertEquals(minimalOrganization.getParentOrganizationId(), SUPER_ORG_ID);
         Assert.assertEquals(minimalOrganization.getStatus(), "ACTIVE");
         Assert.assertEquals(minimalOrganization.getDepth(), 1);
+
+        MinimalOrganization superTenantOrg = organizationManager.getMinimalOrganization(SUPER_ORG_ID, null);
+        Assert.assertNotNull(minimalOrganization);
+        Assert.assertEquals(superTenantOrg.getId(), SUPER_ORG_ID);
+        Assert.assertEquals(superTenantOrg.getName(), SUPER);
+        Assert.assertEquals(superTenantOrg.getOrganizationHandle(), MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+        Assert.assertNull(superTenantOrg.getParentOrganizationId());
+        Assert.assertEquals(superTenantOrg.getDepth(), 0);
     }
 
     @Test()

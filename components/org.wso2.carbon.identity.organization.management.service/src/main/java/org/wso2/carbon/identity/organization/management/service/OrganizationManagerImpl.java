@@ -800,6 +800,14 @@ public class OrganizationManagerImpl implements OrganizationManager {
     public MinimalOrganization getMinimalOrganization(String organizationId, String associatedTenantDomain)
             throws OrganizationManagementException {
 
+        if (SUPER_ORG_ID.equals(organizationId)) {
+            return new MinimalOrganization.Builder()
+                    .id(SUPER_ORG_ID)
+                    .name(SUPER)
+                    .organizationHandle(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME)
+                    .depth(0)
+                    .build();
+        }
         return organizationManagementDAO.getMinimalOrganization(organizationId, associatedTenantDomain);
     }
 
