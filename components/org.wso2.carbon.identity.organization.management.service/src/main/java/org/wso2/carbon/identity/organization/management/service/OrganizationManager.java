@@ -22,6 +22,7 @@ import org.wso2.carbon.identity.organization.management.service.exception.NotImp
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
+import org.wso2.carbon.identity.organization.management.service.model.MinimalOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
 import org.wso2.carbon.identity.organization.management.service.model.OrganizationNode;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
@@ -445,5 +446,22 @@ public interface OrganizationManager {
             throws OrganizationManagementException {
 
         throw new NotImplementedException("patchSelfOrganization is not implemented in " + this.getClass().getName());
+    }
+
+    /**
+     * Retrieve the organization details for a given organization id.
+     * Since this method is used in runtime, passing the associated tenant domain which is already resolved to avoid
+     * extra queries to resolve the tenant domain inside the service.
+     *
+     * @param organizationId         The organization id.
+     * @param associatedTenantDomain The tenant domain associated with the organization.
+     *                               If null, the value will be resolved using organization id.
+     * @return The minimal organization details.
+     * @throws OrganizationManagementException If an error occurs while retrieving the minimal organization details.
+     */
+    default MinimalOrganization getMinimalOrganization(String organizationId, String associatedTenantDomain)
+            throws OrganizationManagementException {
+
+        throw new NotImplementedException("getMinimalOrganization is not implemented in " + this.getClass().getName());
     }
 }

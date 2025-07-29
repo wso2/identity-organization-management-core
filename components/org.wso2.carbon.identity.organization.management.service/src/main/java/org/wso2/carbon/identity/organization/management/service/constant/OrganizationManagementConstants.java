@@ -854,7 +854,10 @@ public class OrganizationManagementConstants {
                 "Server encountered an error while resolving the default discovery parameter."),
         ERROR_CODE_ADDING_SHARED_RESOURCE_ATTRIBUTES_FAILED("65153",
                 "Failed to add shared resource attributes.",
-                "An error occurred while adding the shared resource attributes for policy ID: %s.");
+                "An error occurred while adding the shared resource attributes for policy ID: %s."),
+        ERROR_CODE_ERROR_RETRIEVING_MINIMAL_ORGANIZATION_DETAILS_BY_ORGANIZATION_ID("65154",
+                "Unable to retrieve minimal organization details by organization ids.",
+                "An error occurred while retrieving minimal organization details for organization id: %s");
 
         private final String code;
         private final String message;
