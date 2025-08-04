@@ -1579,7 +1579,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                             .created(resultSet.getString(VIEW_CREATED_TIME_COLUMN))
                             .organizationHandle(resultSet.getString(VIEW_TENANT_DOMAIN_COLUMN))
                             .parentOrganizationId(resultSet.getString(VIEW_PARENT_ID_COLUMN))
-                            .depth(resultSet.getInt(VIEW_DEPTH_COLUMN))
+                            .depth(getResolvedDepth(resultSet.getInt(VIEW_DEPTH_COLUMN)))
                             .build(),
                     namedPreparedStatement -> {
                         namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, organizationId);
@@ -1588,6 +1588,15 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_MINIMAL_ORGANIZATION_DETAILS_BY_ORGANIZATION_ID, e,
                     organizationId);
         }
+    }
+
+    private int getResolvedDepth(int depthFromDB) {
+
+        int rootOrgLevel = Utils.getSubOrgStartLevel() - 1;
+        if (depthFromDB >= rootOrgLevel) {
+            return depthFromDB - rootOrgLevel;
+        }
+        return depthFromDB;
     }
 
     private static String getOrgMetaAttributesSqlStmt(boolean recursive, String sortOrder,
