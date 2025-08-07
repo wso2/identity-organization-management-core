@@ -602,8 +602,13 @@ public class Utils {
      */
     public static boolean isLoginAndRegistrationConfigInheritanceEnabled(String tenantDomain) {
 
-        return isOrgVersionApplicable(tenantDomain,
-                OrganizationManagementConstants.OrganizationVersion.ORG_VERSION_V1);
+        try {
+            return isOrgVersionApplicable(tenantDomain,
+                    OrganizationManagementConstants.OrganizationVersion.ORG_VERSION_V1);
+        } catch (OrganizationManagementException e) {
+            LOG.error("Error while resolving organization ID for tenant domain: " + tenantDomain, e);
+        }
+        return false;
     }
 
     /**
@@ -615,8 +620,11 @@ public class Utils {
      *
      * @param tenantDomain Tenant domain of the organization.
      * @return true if claim and OIDC scope inheritance is enabled, false otherwise.
+     * @throws OrganizationManagementException If an error occurs while resolving organization id for the given
+     * tenant domain
      */
-    public static boolean isClaimAndOIDCScopeInheritanceEnabled(String tenantDomain) {
+    public static boolean isClaimAndOIDCScopeInheritanceEnabled(String tenantDomain)
+            throws OrganizationManagementException {
 
         return isOrgVersionApplicable(tenantDomain,
                 OrganizationManagementConstants.OrganizationVersion.ORG_VERSION_V1);
@@ -628,37 +636,35 @@ public class Utils {
      * @param tenantDomain             Tenant domain of the organization.
      * @param minimumApplicableVersion The minimum applicable version.
      * @return true if the org version is greater than or equal to the minimum applicable version.
+     * @throws OrganizationManagementException If an error occurs while resolving organization id for the given
+     * tenant domain
      */
-    private static boolean isOrgVersionApplicable(String tenantDomain, String minimumApplicableVersion) {
+    private static boolean isOrgVersionApplicable(String tenantDomain, String minimumApplicableVersion)
+            throws OrganizationManagementException {
 
-        try {
-            String orgVersion = organizationManager.getOrganization(
-                    organizationManager.resolveOrganizationId(tenantDomain), false, false).getVersion();
-            if (StringUtils.isBlank(orgVersion) || StringUtils.isBlank(minimumApplicableVersion)) {
+        String orgVersion = organizationManager.getOrganization(
+                organizationManager.resolveOrganizationId(tenantDomain), false, false).getVersion();
+        if (StringUtils.isBlank(orgVersion) || StringUtils.isBlank(minimumApplicableVersion)) {
+            return false;
+        }
+        // Semantic version comparison
+        String[] orgVersionComponents = orgVersion.replace(ORG_VERSION_PREFIX, StringUtils.EMPTY)
+                .split(ORG_VERSION_DELIMITER_REGEX);
+        String[] minVersionComponents = minimumApplicableVersion.replace(ORG_VERSION_PREFIX, StringUtils.EMPTY)
+                .split(ORG_VERSION_DELIMITER_REGEX);
+        for (int i = 0; i < orgVersionComponents.length; i++) {
+            int orgVersionComponent = Integer.parseInt(orgVersionComponents[i]);
+            int minVersionComponent = Integer.parseInt(minVersionComponents[i]);
+            if (orgVersionComponent > minVersionComponent) {
+                return true;
+            }
+            if (orgVersionComponent < minVersionComponent) {
                 return false;
             }
-            // Semantic version comparison
-            String[] orgVersionComponents = orgVersion.replace(ORG_VERSION_PREFIX, StringUtils.EMPTY)
-                    .split(ORG_VERSION_DELIMITER_REGEX);
-            String[] minVersionComponents = minimumApplicableVersion.replace(ORG_VERSION_PREFIX, StringUtils.EMPTY)
-                    .split(ORG_VERSION_DELIMITER_REGEX);
-            for (int i = 0; i < orgVersionComponents.length; i++) {
-                int orgVersionComponent = Integer.parseInt(orgVersionComponents[i]);
-                int minVersionComponent = Integer.parseInt(minVersionComponents[i]);
-                if (orgVersionComponent > minVersionComponent) {
-                    return true;
-                }
-                if (orgVersionComponent < minVersionComponent) {
-                    return false;
-                }
-            }
-            // If the comparison didn't return anything within the "for" block,
-            // it means both versions are equal, therefore, we return true.
-            return true;
-        } catch (OrganizationManagementException e) {
-            LOG.error("Error while resolving organization ID for tenant domain: " + tenantDomain, e);
         }
-        return false;
+        // If the comparison didn't return anything within the "for" block,
+        // it means both versions are equal, therefore, we return true.
+        return true;
     }
 
     /**
