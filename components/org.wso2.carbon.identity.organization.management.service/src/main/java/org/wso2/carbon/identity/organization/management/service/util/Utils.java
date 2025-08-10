@@ -642,8 +642,8 @@ public class Utils {
     private static boolean isOrgVersionApplicable(String tenantDomain, String minimumApplicableVersion)
             throws OrganizationManagementException {
 
-        String orgVersion = organizationManager.getOrganization(
-                organizationManager.resolveOrganizationId(tenantDomain), false, false).getVersion();
+        String orgVersion = organizationManager.getOrganizationVersion(
+                organizationManager.resolveOrganizationId(tenantDomain));
         if (StringUtils.isBlank(orgVersion) || StringUtils.isBlank(minimumApplicableVersion)) {
             return false;
         }
