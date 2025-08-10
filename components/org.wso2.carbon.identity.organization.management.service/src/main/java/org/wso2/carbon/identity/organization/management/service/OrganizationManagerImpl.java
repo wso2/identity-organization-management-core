@@ -427,6 +427,18 @@ public class OrganizationManagerImpl implements OrganizationManager {
                 recursive, limit, orgId, sortOrder, expressionNodes, filteringByParentIdExpressionNodes));
     }
 
+    @Override
+    public String getOrganizationVersion(String organizationId) throws OrganizationManagementException {
+
+        if (StringUtils.isEmpty(organizationId)) {
+            throw handleClientException(ERROR_CODE_INVALID_ORGANIZATION, organizationId);
+        }
+
+        Organization organization = organizationManagementDAO.getOrganization(organizationId);
+        resolveInheritedOrganizationVersion(organization);
+        return organization.getVersion();
+    }
+
     private List<Organization> resolveInheritedOrganizationVersions(List<Organization> organizationList)
             throws OrganizationManagementException {
 

@@ -195,6 +195,18 @@ public interface OrganizationManager {
     }
 
     /**
+     * Gets the version of a given organization.
+     *
+     * @param organizationId The id of the organization for which the version needs to be fetched.
+     * @return The version of the organization.
+     * @throws OrganizationManagementException If an exception occurs when getting the organization version.
+     */
+    default String getOrganizationVersion(String organizationId) throws OrganizationManagementException {
+
+        throw new NotImplementedException("getOrganizationVersion is not implemented in " + this.getClass().getName());
+    }
+
+    /**
      * List or search organizations authorized for the user.
      *
      * @param limit     The maximum number of records to be returned.
