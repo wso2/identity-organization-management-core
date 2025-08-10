@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -27,6 +27,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.wso2.carbon.context.CarbonCoreInitializedEvent;
 import org.wso2.carbon.identity.organization.management.service.OrganizationGroupResidentResolverService;
 import org.wso2.carbon.identity.organization.management.service.OrganizationGroupResidentResolverServiceImpl;
 import org.wso2.carbon.identity.organization.management.service.OrganizationManagementInitialize;
@@ -126,7 +127,7 @@ public class OrganizationManagementServiceComponent {
     @Reference(
             name = "identity.org.mgt.listener",
             service = OrganizationManagerListener.class,
-            cardinality = ReferenceCardinality.MANDATORY,
+            cardinality = ReferenceCardinality.OPTIONAL,
             policy = ReferencePolicy.DYNAMIC,
             unbind = "unsetOrganizationManagerListener"
     )
@@ -138,5 +139,30 @@ public class OrganizationManagementServiceComponent {
     protected void unsetOrganizationManagerListener(OrganizationManagerListener organizationManagerListener) {
 
         OrganizationManagementDataHolder.getInstance().setOrganizationManagerListener(null);
+    }
+
+    /**
+     * This was added to ensure that the CarbonCoreInitializedEvent is set before the
+     * organization management service is activated to avoid null pointer exceptions
+     * due to the datasource not being initialized. This is needed after the OrganizationManagerListener reference is
+     * made optional to fix a cyclic dependency issue.
+     *
+     * @param carbonCoreInitializedEvent CarbonCoreInitializedEvent
+     */
+    @Reference(
+            name = "carbon.core.initialize.service",
+            service = CarbonCoreInitializedEvent.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetCarbonCoreInitializeService"
+    )
+    protected void setCarbonCoreInitializeService(CarbonCoreInitializedEvent carbonCoreInitializedEvent) {
+
+        LOG.debug("Setting the CarbonCoreInitializedEvent Service.");
+    }
+
+    protected void unsetCarbonCoreInitializeService(CarbonCoreInitializedEvent carbonContext) {
+
+        LOG.debug("Unsetting the CarbonCoreInitializedEvent Service.");
     }
 }
