@@ -461,6 +461,9 @@ public class OrganizationManagementConstants {
                 "The operation type '%s' is not supported. Only ADD and REMOVE are allowed."),
         ERROR_CODE_UNSUPPORTED_SHARE_OPERATION_PATH("60115", "Unsupported path attribute.",
                 "The path attribute '%s' is not supported for application share operations."),
+        ERROR_CODE_SUPER_ORGANIZATION_RENAME_CONFLICT("60116", "Organization name already in use.",
+                "The given organization name is already taken. " +
+                        "A super organization cannot be renamed to an existing organization name."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -857,7 +860,9 @@ public class OrganizationManagementConstants {
                 "An error occurred while adding the shared resource attributes for policy ID: %s."),
         ERROR_CODE_ERROR_RETRIEVING_MINIMAL_ORGANIZATION_DETAILS_BY_ORGANIZATION_ID("65154",
                 "Unable to retrieve minimal organization details by organization ids.",
-                "An error occurred while retrieving minimal organization details for organization id: %s");
+                "An error occurred while retrieving minimal organization details for organization id: %s"),
+        ERROR_CODE_ERROR_CHECKING_ORGANIZATION_BY_NAME("65155", "Failed to check organization by name.",
+                "Error while checking organizations by a given name.");
 
         private final String code;
         private final String message;

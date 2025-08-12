@@ -72,6 +72,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_IF_CHILD_OF_PARENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_IF_IMMEDIATE_CHILD_OF_PARENT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_ORGANIZATION_ATTRIBUTE_KEY_EXIST;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_ORGANIZATION_BY_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_ORGANIZATION_EXIST_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_ORGANIZATION_EXIST_BY_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_SIBLING_ORGANIZATION_BY_NAME;
@@ -145,6 +146,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.CHECK_CHILD_ORGANIZATIONS_EXIST_WITH_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.CHECK_CHILD_ORGANIZATIONS_STATUS;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.CHECK_IMMEDIATE_CHILD_OF_PARENT;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.CHECK_ORGANIZATIONS_EXIST_WITH_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.CHECK_ORGANIZATION_ATTRIBUTE_KEY_EXIST;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.CHECK_ORGANIZATION_EXIST_BY_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.CHECK_ORGANIZATION_EXIST_BY_NAME;
@@ -507,6 +509,22 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
             return childOrganizationIds.get(0) > 0;
         } catch (DataAccessException e) {
             throw handleServerException(ERROR_CODE_ERROR_CHECKING_CHILD_ORGANIZATION_BY_NAME, e, rootOrgId);
+        }
+    }
+
+    @Override
+    public boolean isOrganizationExistWithName(String organizationName) throws OrganizationManagementServerException {
+
+        NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
+        try {
+            List<Integer> childOrganizationIds =
+                    namedJdbcTemplate.executeQuery(CHECK_ORGANIZATIONS_EXIST_WITH_NAME,
+                            (resultSet, rowNumber) -> resultSet.getInt(1), namedPreparedStatement -> {
+                                namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_NAME, organizationName);
+                            });
+            return childOrganizationIds.get(0) > 0;
+        } catch (DataAccessException e) {
+            throw handleServerException(ERROR_CODE_ERROR_CHECKING_ORGANIZATION_BY_NAME, e);
         }
     }
 

@@ -315,6 +315,9 @@ public class SQLConstants {
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_NAME + "; AND OH.UM_PARENT_ID = :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID + ";";
 
+    public static final String CHECK_ORGANIZATIONS_EXIST_WITH_NAME = "SELECT COUNT(1) FROM UM_ORG WHERE " +
+            "UM_ORG_NAME = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_NAME + ";";
+
     public static final String PATCH_ORGANIZATION = "UPDATE UM_ORG SET ";
 
     public static final String PATCH_ORGANIZATION_CONCLUDE = " = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_VALUE +
