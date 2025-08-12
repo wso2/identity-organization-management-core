@@ -123,6 +123,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_REQUIRED_FIELDS_MISSING;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_RETRIEVING_ORGANIZATIONS_BY_NAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_SAME_ORG_NAME_ON_IMMEDIATE_SUB_ORGANIZATIONS_OF_PARENT_ORG;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_SUPER_ORGANIZATION_RENAME_CONFLICT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_SUPER_ORG_DELETE_OR_DISABLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_SUPER_ORG_RENAME;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_UNAUTHORIZED_ORG_ACCESS;
@@ -868,7 +869,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
     private void validateAddOrganizationRequest(Organization organization) throws OrganizationManagementException {
 
         validateAddOrganizationRequiredFields(organization);
-        validateOrganizationNameField(organization.getName());
+        validateOrganizationNameField(organization.getName(), organization.getId());
         validateOrganizationAttributes(organization.getAttributes());
         validateAddOrganizationType(organization);
     }
@@ -975,14 +976,22 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
     }
 
-    private void validateOrganizationNameField(String organizationName) throws OrganizationManagementException {
+    private void validateOrganizationNameField(String organizationName, String organizationId)
+            throws OrganizationManagementException {
 
-        String superRootOrgName = getSuperRootOrgName();
-        if (StringUtils.equalsIgnoreCase(superRootOrgName, organizationName)) {
-            throw handleClientException(ERROR_CODE_ORGANIZATION_NAME_RESERVED, superRootOrgName);
-        }
         if (hasHtmlContent(organizationName)) {
             throw handleClientException(ERROR_CODE_ORGANIZATION_NAME_CONTAINS_HTML_CONTENT);
+        }
+        if (StringUtils.equals(SUPER_ORG_ID, organizationId)) {
+            if (organizationManagementDAO.isOrganizationExistWithName(organizationName)) {
+                throw handleClientException(ERROR_CODE_SUPER_ORGANIZATION_RENAME_CONFLICT, organizationId);
+            }
+            return;
+        }
+        String superRootOrgName = getSuperRootOrgName();
+        if (StringUtils.equalsIgnoreCase(superRootOrgName, organizationName) ||
+                StringUtils.equalsIgnoreCase(SUPER, organizationName)) {
+            throw handleClientException(ERROR_CODE_ORGANIZATION_NAME_RESERVED, organizationName);
         }
     }
 
@@ -1030,7 +1039,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         }
         // Check if the organization name is reserved.
         if (!StringUtils.equals(currentOrganizationName, newOrganizationName)) {
-            validateOrganizationNameField(newOrganizationName);
+            validateOrganizationNameField(newOrganizationName, organization.getId());
         }
         organization.setName(newOrganizationName);
 
@@ -1075,7 +1084,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
             }
 
             if (path.equals(PATCH_PATH_ORG_NAME)) {
-                validateOrganizationNameField(value);
+                validateOrganizationNameField(value, organizationId);
                 Organization organization = organizationManagementDAO.getOrganization(organizationId);
                 if (!organization.getName().equals(value)) {
                     validateOrgNameUniqueness(organization.getParent().getId(), value);

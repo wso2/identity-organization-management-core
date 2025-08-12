@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -188,6 +188,18 @@ public interface OrganizationManagementDAO {
      */
     boolean isChildOrganizationExistWithName(String organizationName, String rootOrgId)
             throws OrganizationManagementServerException;
+
+    /**
+     * Check if an organization exist with the given name.
+     *
+     * @param organizationName Name of the organization to be checked.
+     * @return true if an organization exist with the given name.
+     */
+    default boolean isOrganizationExistWithName(String organizationName) throws OrganizationManagementServerException {
+
+        throw new NotImplementedException("isOrganizationExistWithName(organizationName) is not implemented in "
+                + this.getClass().getName());
+    }
 
     /**
      * Add, remove or replace organization fields and attributes.
