@@ -158,6 +158,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUPER;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUPER_ORG_ID;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SW;
+import static org.wso2.carbon.identity.organization.management.service.util.OrganizationManagementUtil.getSuperRootOrgName;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getAuthenticatedUsername;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getOrganizationId;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.getTenantDomain;
@@ -976,8 +977,9 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
     private void validateOrganizationNameField(String organizationName) throws OrganizationManagementException {
 
-        if (StringUtils.equalsIgnoreCase(SUPER, organizationName)) {
-            throw handleClientException(ERROR_CODE_ORGANIZATION_NAME_RESERVED, SUPER);
+        String superRootOrgName = getSuperRootOrgName();
+        if (StringUtils.equalsIgnoreCase(superRootOrgName, organizationName)) {
+            throw handleClientException(ERROR_CODE_ORGANIZATION_NAME_RESERVED, superRootOrgName);
         }
         if (hasHtmlContent(organizationName)) {
             throw handleClientException(ERROR_CODE_ORGANIZATION_NAME_CONTAINS_HTML_CONTENT);

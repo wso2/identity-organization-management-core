@@ -122,8 +122,6 @@ public class OrganizationManagerImplTest {
     private static final String ORG4_ID = "org_id_4";
     private static final String INVALID_PARENT_ID = "invalid_parent_id";
     private static final String INVALID_ORG_ID = "invalid_org_id";
-    private static final String ORG_CREATED = "createdTime";
-    private static final String ORG_STATUS = "ACTIVE";
     private static final String NEW_SUPER_ORG_NAME = "New Super Org";
     private static final String V0 = "v0.0.0";
     private static final String V1 = "v1.0.0";
@@ -141,6 +139,7 @@ public class OrganizationManagerImplTest {
     private TenantMgtService tenantMgtService;
 
     private MockedStatic<Utils> mockedUtilities;
+    private MockedStatic<OrganizationManagementUtil> mockedOrganizationManagementUtil;
 
     @Captor
     private ArgumentCaptor<org.wso2.carbon.user.core.tenant.Tenant> tenantArgumentCaptor;
@@ -155,6 +154,9 @@ public class OrganizationManagerImplTest {
         tenantMgtService = mock(TenantMgtService.class);
         tenant = mock(Tenant.class);
         mockUtils();
+
+        mockedOrganizationManagementUtil = mockStatic(OrganizationManagementUtil.class);
+        mockedOrganizationManagementUtil.when(OrganizationManagementUtil::getSuperRootOrgName).thenReturn(SUPER);
     }
 
     @BeforeMethod
@@ -198,6 +200,7 @@ public class OrganizationManagerImplTest {
     public void close() {
 
         mockedUtilities.close();
+        mockedOrganizationManagementUtil.close();
     }
 
     @Test
@@ -569,89 +572,76 @@ public class OrganizationManagerImplTest {
     @Test
     public void testPatchRootOrgVersion() throws Exception {
 
-        try (MockedStatic<OrganizationManagementUtil> organizationManagementUtilMockedStatic =
-                     mockStatic(OrganizationManagementUtil.class)) {
-            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
-                    .thenReturn(false);
-            List<PatchOperation> patchOperations = new ArrayList<>();
-            PatchOperation patchOperation = new PatchOperation(PATCH_OP_REPLACE, PATCH_PATH_ORG_VERSION,
-                    V1);
-            patchOperations.add(patchOperation);
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
-            Organization patchedOrganization = organizationManager.patchOrganization(SUPER_ORG_ID, patchOperations);
-            assertNotNull(patchedOrganization);
-            assertEquals(patchedOrganization.getVersion(), V1);
-        }
+        mockedOrganizationManagementUtil.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                .thenReturn(false);
+        List<PatchOperation> patchOperations = new ArrayList<>();
+        PatchOperation patchOperation = new PatchOperation(PATCH_OP_REPLACE, PATCH_PATH_ORG_VERSION, V1);
+        patchOperations.add(patchOperation);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
+        Organization patchedOrganization = organizationManager.patchOrganization(SUPER_ORG_ID, patchOperations);
+        assertNotNull(patchedOrganization);
+        assertEquals(patchedOrganization.getVersion(), V1);
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
     public void testPatchSubOrgVersion() throws Exception {
 
-        try (MockedStatic<OrganizationManagementUtil> organizationManagementUtilMockedStatic =
-                     mockStatic(OrganizationManagementUtil.class)) {
-            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
-                    .thenReturn(true);
-            List<PatchOperation> patchOperations = new ArrayList<>();
-            PatchOperation patchOperation = new PatchOperation(PATCH_OP_REPLACE, PATCH_PATH_ORG_VERSION,
-                    V1);
-            patchOperations.add(patchOperation);
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
-            organizationManager.patchOrganization(ORG1_ID, patchOperations);
-        }
+        mockedOrganizationManagementUtil.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                .thenReturn(true);
+        List<PatchOperation> patchOperations = new ArrayList<>();
+        PatchOperation patchOperation = new PatchOperation(PATCH_OP_REPLACE, PATCH_PATH_ORG_VERSION,
+                V1);
+        patchOperations.add(patchOperation);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
+        organizationManager.patchOrganization(ORG1_ID, patchOperations);
 
     }
 
     @Test
     public void testGetSubOrgUnderV1Root() throws Exception {
 
-        try (MockedStatic<OrganizationManagementUtil> organizationManagementUtilMockedStatic =
-                     mockStatic(OrganizationManagementUtil.class)) {
-            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
-                    .thenReturn(false);
-            List<PatchOperation> patchOperations = new ArrayList<>();
-            PatchOperation patchOperation = new PatchOperation(PATCH_OP_REPLACE, PATCH_PATH_ORG_VERSION,
-                    V1);
-            patchOperations.add(patchOperation);
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
-            organizationManager.patchOrganization(SUPER_ORG_ID, patchOperations);
+        mockedOrganizationManagementUtil.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                .thenReturn(false);
+        List<PatchOperation> patchOperations = new ArrayList<>();
+        PatchOperation patchOperation = new PatchOperation(PATCH_OP_REPLACE, PATCH_PATH_ORG_VERSION, V1);
+        patchOperations.add(patchOperation);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
+        organizationManager.patchOrganization(SUPER_ORG_ID, patchOperations);
 
-            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
-                    .thenReturn(true);
-            mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(1);
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
-            Organization organization = organizationManager.getOrganization(ORG1_ID, false, false);
-            assertEquals(organization.getName(), ORG1_NAME);
-            assertEquals(organization.getVersion(), V1);
-        }
+        mockedOrganizationManagementUtil.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                .thenReturn(true);
+        mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(1);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
+        Organization organization = organizationManager.getOrganization(ORG1_ID, false, false);
+        assertEquals(organization.getName(), ORG1_NAME);
+        assertEquals(organization.getVersion(), V1);
     }
 
     @Test
     public void testGetSelfOrganizationVersionUnderV1Root() throws Exception {
 
-        try (MockedStatic<OrganizationManagementUtil> organizationManagementUtilMockedStatic =
-                     mockStatic(OrganizationManagementUtil.class)) {
-            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
-                    .thenReturn(false);
-            List<PatchOperation> patchOperations = new ArrayList<>();
-            PatchOperation patchOperation = new PatchOperation(PATCH_OP_REPLACE, PATCH_PATH_ORG_VERSION,
-                    V1);
-            patchOperations.add(patchOperation);
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
-            organizationManager.patchOrganization(SUPER_ORG_ID, patchOperations);
+        mockedOrganizationManagementUtil.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                .thenReturn(false);
+        List<PatchOperation> patchOperations = new ArrayList<>();
+        PatchOperation patchOperation = new PatchOperation(PATCH_OP_REPLACE, PATCH_PATH_ORG_VERSION, V1);
+        patchOperations.add(patchOperation);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
+        organizationManager.patchOrganization(SUPER_ORG_ID, patchOperations);
 
-            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
-                    .thenReturn(true);
-            mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(1);
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG1_ID);
-            Organization organization = organizationManager.getSelfOrganization();
-            assertEquals(organization.getName(), ORG1_NAME);
-            assertEquals(organization.getVersion(), V1);
-        }
+        mockedOrganizationManagementUtil.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                .thenReturn(true);
+        mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(1);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG1_ID);
+        Organization organization = organizationManager.getSelfOrganization();
+        assertEquals(organization.getName(), ORG1_NAME);
+        assertEquals(organization.getVersion(), V1);
     }
 
     @Test
     public void testSelfPatchRootOrganizationVersion() throws Exception {
 
+        mockedOrganizationManagementUtil.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                .thenReturn(false);
         List<PatchOperation> patchOperations = new ArrayList<>();
         PatchOperation patchOperation = new PatchOperation(PATCH_OP_REPLACE, PATCH_PATH_ORG_VERSION, V1);
         patchOperations.add(patchOperation);
@@ -664,16 +654,13 @@ public class OrganizationManagerImplTest {
     @Test(expectedExceptions = OrganizationManagementClientException.class)
     public void testSelfPatchSubOrganizationVersion() throws Exception {
 
-        try (MockedStatic<OrganizationManagementUtil> organizationManagementUtilMockedStatic =
-                     mockStatic(OrganizationManagementUtil.class)) {
-            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
-                    .thenReturn(true);
-            List<PatchOperation> patchOperations = new ArrayList<>();
-            PatchOperation patchOperation = new PatchOperation(PATCH_OP_REPLACE, PATCH_PATH_ORG_VERSION, V1);
-            patchOperations.add(patchOperation);
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG1_ID);
-            organizationManager.patchSelfOrganization(patchOperations);
-        }
+        mockedOrganizationManagementUtil.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                .thenReturn(true);
+        List<PatchOperation> patchOperations = new ArrayList<>();
+        PatchOperation patchOperation = new PatchOperation(PATCH_OP_REPLACE, PATCH_PATH_ORG_VERSION, V1);
+        patchOperations.add(patchOperation);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG1_ID);
+        organizationManager.patchSelfOrganization(patchOperations);
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
@@ -1083,16 +1070,13 @@ public class OrganizationManagerImplTest {
     @Test
     public void testAncestorsNotIncludedWhenNotRequested() throws OrganizationManagementException {
 
-        try (MockedStatic<OrganizationManagementUtil> organizationManagementUtilMockedStatic =
-                     mockStatic(OrganizationManagementUtil.class)) {
-            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
-                    .thenReturn(false);
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
-            Organization organization = organizationManager.getOrganization(ORG2_ID, false, false, false);
-            List<AncestorOrganizationDO> ancestors = organization.getAncestors();
-            Assert.assertEquals(ancestors.size(), 0,
-                    "The number of ancestors returned for  organization should be zero.");
-        }
+        mockedOrganizationManagementUtil.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                .thenReturn(false);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(SUPER_ORG_ID);
+        Organization organization = organizationManager.getOrganization(ORG2_ID, false, false, false);
+        List<AncestorOrganizationDO> ancestors = organization.getAncestors();
+        Assert.assertEquals(ancestors.size(), 0,
+                "The number of ancestors returned for  organization should be zero.");
     }
 
     @DataProvider(name = "dataForTestGetAncestorsOfOrganization")
@@ -1116,49 +1100,43 @@ public class OrganizationManagerImplTest {
                                            List<AncestorOrganizationDO> expectedAncestors)
             throws OrganizationManagementException {
 
-        try (MockedStatic<OrganizationManagementUtil> organizationManagementUtilMockedStatic =
-                     mockStatic(OrganizationManagementUtil.class)) {
-            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
-                    .thenReturn(false);
-           mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(1);
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(requestInitiatedOrgId);
-            Organization organization = organizationManager.getOrganization(organizationId, false, false, true);
-            List<AncestorOrganizationDO> ancestors = organization.getAncestors();
-            Assert.assertEquals(ancestors.size(), expectedAncestors.size(),
-                    "The number of ancestors returned does not match the expected count.");
-            for (int i = 0; i < ancestors.size(); i++) {
-                AncestorOrganizationDO expectedAncestor = expectedAncestors.get(i);
-                AncestorOrganizationDO actualAncestor = ancestors.get(i);
-                Assert.assertEquals(actualAncestor.getId(), expectedAncestor.getId(),
-                        "The ancestor ID does not match the expected value.");
-                Assert.assertEquals(actualAncestor.getName(), expectedAncestor.getName(),
-                        "The ancestor name does not match the expected value.");
-                Assert.assertEquals(actualAncestor.getDepth(), expectedAncestor.getDepth(),
-                        "The ancestor depth does not match the expected value.");
-            }
+        mockedOrganizationManagementUtil.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                .thenReturn(false);
+        mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(1);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(requestInitiatedOrgId);
+        Organization organization = organizationManager.getOrganization(organizationId, false, false, true);
+        List<AncestorOrganizationDO> ancestors = organization.getAncestors();
+        Assert.assertEquals(ancestors.size(), expectedAncestors.size(),
+                "The number of ancestors returned does not match the expected count.");
+        for (int i = 0; i < ancestors.size(); i++) {
+            AncestorOrganizationDO expectedAncestor = expectedAncestors.get(i);
+            AncestorOrganizationDO actualAncestor = ancestors.get(i);
+            Assert.assertEquals(actualAncestor.getId(), expectedAncestor.getId(),
+                    "The ancestor ID does not match the expected value.");
+            Assert.assertEquals(actualAncestor.getName(), expectedAncestor.getName(),
+                    "The ancestor name does not match the expected value.");
+            Assert.assertEquals(actualAncestor.getDepth(), expectedAncestor.getDepth(),
+                    "The ancestor depth does not match the expected value.");
         }
     }
 
     @Test
     public void testAncestorRetrievalWithCustomSubOrgStartLevel() throws OrganizationManagementException {
 
-        try (MockedStatic<OrganizationManagementUtil> organizationManagementUtilMockedStatic =
-                     mockStatic(OrganizationManagementUtil.class)) {
-            organizationManagementUtilMockedStatic.when(() -> OrganizationManagementUtil.isOrganization(any()))
-                    .thenReturn(false);
-            mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(2);
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG1_ID);
-            Organization organization = organizationManager.getOrganization(ORG2_ID, false, false, true);
-            List<AncestorOrganizationDO> ancestors = organization.getAncestors();
-            Assert.assertEquals(ancestors.size(), 1,
-                    "The number of ancestors returned should be one when sub-org start level is set to 2.");
-            AncestorOrganizationDO ancestor = ancestors.get(0);
-            Assert.assertEquals(ancestor.getId(), ORG1_ID,
-                    "The ancestor ID should match the parent organization ID.");
-            Assert.assertEquals(ancestor.getName(), ORG1_NAME,
-                    "The ancestor name should match the parent organization name.");
-            Assert.assertEquals(ancestor.getDepth(), 0, "The ancestor depth should be 0.");
-        }
+        mockedOrganizationManagementUtil.when(() -> OrganizationManagementUtil.isOrganization(any()))
+                .thenReturn(false);
+        mockedUtilities.when(Utils::getSubOrgStartLevel).thenReturn(2);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(ORG1_ID);
+        Organization organization = organizationManager.getOrganization(ORG2_ID, false, false, true);
+        List<AncestorOrganizationDO> ancestors = organization.getAncestors();
+        Assert.assertEquals(ancestors.size(), 1,
+                "The number of ancestors returned should be one when sub-org start level is set to 2.");
+        AncestorOrganizationDO ancestor = ancestors.get(0);
+        Assert.assertEquals(ancestor.getId(), ORG1_ID,
+                "The ancestor ID should match the parent organization ID.");
+        Assert.assertEquals(ancestor.getName(), ORG1_NAME,
+                "The ancestor name should match the parent organization name.");
+        Assert.assertEquals(ancestor.getDepth(), 0, "The ancestor depth should be 0.");
     }
 
     @Test
