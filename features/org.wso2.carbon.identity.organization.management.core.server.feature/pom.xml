@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity.organization.management.core</groupId>
         <artifactId>identity-organization-management-core</artifactId>
-        <version>1.1.50-next</version>
+        <version>1.1.51-next-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
