@@ -410,10 +410,12 @@ public class OrganizationManagerImpl implements OrganizationManager {
         expressionNodes.removeAll(filteringByParentIdExpressionNodes);
 
         return authorizedSubOrgsOnly ?
-                organizationManagementDAO.getUserAuthorizedOrganizations(recursive, limit, orgId, sortOrder,
-                                    expressionNodes, filteringByParentIdExpressionNodes, applicationAudience) :
-                organizationManagementDAO.getOrganizations(recursive, limit, orgId, sortOrder, expressionNodes,
-                                    filteringByParentIdExpressionNodes);
+                resolveInheritedBasicOrganizationVersions(
+                        organizationManagementDAO.getUserAuthorizedOrganizations(recursive, limit, orgId, sortOrder,
+                                    expressionNodes, filteringByParentIdExpressionNodes, applicationAudience)) :
+                resolveInheritedBasicOrganizationVersions(
+                        organizationManagementDAO.getOrganizations(recursive, limit, orgId, sortOrder, expressionNodes,
+                                    filteringByParentIdExpressionNodes));
     }
 
     private List<Organization> getOrganizationList(Integer limit, String after, String before, String sortOrder,
@@ -439,6 +441,26 @@ public class OrganizationManagerImpl implements OrganizationManager {
         Organization organization = organizationManagementDAO.getOrganization(organizationId);
         resolveInheritedOrganizationVersion(organization);
         return organization.getVersion();
+    }
+
+    private List<BasicOrganization> resolveInheritedBasicOrganizationVersions(
+            List<BasicOrganization> basicOrganizationList) throws OrganizationManagementException {
+
+        for (BasicOrganization basicOrganization : basicOrganizationList) {
+            resolveInheritedBasicOrganizationVersion(basicOrganization);
+        }
+
+        return basicOrganizationList;
+    }
+
+    private void resolveInheritedBasicOrganizationVersion(BasicOrganization basicOrganization)
+            throws OrganizationManagementException {
+
+        if (OrganizationManagementUtil.isOrganization(resolveTenantDomain(basicOrganization.getId()))) {
+            String primaryOrgId = getPrimaryOrganizationId(basicOrganization.getId());
+            String primaryOrgVersion = organizationManagementDAO.getOrganization(primaryOrgId).getVersion();
+            basicOrganization.setVersion(primaryOrgVersion);
+        }
     }
 
     private List<Organization> resolveInheritedOrganizationVersions(List<Organization> organizationList)
