@@ -435,10 +435,14 @@ public class OrganizationManagerImpl implements OrganizationManager {
     public String getOrganizationVersion(String organizationId) throws OrganizationManagementException {
 
         if (StringUtils.isEmpty(organizationId)) {
-            throw handleClientException(ERROR_CODE_INVALID_ORGANIZATION, organizationId);
+            throw handleClientException(ERROR_CODE_ORGANIZATION_ID_UNDEFINED);
         }
 
         Organization organization = organizationManagementDAO.getOrganization(organizationId);
+        if (organization == null) {
+            throw handleClientException(ERROR_CODE_INVALID_ORGANIZATION, organizationId);
+        }
+
         resolveInheritedOrganizationVersion(organization);
         return organization.getVersion();
     }
