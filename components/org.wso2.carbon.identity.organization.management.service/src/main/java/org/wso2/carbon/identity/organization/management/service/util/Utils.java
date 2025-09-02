@@ -793,7 +793,7 @@ public class Utils {
     /**
      * Is the Super Organization display name enabled in notification templates.
      *
-     * @return True if emails will use "Super" instead of "carbon.super" as the organization name.
+     * @return True if super organization name is used in notification templates instead of tenant domain.
      */
     public static boolean isSuperOrgNameSupportedInNotificationTemplates() {
 
