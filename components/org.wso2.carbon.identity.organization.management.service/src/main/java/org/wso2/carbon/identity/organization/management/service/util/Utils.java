@@ -62,6 +62,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CREATING_NEW_SYSTEM_ROLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_CARBON_ROLE_VALIDATION_ENABLED_FOR_LEVEL_ONE_ORGS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_ORG_QUALIFIED_URLS_SUPPORTED_FOR_LEVEL_ONE_ORGS;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_SUPER_ORG_NAME_SUPPORTED_IN_NOTIFICATION_TEMPLATES;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationVersion.ORG_VERSION_DELIMITER_REGEX;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationVersion.ORG_VERSION_PREFIX;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATH_SEPARATOR;
@@ -789,4 +790,14 @@ public class Utils {
         return htmlContentPattern.matcher(orgName).find();
     }
 
+    /**
+     * Is the Super Organization display name enabled in notification templates.
+     *
+     * @return True if emails will use "Super" instead of "carbon.super" as the organization name.
+     */
+    public static boolean isSuperOrgNameSupportedInNotificationTemplates() {
+
+        return Boolean.parseBoolean(
+                OrganizationManagementConfigUtil.getProperty(IS_SUPER_ORG_NAME_SUPPORTED_IN_NOTIFICATION_TEMPLATES));
+    }
 }

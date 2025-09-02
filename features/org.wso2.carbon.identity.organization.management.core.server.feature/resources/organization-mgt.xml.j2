@@ -101,4 +101,13 @@
     <OrganizationVersioning>
             <NewOrganizationVersion>{{organization_management.organization_versioning.new_organization_version}}</NewOrganizationVersion>
     </OrganizationVersioning>
+
+    <!--
+        Set this to 'false' to disable sending "Super" as the display name instead of "carbon.super" in email templates.
+    -->
+    <NotificationTemplates>
+        <SuperOrganizationDisplayName>
+            <Enable>{{notification_templates.super_organization_display_name.enable}}</Enable>
+        </SuperOrganizationDisplayName>
+    </NotificationTemplates>
 </OrganizationManagement>

@@ -145,6 +145,8 @@ public class OrganizationManagementConstants {
     public static final String ORGANIZATION_USER_INVITATION_PRIMARY_USER_DOMAIN =
             "OrganizationUserInvitation.PrimaryUserDomain";
     public static final String ORGANIZATION_DISCOVERY_DEFAULT_PARAM = "OrganizationDiscovery.DefaultParam";
+    public static final String IS_SUPER_ORG_NAME_SUPPORTED_IN_NOTIFICATION_TEMPLATES =
+            "NotificationTemplates.SuperOrganizationDisplayName.Enable";
     public static final String DEFAULT_DISCOVERY_DEFAULT_PARAM = "orgName";
 
     /**
