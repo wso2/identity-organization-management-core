@@ -27,6 +27,7 @@ public class BasicOrganization {
     private String id;
     private String name;
     private String status;
+    private String version;
     private String created;
     private String organizationHandle;
     private boolean hasChildren;
@@ -69,6 +70,26 @@ public class BasicOrganization {
     public void setStatus(String status) {
 
         this.status = status;
+    }
+
+    /**
+     * Returns the version of the organization.
+     *
+     * @return The version of the organization.
+     */
+    public String getVersion() {
+
+        return version;
+    }
+
+    /**
+     * Sets the version of the organization.
+     *
+     * @param version The version to set.
+     */
+    public void setVersion(String version) {
+
+        this.version = version;
     }
 
     /**

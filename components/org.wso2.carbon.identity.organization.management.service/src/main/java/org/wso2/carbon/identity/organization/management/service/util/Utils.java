@@ -60,6 +60,8 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_SUB_ORG_LEVEL;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_DB_METADATA;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CREATING_NEW_SYSTEM_ROLE;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_ORGANIZATION;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_NOT_FOUND_FOR_TENANT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_CARBON_ROLE_VALIDATION_ENABLED_FOR_LEVEL_ONE_ORGS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_ORG_QUALIFIED_URLS_SUPPORTED_FOR_LEVEL_ONE_ORGS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_SUPER_ORG_NAME_SUPPORTED_IN_NOTIFICATION_TEMPLATES;
@@ -615,7 +617,7 @@ public class Utils {
     /**
      * Check whether claim and OIDC claim inheritance is enabled for the organization identified by the given tenant
      * domain.
-     *
+     * <p>
      * Claim and OIDC claim inheritance is considered to be enabled if the organization version is
      * equal to or greater than v1.0.0
      *
@@ -643,8 +645,28 @@ public class Utils {
     private static boolean isOrgVersionApplicable(String tenantDomain, String minimumApplicableVersion)
             throws OrganizationManagementException {
 
-        String orgVersion = organizationManager.getOrganizationVersion(
-                organizationManager.resolveOrganizationId(tenantDomain));
+        String orgVersion;
+        try {
+            orgVersion = organizationManager.getOrganizationVersion(
+                    organizationManager.resolveOrganizationId(tenantDomain));
+        } catch (OrganizationManagementException e) {
+            if (ERROR_CODE_INVALID_ORGANIZATION.getCode().equals(e.getErrorCode()) ||
+                    ERROR_CODE_ORGANIZATION_NOT_FOUND_FOR_TENANT.getCode().equals(e.getErrorCode())) {
+                /*
+                 * If the organization is not found, it means the organization related to the given tenant is deleted.
+                 * In this case, it is not possible to inherit resources since the organization hierarchy cannot be
+                 * resolved. Hence, return false.
+                 */
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("The organization for tenant domain: " + tenantDomain + " is not found. Hence, " +
+                            "returning false for org version applicability check for minimum applicable version: " +
+                            minimumApplicableVersion);
+                }
+                return false;
+            }
+            throw e;
+        }
+
         if (StringUtils.isBlank(orgVersion) || StringUtils.isBlank(minimumApplicableVersion)) {
             return false;
         }
