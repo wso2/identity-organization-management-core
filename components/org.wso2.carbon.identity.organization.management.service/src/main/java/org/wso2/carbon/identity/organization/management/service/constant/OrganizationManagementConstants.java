@@ -148,6 +148,7 @@ public class OrganizationManagementConstants {
     public static final String IS_SUPER_ORG_NAME_SUPPORTED_IN_NOTIFICATION_TEMPLATES =
             "NotificationTemplates.SuperOrganizationDisplayName.Enable";
     public static final String DEFAULT_DISCOVERY_DEFAULT_PARAM = "orgName";
+    public static final String ADAPTIVE_AUTH_ENABLE_CONFIG_FOR_SHARED_APPS = "AdaptiveAuth.SharedApplications.Enable";
 
     /**
      * Contains constants related to organization versioning.

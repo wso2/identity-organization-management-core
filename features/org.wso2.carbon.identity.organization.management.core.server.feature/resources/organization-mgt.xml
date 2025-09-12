@@ -99,4 +99,10 @@
             <Enable>true</Enable>
         </SuperOrganizationDisplayName>
     </NotificationTemplates>
+
+    <AdaptiveAuth>
+        <SharedApplications>
+            <Enable>{{authentication.adaptive.shared_applications.enable}}</Enable>
+        </SharedApplications>
+    </AdaptiveAuth>
 </OrganizationManagement>
