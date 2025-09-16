@@ -102,7 +102,7 @@
 
     <AdaptiveAuth>
         <SharedApplications>
-            <Enable>{{authentication.adaptive.shared_applications.enable}}</Enable>
+            <Enable>false</Enable>
         </SharedApplications>
     </AdaptiveAuth>
 </OrganizationManagement>
