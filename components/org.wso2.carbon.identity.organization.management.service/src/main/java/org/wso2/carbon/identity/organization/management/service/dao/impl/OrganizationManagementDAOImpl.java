@@ -98,6 +98,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_PERMISSIONS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_STATUS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_TYPE;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_ORG_VERSION;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_PARENT_ORGANIZATION_STATUS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_RELATIVE_ORGANIZATION_DEPTH_IN_BRANCH;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_RETRIEVING_TENANT_UUID;
@@ -191,6 +192,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_TYPE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_UUID_FROM_TENANT_DOMAIN;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_UUID_FROM_TENANT_ID;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORGANIZATION_VERSION;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORG_WITH_VERSION_AND_USER_ASSOCIATIONS_INCLUDING_ORG_HANDLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORG_WITH_VERSION_AND_USER_ROLE_ASSOCIATIONS_INCLUDING_ORG_HANDLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.GET_ORG_WITH_VERSION_BY_ID;
@@ -1606,6 +1608,21 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
         } catch (DataAccessException e) {
             throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_MINIMAL_ORGANIZATION_DETAILS_BY_ORGANIZATION_ID, e,
                     organizationId);
+        }
+    }
+
+    @Override
+    public Optional<String> getOrganizationVersion(String organizationId, String tenantDomain)
+            throws OrganizationManagementException {
+
+        NamedJdbcTemplate namedJdbcTemplate = Utils.getNewTemplate();
+        try {
+            return Optional.ofNullable(namedJdbcTemplate.fetchSingleRecord(GET_ORGANIZATION_VERSION,
+                    (resultSet, rowNumber) -> resultSet.getString(1),
+                    namedPreparedStatement ->
+                            namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, organizationId)));
+        } catch (DataAccessException e) {
+            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORG_VERSION, e, organizationId, tenantDomain);
         }
     }
 

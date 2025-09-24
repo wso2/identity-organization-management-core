@@ -26,6 +26,8 @@ import org.wso2.carbon.identity.organization.management.service.cache.MinimalOrg
 import org.wso2.carbon.identity.organization.management.service.cache.OrganizationDetailsCacheByOrgId;
 import org.wso2.carbon.identity.organization.management.service.cache.OrganizationDetailsCacheEntry;
 import org.wso2.carbon.identity.organization.management.service.cache.OrganizationIdCacheKey;
+import org.wso2.carbon.identity.organization.management.service.cache.OrganizationVersionCache;
+import org.wso2.carbon.identity.organization.management.service.cache.OrganizationVersionCacheEntry;
 import org.wso2.carbon.identity.organization.management.service.cache.TenantDomainCacheByOrgId;
 import org.wso2.carbon.identity.organization.management.service.cache.TenantDomainCacheEntry;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
@@ -490,6 +492,28 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         return minimalOrganization;
     }
 
+    @Override
+    public Optional<String> getOrganizationVersion(String organizationId, String tenantDomain)
+            throws OrganizationManagementException {
+
+        OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
+        OrganizationVersionCacheEntry cacheEntry = OrganizationVersionCache.getInstance()
+                .getValueFromCache(cacheKey, tenantDomain);
+        if (cacheEntry != null) {
+            return Optional.of(cacheEntry.getVersion());
+        }
+
+        Optional<String> version = organizationMgtDAO.getOrganizationVersion(organizationId, tenantDomain);
+        if (!version.isPresent()) {
+            // Can be null if the organization does not exist. Error is handled in the service layer.
+            return version;
+        }
+
+        cacheEntry = new OrganizationVersionCacheEntry(version.get());
+        OrganizationVersionCache.getInstance().addToCache(cacheKey, cacheEntry, tenantDomain);
+        return version;
+    }
+
     private TenantDomainCacheEntry getTenantDomainFromCache(String organizationId) {
 
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
@@ -574,6 +598,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
 
         clearOrganizationDetailsCache(organizationId, tenantDomain);
         clearMinimalOrganizationCache(organizationId, tenantDomain);
+        clearOrganizationVersionCache(organizationId, tenantDomain);
     }
 
     private void clearOrganizationDetailsCache(String organizationId, String tenantDomain) {
@@ -586,5 +611,11 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
 
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
         MinimalOrganizationCacheByOrgId.getInstance().clearCacheEntry(cacheKey, tenantDomain);
+    }
+
+    private void clearOrganizationVersionCache(String organizationId, String tenantDomain) {
+
+        OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
+        OrganizationVersionCache.getInstance().clearCacheEntry(cacheKey, tenantDomain);
     }
 }
