@@ -1622,7 +1622,7 @@ public class OrganizationManagementDAOImpl implements OrganizationManagementDAO 
                     namedPreparedStatement ->
                             namedPreparedStatement.setString(DB_SCHEMA_COLUMN_NAME_ID, organizationId)));
         } catch (DataAccessException e) {
-            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORG_VERSION, e, organizationId, tenantDomain);
+            throw handleServerException(ERROR_CODE_ERROR_RETRIEVING_ORG_VERSION, e, organizationId);
         }
     }
 
