@@ -50,6 +50,11 @@
                    timeout="{{cache.tenant_domain_cache_by_orgid.timeout | default(900)}}"
                    capacity="{{cache.tenant_domain_cache_by_orgid.capacity | default(5000)}}"
                    isDistributed="false"/>
+            <Cache id="organization_version_cache" name="OrganizationVersionCache"
+                   enable="{{cache.organization_version_cache.enable | default(true)}}"
+                   timeout="{{cache.organization_version_cache.timeout | default(900)}}"
+                   capacity="{{cache.organization_version_cache.capacity | default(5000)}}"
+                   isDistributed="false"/>
 	    </CacheManager>
     </CacheConfig>
 

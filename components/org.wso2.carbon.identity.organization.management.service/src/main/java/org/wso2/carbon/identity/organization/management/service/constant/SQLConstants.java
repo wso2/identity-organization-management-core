@@ -593,6 +593,9 @@ public class SQLConstants {
             "UM_ORG_HIERARCHY H WHERE H.UM_ID = U.UM_ID ORDER BY H.DEPTH DESC) AS DEPTH FROM UM_ORG U JOIN " +
             "UM_TENANT T ON U.UM_ID = T.UM_ORG_UUID WHERE U.UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";";
 
+    public static final String GET_ORGANIZATION_VERSION = "SELECT UM_ORG_VERSION FROM UM_ORG WHERE UM_ID = :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";";
+
     /**
      * SQL Placeholders.
      */

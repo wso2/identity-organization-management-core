@@ -865,7 +865,9 @@ public class OrganizationManagementConstants {
                 "Unable to retrieve minimal organization details by organization ids.",
                 "An error occurred while retrieving minimal organization details for organization id: %s"),
         ERROR_CODE_ERROR_CHECKING_ORGANIZATION_BY_NAME("65155", "Failed to check organization by name.",
-                "Error while checking organizations by a given name.");
+                "Error while checking organizations by a given name."),
+        ERROR_CODE_ERROR_RETRIEVING_ORG_VERSION("65156", "Unable to retrieve the organization version.",
+                "Server encountered an error while retrieving the version of the organization with ID: %s.");
 
         private final String code;
         private final String message;

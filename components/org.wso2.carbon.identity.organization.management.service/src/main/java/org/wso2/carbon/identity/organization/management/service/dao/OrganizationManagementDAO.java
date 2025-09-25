@@ -525,4 +525,19 @@ public interface OrganizationManagementDAO {
         throw new OrganizationManagementServerException("getBasicOrganization is not implemented in "
                 + this.getClass().getName());
     }
+
+    /**
+     * Retrieve the version of an organization.
+     *
+     * @param organizationId The organization id.
+     * @param tenantDomain   The tenant domain of the organization.
+     * @return An optional containing the organization version if it exists.
+     * @throws OrganizationManagementException If an error occurs while retrieving the organization version.
+     */
+    default Optional<String> getOrganizationVersion(String organizationId, String tenantDomain)
+            throws OrganizationManagementException {
+
+        throw new NotImplementedException("getOrganizationVersion is not implemented in "
+                + this.getClass().getName());
+    }
 }

@@ -66,6 +66,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -434,17 +435,20 @@ public class OrganizationManagerImpl implements OrganizationManager {
     @Override
     public String getOrganizationVersion(String organizationId) throws OrganizationManagementException {
 
-        if (StringUtils.isEmpty(organizationId)) {
-            throw handleClientException(ERROR_CODE_ORGANIZATION_ID_UNDEFINED);
+        String tenantDomain = resolveTenantDomain(organizationId);
+        if (OrganizationManagementUtil.isOrganization(tenantDomain)) {
+            // If the given organization ID is of a sub-organization, fetch the version of the primary organization.
+            organizationId = getPrimaryOrganizationId(organizationId);
+            tenantDomain = resolveTenantDomain(organizationId);
         }
 
-        Organization organization = organizationManagementDAO.getOrganization(organizationId);
-        if (organization == null) {
+        Optional<String> organizationVersion = organizationManagementDAO.getOrganizationVersion(organizationId,
+                tenantDomain);
+        if (!organizationVersion.isPresent()) {
             throw handleClientException(ERROR_CODE_INVALID_ORGANIZATION, organizationId);
         }
 
-        resolveInheritedOrganizationVersion(organization);
-        return organization.getVersion();
+        return organizationVersion.get();
     }
 
     private List<BasicOrganization> resolveInheritedBasicOrganizationVersions(
