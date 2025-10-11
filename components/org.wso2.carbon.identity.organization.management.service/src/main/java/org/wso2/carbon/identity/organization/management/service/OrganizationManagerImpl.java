@@ -847,7 +847,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         if (SUPER_ORG_ID.equals(organizationId)) {
             return new MinimalOrganization.Builder()
                     .id(SUPER_ORG_ID)
-                    .name(SUPER)
+                    .name(OrganizationManagementUtil.getSuperRootOrgName())
                     .organizationHandle(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME)
                     .depth(0)
                     .build();
