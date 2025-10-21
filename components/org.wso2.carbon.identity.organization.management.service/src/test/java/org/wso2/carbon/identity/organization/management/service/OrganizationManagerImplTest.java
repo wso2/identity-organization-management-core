@@ -867,7 +867,7 @@ public class OrganizationManagerImplTest {
 
         TestUtils.mockCarbonContext(SUPER_ORG_ID);
 
-        // Non-recursive test case (only direct children)
+        // Non-recursive test case (only direct children).
         List<String> directChildIds = organizationManager.getChildOrganizationsIds(SUPER_ORG_ID, false);
         Assert.assertNotNull(directChildIds);
         Assert.assertEquals(directChildIds.size(), 2);
@@ -875,7 +875,7 @@ public class OrganizationManagerImplTest {
         Assert.assertTrue(directChildIds.contains(ORG3_ID));
         Assert.assertFalse(directChildIds.contains(ORG2_ID));
 
-        // Recursive test case (all levels of children)
+        // Recursive test case (all levels of children).
         List<String> recursiveChildIds = organizationManager.getChildOrganizationsIds(SUPER_ORG_ID, true);
         Assert.assertNotNull(recursiveChildIds);
         Assert.assertEquals(recursiveChildIds.size(), 3);
