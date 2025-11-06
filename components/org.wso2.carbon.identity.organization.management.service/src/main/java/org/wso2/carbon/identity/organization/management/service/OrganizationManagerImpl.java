@@ -490,8 +490,12 @@ public class OrganizationManagerImpl implements OrganizationManager {
 
         if (OrganizationManagementUtil.isOrganization(resolveTenantDomain(organization.getId()))) {
             String primaryOrgId = getPrimaryOrganizationId(organization.getId());
-            String primaryOrgVersion = organizationManagementDAO.getOrganization(primaryOrgId).getVersion();
-            organization.setVersion(primaryOrgVersion);
+            Optional<String> primaryOrgVersion =
+                    organizationManagementDAO.getOrganizationVersion(primaryOrgId, resolveTenantDomain(primaryOrgId));
+            if (!primaryOrgVersion.isPresent()) {
+                throw handleClientException(ERROR_CODE_INVALID_ORGANIZATION, primaryOrgId);
+            }
+            organization.setVersion(primaryOrgVersion.get());
         }
     }
 
