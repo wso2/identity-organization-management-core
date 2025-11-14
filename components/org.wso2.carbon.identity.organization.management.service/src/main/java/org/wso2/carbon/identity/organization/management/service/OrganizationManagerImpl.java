@@ -22,6 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.annotation.bundle.Capability;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
@@ -174,6 +175,13 @@ import static org.wso2.carbon.stratos.common.constants.TenantConstants.ErrorMess
 /**
  * This class implements the {@link OrganizationManager} interface.
  */
+@Capability(
+        namespace = "osgi.service",
+        attribute = {
+                "objectClass=org.wso2.carbon.identity.organization.management.service.OrganizationManager",
+                "service.scope=singleton"
+        }
+)
 public class OrganizationManagerImpl implements OrganizationManager {
 
     private static final Log LOG = LogFactory.getLog(OrganizationManagerImpl.class);
