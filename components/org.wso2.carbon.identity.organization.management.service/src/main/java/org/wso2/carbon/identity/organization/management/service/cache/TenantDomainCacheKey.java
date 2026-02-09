@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.organization.management.service.cache;
 
+import java.util.Objects;
+
 /**
  * Tenant domain cache key.
  */
@@ -52,14 +54,14 @@ public class TenantDomainCacheKey extends CacheKey {
 
         TenantDomainCacheKey that = (TenantDomainCacheKey) o;
 
-        return tenantDomain.equals(that.tenantDomain);
+        return this.tenantDomain.equals(that.tenantDomain);
     }
 
     @Override
     public int hashCode() {
 
         int result = super.hashCode();
-        result = 31 * result + tenantDomain.hashCode();
+        result = 31 * result + Objects.hashCode(tenantDomain);
         return result;
     }
 }
