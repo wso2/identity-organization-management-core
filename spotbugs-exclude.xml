@@ -27,4 +27,7 @@
     <Match>
         <Bug pattern="MS_EXPOSE_REP"/>
     </Match>
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
 </FindBugsFilter>
