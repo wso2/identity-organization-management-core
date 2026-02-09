@@ -25,7 +25,10 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.wso2.carbon.identity.organization.management.service.cache.MinimalOrganizationCacheByOrgId;
 import org.wso2.carbon.identity.organization.management.service.cache.MinimalOrganizationCacheEntry;
+import org.wso2.carbon.identity.organization.management.service.cache.OrganizationIdCacheByTenantDomain;
+import org.wso2.carbon.identity.organization.management.service.cache.OrganizationIdCacheEntry;
 import org.wso2.carbon.identity.organization.management.service.cache.OrganizationIdCacheKey;
+import org.wso2.carbon.identity.organization.management.service.cache.TenantDomainCacheKey;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.model.MinimalOrganization;
@@ -35,6 +38,7 @@ import org.wso2.carbon.identity.organization.management.util.TestUtils;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -42,6 +46,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -98,7 +103,9 @@ public class CacheBackedOrganizationManagementDAOTest {
     @BeforeMethod
     public void init() throws Exception {
 
+        reset(organizationManagementDAO);
         minimalOrganizationCache.clear(TEST_ORG_TENANT_DOMAIN);
+        OrganizationIdCacheByTenantDomain.getInstance().clear(SUPER_TENANT_DOMAIN_NAME);
         doReturn(TEST_ORG_TENANT_DOMAIN).when(organizationManagementDAO).resolveTenantDomain(TEST_ORG_ID);
     }
 
@@ -197,5 +204,78 @@ public class CacheBackedOrganizationManagementDAOTest {
         MinimalOrganizationCacheEntry cachedOrgEntry = minimalOrganizationCache.getValueFromCache(
                 new OrganizationIdCacheKey(TEST_ORG_ID), TEST_ORG_TENANT_DOMAIN);
         assertNull(cachedOrgEntry);
+    }
+
+    @Test
+    public void testResolveOrganizationIdForSuperTenant() throws OrganizationManagementException {
+
+        Optional<String> result = cacheBackedOrganizationManagementDAO.resolveOrganizationId(
+                SUPER_TENANT_DOMAIN_NAME);
+
+        // Should return SUPER_ORG_ID directly without calling DAO
+        assertNotNull(result);
+        result.ifPresent(s -> assertEquals(s, SUPER_ORG_ID));
+    }
+
+    @Test
+    public void testResolveOrganizationIdFromCache() throws OrganizationManagementException {
+
+        OrganizationIdCacheByTenantDomain organizationIdCache = OrganizationIdCacheByTenantDomain.getInstance();
+        organizationIdCache.addToCache(new TenantDomainCacheKey(TEST_ORG_TENANT_DOMAIN),
+                new OrganizationIdCacheEntry(TEST_ORG_ID), SUPER_TENANT_DOMAIN_NAME);
+
+        Optional<String> result = cacheBackedOrganizationManagementDAO.resolveOrganizationId(
+                TEST_ORG_TENANT_DOMAIN);
+
+        assertNotNull(result);
+        assertEquals(result.get(), TEST_ORG_ID);
+        verify(organizationManagementDAO, never()).resolveOrganizationId(any());
+
+        // Cleanup
+        organizationIdCache.clear(SUPER_TENANT_DOMAIN_NAME);
+    }
+
+    @Test
+    public void testResolveOrganizationIdFromDB() throws OrganizationManagementException {
+
+        doReturn(Optional.of(TEST_ORG_ID)).when(organizationManagementDAO)
+                .resolveOrganizationId(TEST_ORG_TENANT_DOMAIN);
+
+        Optional<String> result = cacheBackedOrganizationManagementDAO.resolveOrganizationId(
+                TEST_ORG_TENANT_DOMAIN);
+
+        assertNotNull(result);
+        assertEquals(result.get(), TEST_ORG_ID);
+        verify(organizationManagementDAO).resolveOrganizationId(TEST_ORG_TENANT_DOMAIN);
+
+        // Check cache
+        OrganizationIdCacheByTenantDomain organizationIdCache = OrganizationIdCacheByTenantDomain.getInstance();
+        OrganizationIdCacheEntry cachedOrgId = organizationIdCache.getValueFromCache(
+                new TenantDomainCacheKey(TEST_ORG_TENANT_DOMAIN), SUPER_TENANT_DOMAIN_NAME);
+        assertNotNull(cachedOrgId);
+        assertEquals(cachedOrgId.getOrganizationId(), TEST_ORG_ID);
+
+        // Cleanup
+        organizationIdCache.clear(SUPER_TENANT_DOMAIN_NAME);
+    }
+
+    @Test
+    public void testResolveOrganizationIdReturnsEmpty() throws OrganizationManagementException {
+
+        doReturn(Optional.empty()).when(organizationManagementDAO)
+                .resolveOrganizationId(TEST_ORG_TENANT_DOMAIN);
+
+        Optional<String> result = cacheBackedOrganizationManagementDAO.resolveOrganizationId(
+                TEST_ORG_TENANT_DOMAIN);
+
+        assertNotNull(result);
+        assertEquals(result, Optional.empty());
+        verify(organizationManagementDAO).resolveOrganizationId(TEST_ORG_TENANT_DOMAIN);
+
+        // Cache should not have entry when organization is not found
+        OrganizationIdCacheByTenantDomain organizationIdCache = OrganizationIdCacheByTenantDomain.getInstance();
+        OrganizationIdCacheEntry cachedOrgId = organizationIdCache.getValueFromCache(
+                new TenantDomainCacheKey(TEST_ORG_TENANT_DOMAIN), SUPER_TENANT_DOMAIN_NAME);
+        assertNull(cachedOrgId);
     }
  }
