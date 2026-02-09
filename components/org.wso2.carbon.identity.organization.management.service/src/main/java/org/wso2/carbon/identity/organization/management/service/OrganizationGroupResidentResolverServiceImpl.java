@@ -59,7 +59,8 @@ public class OrganizationGroupResidentResolverServiceImpl implements Organizatio
                     ancestorOrganizationIds.remove(ancestorOrganizationIds.size() - 1);
                 }
                 for (String organizationId : ancestorOrganizationIds) {
-                    String associatedTenantDomainForOrg = resolveTenantDomainForOrg(organizationId);
+                    String associatedTenantDomainForOrg = OrganizationManagementDataHolder.getInstance()
+                            .getOrganizationManager().resolveTenantDomain(organizationId);
                     if (StringUtils.isBlank(associatedTenantDomainForOrg)) {
                         continue;
                     }
@@ -74,14 +75,6 @@ public class OrganizationGroupResidentResolverServiceImpl implements Organizatio
             throw handleServerException(ERROR_CODE_ERROR_WHILE_RESOLVING_GROUPS_ROOT_ORG, e, groupId);
         }
         return Optional.ofNullable(residentOrgId);
-    }
-
-    private String resolveTenantDomainForOrg(String organizationId) throws OrganizationManagementServerException {
-
-        if (StringUtils.equals(SUPER_ORG_ID, organizationId)) {
-            return MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-        }
-        return organizationManagementDAO.resolveTenantDomain(organizationId);
     }
 
     private AbstractUserStoreManager getUserStoreManager(String tenantDomain) throws UserStoreException {

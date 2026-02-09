@@ -25,11 +25,14 @@ import org.wso2.carbon.identity.organization.management.service.cache.MinimalOrg
 import org.wso2.carbon.identity.organization.management.service.cache.MinimalOrganizationCacheEntry;
 import org.wso2.carbon.identity.organization.management.service.cache.OrganizationDetailsCacheByOrgId;
 import org.wso2.carbon.identity.organization.management.service.cache.OrganizationDetailsCacheEntry;
+import org.wso2.carbon.identity.organization.management.service.cache.OrganizationIdCacheByTenantDomain;
+import org.wso2.carbon.identity.organization.management.service.cache.OrganizationIdCacheEntry;
 import org.wso2.carbon.identity.organization.management.service.cache.OrganizationIdCacheKey;
 import org.wso2.carbon.identity.organization.management.service.cache.OrganizationVersionCache;
 import org.wso2.carbon.identity.organization.management.service.cache.OrganizationVersionCacheEntry;
 import org.wso2.carbon.identity.organization.management.service.cache.TenantDomainCacheByOrgId;
 import org.wso2.carbon.identity.organization.management.service.cache.TenantDomainCacheEntry;
+import org.wso2.carbon.identity.organization.management.service.cache.TenantDomainCacheKey;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
@@ -348,7 +351,16 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
     @Override
     public Optional<String> resolveOrganizationId(String tenantDomain) throws OrganizationManagementServerException {
 
-        return organizationMgtDAO.resolveOrganizationId(tenantDomain);
+        if (StringUtils.equals(SUPER_TENANT_DOMAIN_NAME, tenantDomain)) {
+            return Optional.of(SUPER_ORG_ID);
+        }
+        OrganizationIdCacheEntry cachedOrganizationId = getOrganizationIdFromCache(tenantDomain);
+        if (cachedOrganizationId != null) {
+            return Optional.of(cachedOrganizationId.getOrganizationId());
+        }
+        Optional<String> organizationId = organizationMgtDAO.resolveOrganizationId(tenantDomain);
+        organizationId.ifPresent(s -> addOrganizationIdToCache(tenantDomain, s));
+        return organizationId;
     }
 
     @Override
@@ -521,6 +533,13 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         return cache.getValueFromCache(cacheKey, SUPER_TENANT_DOMAIN_NAME);
     }
 
+    private OrganizationIdCacheEntry getOrganizationIdFromCache(String tenantDomain) {
+
+        TenantDomainCacheKey cacheKey = new TenantDomainCacheKey(tenantDomain);
+        OrganizationIdCacheByTenantDomain cache = OrganizationIdCacheByTenantDomain.getInstance();
+        return cache.getValueFromCache(cacheKey, SUPER_TENANT_DOMAIN_NAME);
+    }
+
     private void addTenantDomainToCache(String organizationId, String tenantDomain) {
 
         if (StringUtils.isBlank(tenantDomain) || StringUtils.isBlank(organizationId)) {
@@ -529,6 +548,17 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
         TenantDomainCacheEntry cacheEntry = new TenantDomainCacheEntry(tenantDomain);
         TenantDomainCacheByOrgId.getInstance()
+                .addToCache(cacheKey, cacheEntry, SUPER_TENANT_DOMAIN_NAME);
+    }
+
+    private void addOrganizationIdToCache(String tenantDomain, String organizationId) {
+
+        if (StringUtils.isBlank(tenantDomain) || StringUtils.isBlank(organizationId)) {
+            return;
+        }
+        TenantDomainCacheKey cacheKey = new TenantDomainCacheKey(tenantDomain);
+        OrganizationIdCacheEntry cacheEntry = new OrganizationIdCacheEntry(organizationId);
+        OrganizationIdCacheByTenantDomain.getInstance()
                 .addToCache(cacheKey, cacheEntry, SUPER_TENANT_DOMAIN_NAME);
     }
 

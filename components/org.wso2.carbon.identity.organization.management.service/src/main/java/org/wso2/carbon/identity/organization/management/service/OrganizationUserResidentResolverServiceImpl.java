@@ -213,13 +213,14 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
         return Optional.ofNullable(username);
     }
 
-    private String resolveTenantDomainForOrg(String organizationId) throws OrganizationManagementServerException {
+    private String resolveTenantDomainForOrg(String organizationId) throws OrganizationManagementException {
 
         if (StringUtils.equals(SUPER_ORG_ID, organizationId)) {
             // super tenant domain will be returned.
             return MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         }
-        return organizationManagementDAO.resolveTenantDomain(organizationId);
+        return OrganizationManagementDataHolder.getInstance().getOrganizationManager()
+                .resolveTenantDomain(organizationId);
     }
 
     private AbstractUserStoreManager getUserStoreManager(String tenantDomain) throws UserStoreException {
