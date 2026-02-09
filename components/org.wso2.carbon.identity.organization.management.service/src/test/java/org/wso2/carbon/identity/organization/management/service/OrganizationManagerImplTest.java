@@ -33,6 +33,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.organization.management.service.authz.OrganizationManagementAuthorizationManager;
+import org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationStatus;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
 import org.wso2.carbon.identity.organization.management.service.dao.impl.OrganizationManagementDAOImpl;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementClientException;
@@ -1157,6 +1159,16 @@ public class OrganizationManagerImplTest {
         basicOrganization = organizationManager.getBasicOrganizationDetailsByOrgIDs(
                 Collections.singletonList(ORG1_ID)).get(ORG1_ID);
         assertFalse(basicOrganization.hasChildren());
+    }
+
+    @Test
+    void testSingletonInstances() {
+        OrganizationManagementAuthorizationManager authManager = 
+                            OrganizationManagementAuthorizationManager.getInstance();
+        assertNotNull(authManager);
+
+        OrganizationManagementDataHolder dataHolder = OrganizationManagementDataHolder.getInstance();
+        assertNotNull(dataHolder);
     }
 
     private void setOrganizationAttributes(Organization organization, String key, String value) {
