@@ -54,7 +54,7 @@ public class TenantDomainCacheKey extends CacheKey {
 
         TenantDomainCacheKey that = (TenantDomainCacheKey) o;
 
-        return this.tenantDomain.equals(that.tenantDomain);
+        return Objects.equals(this.tenantDomain, that.tenantDomain);
     }
 
     @Override
