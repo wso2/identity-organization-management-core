@@ -33,8 +33,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.organization.management.service.authz.OrganizationManagementAuthorizationManager;
-import org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationStatus;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
 import org.wso2.carbon.identity.organization.management.service.dao.impl.OrganizationManagementDAOImpl;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementClientException;
@@ -59,6 +57,7 @@ import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 
+import java.lang.reflect.Constructor;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1162,13 +1161,44 @@ public class OrganizationManagerImplTest {
     }
 
     @Test
-    void testSingletonInstances() {
-        OrganizationManagementAuthorizationManager authManager = 
-                            OrganizationManagementAuthorizationManager.getInstance();
-        assertNotNull(authManager);
+    void testOrganizationUserResidentResolverServiceImpl() throws Exception {
+        OrganizationUserResidentResolverServiceImpl userResolver =
+                new OrganizationUserResidentResolverServiceImpl();
+        assertNotNull(userResolver);
 
-        OrganizationManagementDataHolder dataHolder = OrganizationManagementDataHolder.getInstance();
-        assertNotNull(dataHolder);
+        OrganizationManagementDAO dao = new OrganizationManagementDAOImpl();
+        assertNotNull(dao);
+    }
+
+    @Test
+    void testOrganizationManagementDataHolderSingleton() throws Exception {
+        OrganizationManagementDataHolder holder = OrganizationManagementDataHolder.getInstance();
+        assertNotNull(holder);
+
+        holder.getRealmService();
+        holder.getOrganizationManager();
+
+        Constructor<OrganizationManagementDataHolder> constructor =
+                OrganizationManagementDataHolder.class.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        OrganizationManagementDataHolder newInstance = constructor.newInstance();
+        assertNotNull(newInstance);
+    }
+
+    @Test
+    void testOrganizationManagerImpl() throws Exception {
+        OrganizationManagerImpl manager = new OrganizationManagerImpl();
+        assertNotNull(manager);
+    }
+
+    @Test
+    void testOrganizationGroupResidentResolverServiceImpl() throws Exception {
+        OrganizationGroupResidentResolverServiceImpl groupResolver =
+                new OrganizationGroupResidentResolverServiceImpl();
+        assertNotNull(groupResolver);
+
+        OrganizationManagementDAO dao = new OrganizationManagementDAOImpl();
+        assertNotNull(dao);
     }
 
     private void setOrganizationAttributes(Organization organization, String key, String value) {

@@ -175,7 +175,6 @@ import static org.wso2.carbon.stratos.common.constants.TenantConstants.ErrorMess
 /**
  * This class implements the {@link OrganizationManager} interface.
  */
-// coverage:ignore
 @Capability(
         namespace = "osgi.service",
         attribute = {
