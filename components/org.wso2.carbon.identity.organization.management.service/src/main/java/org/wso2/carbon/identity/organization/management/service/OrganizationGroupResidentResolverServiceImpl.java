@@ -39,6 +39,7 @@ import static org.wso2.carbon.identity.organization.management.service.util.Util
 /**
  * Service implementation to resolve group's resident organization.
  */
+// coverage:ignore
 @Capability(
         namespace = "osgi.service",
         attribute = {
