@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.organization.management.service;
 
 import org.apache.commons.lang.StringUtils;
+import org.osgi.annotation.bundle.Capability;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
 import org.wso2.carbon.identity.organization.management.service.dao.impl.OrganizationManagementDAOImpl;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
@@ -38,6 +39,14 @@ import static org.wso2.carbon.identity.organization.management.service.util.Util
 /**
  * Service implementation to resolve group's resident organization.
  */
+@Capability(
+        namespace = "osgi.service",
+        attribute = {
+                "objectClass=org.wso2.carbon.identity.organization.management.service." +
+                        "OrganizationGroupResidentResolverService",
+                "service.scope=singleton"
+        }
+)
 public class OrganizationGroupResidentResolverServiceImpl implements OrganizationGroupResidentResolverService {
 
     private final OrganizationManagementDAO organizationManagementDAO = new OrganizationManagementDAOImpl();

@@ -57,6 +57,7 @@ import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 
+import java.lang.reflect.Constructor;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1157,6 +1158,47 @@ public class OrganizationManagerImplTest {
         basicOrganization = organizationManager.getBasicOrganizationDetailsByOrgIDs(
                 Collections.singletonList(ORG1_ID)).get(ORG1_ID);
         assertFalse(basicOrganization.hasChildren());
+    }
+
+    @Test
+    void testOrganizationUserResidentResolverServiceImpl() throws Exception {
+        OrganizationUserResidentResolverServiceImpl userResolver =
+                new OrganizationUserResidentResolverServiceImpl();
+        assertNotNull(userResolver);
+
+        OrganizationManagementDAO dao = new OrganizationManagementDAOImpl();
+        assertNotNull(dao);
+    }
+
+    @Test
+    void testOrganizationManagementDataHolderSingleton() throws Exception {
+        OrganizationManagementDataHolder holder = OrganizationManagementDataHolder.getInstance();
+        assertNotNull(holder);
+
+        holder.getRealmService();
+        holder.getOrganizationManager();
+
+        Constructor<OrganizationManagementDataHolder> constructor =
+                OrganizationManagementDataHolder.class.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        OrganizationManagementDataHolder newInstance = constructor.newInstance();
+        assertNotNull(newInstance);
+    }
+
+    @Test
+    void testOrganizationManagerImpl() throws Exception {
+        OrganizationManagerImpl manager = new OrganizationManagerImpl();
+        assertNotNull(manager);
+    }
+
+    @Test
+    void testOrganizationGroupResidentResolverServiceImpl() throws Exception {
+        OrganizationGroupResidentResolverServiceImpl groupResolver =
+                new OrganizationGroupResidentResolverServiceImpl();
+        assertNotNull(groupResolver);
+
+        OrganizationManagementDAO dao = new OrganizationManagementDAOImpl();
+        assertNotNull(dao);
     }
 
     private void setOrganizationAttributes(Organization organization, String key, String value) {
