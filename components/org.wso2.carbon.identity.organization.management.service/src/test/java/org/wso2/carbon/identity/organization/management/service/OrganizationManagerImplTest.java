@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.organization.management.service;
 
 import org.apache.commons.lang.StringUtils;
+import org.mockito.MockedStatic;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -42,8 +43,6 @@ import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -53,6 +52,7 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -141,17 +141,19 @@ public class OrganizationManagerImplTest {
         mockAuthorizationManager();
         when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(true);
 
-        OrganizationManagementAuthorizationManager authorizationManager =
-                mock(OrganizationManagementAuthorizationManager.class);
-        setFinalStatic(OrganizationManagementAuthorizationManager.class.getDeclaredField("INSTANCE"),
-                authorizationManager);
+        try (MockedStatic<OrganizationManagementAuthorizationManager> mockedStatic =
+                     mockStatic(OrganizationManagementAuthorizationManager.class)) {
+            OrganizationManagementAuthorizationManager orgAuthzManager =
+                    mock(OrganizationManagementAuthorizationManager.class);
+            mockedStatic.when(OrganizationManagementAuthorizationManager::getInstance)
+                    .thenReturn(orgAuthzManager);
 
-        when(OrganizationManagementAuthorizationManager.getInstance().isUserAuthorized(anyString(), anyString(),
-                anyString())).thenReturn(true);
+            when(orgAuthzManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(true);
 
-        Organization addedOrganization = organizationManager.addOrganization(sampleOrganization);
-        assertNotNull(addedOrganization.getId(), "Created organization id cannot be null");
-        assertEquals(addedOrganization.getName(), sampleOrganization.getName());
+            Organization addedOrganization = organizationManager.addOrganization(sampleOrganization);
+            assertNotNull(addedOrganization.getId(), "Created organization id cannot be null");
+            assertEquals(addedOrganization.getName(), sampleOrganization.getName());
+        }
     }
 
     @Test(expectedExceptions = OrganizationManagementClientException.class)
@@ -248,13 +250,17 @@ public class OrganizationManagerImplTest {
         mockCarbonContext();
         mockAuthorizationManager();
         when(authorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(false);
-        OrganizationManagementAuthorizationManager orgAuthorizationManager =
-                mock(OrganizationManagementAuthorizationManager.class);
-        setFinalStatic(OrganizationManagementAuthorizationManager.class.getDeclaredField("INSTANCE"),
-                orgAuthorizationManager);
-        when(orgAuthorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(false);
 
-        organizationManager.addOrganization(organization);
+        try (MockedStatic<OrganizationManagementAuthorizationManager> mockedStatic =
+                     mockStatic(OrganizationManagementAuthorizationManager.class)) {
+            OrganizationManagementAuthorizationManager orgAuthorizationManager =
+                    mock(OrganizationManagementAuthorizationManager.class);
+            mockedStatic.when(OrganizationManagementAuthorizationManager::getInstance)
+                    .thenReturn(orgAuthorizationManager);
+            when(orgAuthorizationManager.isUserAuthorized(anyString(), anyString(), anyString())).thenReturn(false);
+
+            organizationManager.addOrganization(organization);
+        }
     }
 
     @Test
@@ -531,16 +537,5 @@ public class OrganizationManagerImplTest {
         organization.setCreated(Instant.now());
         organization.setLastModified(Instant.now());
         return organization;
-    }
-
-    private void setFinalStatic(Field field, Object newValue) throws Exception {
-
-        field.setAccessible(true);
-
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-
-        field.set(null, newValue);
     }
 }
