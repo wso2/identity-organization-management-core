@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ * Copyright (c) 2023-2025, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,20 +19,34 @@
 package org.wso2.carbon.identity.organization.management.service.dao.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.organization.management.service.cache.MinimalOrganizationCacheByOrgId;
+import org.wso2.carbon.identity.organization.management.service.cache.MinimalOrganizationCacheEntry;
 import org.wso2.carbon.identity.organization.management.service.cache.OrganizationDetailsCacheByOrgId;
 import org.wso2.carbon.identity.organization.management.service.cache.OrganizationDetailsCacheEntry;
+import org.wso2.carbon.identity.organization.management.service.cache.OrganizationIdCacheByTenantDomain;
+import org.wso2.carbon.identity.organization.management.service.cache.OrganizationIdCacheEntry;
 import org.wso2.carbon.identity.organization.management.service.cache.OrganizationIdCacheKey;
+import org.wso2.carbon.identity.organization.management.service.cache.OrganizationVersionCache;
+import org.wso2.carbon.identity.organization.management.service.cache.OrganizationVersionCacheEntry;
 import org.wso2.carbon.identity.organization.management.service.cache.TenantDomainCacheByOrgId;
 import org.wso2.carbon.identity.organization.management.service.cache.TenantDomainCacheEntry;
+import org.wso2.carbon.identity.organization.management.service.cache.TenantDomainCacheKey;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
+import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.filter.ExpressionNode;
+import org.wso2.carbon.identity.organization.management.service.model.AncestorOrganizationDO;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
+import org.wso2.carbon.identity.organization.management.service.model.MinimalOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
+import org.wso2.carbon.identity.organization.management.service.model.OrganizationNode;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_ORGANIZATION_DEPTH_IN_HIERARCHY;
@@ -45,6 +59,7 @@ import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.SUPER_TENA
  */
 public class CacheBackedOrganizationManagementDAO implements OrganizationManagementDAO {
 
+    private static final Log LOG = LogFactory.getLog(CacheBackedOrganizationManagementDAO.class);
     private final OrganizationManagementDAO organizationMgtDAO;
 
     public CacheBackedOrganizationManagementDAO(OrganizationManagementDAO organizationMgtDAO) {
@@ -125,6 +140,16 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
     }
 
     @Override
+    public List<Organization> getOrganizationsList(boolean recursive, Integer limit, String organizationId,
+                                                   String sortOrder, List<ExpressionNode> expressionNodes,
+                                                   List<ExpressionNode> parentIdExpressionNodes)
+            throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.getOrganizationsList(recursive, limit, organizationId, sortOrder, expressionNodes,
+                parentIdExpressionNodes);
+    }
+
+    @Override
     public List<BasicOrganization> getUserAuthorizedOrganizations(boolean recursive, Integer limit,
                                                                   String organizationId, String sortOrder,
                                                                   List<ExpressionNode> expressionNodes,
@@ -141,9 +166,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
 
         String tenantDomain = resolveTenantDomain(organizationId);
         organizationMgtDAO.deleteOrganization(organizationId);
-        if (tenantDomain != null) {
-            clearOrganizationDetailsCache(organizationId, tenantDomain);
-        }
+        clearOrganizationCache(organizationId, tenantDomain);
         clearTenantDomainCache(organizationId);
     }
 
@@ -168,14 +191,18 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
     }
 
     @Override
+    public boolean isOrganizationExistWithName(String organizationName) throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.isOrganizationExistWithName(organizationName);
+    }
+
+    @Override
     public void patchOrganization(String organizationId, Instant lastModifiedInstant,
                                   List<PatchOperation> patchOperations) throws OrganizationManagementServerException {
 
         String tenantDomain = resolveTenantDomain(organizationId);
         organizationMgtDAO.patchOrganization(organizationId, lastModifiedInstant, patchOperations);
-        if (tenantDomain != null) {
-            clearOrganizationDetailsCache(organizationId, tenantDomain);
-        }
+        clearOrganizationCache(organizationId, tenantDomain);
     }
 
     @Override
@@ -184,9 +211,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
 
         String tenantDomain = resolveTenantDomain(organizationId);
         organizationMgtDAO.updateOrganization(organizationId, organization);
-        if (tenantDomain != null) {
-            clearOrganizationDetailsCache(organizationId, tenantDomain);
-        }
+        clearOrganizationCache(organizationId, tenantDomain);
     }
 
     @Override
@@ -201,6 +226,20 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
             throws OrganizationManagementServerException {
 
         return organizationMgtDAO.getChildOrganizations(organizationId, recursive);
+    }
+
+    @Override
+    public List<OrganizationNode> getChildOrganizationGraph(String organizationId, boolean recursive)
+            throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.getChildOrganizationGraph(organizationId, recursive);
+    }
+
+    @Override
+    public List<String> getChildOrganizationIds(String organizationId, boolean recursive)
+            throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.getChildOrganizationIds(organizationId, recursive);
     }
 
     @Override
@@ -312,7 +351,16 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
     @Override
     public Optional<String> resolveOrganizationId(String tenantDomain) throws OrganizationManagementServerException {
 
-        return organizationMgtDAO.resolveOrganizationId(tenantDomain);
+        if (StringUtils.equals(SUPER_TENANT_DOMAIN_NAME, tenantDomain)) {
+            return Optional.of(SUPER_ORG_ID);
+        }
+        OrganizationIdCacheEntry cachedOrganizationId = getOrganizationIdFromCache(tenantDomain);
+        if (cachedOrganizationId != null) {
+            return Optional.of(cachedOrganizationId.getOrganizationId());
+        }
+        Optional<String> organizationId = organizationMgtDAO.resolveOrganizationId(tenantDomain);
+        organizationId.ifPresent(s -> addOrganizationIdToCache(tenantDomain, s));
+        return organizationId;
     }
 
     @Override
@@ -394,10 +442,101 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         organizationMgtDAO.addRootOrganization(organization);
     }
 
+    @Override
+    public List<String> getOrganizationsMetaAttributes(boolean recursive, Integer limit, String organizationId,
+                                                       String sortOrder, List<ExpressionNode> expressionNodes)
+            throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.getOrganizationsMetaAttributes(recursive, limit, organizationId, sortOrder,
+                expressionNodes);
+    }
+
+    @Override
+    public Map<String, BasicOrganization> getBasicOrganizationDetailsByOrgIDs(List<String> orgIds)
+            throws OrganizationManagementException {
+
+        return organizationMgtDAO.getBasicOrganizationDetailsByOrgIDs(orgIds);
+    }
+
+    @Override
+    public List<AncestorOrganizationDO> getAncestorOrganizations(String organizationId)
+            throws OrganizationManagementServerException {
+
+        return organizationMgtDAO.getAncestorOrganizations(organizationId);
+    }
+
+    @Override
+    public MinimalOrganization getMinimalOrganization(String organizationId, String associatedTenantDomain)
+            throws OrganizationManagementException {
+
+        String tenantDomain = associatedTenantDomain;
+        if (tenantDomain == null) {
+            tenantDomain = resolveTenantDomain(organizationId);
+        }
+
+        OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
+        MinimalOrganizationCacheEntry entry = MinimalOrganizationCacheByOrgId.getInstance()
+                .getValueFromCache(cacheKey, tenantDomain);
+
+        if (entry != null) {
+            LOG.debug("Minimal Organization Cache entry found for organization id: " + organizationId);
+            return entry.getMinimalOrganization();
+        }
+        LOG.debug("Minimal Organization Cache entry not found for organization id: " + organizationId +
+                ". Fetching entry from DB.");
+
+        MinimalOrganization minimalOrganization = organizationMgtDAO.getMinimalOrganization(organizationId,
+                tenantDomain);
+
+        if (minimalOrganization != null) {
+            LOG.debug("Minimal Organization entry fetched from DB for organization id: " + organizationId +
+                    ". Updating cache.");
+            // Resolving tenantDomain from the fetched object to prevent organization getting cached against
+            // wrong tenant domain passed to the method.
+            tenantDomain = minimalOrganization.getOrganizationHandle();
+            MinimalOrganizationCacheByOrgId.getInstance()
+                    .addToCache(cacheKey, new MinimalOrganizationCacheEntry(minimalOrganization), tenantDomain);
+        } else {
+            LOG.debug("Minimal Organization Entry for organization id: " + organizationId +
+                    " not found in cache or DB.");
+        }
+
+        return minimalOrganization;
+    }
+
+    @Override
+    public Optional<String> getOrganizationVersion(String organizationId, String tenantDomain)
+            throws OrganizationManagementException {
+
+        OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
+        OrganizationVersionCacheEntry cacheEntry = OrganizationVersionCache.getInstance()
+                .getValueFromCache(cacheKey, tenantDomain);
+        if (cacheEntry != null) {
+            return Optional.of(cacheEntry.getVersion());
+        }
+
+        Optional<String> version = organizationMgtDAO.getOrganizationVersion(organizationId, tenantDomain);
+        if (!version.isPresent()) {
+            // Can be null if the organization does not exist. Error is handled in the service layer.
+            return version;
+        }
+
+        cacheEntry = new OrganizationVersionCacheEntry(version.get());
+        OrganizationVersionCache.getInstance().addToCache(cacheKey, cacheEntry, tenantDomain);
+        return version;
+    }
+
     private TenantDomainCacheEntry getTenantDomainFromCache(String organizationId) {
 
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
         TenantDomainCacheByOrgId cache = TenantDomainCacheByOrgId.getInstance();
+        return cache.getValueFromCache(cacheKey, SUPER_TENANT_DOMAIN_NAME);
+    }
+
+    private OrganizationIdCacheEntry getOrganizationIdFromCache(String tenantDomain) {
+
+        TenantDomainCacheKey cacheKey = new TenantDomainCacheKey(tenantDomain);
+        OrganizationIdCacheByTenantDomain cache = OrganizationIdCacheByTenantDomain.getInstance();
         return cache.getValueFromCache(cacheKey, SUPER_TENANT_DOMAIN_NAME);
     }
 
@@ -409,6 +548,17 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
         TenantDomainCacheEntry cacheEntry = new TenantDomainCacheEntry(tenantDomain);
         TenantDomainCacheByOrgId.getInstance()
+                .addToCache(cacheKey, cacheEntry, SUPER_TENANT_DOMAIN_NAME);
+    }
+
+    private void addOrganizationIdToCache(String tenantDomain, String organizationId) {
+
+        if (StringUtils.isBlank(tenantDomain) || StringUtils.isBlank(organizationId)) {
+            return;
+        }
+        TenantDomainCacheKey cacheKey = new TenantDomainCacheKey(tenantDomain);
+        OrganizationIdCacheEntry cacheEntry = new OrganizationIdCacheEntry(organizationId);
+        OrganizationIdCacheByTenantDomain.getInstance()
                 .addToCache(cacheKey, cacheEntry, SUPER_TENANT_DOMAIN_NAME);
     }
 
@@ -470,9 +620,32 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         TenantDomainCacheByOrgId.getInstance().clearCacheEntry(cacheKey, SUPER_TENANT_DOMAIN_NAME);
     }
 
+    private void clearOrganizationCache(String organizationId, String tenantDomain) {
+
+        if (tenantDomain == null) {
+            return;
+        }
+
+        clearOrganizationDetailsCache(organizationId, tenantDomain);
+        clearMinimalOrganizationCache(organizationId, tenantDomain);
+        clearOrganizationVersionCache(organizationId, tenantDomain);
+    }
+
     private void clearOrganizationDetailsCache(String organizationId, String tenantDomain) {
 
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
         OrganizationDetailsCacheByOrgId.getInstance().clearCacheEntry(cacheKey, tenantDomain);
+    }
+
+    private void clearMinimalOrganizationCache(String organizationId, String tenantDomain) {
+
+        OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
+        MinimalOrganizationCacheByOrgId.getInstance().clearCacheEntry(cacheKey, tenantDomain);
+    }
+
+    private void clearOrganizationVersionCache(String organizationId, String tenantDomain) {
+
+        OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
+        OrganizationVersionCache.getInstance().clearCacheEntry(cacheKey, tenantDomain);
     }
 }

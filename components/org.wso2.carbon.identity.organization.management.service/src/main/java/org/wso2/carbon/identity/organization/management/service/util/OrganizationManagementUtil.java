@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2023-2025, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -26,6 +26,8 @@ import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUPER_ORG_ID;
 
 /**
  * This class provides utility functions for the Organization Management.
@@ -85,5 +87,40 @@ public class OrganizationManagementUtil {
                 .getOrganizationManager();
         int organizationDepth = organizationManager.getOrganizationDepthInHierarchy(organizationUUID);
         return organizationDepth >= Utils.getSubOrgStartLevel();
+    }
+
+    /**
+     * Get the tenant domain of the root organization from the tenant domain of a sub-organization.
+     *
+     * @param tenantDomain The tenant domain of the sub-organization to resolve.
+     * @return The tenant domain of the root organization.
+     * @throws OrganizationManagementException If an error occurs while retrieving the root organization tenant domain.
+     */
+    public static String getRootOrgTenantDomainBySubOrgTenantDomain(String tenantDomain)
+            throws OrganizationManagementException {
+
+        OrganizationManager organizationManager = OrganizationManagementDataHolder.getInstance()
+                .getOrganizationManager();
+        String orgId = organizationManager.resolveOrganizationId(tenantDomain);
+        String rootOrganizationId = organizationManager.getPrimaryOrganizationId(orgId);
+        return organizationManager.resolveTenantDomain(rootOrganizationId);
+    }
+
+    /**
+     * Get the name of the Super Root Organization.
+     *
+     * <p>
+     * This method provides the proper way to retrieve the Super Organization name.
+     * Please avoid using the hardcoded "SUPER" constant in implementations.
+     * </p>
+     *
+     * @return The name of the Super Root Organization.
+     * @throws OrganizationManagementException If an error occurs while retrieving the Super Root Organization name.
+     */
+    public static String getSuperRootOrgName() throws OrganizationManagementException {
+
+        OrganizationManager organizationManager = OrganizationManagementDataHolder.getInstance()
+                .getOrganizationManager();
+        return organizationManager.getOrganizationNameById(SUPER_ORG_ID);
     }
 }

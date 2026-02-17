@@ -1,5 +1,5 @@
 <!--
-~ Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+~ Copyright (c) 2023-2025, WSO2 LLC. (http://www.wso2.com).
 ~
 ~ Licensed under the Apache License, Version 2.0 (the "License");
 ~ you may not use this file except in compliance with the License.
@@ -50,6 +50,11 @@
                    timeout="{{cache.tenant_domain_cache_by_orgid.timeout | default(900)}}"
                    capacity="{{cache.tenant_domain_cache_by_orgid.capacity | default(5000)}}"
                    isDistributed="false"/>
+            <Cache id="organization_version_cache" name="OrganizationVersionCache"
+                   enable="{{cache.organization_version_cache.enable | default(true)}}"
+                   timeout="{{cache.organization_version_cache.timeout | default(900)}}"
+                   capacity="{{cache.organization_version_cache.capacity | default(5000)}}"
+                   isDistributed="false"/>
 	    </CacheManager>
     </CacheConfig>
 
@@ -89,7 +94,7 @@
         <DefaultAcceptURL>{{organization.user.invitation.default.accept_url}}</DefaultAcceptURL>
         <AssociationWaitTime>{{organization.user.invitation.association.wait_time}}</AssociationWaitTime>
     </OrganizationUserInvitation>
-
+    
     <OrganizationUserStoreInitialization>
         <Enable>{{organization.userstore.initialization.enabled}}</Enable>
         <UserStores>{{organization.userstore.initialization.user_stores}}</UserStores>
@@ -97,4 +102,31 @@
         <WaitInterval>{{organization.userstore.initialization.wait_interval}}</WaitInterval>
     </OrganizationUserStoreInitialization>
 
+    <!--
+        Set this to 'orgHandle' or 'orgName' to define the default discovery parameter used to resolve the organization.
+    -->
+    <OrganizationDiscovery>
+        <DefaultParam>{{organization_discovery.default_param}}</DefaultParam>
+    </OrganizationDiscovery>
+
+    <!-- Organization versioning related configurations. -->
+    <OrganizationVersioning>
+            <NewOrganizationVersion>{{organization_management.organization_versioning.new_organization_version}}</NewOrganizationVersion>
+    </OrganizationVersioning>
+
+    <!--
+        Set this to 'false' to disable sending "Super" as the display name instead of "carbon.super"
+        in notification templates.
+    -->
+    <NotificationTemplates>
+        <SuperOrganizationDisplayName>
+            <Enable>{{notification_templates.super_organization_display_name.enable}}</Enable>
+        </SuperOrganizationDisplayName>
+    </NotificationTemplates>
+
+    <AdaptiveAuth>
+        <SharedApplications>
+            <Enable>{{authentication.adaptive.shared_applications.enable}}</Enable>
+        </SharedApplications>
+    </AdaptiveAuth>
 </OrganizationManagement>

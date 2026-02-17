@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.META_ATTRIBUTE_PLACEHOLDER_PREFIX;
+
 /**
  * Create filter query builder.
  */
@@ -32,6 +34,8 @@ public class FilterQueryBuilder {
     private List<String> timestampParameters = new ArrayList<>();
     private int count = 1;
     private String filter;
+    private List<String> metaAttributePlaceholders = new ArrayList<>();
+    private int metaAttributeCount;
 
     /**
      * Get filter query builder attributes.
@@ -93,5 +97,38 @@ public class FilterQueryBuilder {
     public String getFilterQuery() {
 
         return filter;
+    }
+
+    /**
+     * Get filter query builder meta attribute placeholders.
+     *
+     * @return List of filter query builder meta attribute placeholders.
+     */
+    public List<String> getMetaAttributePlaceholders() {
+
+        return metaAttributePlaceholders;
+    }
+
+    /**
+     * Generate and add a filter query builder meta attribute placeholder.
+     *
+     * @return Next meta attribute placeholder.
+     */
+    public String generateMetaAttributePlaceholder() {
+
+        metaAttributeCount++;
+        String placeholder = META_ATTRIBUTE_PLACEHOLDER_PREFIX + metaAttributeCount;
+        metaAttributePlaceholders.add(placeholder);
+        return placeholder;
+    }
+
+    /**
+     * Get the current count of meta attribute placeholders.
+     *
+     * @return Meta attribute count.
+     */
+    public int getMetaAttributeCount() {
+
+        return metaAttributeCount;
     }
 }

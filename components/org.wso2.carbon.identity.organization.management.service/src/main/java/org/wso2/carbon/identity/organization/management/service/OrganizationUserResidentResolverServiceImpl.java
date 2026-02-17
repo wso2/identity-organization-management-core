@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.organization.management.service;
 
 import org.apache.commons.lang.StringUtils;
+import org.osgi.annotation.bundle.Capability;
 import org.wso2.carbon.identity.organization.management.service.dao.OrganizationManagementDAO;
 import org.wso2.carbon.identity.organization.management.service.dao.impl.OrganizationManagementDAOImpl;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
@@ -53,6 +54,14 @@ import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PROPERTY_D
 /**
  * Service implementation to resolve user's resident organization.
  */
+@Capability(
+        namespace = "osgi.service",
+        attribute = {
+                "objectClass=org.wso2.carbon.identity.organization.management.service." +
+                        "OrganizationUserResidentResolverService",
+                "service.scope=singleton"
+        }
+)
 public class OrganizationUserResidentResolverServiceImpl implements OrganizationUserResidentResolverService {
 
     private final OrganizationManagementDAO organizationManagementDAO = new OrganizationManagementDAOImpl();
@@ -165,6 +174,7 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
                         BasicOrganization basicOrganization = new BasicOrganization();
                         basicOrganization.setId(organizationId);
                         basicOrganization.setName(organizationName.get());
+                        basicOrganization.setOrganizationHandle(associatedTenantDomainForOrg);
                         basicOrganizationList.add(basicOrganization);
                     }
                     AbstractUserStoreManager userStoreManager = getUserStoreManager(associatedTenantDomainForOrg);
@@ -212,13 +222,14 @@ public class OrganizationUserResidentResolverServiceImpl implements Organization
         return Optional.ofNullable(username);
     }
 
-    private String resolveTenantDomainForOrg(String organizationId) throws OrganizationManagementServerException {
+    private String resolveTenantDomainForOrg(String organizationId) throws OrganizationManagementException {
 
         if (StringUtils.equals(SUPER_ORG_ID, organizationId)) {
             // super tenant domain will be returned.
             return MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         }
-        return organizationManagementDAO.resolveTenantDomain(organizationId);
+        return OrganizationManagementDataHolder.getInstance().getOrganizationManager()
+                .resolveTenantDomain(organizationId);
     }
 
     private AbstractUserStoreManager getUserStoreManager(String tenantDomain) throws UserStoreException {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+  ~ Copyright (c) 2022-2025, WSO2 LLC. (https://www.wso2.com).
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -23,6 +23,9 @@
         <classes>
             <class name="org.wso2.carbon.identity.organization.management.service.OrganizationManagerImplTest"/>
             <class name="org.wso2.carbon.identity.organization.management.service.dao.impl.OrganizationManagementDAOImplTest"/>
+            <class name="org.wso2.carbon.identity.organization.management.service.util.UtilsTest"/>
+            <class name="org.wso2.carbon.identity.organization.management.service.util.OrganizationManagementUtilTest"/>
+            <class name="org.wso2.carbon.identity.organization.management.service.dao.impl.CacheBackedOrganizationManagementDAOTest"/>
         </classes>
     </test>
 </suite>

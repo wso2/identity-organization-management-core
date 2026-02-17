@@ -48,6 +48,8 @@ public class OrganizationManagementDataHolder {
 
         return instance;
     }
+    private OrganizationManagementDataHolder() {
+    }
 
     public RealmService getRealmService() {
 

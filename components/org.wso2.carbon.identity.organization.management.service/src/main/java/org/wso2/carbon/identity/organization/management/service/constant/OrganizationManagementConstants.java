@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -43,25 +43,34 @@ public class OrganizationManagementConstants {
     public static final String VIEW_CREATED_TIME_COLUMN = "UM_CREATED_TIME";
     public static final String VIEW_LAST_MODIFIED_COLUMN = "UM_LAST_MODIFIED";
     public static final String VIEW_STATUS_COLUMN = "UM_STATUS";
+    public static final String VIEW_ORG_VERSION_COLUMN = "UM_ORG_VERSION";
     public static final String VIEW_PARENT_ID_COLUMN = "UM_PARENT_ID";
     public static final String VIEW_ATTR_KEY_COLUMN = "UM_ATTRIBUTE_KEY";
     public static final String VIEW_ATTR_VALUE_COLUMN = "UM_ATTRIBUTE_VALUE";
     public static final String VIEW_TYPE_COLUMN = "UM_ORG_TYPE";
     public static final String VIEW_TENANT_UUID_COLUMN = "UM_TENANT_UUID";
+    public static final String VIEW_TENANT_DOMAIN_COLUMN = "UM_DOMAIN_NAME";
+    public static final String VIEW_ORGANIZATION_ATTRIBUTES_TABLE = "UM_ORG_ATTRIBUTE";
+    public static final String VIEW_DEPTH_COLUMN = "DEPTH";
+    public static final String VIEW_HAS_CHILDREN_COLUMN = "HAS_CHILDREN";
     public static final String PATCH_OP_ADD = "ADD";
     public static final String PATCH_OP_REMOVE = "REMOVE";
     public static final String PATCH_OP_REPLACE = "REPLACE";
     public static final String PATCH_PATH_ORG_NAME = "/name";
     public static final String PATCH_PATH_ORG_DESCRIPTION = "/description";
     public static final String PATCH_PATH_ORG_STATUS = "/status";
+    public static final String PATCH_PATH_ORG_VERSION = "/version";
     public static final String PATCH_PATH_ORG_ATTRIBUTES = "/attributes/";
     public static final String PARENT_ID_FIELD = "parentId";
     public static final String ORGANIZATION_NAME_FIELD = "name";
     public static final String ORGANIZATION_ID_FIELD = "id";
+    public static final String ORGANIZATION_ID_PROPERTY = "ORGANIZATION_ID";
     public static final String ORGANIZATION_DESCRIPTION_FIELD = "description";
     public static final String ORGANIZATION_CREATED_TIME_FIELD = "created";
     public static final String ORGANIZATION_LAST_MODIFIED_FIELD = "lastModified";
     public static final String ORGANIZATION_STATUS_FIELD = "status";
+    public static final String ORGANIZATION_ATTRIBUTES_FIELD = "attributes";
+    public static final String ORGANIZATION_ATTRIBUTES_FIELD_PREFIX = "attributes.";
     public static final String PAGINATION_AFTER = "after";
     public static final String PAGINATION_BEFORE = "before";
     public static final String CREATE_ORGANIZATION_ADMIN_PERMISSION = "/permission/admin/";
@@ -78,6 +87,8 @@ public class OrganizationManagementConstants {
             .asList(CREATE_ORGANIZATION_PERMISSION, VIEW_ORGANIZATION_PERMISSION, UPDATE_ORGANIZATION_PERMISSION,
                     DELETE_ORGANIZATION_PERMISSION));
     public static final String ROOT_TENANT_DOMAIN = "RootTenantDomain";
+    public static final String DESC_SORT_ORDER = "DESC";
+    public static final String ASC_SORT_ORDER = "ASC";
 
     public static final String EQ = "eq";
     public static final String CO = "co";
@@ -90,6 +101,7 @@ public class OrganizationManagementConstants {
     public static final String AND = "and";
     public static final String FILTER_PLACEHOLDER_PREFIX = "FILTER_ID_";
     public static final String PARENT_ID_FILTER_PLACEHOLDER_PREFIX = "FILTER_PARENT_ID_";
+    public static final String META_ATTRIBUTE_PLACEHOLDER_PREFIX = "UM_ORG_ATTRIBUTE_";
     private static final String ORGANIZATION_MANAGEMENT_ERROR_CODE_PREFIX = "ORG-";
     private static final Map<String, String> attributeColumnMap = new HashMap<>();
     public static final Map<String, String> ATTRIBUTE_COLUMN_MAP = Collections.unmodifiableMap(attributeColumnMap);
@@ -132,6 +144,47 @@ public class OrganizationManagementConstants {
     public static final String CREATOR_EMAIL = "creator.email";
     public static final String ORGANIZATION_USER_INVITATION_PRIMARY_USER_DOMAIN =
             "OrganizationUserInvitation.PrimaryUserDomain";
+    public static final String ORGANIZATION_DISCOVERY_DEFAULT_PARAM = "OrganizationDiscovery.DefaultParam";
+    public static final String IS_SUPER_ORG_NAME_SUPPORTED_IN_NOTIFICATION_TEMPLATES =
+            "NotificationTemplates.SuperOrganizationDisplayName.Enable";
+    public static final String DEFAULT_DISCOVERY_DEFAULT_PARAM = "orgName";
+    public static final String ADAPTIVE_AUTH_ENABLE_CONFIG_FOR_SHARED_APPS = "AdaptiveAuth.SharedApplications.Enable";
+
+    /**
+     * Contains constants related to organization versioning.
+     * This class maintains a list of supported organization versions as well as the latest and base versions.
+     */
+    public static class OrganizationVersion {
+
+        public static final String NEW_ORGANIZATION_VERSION_PROPERTY = "OrganizationVersioning.NewOrganizationVersion";
+        public static final String ORG_VERSION_V0 = "v0.0.0";
+        public static final String ORG_VERSION_V1 = "v1.0.0";
+        public static final String ORG_VERSION_PREFIX = "v";
+        public static final String ORG_VERSION_DELIMITER_REGEX = "\\.";
+
+        public static final String LATEST_ORG_VERSION = ORG_VERSION_V1;
+        public static final String BASE_ORG_VERSION = ORG_VERSION_V0;
+
+        /**
+         * Organization version enum.
+         */
+        public enum OrganizationVersions {
+
+            V0(ORG_VERSION_V0),
+            V1(ORG_VERSION_V1);
+
+            private final String version;
+
+            OrganizationVersions(String value) {
+
+                this.version = value;
+            }
+
+            public String getVersion() {
+                return version;
+            }
+        }
+    }
 
     /**
      * Contains constants related to filter operations.
@@ -151,6 +204,7 @@ public class OrganizationManagementConstants {
         attributeColumnMap.put(ORGANIZATION_CREATED_TIME_FIELD, VIEW_CREATED_TIME_COLUMN);
         attributeColumnMap.put(ORGANIZATION_LAST_MODIFIED_FIELD, VIEW_LAST_MODIFIED_COLUMN);
         attributeColumnMap.put(ORGANIZATION_STATUS_FIELD, VIEW_STATUS_COLUMN);
+        attributeColumnMap.put(ORGANIZATION_ATTRIBUTES_FIELD, VIEW_ATTR_KEY_COLUMN);
         attributeColumnMap.put(PAGINATION_AFTER, VIEW_CREATED_TIME_COLUMN);
         attributeColumnMap.put(PAGINATION_BEFORE, VIEW_CREATED_TIME_COLUMN);
     }
@@ -226,8 +280,8 @@ public class OrganizationManagementConstants {
                 "The complex query used for filtering is not supported."),
         ERROR_CODE_INVALID_PAGINATION_PARAMETER_NEGATIVE_LIMIT("60025", "Invalid pagination parameters.",
                 "'limit' shouldn't be negative."),
-        ERROR_CODE_INVALID_CURSOR_FOR_PAGINATION("60026", "Unable to retrieve organizations.", "Invalid " +
-                "cursor used for pagination."),
+        ERROR_CODE_INVALID_CURSOR_FOR_PAGINATION("60026", "Unable to retrieve paginated result.",
+                "Invalid cursor used for pagination."),
         ERROR_CODE_UNSUPPORTED_ORGANIZATION_STATUS("60028", "Unsupported status provided.",
                 "Organization status must be 'ACTIVE' or 'DISABLED'."),
         ERROR_CODE_ACTIVE_CHILD_ORGANIZATIONS_EXIST("60029", "Active child organizations exist.",
@@ -372,6 +426,47 @@ public class OrganizationManagementConstants {
                 "The shared user profile attributes are read only."),
         ERROR_CODE_ORGANIZATION_OWNER_NOT_EXIST("60096", "The assigned organization owner does not exist ",
                 "The assigned organization owner is not found in the tenant with ID: %s"),
+        ERROR_CODE_ORGANIZATION_NAME_CONTAINS_HTML_CONTENT("60097", "Invalid organization name.",
+                "HTML content is not allowed in organization name."),
+        ERROR_CODE_INVALID_EMAIL_DOMAIN("60098", "Invalid email domain.",
+                "Email domain resolved from the authenticated federated IDP is not mapped to the organization: %s"),
+        ERROR_CODE_NO_EMAIL_ATTRIBUTE_FOUND("60099", "No email attribute found",
+                "No email attribute returned by the authenticated federated IDP"),
+        ERROR_CODE_EXISTING_ORGANIZATION_HANDLE("60100", "Unable to create the organization.",
+                "The given organization handle %s already exists. Please use a different handle."),
+        ERROR_CODE_ORGANIZATION_VERSION_UPDATE_NOT_ALLOWED("60101", "Organization version update is not allowed.",
+                "Organization version update is not allowed for the organization with ID: %s."),
+        ERROR_CODE_UNSUPPORTED_ORGANIZATION_VERSION("60102", "Unsupported organization version.",
+                "The organization version: %s is not supported."),
+        ERROR_CODE_INVALID_SHARE_APP_REQUEST_NO_ORGANIZATIONS("60103", "Invalid share application request.",
+                "The share application request must contain at least one organization to share with."),
+        ERROR_CODE_INVALID_SHARE_APPLICATION_NO_OPERATIONS("60104", "Invalid share application update request.",
+                "The update request must contain at least one operation to perform."),
+        ERROR_CODE_UNSUPPORTED_POLICY("60105", "Unsupported policy.",
+                "The provided policy '%s' is not supported."),
+        ERROR_CODE_ROLE_AUDIENCE_MISSING("60106", "Missing role audience.",
+                "Role audience must be specified in the update request."),
+        ERROR_CODE_ROLE_DISPLAY_NAME_MISSING("60107", "Missing role display name.",
+                "Role display name must be specified in the update request."),
+        ERROR_CODE_ROLE_AUDIENCE_TYPE_MISSING("60108", "Missing audience type.",
+                "Role audience type must be specified in the update request."),
+        ERROR_CODE_ROLE_AUDIENCE_DISPLAY_MISSING("60109", "Missing audience display name.",
+                "Role audience display must be specified in the update request."),
+        ERROR_CODE_ROLE_SHARING_ROLES_MISSING("60110", "Missing roles for role sharing.",
+                "Roles must be specified when role sharing mode is 'SELECTED'."),
+        ERROR_CODE_ROLE_SHARING_ROLES_NOT_ALLOWED("60111", "Unexpected roles in role sharing.",
+                "Roles can only be provided when the role sharing mode is 'SELECTED'."),
+        ERROR_CODE_UNSUPPORTED_ROLE_SHARING_MODE("60112", "Unsupported role sharing mode.",
+                "The provided role sharing mode '%s' is not supported."),
+        ERROR_CODE_ROLE_SHARING_OBJECT_NOT_A_MAP("60113", "Invalid role sharing object.",
+                "Expected a Map structure for the role sharing object."),
+        ERROR_CODE_INVALID_SHARE_OPERATION_TYPE("60114", "Invalid share operation type.",
+                "The operation type '%s' is not supported. Only ADD and REMOVE are allowed."),
+        ERROR_CODE_UNSUPPORTED_SHARE_OPERATION_PATH("60115", "Unsupported path attribute.",
+                "The path attribute '%s' is not supported for application share operations."),
+        ERROR_CODE_SUPER_ORGANIZATION_RENAME_CONFLICT("60116", "Organization name already in use.",
+                "The given organization name is already taken. " +
+                        "A super organization cannot be renamed to an existing organization name."),
 
         // Server errors.
         ERROR_CODE_UNEXPECTED("65001", "Unexpected processing error",
@@ -416,7 +511,7 @@ public class OrganizationManagementConstants {
         ERROR_CODE_ERROR_EVALUATING_ADD_ORGANIZATION_AUTHORIZATION("65019", "Unable to create the organization.",
                 "Server encountered an error while evaluating authorization of user to create the " +
                         "organization in parent organization with ID: %s."),
-        ERROR_CODE_ERROR_BUILDING_PAGINATED_RESPONSE_URL("65020", "Unable to retrieve the organizations.",
+        ERROR_CODE_ERROR_BUILDING_PAGINATED_RESPONSE_URL("65020", "Unable to retrieve the paginated results.",
                 "Server encountered an error while building paginated response URL."),
         ERROR_CODE_ERROR_MISSING_SUPER("65021", "Unable to create the organization.",
                 "Server encountered an error while retrieving the super organization."),
@@ -719,7 +814,60 @@ public class OrganizationManagementConstants {
                 "organization with ID: %s."),
         ERROR_CODE_ERROR_REVOKING_SHARED_APP_TOKENS("65138", "Error while revoking tokens issued for " +
                 "shared application.", "Server encountered an error while revoking tokens issued for application: " +
-                "%s in organization with ID: %s");
+                "%s in organization with ID: %s"),
+        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATIONS_META_ATTRIBUTES("65139", "Unable to retrieve " +
+                "the organizations' meta attributes.", "Server encountered an error while retrieving " +
+                "the organizations' meta attributes."),
+        ERROR_CODE_ERROR_VALIDATING_ORGANIZATION_LOGIN_HINT_ATTRIBUTE("65140", "Unable to validate the " +
+                "login hint attribute.", "Server encountered an error while validating the " +
+                "login hint attribute."),
+        ERROR_CODE_ERROR_DELETING_SHARED_APPLICATION_LINK("65141", "Unable to delete the shared " +
+                "application link", "Server encountered an error while deleting the shared application " +
+                "links for organization: %s."),
+        ERROR_WHILE_RETRIEVING_ORG_DISCOVERY_ATTRIBUTES("65142",
+                "Error while retrieving organization discovery attributes",
+                "Error while retrieving organization discovery attributes for tenantDomain: %s"),
+        ERROR_CODE_ERROR_UPDATE_ORGANIZATION_USER_ASSOCIATIONS("65143",
+                "Unable to update organization user associations.",
+                "Server encountered an error while updating organization user associations for the user."),
+        ERROR_CODE_ERROR_CHECK_ORGANIZATION_USER_ASSOCIATIONS("65144",
+                "Unable to check if organization user associations exist.",
+                "Server encountered an error while checking organization user associations for the user."),
+        ERROR_CODE_ERROR_CHECKING_ORGANIZATION_EXIST_BY_HANDLE("65145",
+                "Error while checking if the organization exists.",
+                "Server encountered an error while checking if the organization with handle: %s exists."),
+        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_DETAILS_BY_ORGANIZATION_IDS("65146",
+                "Error in retrieving organization details by organization ids.",
+                "Server encountered an error while retrieving organization details for given organization ids"),
+        ERROR_CODE_ERROR_RETRIEVING_APPLICATION_SHARED_ACCESS_STATUS("65147",
+                "Error in retrieving application shared access status.",
+                "Server encountered an error while retrieving application shared access status."),
+        ERROR_CODE_ERROR_SHARING_APPLICATION_NAME_CONFLICT("65148",
+                "Organization %s has a non shared application with name %s.",
+                "Server encountered an error while sharing application to organization %s due to a non shared " +
+                        "application with name %s."),
+        ERROR_CODE_ERROR_SHARING_APPLICATION_ROLE_CONFLICT("65149", "Organization %s has a non shared role with " +
+                "name %s.", "Server encountered an error while sharing application to organization %s " +
+                "due to a non shared role with name %s."),
+        ERROR_CODE_INVALID_NEW_ORGANIZATION_VERSION_CONFIGURED("65150",
+                "Invalid new organization version configuration.",
+                "Configured new organization version is not valid."),
+        ERROR_CODE_ERROR_RETRIEVING_ORGANIZATION_ID_BY_HANDLE("65151",
+                "Unable to retrieve organization ID.",
+                "Server encountered an error while retrieving organization ID for handle: %s."),
+        ERROR_CODE_ERROR_RESOLVING_THE_DEFAULT_DISCOVERY_PARAM("65152",
+                "Unable to resolve the default discovery parameter.",
+                "Server encountered an error while resolving the default discovery parameter."),
+        ERROR_CODE_ADDING_SHARED_RESOURCE_ATTRIBUTES_FAILED("65153",
+                "Failed to add shared resource attributes.",
+                "An error occurred while adding the shared resource attributes for policy ID: %s."),
+        ERROR_CODE_ERROR_RETRIEVING_MINIMAL_ORGANIZATION_DETAILS_BY_ORGANIZATION_ID("65154",
+                "Unable to retrieve minimal organization details by organization ids.",
+                "An error occurred while retrieving minimal organization details for organization id: %s"),
+        ERROR_CODE_ERROR_CHECKING_ORGANIZATION_BY_NAME("65155", "Failed to check organization by name.",
+                "Error while checking organizations by a given name."),
+        ERROR_CODE_ERROR_RETRIEVING_ORG_VERSION("65156", "Unable to retrieve the organization version.",
+                "Server encountered an error while retrieving the version of the organization with ID: %s.");
 
         private final String code;
         private final String message;

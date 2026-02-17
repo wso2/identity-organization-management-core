@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+  ~ Copyright (c) 2023-2025, WSO2 LLC. (http://www.wso2.com).
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -50,6 +50,11 @@
                    timeout="900"
                    capacity="5000"
                    isDistributed="false"/>
+            <Cache id="organization_version_cache" name="OrganizationVersionCache"
+                   enable="true"
+                   timeout="900"
+                   capacity="5000"
+                   isDistributed="false"/>
         </CacheManager>
     </CacheConfig>
 
@@ -78,4 +83,31 @@
         <AssociationWaitTime>5000</AssociationWaitTime>
     </OrganizationUserInvitation>
 
+    <!--
+        Set this to 'orgHandle' or 'orgName' to define the default discovery parameter used to resolve the organization.
+    -->
+    <OrganizationDiscovery>
+        <DefaultParam>orgName</DefaultParam>
+    </OrganizationDiscovery>
+
+    <!-- Organization versioning related configurations. -->
+    <OrganizationVersioning>
+        <NewOrganizationVersion>v0.0.0</NewOrganizationVersion>
+    </OrganizationVersioning>
+
+    <!--
+        Set this to 'false' to disable sending "Super" as the display name instead of "carbon.super"
+        in notification templates.
+    -->
+    <NotificationTemplates>
+        <SuperOrganizationDisplayName>
+            <Enable>true</Enable>
+        </SuperOrganizationDisplayName>
+    </NotificationTemplates>
+
+    <AdaptiveAuth>
+        <SharedApplications>
+            <Enable>false</Enable>
+        </SharedApplications>
+    </AdaptiveAuth>
 </OrganizationManagement>

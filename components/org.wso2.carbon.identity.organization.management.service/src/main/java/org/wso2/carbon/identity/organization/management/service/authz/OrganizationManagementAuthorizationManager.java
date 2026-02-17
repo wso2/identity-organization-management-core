@@ -35,6 +35,9 @@ public class OrganizationManagementAuthorizationManager {
         return INSTANCE;
     }
 
+    private OrganizationManagementAuthorizationManager() {
+    }
+
     /**
      * Check whether the user is authorized for the particular organization.
      *

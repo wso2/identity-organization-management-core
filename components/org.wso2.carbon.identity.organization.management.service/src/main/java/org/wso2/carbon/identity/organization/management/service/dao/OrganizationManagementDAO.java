@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,14 +18,20 @@
 
 package org.wso2.carbon.identity.organization.management.service.dao;
 
+import org.wso2.carbon.identity.organization.management.service.exception.NotImplementedException;
+import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.filter.ExpressionNode;
+import org.wso2.carbon.identity.organization.management.service.model.AncestorOrganizationDO;
 import org.wso2.carbon.identity.organization.management.service.model.BasicOrganization;
+import org.wso2.carbon.identity.organization.management.service.model.MinimalOrganization;
 import org.wso2.carbon.identity.organization.management.service.model.Organization;
+import org.wso2.carbon.identity.organization.management.service.model.OrganizationNode;
 import org.wso2.carbon.identity.organization.management.service.model.PatchOperation;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -106,6 +112,26 @@ public interface OrganizationManagementDAO {
             throws OrganizationManagementServerException;
 
     /**
+     * Retrieve the list of organizations under a given organization ID.
+     *
+     * @param recursive               Determines whether records should be retrieved in a recursive manner.
+     * @param limit                   The maximum number of records to be returned.
+     * @param organizationId          The organization ID.
+     * @param sortOrder               The sort order, ascending or descending.
+     * @param expressionNodes         The list of filters excluding filtering by parentId.
+     * @param parentIdExpressionNodes The list of filters related to parentId.
+     * @return the list of organizations.
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the organizations.
+     */
+    default List<Organization> getOrganizationsList(boolean recursive, Integer limit, String organizationId,
+                                                    String sortOrder, List<ExpressionNode> expressionNodes,
+                                                    List<ExpressionNode> parentIdExpressionNodes)
+            throws OrganizationManagementServerException {
+
+        throw new NotImplementedException();
+    }
+
+    /**
      * Retrieve the IDs of the organizations under a given organization ID for particular user
      * who has permissions over them.
      *
@@ -164,6 +190,18 @@ public interface OrganizationManagementDAO {
             throws OrganizationManagementServerException;
 
     /**
+     * Check if an organization exist with the given name.
+     *
+     * @param organizationName Name of the organization to be checked.
+     * @return true if an organization exist with the given name.
+     */
+    default boolean isOrganizationExistWithName(String organizationName) throws OrganizationManagementServerException {
+
+        throw new NotImplementedException("isOrganizationExistWithName(organizationName) is not implemented in "
+                + this.getClass().getName());
+    }
+
+    /**
      * Add, remove or replace organization fields and attributes.
      *
      * @param organizationId      The organization ID.
@@ -200,12 +238,45 @@ public interface OrganizationManagementDAO {
      * Retrieve the list of child organizations of a given organization.
      *
      * @param organizationId The organization ID.
+     * @param recursive      Determines whether records should be retrieved in a recursive manner.
      * @return the list of the child organizations.
      * @throws OrganizationManagementServerException The server exception thrown when retrieving the child
      *                                               organizations.
      */
     List<BasicOrganization> getChildOrganizations(String organizationId, boolean recursive)
             throws OrganizationManagementServerException;
+
+    /**
+     * Retrieve the list of child organizations of a given organization in a tree structure.
+     *
+     * @param organizationId The organization ID.
+     * @param recursive      Determines whether records should be retrieved in a recursive manner.
+     * @return the list of the child organizations in a tree structure.
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the child
+     *                                               organizations.
+     */
+    default List<OrganizationNode> getChildOrganizationGraph(String organizationId, boolean recursive)
+            throws OrganizationManagementServerException {
+
+        throw new NotImplementedException("getChildOrganizationGraph(organizationId, recursive) is not " +
+                "implemented in " + this.getClass().getName());
+    }
+
+    /**
+     * Retrieve the list of child organization IDs of a given organization.
+     *
+     * @param organizationId The organization ID.
+     * @param recursive      Determines whether records should be retrieved in a recursive manner.
+     * @return the ID list of the child organizations.
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the child
+     *                                               organizations.
+     */
+    default List<String> getChildOrganizationIds(String organizationId, boolean recursive)
+            throws OrganizationManagementServerException {
+
+        throw new NotImplementedException("getChildOrganizationIds(organizationId, recursive) is not " +
+                "implemented in " + this.getClass().getName());
+    }
 
     /**
      * Retrieve the list of child organization IDs of a given organization.
@@ -388,4 +459,85 @@ public interface OrganizationManagementDAO {
      * @throws OrganizationManagementServerException The server exception thrown when adding a root organization.
      */
     void addRootOrganization(Organization rootOrganization) throws OrganizationManagementServerException;
+
+    /**
+     * Retrieve the list of organizations' meta attributes.
+     *
+     * @param recursive               Determines whether records should be retrieved in a recursive manner.
+     * @param limit                   The maximum number of records to be returned.
+     * @param organizationId          The super organization ID.
+     * @param sortOrder               The sort order, ascending or descending.
+     * @param expressionNodes         The list of filters.
+     * @return the list of organizations' meta attributes.
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the organizations'
+     * meta attributes.
+     */
+    default List<String> getOrganizationsMetaAttributes(boolean recursive, Integer limit, String organizationId,
+                                                        String sortOrder, List<ExpressionNode> expressionNodes)
+            throws OrganizationManagementServerException {
+
+        throw new OrganizationManagementServerException("getOrganizationsMetaAttributes is not implemented in "
+                + this.getClass().getName());
+    }
+
+    /**
+     * Retrieve a map of organization IDs to their corresponding {@link BasicOrganization} details.
+     *
+     * @param orgIds The list of organization IDs to fetch details for.
+     * @return A map where the key is the organization ID and
+     * the value is the corresponding {@link BasicOrganization} object.
+     * @throws OrganizationManagementException If an error occurs while retrieving organization details.
+     */
+    default Map<String, BasicOrganization> getBasicOrganizationDetailsByOrgIDs(List<String> orgIds)
+            throws OrganizationManagementException {
+
+        throw new OrganizationManagementServerException("getBasicOrganizationDetailsByOrgIDs is not implemented in "
+                + this.getClass().getName());
+    }
+
+    /**
+     * Retrieve the ancestor organizations of a given organization.
+     *
+     * @param organizationId The organization ID.
+     * @return List of ancestor organizations.
+     * @throws OrganizationManagementServerException The server exception thrown when retrieving the ancestor
+     *                                               organizations.
+     */
+    default List<AncestorOrganizationDO> getAncestorOrganizations(String organizationId)
+            throws OrganizationManagementServerException {
+
+        throw new OrganizationManagementServerException("getAncestorOrganizations is not implemented in "
+                + this.getClass().getName());
+    }
+
+    /**
+     * Retrieve the organization details for a given organization id.
+     *
+     * @param organizationId         The organization id.
+     * @param associatedTenantDomain The tenant domain associated with the organization.
+     *                               If null, the value will be resolved using organization id.
+     * @return The minimal organization details.
+     * @throws OrganizationManagementException If an error occurs while retrieving the minimal organization details.
+     */
+    default MinimalOrganization getMinimalOrganization(String organizationId, String associatedTenantDomain)
+            throws OrganizationManagementException {
+
+        throw new OrganizationManagementServerException("getBasicOrganization is not implemented in "
+                + this.getClass().getName());
+    }
+
+    /**
+     * Retrieve the version of an organization.
+     *
+     * @param organizationId The organization id.
+     * @param tenantDomain   The tenant domain of the organization.
+     * @return An optional containing the organization version if it exists.
+     * @throws OrganizationManagementException If an error occurs while retrieving the organization version.
+     */
+    default Optional<String> getOrganizationVersion(String organizationId, String tenantDomain)
+            throws OrganizationManagementException {
+
+        throw new NotImplementedException("getOrganizationVersion is not implemented in "
+                + this.getClass().getName());
+    }
 }

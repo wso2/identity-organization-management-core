@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -29,6 +29,7 @@ public class Organization {
 
     private String id;
     private String name;
+    private String version;
     private String description;
     private String status;
     private String type;
@@ -41,6 +42,9 @@ public class Organization {
     private List<OrganizationAttribute> attributes = new ArrayList<>();
     private List<ChildOrganizationDO> childOrganizations = new ArrayList<>();
     private List<String> permissions = new ArrayList<>();
+    private String organizationHandle;
+    private boolean hasChildren;
+    private List<AncestorOrganizationDO> ancestors = new ArrayList<>();
 
     public String getId() {
 
@@ -142,6 +146,13 @@ public class Organization {
         this.attributes = attributes;
     }
 
+    public void setAttribute(OrganizationAttribute attribute) {
+
+        if (attribute != null) {
+            this.attributes.add(attribute);
+        }
+    }
+
     public List<ChildOrganizationDO> getChildOrganizations() {
 
         return childOrganizations;
@@ -180,5 +191,85 @@ public class Organization {
     public void setPermissions(List<String> permissions) {
 
         this.permissions = permissions;
+    }
+
+    /**
+     * Returns the version of the organization.
+     *
+     * @return The version of the organization.
+     */
+    public String getVersion() {
+
+        return version;
+    }
+
+    /**
+     * Sets the version of the organization.
+     *
+     * @param version The version to set.
+     */
+    public void setVersion(String version) {
+
+        this.version = version;
+    }
+
+    /**
+     * Returns the organization handle.
+     *
+     * @return The organization handle.
+     */
+    public String getOrganizationHandle() {
+
+        return organizationHandle;
+    }
+
+    /**
+     * Sets the organization handle.
+     *
+     * @param organizationHandle The organization handle to set.
+     */
+    public void setOrganizationHandle(String organizationHandle) {
+
+        this.organizationHandle = organizationHandle;
+    }
+
+    /**
+     * Returns the list of ancestor organizations.
+     *
+     * @return List of ancestor organizations.
+     */
+    public List<AncestorOrganizationDO> getAncestors() {
+
+        return ancestors;
+    }
+
+    /**
+     * Sets the list of ancestor organizations.
+     *
+     * @param ancestors List of ancestor organizations to set.
+     */
+    public void setAncestors(List<AncestorOrganizationDO> ancestors) {
+
+        this.ancestors = ancestors;
+    }
+
+    /**
+     * Returns whether the organization has child organizations.
+     *
+     * @return True if the organization has child organizations, false otherwise.
+     */
+    public boolean hasChildren() {
+
+        return hasChildren;
+    }
+
+    /**
+     * Sets whether the organization has child organizations.
+     *
+     * @param hasChildren True if the organization has child organizations, false otherwise.
+     */
+    public void setHasChildren(boolean hasChildren) {
+
+        this.hasChildren = hasChildren;
     }
 }

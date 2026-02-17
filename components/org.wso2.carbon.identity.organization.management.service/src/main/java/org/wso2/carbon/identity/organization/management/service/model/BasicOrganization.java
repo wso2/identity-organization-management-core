@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -27,7 +27,10 @@ public class BasicOrganization {
     private String id;
     private String name;
     private String status;
+    private String version;
     private String created;
+    private String organizationHandle;
+    private boolean hasChildren;
 
     public String getId() {
 
@@ -67,5 +70,65 @@ public class BasicOrganization {
     public void setStatus(String status) {
 
         this.status = status;
+    }
+
+    /**
+     * Returns the version of the organization.
+     *
+     * @return The version of the organization.
+     */
+    public String getVersion() {
+
+        return version;
+    }
+
+    /**
+     * Sets the version of the organization.
+     *
+     * @param version The version to set.
+     */
+    public void setVersion(String version) {
+
+        this.version = version;
+    }
+
+    /**
+     * Returns the organization handle.
+     *
+     * @return The organization handle.
+     */
+    public String getOrganizationHandle() {
+
+        return organizationHandle;
+    }
+
+    /**
+     * Sets the organization handle.
+     *
+     * @param organizationHandle The organization handle to set.
+     */
+    public void setOrganizationHandle(String organizationHandle) {
+
+        this.organizationHandle = organizationHandle;
+    }
+
+    /**
+     * Returns whether the organization has child organizations.
+     *
+     * @return True if the organization has child organizations, false otherwise.
+     */
+    public boolean hasChildren() {
+
+        return hasChildren;
+    }
+
+    /**
+     * Sets whether the organization has child organizations.
+     *
+     * @param hasChildren True if the organization has child organizations, false otherwise.
+     */
+    public void setHasChildren(boolean hasChildren) {
+
+        this.hasChildren = hasChildren;
     }
 }

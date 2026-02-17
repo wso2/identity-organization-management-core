@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ * Copyright (c) 2026, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -21,22 +21,22 @@ package org.wso2.carbon.identity.organization.management.service.cache;
 import java.util.Objects;
 
 /**
- * Organization Id cache key.
+ * Tenant domain cache key.
  */
-public class OrganizationIdCacheKey extends CacheKey {
+public class TenantDomainCacheKey extends CacheKey {
 
-    private static final long serialVersionUID = 6281482632454325986L;
+    private static final long serialVersionUID = 6264839123456789012L;
 
-    private String orgId;
+    private String tenantDomain;
 
-    public OrganizationIdCacheKey(String orgId) {
+    public TenantDomainCacheKey(String tenantDomain) {
 
-        this.orgId = orgId;
+        this.tenantDomain = tenantDomain;
     }
 
-    public String getOrganizationId() {
+    public String getTenantDomain() {
 
-        return orgId;
+        return tenantDomain;
     }
 
     @Override
@@ -52,16 +52,16 @@ public class OrganizationIdCacheKey extends CacheKey {
             return false;
         }
 
-        OrganizationIdCacheKey that = (OrganizationIdCacheKey) o;
+        TenantDomainCacheKey that = (TenantDomainCacheKey) o;
 
-        return orgId.equals(that.orgId);
+        return Objects.equals(this.tenantDomain, that.tenantDomain);
     }
 
     @Override
     public int hashCode() {
 
         int result = super.hashCode();
-        result = 31 * result + Objects.hashCode(orgId);
+        result = 31 * result + Objects.hashCode(tenantDomain);
         return result;
     }
 }

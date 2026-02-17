@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -29,17 +29,17 @@ import org.wso2.carbon.database.utils.jdbc.NamedJdbcTemplate;
 import org.wso2.carbon.database.utils.jdbc.exceptions.DataAccessException;
 import org.wso2.carbon.identity.organization.management.service.OrganizationManager;
 import org.wso2.carbon.identity.organization.management.service.OrganizationManagerImpl;
-import org.wso2.carbon.identity.organization.management.service.OrganizationUserResidentResolverService;
-import org.wso2.carbon.identity.organization.management.service.OrganizationUserResidentResolverServiceImpl;
 import org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementClientException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementException;
 import org.wso2.carbon.identity.organization.management.service.exception.OrganizationManagementServerException;
 import org.wso2.carbon.identity.organization.management.service.internal.OrganizationManagementDataHolder;
+import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.Permission;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -51,20 +51,30 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ADAPTIVE_AUTH_ENABLE_CONFIG_FOR_SHARED_APPS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.B2B_APPLICATION_ROLE_SUPPORT_ENABLED;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_DISCOVERY_DEFAULT_PARAM;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_SUB_ORG_LEVEL;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_DB_METADATA;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CREATING_NEW_SYSTEM_ROLE;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_ORGANIZATION;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ORGANIZATION_NOT_FOUND_FOR_TENANT;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_CARBON_ROLE_VALIDATION_ENABLED_FOR_LEVEL_ONE_ORGS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_ORG_QUALIFIED_URLS_SUPPORTED_FOR_LEVEL_ONE_ORGS;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_SUPER_ORG_NAME_SUPPORTED_IN_NOTIFICATION_TEMPLATES;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationVersion.ORG_VERSION_DELIMITER_REGEX;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationVersion.ORG_VERSION_PREFIX;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATH_SEPARATOR;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.SUB_ORG_START_LEVEL;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.DB2;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.MICROSOFT;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.MYSQL;
 import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.ORACLE;
+import static org.wso2.carbon.identity.organization.management.service.constant.SQLConstants.POSTGRESQL;
 import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_DOMAIN;
 
 /**
@@ -74,9 +84,8 @@ public class Utils {
 
     private static final Log LOG = LogFactory.getLog(Utils.class);
     private static DataSource dataSource;
-    private static final OrganizationUserResidentResolverService organizationUserResidentResolverService =
-            new OrganizationUserResidentResolverServiceImpl();
     private static final OrganizationManager organizationManager = new OrganizationManagerImpl();
+    private static final Pattern htmlContentPattern = Pattern.compile(".*<[^>]+(/>|>.*?</[^>]+>).*");
 
     /**
      * Throw an OrganizationManagementClientException upon client side error in organization management.
@@ -157,6 +166,28 @@ public class Utils {
     public static boolean isMySqlDB() throws OrganizationManagementServerException {
 
         return isDBTypeOf(MYSQL);
+    }
+
+    /**
+     * Check whether the string, "db2", contains in the driver name or db product name.
+     *
+     * @return true if the database type matches the driver type, false otherwise.
+     * @throws OrganizationManagementServerException If error occurred while checking the DB metadata.
+     */
+    public static boolean isDB2DB() throws OrganizationManagementServerException {
+
+        return isDBTypeOf(DB2);
+    }
+
+    /**
+     * Check whether the string, "postgresql", contains in the driver name or db product name.
+     *
+     * @return true if the database type matches the driver type, false otherwise.
+     * @throws OrganizationManagementServerException If error occurred while checking the DB metadata.
+     */
+    public static boolean isPostgreSqlDB() throws OrganizationManagementServerException {
+
+        return isDBTypeOf(POSTGRESQL);
     }
 
     /**
@@ -334,8 +365,32 @@ public class Utils {
      */
     public static String getOrganizationUserInvitationPrimaryUserDomain() {
 
-        return OrganizationManagementConfigUtil.getProperty(
+        String configuredUserDomain = OrganizationManagementConfigUtil.getProperty(
                 OrganizationManagementConstants.ORGANIZATION_USER_INVITATION_PRIMARY_USER_DOMAIN);
+        if (StringUtils.equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME, configuredUserDomain)) {
+            String configuredPrimaryDomainName = resolvePrimaryUserStoreDomainName();
+            if (!StringUtils.equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME, configuredPrimaryDomainName)) {
+                configuredUserDomain = configuredPrimaryDomainName;
+            }
+        }
+        return configuredUserDomain;
+    }
+
+    /**
+     * This method resolves the primary user store domain name when it is changed
+     * from `PRIMARY` to a different name; otherwise, it returns `PRIMARY`.
+     *
+     * @return Primary user store domain name.
+     */
+    public static String resolvePrimaryUserStoreDomainName() {
+
+        RealmConfiguration realmConfiguration =
+                OrganizationManagementDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration();
+        if (realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME) != null) {
+            return realmConfiguration.getUserStoreProperty(
+                    UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME).toUpperCase();
+        }
+        return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
     }
 
     /**
@@ -514,6 +569,129 @@ public class Utils {
     }
 
     /**
+     * Get the organization discovery default parameter.
+     *
+     * @return Organization discovery default parameter.
+     */
+    public static String getOrganizationDiscoveryDefaultParam() {
+
+        String discoveryDefaultParam = OrganizationManagementConfigUtil.getProperty(
+                OrganizationManagementConstants.ORGANIZATION_DISCOVERY_DEFAULT_PARAM);
+        if (StringUtils.isNotEmpty(discoveryDefaultParam)) {
+            return discoveryDefaultParam;
+        }
+        return DEFAULT_DISCOVERY_DEFAULT_PARAM;
+    }
+
+    /**
+     * Get the version that will be used to create new organizations.
+     *
+     * @return New organization version.
+     */
+    public static String getNewOrganizationVersion() {
+
+        return OrganizationManagementConfigUtil.getProperty(
+                OrganizationManagementConstants.OrganizationVersion.NEW_ORGANIZATION_VERSION_PROPERTY);
+    }
+
+    /**
+     * Check whether login and registration config inheritance is enabled for the organization identified by the
+     * given tenant domain.
+     * <p>
+     * Login & registration configuration inheritance is considered to be enabled if the organization version is
+     * greater than or equal to v1.0.0
+     *
+     * @param tenantDomain Tenant domain.
+     * @return True if login and registration config inheritance is enabled, false otherwise.
+     */
+    public static boolean isLoginAndRegistrationConfigInheritanceEnabled(String tenantDomain) {
+
+        try {
+            return isOrgVersionApplicable(tenantDomain,
+                    OrganizationManagementConstants.OrganizationVersion.ORG_VERSION_V1);
+        } catch (OrganizationManagementException e) {
+            LOG.error("Error while resolving organization ID for tenant domain: " + tenantDomain, e);
+        }
+        return false;
+    }
+
+    /**
+     * Check whether claim and OIDC claim inheritance is enabled for the organization identified by the given tenant
+     * domain.
+     * <p>
+     * Claim and OIDC claim inheritance is considered to be enabled if the organization version is
+     * equal to or greater than v1.0.0
+     *
+     * @param tenantDomain Tenant domain of the organization.
+     * @return true if claim and OIDC scope inheritance is enabled, false otherwise.
+     * @throws OrganizationManagementException If an error occurs while resolving organization id for the given
+     * tenant domain
+     */
+    public static boolean isClaimAndOIDCScopeInheritanceEnabled(String tenantDomain)
+            throws OrganizationManagementException {
+
+        return isOrgVersionApplicable(tenantDomain,
+                OrganizationManagementConstants.OrganizationVersion.ORG_VERSION_V1);
+    }
+
+    /**
+     * Checks whether the current organization version is greater than or equal to the minimum
+     *
+     * @param tenantDomain             Tenant domain of the organization.
+     * @param minimumApplicableVersion The minimum applicable version.
+     * @return true if the org version is greater than or equal to the minimum applicable version.
+     * @throws OrganizationManagementException If an error occurs while resolving organization id for the given
+     * tenant domain
+     */
+    private static boolean isOrgVersionApplicable(String tenantDomain, String minimumApplicableVersion)
+            throws OrganizationManagementException {
+
+        String orgVersion;
+        try {
+            orgVersion = organizationManager.getOrganizationVersion(
+                    organizationManager.resolveOrganizationId(tenantDomain));
+        } catch (OrganizationManagementException e) {
+            if (ERROR_CODE_INVALID_ORGANIZATION.getCode().equals(e.getErrorCode()) ||
+                    ERROR_CODE_ORGANIZATION_NOT_FOUND_FOR_TENANT.getCode().equals(e.getErrorCode())) {
+                /*
+                 * If the organization is not found, it means the organization related to the given tenant is deleted.
+                 * In this case, it is not possible to inherit resources since the organization hierarchy cannot be
+                 * resolved. Hence, return false.
+                 */
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("The organization for tenant domain: " + tenantDomain + " is not found. Hence, " +
+                            "returning false for org version applicability check for minimum applicable version: " +
+                            minimumApplicableVersion);
+                }
+                return false;
+            }
+            throw e;
+        }
+
+        if (StringUtils.isBlank(orgVersion) || StringUtils.isBlank(minimumApplicableVersion)) {
+            return false;
+        }
+        // Semantic version comparison
+        String[] orgVersionComponents = orgVersion.replace(ORG_VERSION_PREFIX, StringUtils.EMPTY)
+                .split(ORG_VERSION_DELIMITER_REGEX);
+        String[] minVersionComponents = minimumApplicableVersion.replace(ORG_VERSION_PREFIX, StringUtils.EMPTY)
+                .split(ORG_VERSION_DELIMITER_REGEX);
+        for (int i = 0; i < orgVersionComponents.length; i++) {
+            int orgVersionComponent = Integer.parseInt(orgVersionComponents[i]);
+            int minVersionComponent = Integer.parseInt(minVersionComponents[i]);
+            if (orgVersionComponent > minVersionComponent) {
+                return true;
+            }
+            if (orgVersionComponent < minVersionComponent) {
+                return false;
+            }
+        }
+        // If the comparison didn't return anything within the "for" block,
+        // it means both versions are equal, therefore, we return true.
+        return true;
+    }
+
+    /**
      * Create the system role for the application and assign the user to that role.
      *
      * @param tenantDomain     Tenant Domain.
@@ -628,5 +806,32 @@ public class Utils {
     public static boolean isLegacyAuthzRuntime() {
 
         return CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME;
+    }
+
+    public static boolean hasHtmlContent(String orgName) {
+
+        return htmlContentPattern.matcher(orgName).find();
+    }
+
+    /**
+     * Is the Super Organization display name enabled in notification templates.
+     *
+     * @return True if super organization name is used in notification templates instead of tenant domain.
+     */
+    public static boolean isSuperOrgNameSupportedInNotificationTemplates() {
+
+        return Boolean.parseBoolean(
+                OrganizationManagementConfigUtil.getProperty(IS_SUPER_ORG_NAME_SUPPORTED_IN_NOTIFICATION_TEMPLATES));
+    }
+
+    /**
+     * Returns whether adaptive authentication is enabled for shared apps.
+     *
+     * @return True if adaptive authentication is enabled for shared apps.
+     */
+    public static boolean isAdaptiveAuthEnabledForSharedApps() {
+
+        return Boolean.parseBoolean(
+                OrganizationManagementConfigUtil.getProperty(ADAPTIVE_AUTH_ENABLE_CONFIG_FOR_SHARED_APPS));
     }
 }

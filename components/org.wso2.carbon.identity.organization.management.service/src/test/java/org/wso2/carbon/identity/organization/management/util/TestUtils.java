@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -22,6 +22,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.internal.CarbonContextDataHolder;
 import org.wso2.carbon.identity.organization.management.service.util.Utils;
 import org.wso2.carbon.user.api.UserRealm;
@@ -30,19 +31,30 @@ import org.wso2.carbon.user.core.util.DatabaseUtil;
 import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import javax.sql.DataSource;
 
+import static java.time.ZoneOffset.UTC;
 import static org.mockito.Mockito.mock;
+import static org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_ID;
+import static org.wso2.carbon.identity.organization.management.service.util.Utils.generateUniqueID;
+import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
 
 public class TestUtils {
 
     public static final String DB_NAME = "testOrgMgt_db";
     public static final String H2_SCRIPT_NAME = "h2.sql";
     public static Map<String, BasicDataSource> dataSourceMap = new HashMap<>();
+
+    private static final Calendar CALENDAR = Calendar.getInstance(TimeZone.getTimeZone(UTC));
 
     public static String getFilePath(String fileName) {
 
@@ -102,6 +114,35 @@ public class TestUtils {
                 = (CarbonContextDataHolder) carbonContextHolderField.get(CarbonContext.getThreadLocalCarbonContext());
         carbonContextHolder.setUserRealm(mock(UserRealm.class));
         setStatic(Utils.class.getDeclaredField("dataSource"), dataSource);
+    }
+
+    public static void mockCarbonContext(String superOrgId) {
+
+        String carbonHome = Paths.get(System.getProperty("user.dir"), "target", "test-classes").toString();
+        System.setProperty(CarbonBaseConstants.CARBON_HOME, carbonHome);
+        System.setProperty(CarbonBaseConstants.CARBON_CONFIG_DIR_PATH, Paths.get(carbonHome,
+                "repository/conf").toString());
+
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(SUPER_TENANT_DOMAIN_NAME);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(SUPER_TENANT_ID);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername("admin");
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setUserId("1234");
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setOrganizationId(superOrgId);
+    }
+
+    public static void storeAssociatedTenant(String tenantDomain, String orgId) throws Exception {
+
+        try (Connection connection = getConnection()) {
+            String sql = "INSERT INTO UM_TENANT (UM_TENANT_UUID, UM_DOMAIN_NAME, UM_CREATED_DATE, UM_USER_CONFIG, " +
+                    "UM_ORG_UUID) VALUES ( ?, ?, ?, ?, ?)";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, generateUniqueID());
+            statement.setString(2, tenantDomain);
+            statement.setTimestamp(3, Timestamp.from(Instant.now()), CALENDAR);
+            statement.setBytes(4, new byte[10]);
+            statement.setString(5, orgId);
+            statement.execute();
+        }
     }
 
     private static void setStatic(Field field, Object newValue) throws Exception {

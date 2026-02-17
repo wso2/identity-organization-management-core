@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -25,14 +25,18 @@ public class SQLConstants {
 
     // Database types
     public static final String ORACLE = "oracle";
-
     public static final String MICROSOFT = "microsoft";
-
     public static final String MYSQL = "mysql";
+    public static final String DB2 = "db2";
+    public static final String POSTGRESQL = "postgresql";
 
     public static final String PERMISSION_LIST_PLACEHOLDER = "_PERMISSION_LIST_";
     public static final String USER_NAME_LIST_PLACEHOLDER = "_SHARED_USER_NAMES_";
 
+    /**
+     * @deprecated Use {@link #INSERT_ORG_WITH_VERSION} instead.
+     */
+    @Deprecated
     public static final String INSERT_ORGANIZATION = "INSERT INTO UM_ORG (UM_ID, UM_ORG_NAME, UM_ORG_DESCRIPTION, " +
             "UM_CREATED_TIME, UM_LAST_MODIFIED, UM_STATUS, UM_PARENT_ID, UM_ORG_TYPE) VALUES (:" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";, :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_NAME + ";, :" +
@@ -42,6 +46,18 @@ public class SQLConstants {
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_STATUS + ";, :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID + ";, :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_TYPE + ";)";
+
+    public static final String INSERT_ORG_WITH_VERSION = "INSERT INTO UM_ORG (UM_ID, UM_ORG_NAME, " +
+            "UM_ORG_DESCRIPTION, UM_CREATED_TIME, UM_LAST_MODIFIED, UM_STATUS, UM_PARENT_ID, UM_ORG_TYPE, " +
+            "UM_ORG_VERSION) VALUES (:" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";, :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_NAME + ";, :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_DESCRIPTION + ";, :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_CREATED_TIME + ";, :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_LAST_MODIFIED + ";, :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_STATUS + ";, :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID + ";, :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_TYPE + ";, :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_VERSION + ";)";
 
     public static final String CHECK_ORGANIZATION_EXIST_BY_NAME = "SELECT COUNT(1) FROM UM_ORG WHERE UM_ORG_NAME = :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_NAME + ";";
@@ -70,6 +86,10 @@ public class SQLConstants {
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID + ";, :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID +
             ";, 1 FROM dual ) SELECT * FROM OH";
 
+    /**
+     * @deprecated Use {@link #INSERT_ROOT_ORG_WITH_VERSION} instead.
+     */
+    @Deprecated
     public static final String INSERT_ROOT_ORGANIZATION = "INSERT INTO UM_ORG (UM_ID, UM_ORG_NAME, " +
             "UM_CREATED_TIME, UM_LAST_MODIFIED, UM_STATUS, UM_ORG_TYPE) VALUES (:" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";, :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_NAME + ";, :" +
@@ -77,6 +97,15 @@ public class SQLConstants {
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_LAST_MODIFIED + ";, :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_STATUS + ";, :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_TYPE + ";)";
+
+    public static final String INSERT_ROOT_ORG_WITH_VERSION = "INSERT INTO UM_ORG (UM_ID, UM_ORG_NAME, " +
+            "UM_CREATED_TIME, UM_LAST_MODIFIED, UM_STATUS, UM_ORG_TYPE, UM_ORG_VERSION) VALUES (:" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";, :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_NAME + ";, :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_CREATED_TIME + ";, :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_LAST_MODIFIED + ";, :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_STATUS + ";, :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_TYPE + ";, :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_VERSION + ";)";
 
     public static final String INSERT_ROOT_ORGANIZATION_HIERARCHY = "INSERT INTO UM_ORG_HIERARCHY " +
             "(UM_PARENT_ID, UM_ID, DEPTH) VALUES (:" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";, :" +
@@ -87,18 +116,37 @@ public class SQLConstants {
             "UM_ORG_HIERARCHY WHERE UM_ORG_HIERARCHY.UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID +
             "; AND UM_PARENT_ID <> UM_ID";
 
+    /**
+     * @deprecated Use {@link #GET_ORG_WITH_VERSION_BY_ID} instead.
+     */
+    @Deprecated
     public static final String GET_ORGANIZATION_BY_ID = "SELECT UM_ORG.UM_ID, UM_ORG_NAME, UM_ORG_DESCRIPTION, " +
             "UM_CREATED_TIME, UM_LAST_MODIFIED, UM_STATUS, UM_PARENT_ID, UM_ORG_TYPE, " +
+            "UM_ATTRIBUTE_KEY, UM_ATTRIBUTE_VALUE FROM UM_ORG LEFT OUTER JOIN UM_ORG_ATTRIBUTE ON UM_ORG.UM_ID = " +
+            "UM_ORG_ATTRIBUTE.UM_ORG_ID WHERE UM_ORG.UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";";
+
+    public static final String GET_ORG_WITH_VERSION_BY_ID = "SELECT UM_ORG.UM_ID, UM_ORG_NAME, UM_ORG_DESCRIPTION, " +
+            "UM_CREATED_TIME, UM_LAST_MODIFIED, UM_STATUS, UM_ORG_VERSION, UM_PARENT_ID, UM_ORG_TYPE, " +
+            "CASE WHEN EXISTS ( SELECT 1 FROM UM_ORG C WHERE C.UM_PARENT_ID = UM_ORG.UM_ID ) THEN 1 ELSE 0 " +
+            "END AS HAS_CHILDREN, " +
             "UM_ATTRIBUTE_KEY, UM_ATTRIBUTE_VALUE FROM UM_ORG LEFT OUTER JOIN UM_ORG_ATTRIBUTE ON UM_ORG.UM_ID = " +
             "UM_ORG_ATTRIBUTE.UM_ORG_ID WHERE UM_ORG.UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";";
 
     public static final String GET_ORGANIZATIONS_BY_NAME = "SELECT UM_ORG.UM_ID, UM_ORG_NAME, UM_ORG_DESCRIPTION FROM" +
             " UM_ORG WHERE UM_ORG.UM_ORG_NAME = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_NAME + ";";
 
+    /**
+     * @deprecated Use {@link #GET_ORG_WITH_VERSION_AND_USER_ASSOCIATIONS_INCLUDING_ORG_HANDLE} instead.
+     */
+    @Deprecated
     public static final String GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS = "SELECT UM_ORG.UM_ID, UM_ORG.UM_ORG_NAME, " +
             "UM_ORG.UM_CREATED_TIME, UM_ORG.UM_STATUS FROM UM_ORG INNER JOIN UM_ORG_USER_ASSOCIATION " +
             "ON UM_ORG.UM_ID = UM_ORG_USER_ASSOCIATION.UM_ORG_ID WHERE ";
 
+    /**
+     * @deprecated Use {@link #GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_INCLUDING_ORG_HANDLE} instead.
+     */
+    @Deprecated
     public static final String GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS =
             "SELECT UM_ORG.UM_ID, UM_ORG.UM_ORG_NAME, UM_ORG.UM_CREATED_TIME, UM_ORG.UM_STATUS FROM " +
                     "UM_ORG_USER_ASSOCIATION INNER JOIN UM_ORG ON UM_ORG.UM_ID = UM_ORG_USER_ASSOCIATION.UM_ORG_ID " +
@@ -108,8 +156,71 @@ public class SQLConstants {
                     "INNER JOIN UM_SHARED_ROLE ON UM_HYBRID_ROLE.UM_ID = UM_SHARED_ROLE.UM_SHARED_ROLE_ID " +
                     "INNER JOIN UM_DOMAIN ON UM_HYBRID_USER_ROLE.UM_DOMAIN_ID = UM_DOMAIN.UM_DOMAIN_ID WHERE ";
 
+    /**
+     * @deprecated Use {@link #GET_ORGANIZATIONS_INCLUDING_ORG_HANDLE_AND_VERSION} instead.
+     */
+    @Deprecated
     public static final String GET_ORGANIZATIONS = "SELECT UM_ORG.UM_ID, " +
             "UM_ORG.UM_ORG_NAME, UM_ORG.UM_CREATED_TIME, UM_ORG.UM_STATUS FROM UM_ORG WHERE ";
+
+    /**
+     * @deprecated Use {@link #GET_ORG_WITH_VERSION_AND_USER_ASSOCIATIONS_INCLUDING_ORG_HANDLE} instead.
+     */
+    @Deprecated
+    public static final String GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_INCLUDING_ORG_HANDLE =
+            "SELECT UM_ORG.UM_ID, UM_ORG.UM_ORG_NAME, UM_ORG.UM_CREATED_TIME, UM_ORG.UM_STATUS, " +
+                    "UM_TENANT.UM_DOMAIN_NAME FROM UM_ORG " +
+                    "INNER JOIN UM_TENANT ON UM_TENANT.UM_ORG_UUID = UM_ORG.UM_ID " +
+                    "INNER JOIN UM_ORG_USER_ASSOCIATION ON UM_ORG.UM_ID = UM_ORG_USER_ASSOCIATION.UM_ORG_ID WHERE ";
+
+    public static final String GET_ORG_WITH_VERSION_AND_USER_ASSOCIATIONS_INCLUDING_ORG_HANDLE =
+            "SELECT UM_ORG.UM_ID, UM_ORG.UM_ORG_NAME, UM_ORG.UM_CREATED_TIME, UM_ORG.UM_STATUS, " +
+                    "UM_TENANT.UM_DOMAIN_NAME, UM_ORG.UM_ORG_VERSION, CASE WHEN EXISTS " +
+                    "( SELECT 1 FROM UM_ORG C WHERE C.UM_PARENT_ID = UM_ORG.UM_ID ) " +
+                    "THEN 1 ELSE 0 END AS HAS_CHILDREN FROM UM_ORG " +
+                    "INNER JOIN UM_TENANT ON UM_TENANT.UM_ORG_UUID = UM_ORG.UM_ID " +
+                    "INNER JOIN UM_ORG_USER_ASSOCIATION ON UM_ORG.UM_ID = UM_ORG_USER_ASSOCIATION.UM_ORG_ID WHERE ";
+
+    /**
+     * @deprecated Use {@link #GET_ORG_WITH_VERSION_AND_USER_ROLE_ASSOCIATIONS_INCLUDING_ORG_HANDLE} instead.
+     */
+    @Deprecated
+    public static final String GET_ORGANIZATIONS_WITH_USER_ROLE_ASSOCIATIONS_INCLUDING_ORG_HANDLE =
+            "SELECT UM_ORG.UM_ID, UM_ORG.UM_ORG_NAME, UM_ORG.UM_CREATED_TIME, UM_ORG.UM_STATUS, " +
+                    "UM_TENANT.UM_DOMAIN_NAME FROM UM_ORG_USER_ASSOCIATION " +
+                    "INNER JOIN UM_ORG ON UM_ORG.UM_ID = UM_ORG_USER_ASSOCIATION.UM_ORG_ID " +
+                    "INNER JOIN UM_TENANT ON UM_TENANT.UM_ORG_UUID = UM_ORG.UM_ID " +
+                    "INNER JOIN UM_HYBRID_ROLE ON UM_HYBRID_ROLE.UM_TENANT_ID = UM_TENANT.UM_ID " +
+                    "INNER JOIN UM_HYBRID_USER_ROLE ON UM_HYBRID_USER_ROLE.UM_ROLE_ID = UM_HYBRID_ROLE.UM_ID " +
+                    "INNER JOIN UM_SHARED_ROLE ON UM_HYBRID_ROLE.UM_ID = UM_SHARED_ROLE.UM_SHARED_ROLE_ID " +
+                    "INNER JOIN UM_DOMAIN ON UM_HYBRID_USER_ROLE.UM_DOMAIN_ID = UM_DOMAIN.UM_DOMAIN_ID WHERE ";
+
+    public static final String GET_ORG_WITH_VERSION_AND_USER_ROLE_ASSOCIATIONS_INCLUDING_ORG_HANDLE =
+            "SELECT UM_ORG.UM_ID, UM_ORG.UM_ORG_NAME, UM_ORG.UM_CREATED_TIME, UM_ORG.UM_STATUS, " +
+                    "UM_TENANT.UM_DOMAIN_NAME, UM_ORG.UM_ORG_VERSION, CASE WHEN EXISTS " +
+                    "( SELECT 1 FROM UM_ORG C WHERE C.UM_PARENT_ID = UM_ORG.UM_ID ) THEN 1 ELSE 0 END " +
+                    "AS HAS_CHILDREN FROM UM_ORG_USER_ASSOCIATION " +
+                    "INNER JOIN UM_ORG ON UM_ORG.UM_ID = UM_ORG_USER_ASSOCIATION.UM_ORG_ID " +
+                    "INNER JOIN UM_TENANT ON UM_TENANT.UM_ORG_UUID = UM_ORG.UM_ID " +
+                    "INNER JOIN UM_HYBRID_ROLE ON UM_HYBRID_ROLE.UM_TENANT_ID = UM_TENANT.UM_ID " +
+                    "INNER JOIN UM_HYBRID_USER_ROLE ON UM_HYBRID_USER_ROLE.UM_ROLE_ID = UM_HYBRID_ROLE.UM_ID " +
+                    "INNER JOIN UM_SHARED_ROLE ON UM_HYBRID_ROLE.UM_ID = UM_SHARED_ROLE.UM_SHARED_ROLE_ID " +
+                    "INNER JOIN UM_DOMAIN ON UM_HYBRID_USER_ROLE.UM_DOMAIN_ID = UM_DOMAIN.UM_DOMAIN_ID WHERE ";
+
+    /**
+     * @deprecated Use {@link #GET_ORGANIZATIONS_INCLUDING_ORG_HANDLE_AND_VERSION} instead.
+     */
+    @Deprecated
+    public static final String GET_ORGANIZATIONS_INCLUDING_ORG_HANDLE = "SELECT UM_ORG.UM_ID, " +
+            "UM_ORG.UM_ORG_NAME, UM_ORG.UM_CREATED_TIME, UM_ORG.UM_STATUS, UM_TENANT.UM_DOMAIN_NAME " +
+            "FROM UM_ORG INNER JOIN UM_TENANT ON UM_TENANT.UM_ORG_UUID = UM_ORG.UM_ID WHERE ";
+
+
+    public static final String GET_ORGANIZATIONS_INCLUDING_ORG_HANDLE_AND_VERSION = "SELECT UM_ORG.UM_ID, " +
+            "UM_ORG.UM_ORG_NAME, UM_ORG.UM_CREATED_TIME, UM_ORG.UM_STATUS, UM_TENANT.UM_DOMAIN_NAME, " +
+            "UM_ORG.UM_ORG_VERSION, CASE WHEN EXISTS ( SELECT 1 FROM UM_ORG C WHERE C.UM_PARENT_ID = UM_ORG.UM_ID ) " +
+            "THEN 1 ELSE 0 END AS HAS_CHILDREN " +
+            "FROM UM_ORG INNER JOIN UM_TENANT ON UM_TENANT.UM_ORG_UUID = UM_ORG.UM_ID WHERE ";
 
     public static final String GET_ORGANIZATIONS_WITH_USER_ASSOCIATIONS_TAIL =
             "UM_ORG_USER_ASSOCIATION.UM_ASSOCIATED_USER_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_USER_ID +
@@ -204,6 +315,9 @@ public class SQLConstants {
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_NAME + "; AND OH.UM_PARENT_ID = :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID + ";";
 
+    public static final String CHECK_ORGANIZATIONS_EXIST_WITH_NAME = "SELECT COUNT(1) FROM UM_ORG WHERE " +
+            "UM_ORG_NAME = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_NAME + ";";
+
     public static final String PATCH_ORGANIZATION = "UPDATE UM_ORG SET ";
 
     public static final String PATCH_ORGANIZATION_CONCLUDE = " = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_VALUE +
@@ -213,11 +327,23 @@ public class SQLConstants {
             "UPDATE UM_ORG SET UM_LAST_MODIFIED = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_LAST_MODIFIED +
                     "; WHERE UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";";
 
+    /**
+     * @deprecated Use {@link #UPDATE_ORG_WITH_VERSION} instead.
+     */
+    @Deprecated
     public static final String UPDATE_ORGANIZATION = "UPDATE UM_ORG SET UM_ORG_NAME = :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_NAME + ";, UM_ORG_DESCRIPTION = :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_DESCRIPTION + ";, UM_LAST_MODIFIED = :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_LAST_MODIFIED + ";, UM_STATUS = :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_STATUS + "; WHERE UM_ID = :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";";
+
+    public static final String UPDATE_ORG_WITH_VERSION = "UPDATE UM_ORG SET UM_ORG_NAME = :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_NAME + ";, UM_ORG_DESCRIPTION = :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_DESCRIPTION + ";, UM_LAST_MODIFIED = :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_LAST_MODIFIED + ";, UM_STATUS = :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_STATUS + ";, UM_ORG_VERSION = :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_VERSION + "; WHERE UM_ID = :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";";
 
     public static final String CHECK_ORGANIZATION_ATTRIBUTE_KEY_EXIST = "SELECT COUNT(1) FROM UM_ORG_ATTRIBUTE WHERE" +
@@ -240,8 +366,33 @@ public class SQLConstants {
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + "; AND UM_ATTRIBUTE_KEY = :" +
             SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_KEY + ";";
 
+    /**
+     * @deprecated Use {@link #GET_CHILD_ORGANIZATIONS_INCLUDING_ORG_HANDLE} instead.
+     */
+    @Deprecated
     public static final String GET_CHILD_ORGANIZATIONS = "SELECT UM_ORG.UM_ID, UM_ORG.UM_ORG_NAME, " +
             "UM_ORG.UM_CREATED_TIME FROM UM_ORG JOIN UM_ORG_HIERARCHY ON UM_ORG.UM_ID = UM_ORG_HIERARCHY.UM_ID " +
+            "WHERE UM_ORG_HIERARCHY.UM_PARENT_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID +
+            "; AND UM_ORG_HIERARCHY.DEPTH %s";
+
+    public static final String GET_CHILD_ORGANIZATIONS_INCLUDING_ORG_HANDLE = "SELECT UM_ORG.UM_ID, " +
+            "UM_ORG.UM_ORG_NAME, UM_ORG.UM_CREATED_TIME, UM_TENANT.UM_DOMAIN_NAME FROM UM_ORG " +
+            "JOIN UM_TENANT ON UM_TENANT.UM_ORG_UUID = UM_ORG.UM_ID " +
+            "JOIN UM_ORG_HIERARCHY ON UM_ORG.UM_ID = UM_ORG_HIERARCHY.UM_ID " +
+            "WHERE UM_ORG_HIERARCHY.UM_PARENT_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID +
+            "; AND UM_ORG_HIERARCHY.DEPTH %s";
+
+    public static final String GET_CHILD_ORGANIZATION_HIERARCHY =
+            "SELECT UM_ORG.UM_ID, UM_ORG.UM_ORG_NAME, UM_ORG.UM_PARENT_ID, " +
+                    "UM_ORG.UM_CREATED_TIME, UM_TENANT.UM_DOMAIN_NAME " +
+                    "FROM UM_ORG " +
+                    "JOIN UM_TENANT ON UM_TENANT.UM_ORG_UUID = UM_ORG.UM_ID " +
+                    "JOIN UM_ORG_HIERARCHY ON UM_ORG.UM_ID = UM_ORG_HIERARCHY.UM_ID " +
+                    "WHERE UM_ORG_HIERARCHY.UM_PARENT_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID +
+                    "; AND UM_ORG_HIERARCHY.DEPTH %s";
+
+    public static final String GET_IMMEDIATE_OR_ALL_CHILD_ORG_IDS = "SELECT UM_ORG.UM_ID FROM UM_ORG " +
+            "JOIN UM_ORG_HIERARCHY ON UM_ORG.UM_ID = UM_ORG_HIERARCHY.UM_ID " +
             "WHERE UM_ORG_HIERARCHY.UM_PARENT_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_PARENT_ID +
             "; AND UM_ORG_HIERARCHY.DEPTH %s";
 
@@ -351,6 +502,100 @@ public class SQLConstants {
             "(SELECT UM_ID FROM UM_ORG WHERE %s) AND OH.DEPTH %s) ORDER BY UM_ORG.UM_CREATED_TIME %s OFFSET 0 ROWS " +
             "FETCH NEXT :" + SQLPlaceholders.DB_SCHEMA_LIMIT + "; ROWS ONLY";
 
+    public static final String INNER_JOIN_UM_ORG_ATTRIBUTE =
+            "INNER JOIN UM_ORG_ATTRIBUTE %s ON UM_ORG.UM_ID = %s.UM_ORG_ID WHERE";
+
+    /**
+     * @deprecated Use {@link #GET_ALL_UM_ORG_ATTRIBUTES_WITH_ORG_VERSION} instead.
+     */
+    @Deprecated
+    public static final String GET_ALL_UM_ORG_ATTRIBUTES = "SELECT UM_ORG.UM_ID, UM_ORG.UM_ORG_NAME, " +
+            "UM_ORG.UM_CREATED_TIME, UM_ORG.UM_STATUS, UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_KEY, " +
+            "UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_VALUE FROM UM_ORG INNER JOIN UM_ORG_ATTRIBUTE ON UM_ORG.UM_ID " +
+            "= UM_ORG_ATTRIBUTE.UM_ORG_ID INNER JOIN (%s) AS FILTERED_ORG ON UM_ORG.UM_ID = FILTERED_ORG.UM_ID;";
+
+    public static final String GET_ALL_UM_ORG_ATTRIBUTES_WITH_ORG_VERSION = "SELECT UM_ORG.UM_ID, " +
+            "UM_ORG.UM_ORG_NAME, UM_ORG.UM_CREATED_TIME, UM_ORG.UM_STATUS, UM_TENANT.UM_DOMAIN_NAME, " +
+            "UM_ORG.UM_ORG_VERSION, CASE WHEN EXISTS ( SELECT 1 FROM UM_ORG C WHERE C.UM_PARENT_ID = UM_ORG.UM_ID ) " +
+            "THEN 1 ELSE 0 END AS HAS_CHILDREN, UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_KEY, " +
+            "UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_VALUE " +
+            "FROM UM_ORG INNER JOIN UM_ORG_ATTRIBUTE ON UM_ORG.UM_ID = UM_ORG_ATTRIBUTE.UM_ORG_ID INNER JOIN " +
+            "UM_TENANT ON UM_TENANT.UM_ORG_UUID = UM_ORG.UM_ID INNER JOIN (%s) " +
+            "AS FILTERED_ORG ON UM_ORG.UM_ID = FILTERED_ORG.UM_ID;";
+
+    /**
+     * @deprecated Use {@link #GET_ALL_UM_ORG_ATTRIBUTES_WITH_ORG_VERSION_ORACLE} instead.
+     */
+    @Deprecated
+    public static final String GET_ALL_UM_ORG_ATTRIBUTES_ORACLE = "SELECT UM_ORG.UM_ID, UM_ORG.UM_ORG_NAME, " +
+            "UM_ORG.UM_CREATED_TIME, UM_ORG.UM_STATUS, UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_KEY, " +
+            "UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_VALUE FROM UM_ORG INNER JOIN UM_ORG_ATTRIBUTE ON UM_ORG.UM_ID " +
+            "= UM_ORG_ATTRIBUTE.UM_ORG_ID INNER JOIN (%s) FILTERED_ORG ON UM_ORG.UM_ID = FILTERED_ORG.UM_ID " +
+            "ORDER BY UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_KEY";
+
+    public static final String GET_ALL_UM_ORG_ATTRIBUTES_WITH_ORG_VERSION_ORACLE = "SELECT UM_ORG.UM_ID, " +
+            "UM_ORG.UM_ORG_NAME, UM_ORG.UM_CREATED_TIME, UM_ORG.UM_STATUS, UM_TENANT.UM_DOMAIN_NAME, " +
+            "UM_ORG.UM_ORG_VERSION, CASE WHEN EXISTS ( SELECT 1 FROM UM_ORG C WHERE C.UM_PARENT_ID = UM_ORG.UM_ID ) " +
+            "THEN 1 ELSE 0 END AS HAS_CHILDREN, UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_KEY, " +
+            "UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_VALUE " +
+            "FROM UM_ORG INNER JOIN UM_ORG_ATTRIBUTE ON UM_ORG.UM_ID = UM_ORG_ATTRIBUTE.UM_ORG_ID INNER JOIN " +
+            "UM_TENANT ON UM_TENANT.UM_ORG_UUID = UM_ORG.UM_ID INNER JOIN " +
+            "(%s) FILTERED_ORG ON UM_ORG.UM_ID = FILTERED_ORG.UM_ID ORDER BY UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_KEY";
+
+    public static final String GET_ORGANIZATIONS_META_ATTRIBUTES = "SELECT DISTINCT " +
+            "UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_KEY FROM UM_ORG_ATTRIBUTE " +
+            "JOIN UM_ORG ON UM_ORG_ATTRIBUTE.UM_ORG_ID = UM_ORG.UM_ID WHERE ";
+
+    public static final String GET_ORGANIZATIONS_META_ATTRIBUTES_TAIL = "UM_ORG.UM_ID IN " +
+            "(SELECT O.UM_ID FROM UM_ORG O JOIN UM_ORG_HIERARCHY OH ON O.UM_ID = OH.UM_ID " +
+            "WHERE OH.UM_PARENT_ID = (SELECT UM_ID FROM UM_ORG WHERE %s) " +
+            "AND OH.DEPTH %s) ORDER BY UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_KEY %s " +
+            "LIMIT :" + SQLPlaceholders.DB_SCHEMA_LIMIT + ";";
+
+    public static final String GET_ORGANIZATIONS_META_ATTRIBUTES_TAIL_ORACLE = "UM_ORG.UM_ID IN " +
+            "(SELECT O.UM_ID FROM UM_ORG O JOIN UM_ORG_HIERARCHY OH ON O.UM_ID = OH.UM_ID " +
+            "WHERE OH.UM_PARENT_ID = (SELECT UM_ID FROM UM_ORG WHERE %s) " +
+            "AND OH.DEPTH %s) ORDER BY UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_KEY %s " +
+            "FETCH FIRST :" + SQLPlaceholders.DB_SCHEMA_LIMIT + "; ROWS ONLY";
+
+    public static final String GET_ORGANIZATIONS_META_ATTRIBUTES_TAIL_MSSQL = "UM_ORG.UM_ID IN " +
+            "(SELECT O.UM_ID FROM UM_ORG O JOIN UM_ORG_HIERARCHY OH ON O.UM_ID = OH.UM_ID " +
+            "WHERE OH.UM_PARENT_ID = (SELECT UM_ID FROM UM_ORG WHERE %s) " +
+            "AND OH.DEPTH %s) ORDER BY UM_ORG_ATTRIBUTE.UM_ATTRIBUTE_KEY %s " +
+            "OFFSET 0 ROWS FETCH NEXT :" + SQLPlaceholders.DB_SCHEMA_LIMIT + "; ROWS ONLY;";
+
+    public static final String GET_BASIC_ORG_DETAILS_BY_ORG_IDS = "SELECT U.UM_ID, U.UM_ORG_NAME, U.UM_STATUS, " +
+            "U.UM_CREATED_TIME, T.UM_DOMAIN_NAME, CASE WHEN EXISTS " +
+            "( SELECT 1 FROM UM_ORG C WHERE C.UM_PARENT_ID = U.UM_ID ) THEN 1 ELSE 0 END AS HAS_CHILDREN " +
+            "FROM UM_ORG U JOIN UM_TENANT T ON U.UM_ID = T.UM_ORG_UUID " +
+            "WHERE U.UM_ID IN (%s)";
+
+    public static final String GET_ANCESTOR_ORG_DETAILS = "SELECT H.UM_PARENT_ID, O.UM_ORG_NAME, (( " +
+            "SELECT MAX(DEPTH) FROM UM_ORG_HIERARCHY WHERE UM_ID = :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";) - H.DEPTH) AS DEPTH " +
+            "FROM UM_ORG_HIERARCHY H JOIN UM_ORG O ON H.UM_PARENT_ID = O.UM_ID " +
+            "WHERE H.UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + "; AND H.DEPTH > 0 " +
+            "ORDER BY H.DEPTH DESC";
+
+    public static final String GET_MINIMAL_ORG_DETAILS_BY_ORG_ID = "SELECT U.UM_ID, U.UM_ORG_NAME, U.UM_STATUS, " +
+            "U.UM_CREATED_TIME, T.UM_DOMAIN_NAME, U.UM_PARENT_ID, (SELECT H.DEPTH FROM UM_ORG_HIERARCHY H WHERE " +
+            "H.UM_ID = U.UM_ID ORDER BY H.DEPTH DESC LIMIT 1) AS DEPTH FROM UM_ORG U JOIN UM_TENANT T ON " +
+            "U.UM_ID = T.UM_ORG_UUID WHERE U.UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";";
+
+    public static final String GET_MINIMAL_ORG_DETAILS_BY_ORG_ID_ORACLE = "SELECT U.UM_ID, U.UM_ORG_NAME, " +
+            "U.UM_STATUS, U.UM_CREATED_TIME, T.UM_DOMAIN_NAME, U.UM_PARENT_ID, (SELECT H.DEPTH FROM " +
+            "UM_ORG_HIERARCHY H WHERE H.UM_ID = U.UM_ID ORDER BY H.DEPTH DESC FETCH FIRST 1 ROWS ONLY) AS DEPTH " +
+            "FROM UM_ORG U JOIN UM_TENANT T ON U.UM_ID = T.UM_ORG_UUID WHERE U.UM_ID = :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";";
+
+    public static final String GET_MINIMAL_ORG_DETAILS_BY_ORG_ID_MSSQL = "SELECT U.UM_ID, U.UM_ORG_NAME, " +
+            "U.UM_STATUS, U.UM_CREATED_TIME, T.UM_DOMAIN_NAME, U.UM_PARENT_ID, (SELECT TOP 1 H.DEPTH FROM " +
+            "UM_ORG_HIERARCHY H WHERE H.UM_ID = U.UM_ID ORDER BY H.DEPTH DESC) AS DEPTH FROM UM_ORG U JOIN " +
+            "UM_TENANT T ON U.UM_ID = T.UM_ORG_UUID WHERE U.UM_ID = :" + SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";";
+
+    public static final String GET_ORGANIZATION_VERSION = "SELECT UM_ORG_VERSION FROM UM_ORG WHERE UM_ID = :" +
+            SQLPlaceholders.DB_SCHEMA_COLUMN_NAME_ID + ";";
+
     /**
      * SQL Placeholders.
      */
@@ -364,9 +609,11 @@ public class SQLConstants {
         public static final String DB_SCHEMA_COLUMN_NAME_LAST_MODIFIED = "LAST_MODIFIED";
         public static final String DB_SCHEMA_COLUMN_NAME_PARENT_ID = "PARENT_ID";
         public static final String DB_SCHEMA_COLUMN_NAME_STATUS = "STATUS";
+        public static final String DB_SCHEMA_COLUMN_NAME_VERSION = "VERSION";
         public static final String DB_SCHEMA_COLUMN_NAME_KEY = "KEY";
         public static final String DB_SCHEMA_COLUMN_NAME_VALUE = "VALUE";
         public static final String DB_SCHEMA_COLUMN_NAME_USER_ID = "USER_ID";
+        public static final String DB_SCHEMA_COLUMN_NAME_USER_NAME = "USER_NAME";
         public static final String DB_SCHEMA_COLUMN_NAME_TENANT_ID = "TENANT_ID";
         public static final String DB_SCHEMA_COLUMN_NAME_TENANT_DOMAIN = "TENANT_DOMAIN";
         public static final String DB_SCHEMA_LIMIT = "LIMIT";
