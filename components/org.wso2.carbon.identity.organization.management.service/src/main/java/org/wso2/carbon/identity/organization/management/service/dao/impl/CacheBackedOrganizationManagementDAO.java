@@ -495,7 +495,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
             // wrong tenant domain passed to the method.
             tenantDomain = minimalOrganization.getOrganizationHandle();
             MinimalOrganizationCacheByOrgId.getInstance()
-                    .addToCache(cacheKey, new MinimalOrganizationCacheEntry(minimalOrganization), tenantDomain);
+                    .addToCacheOnRead(cacheKey, new MinimalOrganizationCacheEntry(minimalOrganization), tenantDomain);
         } else {
             LOG.debug("Minimal Organization Entry for organization id: " + organizationId +
                     " not found in cache or DB.");
@@ -522,7 +522,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         }
 
         cacheEntry = new OrganizationVersionCacheEntry(version.get());
-        OrganizationVersionCache.getInstance().addToCache(cacheKey, cacheEntry, tenantDomain);
+        OrganizationVersionCache.getInstance().addToCacheOnRead(cacheKey, cacheEntry, tenantDomain);
         return version;
     }
 
@@ -548,7 +548,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
         TenantDomainCacheEntry cacheEntry = new TenantDomainCacheEntry(tenantDomain);
         TenantDomainCacheByOrgId.getInstance()
-                .addToCache(cacheKey, cacheEntry, SUPER_TENANT_DOMAIN_NAME);
+                .addToCacheOnRead(cacheKey, cacheEntry, SUPER_TENANT_DOMAIN_NAME);
     }
 
     private void addOrganizationIdToCache(String tenantDomain, String organizationId) {
@@ -559,7 +559,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         TenantDomainCacheKey cacheKey = new TenantDomainCacheKey(tenantDomain);
         OrganizationIdCacheEntry cacheEntry = new OrganizationIdCacheEntry(organizationId);
         OrganizationIdCacheByTenantDomain.getInstance()
-                .addToCache(cacheKey, cacheEntry, SUPER_TENANT_DOMAIN_NAME);
+                .addToCacheOnRead(cacheKey, cacheEntry, SUPER_TENANT_DOMAIN_NAME);
     }
 
     private OrganizationDetailsCacheEntry getOrganizationDetailsFromCache(String organizationId, String tenantDomain) {
@@ -611,7 +611,8 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
                                                String tenantDomain) {
 
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
-        OrganizationDetailsCacheByOrgId.getInstance().addToCache(cacheKey, organizationDetailsCacheEntry, tenantDomain);
+        OrganizationDetailsCacheByOrgId.getInstance()
+                .addToCacheOnRead(cacheKey, organizationDetailsCacheEntry, tenantDomain);
     }
 
     private void clearTenantDomainCache(String organizationId) {
