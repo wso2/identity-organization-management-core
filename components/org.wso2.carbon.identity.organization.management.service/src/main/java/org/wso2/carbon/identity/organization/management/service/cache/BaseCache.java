@@ -162,7 +162,7 @@ public abstract class BaseCache<K extends Serializable, V extends Serializable> 
 
     /**
      * Add a cache entry during a read-path operation (cache population after a cache miss).
-     * Uses putIfAbsent to avoid triggering redundant cache invalidation messages in clustered deployments.
+     * Uses putOnRead to avoid triggering redundant cache invalidation messages in clustered deployments.
      *
      * @param key          Key which cache entry is indexed.
      * @param entry        Actual object where cache entry is placed.
@@ -187,7 +187,7 @@ public abstract class BaseCache<K extends Serializable, V extends Serializable> 
 
     /**
      * Add a cache entry during a read-path operation (cache population after a cache miss).
-     * Uses putIfAbsent to avoid triggering redundant cache invalidation messages in clustered deployments.
+     * Uses putOnRead to avoid triggering redundant cache invalidation messages in clustered deployments.
      *
      * @param key      Key which cache entry is indexed.
      * @param entry    Actual object where cache entry is placed.
