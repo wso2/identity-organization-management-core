@@ -161,6 +161,56 @@ public abstract class BaseCache<K extends Serializable, V extends Serializable> 
     }
 
     /**
+     * Add a cache entry during a read-path operation (cache population after a cache miss).
+     * Uses putOnRead to avoid triggering redundant cache invalidation messages in clustered deployments.
+     *
+     * @param key          Key which cache entry is indexed.
+     * @param entry        Actual object where cache entry is placed.
+     * @param tenantDomain The tenant domain where the cache is maintained.
+     */
+    public void addToCacheOnRead(K key, V entry, String tenantDomain) {
+
+        if (!isEnabled()) {
+            return;
+        }
+
+        try {
+            startTenantFlow(tenantDomain);
+            Cache<K, V> cache = getBaseCache();
+            if (cache != null) {
+                cache.putOnRead(key, entry);
+            }
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+    }
+
+    /**
+     * Add a cache entry during a read-path operation (cache population after a cache miss).
+     * Uses putOnRead to avoid triggering redundant cache invalidation messages in clustered deployments.
+     *
+     * @param key      Key which cache entry is indexed.
+     * @param entry    Actual object where cache entry is placed.
+     * @param tenantId The tenant Id where the cache is maintained.
+     */
+    public void addToCacheOnRead(K key, V entry, int tenantId) {
+
+        if (!isEnabled()) {
+            return;
+        }
+
+        try {
+            startTenantFlow(tenantId);
+            Cache<K, V> cache = getBaseCache();
+            if (cache != null) {
+                cache.putOnRead(key, entry);
+            }
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+    }
+
+    /**
      * Retrieves a cache entry.
      *
      * @param key CacheKey
