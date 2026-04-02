@@ -36,6 +36,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_DISCOVERY_DEFAULT_PARAM;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ENHANCED_ORG_AUTH_ENABLED_BY_DEFAULT_FOR_NEW_APPS;
 
 /**
  * Unit tests for Utils class.
@@ -165,5 +166,26 @@ public class UtilsTest {
         String result = Utils.getNewOrganizationVersion();
         assertEquals(result, NEW_ORG_VERSION,
                 "getNewOrganizationVersion should return the configured organization version");
+    }
+
+    @DataProvider(name = "enhancedOrgAuthEnabledByDefaultForNewAppsProvider")
+    public Object[][] enhancedOrgAuthEnabledByDefaultForNewAppsProvider() {
+
+        return new Object[][] {
+                { "true", true },
+                { "false", false },
+                { null, false }
+        };
+    }
+
+    @Test(dataProvider = "enhancedOrgAuthEnabledByDefaultForNewAppsProvider",
+            description = "This test verifies whether the `isEnhancedOrgAuthEnabledByDefaultForNewApps` method "
+                    + "returns the correct boolean value based on the configured property.")
+    public void testIsEnhancedOrgAuthEnabledByDefaultForNewApps(String configuredValue, boolean expectedValue) {
+
+        organizationManagementConfigUtil.when(() -> OrganizationManagementConfigUtil.getProperty(
+                eq(ENHANCED_ORG_AUTH_ENABLED_BY_DEFAULT_FOR_NEW_APPS))).thenReturn(configuredValue);
+
+        assertEquals(Utils.isEnhancedOrgAuthEnabledByDefaultForNewApps(), expectedValue);
     }
  }

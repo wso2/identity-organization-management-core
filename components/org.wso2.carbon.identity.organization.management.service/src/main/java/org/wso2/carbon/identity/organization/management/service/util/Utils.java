@@ -59,6 +59,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.B2B_APPLICATION_ROLE_SUPPORT_ENABLED;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_DISCOVERY_DEFAULT_PARAM;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_SUB_ORG_LEVEL;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ENHANCED_ORG_AUTH_ENABLED_BY_DEFAULT_FOR_NEW_APPS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CHECKING_DB_METADATA;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_ERROR_CREATING_NEW_SYSTEM_ROLE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ErrorMessages.ERROR_CODE_INVALID_ORGANIZATION;
@@ -833,5 +834,16 @@ public class Utils {
 
         return Boolean.parseBoolean(
                 OrganizationManagementConfigUtil.getProperty(ADAPTIVE_AUTH_ENABLE_CONFIG_FOR_SHARED_APPS));
+    }
+
+    /**
+     * Returns whether enhanced organization authentication is enabled by default for new apps.
+     *
+     * @return True if enhanced organization authentication is enabled by default for new apps.
+     */
+    public static boolean isEnhancedOrgAuthEnabledByDefaultForNewApps() {
+
+        return Boolean.parseBoolean(
+                OrganizationManagementConfigUtil.getProperty(ENHANCED_ORG_AUTH_ENABLED_BY_DEFAULT_FOR_NEW_APPS));
     }
 }

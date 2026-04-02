@@ -110,4 +110,8 @@
             <Enable>false</Enable>
         </SharedApplications>
     </AdaptiveAuth>
+
+    <EnhancedOrganizationAuthentication>
+        <EnabledByDefaultForNewApps>true</EnabledByDefaultForNewApps>
+    </EnhancedOrganizationAuthentication>
 </OrganizationManagement>
