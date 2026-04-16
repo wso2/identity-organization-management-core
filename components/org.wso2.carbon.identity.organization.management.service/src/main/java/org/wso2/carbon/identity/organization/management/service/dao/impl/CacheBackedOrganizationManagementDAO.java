@@ -330,7 +330,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
             return cachedTenantDomain.getTenantDomain();
         }
         String tenantDomain = organizationMgtDAO.resolveTenantDomain(organizationId);
-        addTenantDomainToCache(organizationId, tenantDomain);
+        addTenantDomainToCacheOnRead(organizationId, tenantDomain);
         return tenantDomain;
     }
 
@@ -359,7 +359,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
             return Optional.of(cachedOrganizationId.getOrganizationId());
         }
         Optional<String> organizationId = organizationMgtDAO.resolveOrganizationId(tenantDomain);
-        organizationId.ifPresent(s -> addOrganizationIdToCache(tenantDomain, s));
+        organizationId.ifPresent(s -> addOrganizationIdToCacheOnRead(tenantDomain, s));
         return organizationId;
     }
 
@@ -548,10 +548,32 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
         OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
         TenantDomainCacheEntry cacheEntry = new TenantDomainCacheEntry(tenantDomain);
         TenantDomainCacheByOrgId.getInstance()
+                .addToCache(cacheKey, cacheEntry, SUPER_TENANT_DOMAIN_NAME);
+    }
+
+    private void addTenantDomainToCacheOnRead(String organizationId, String tenantDomain) {
+
+        if (StringUtils.isBlank(tenantDomain) || StringUtils.isBlank(organizationId)) {
+            return;
+        }
+        OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
+        TenantDomainCacheEntry cacheEntry = new TenantDomainCacheEntry(tenantDomain);
+        TenantDomainCacheByOrgId.getInstance()
                 .addToCacheOnRead(cacheKey, cacheEntry, SUPER_TENANT_DOMAIN_NAME);
     }
 
     private void addOrganizationIdToCache(String tenantDomain, String organizationId) {
+
+        if (StringUtils.isBlank(tenantDomain) || StringUtils.isBlank(organizationId)) {
+            return;
+        }
+        TenantDomainCacheKey cacheKey = new TenantDomainCacheKey(tenantDomain);
+        OrganizationIdCacheEntry cacheEntry = new OrganizationIdCacheEntry(organizationId);
+        OrganizationIdCacheByTenantDomain.getInstance()
+                .addToCache(cacheKey, cacheEntry, SUPER_TENANT_DOMAIN_NAME);
+    }
+
+    private void addOrganizationIdToCacheOnRead(String tenantDomain, String organizationId) {
 
         if (StringUtils.isBlank(tenantDomain) || StringUtils.isBlank(organizationId)) {
             return;
@@ -573,21 +595,21 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
 
         OrganizationDetailsCacheEntry cacheEntry = new OrganizationDetailsCacheEntry.Builder()
                 .setOrgName(organizationName).build();
-        addOrganizationDetailsToCache(organizationId, cacheEntry, tenantDomain);
+        addOrganizationDetailsToCacheOnRead(organizationId, cacheEntry, tenantDomain);
     }
 
     private void addOrganizationStatusToCache(String organizationId, String status, String tenantDomain) {
 
         OrganizationDetailsCacheEntry cacheEntry = new OrganizationDetailsCacheEntry.Builder()
                 .setStatus(status).build();
-        addOrganizationDetailsToCache(organizationId, cacheEntry, tenantDomain);
+        addOrganizationDetailsToCacheOnRead(organizationId, cacheEntry, tenantDomain);
     }
 
     private void addOrganizationTypeToCache(String organizationId, String type, String tenantDomain) {
 
         OrganizationDetailsCacheEntry cacheEntry = new OrganizationDetailsCacheEntry.Builder()
                 .setType(type).build();
-        addOrganizationDetailsToCache(organizationId, cacheEntry, tenantDomain);
+        addOrganizationDetailsToCacheOnRead(organizationId, cacheEntry, tenantDomain);
     }
 
     private void addOrganizationDepthInHierarchyToCache(String organizationId, int organizationDepthInHierarchy,
@@ -595,7 +617,7 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
 
         OrganizationDetailsCacheEntry cacheEntry = new OrganizationDetailsCacheEntry.Builder()
                 .setOrganizationDepthInHierarchy(organizationDepthInHierarchy).build();
-        addOrganizationDetailsToCache(organizationId, cacheEntry, tenantDomain);
+        addOrganizationDetailsToCacheOnRead(organizationId, cacheEntry, tenantDomain);
     }
 
     private void addAncestorOrganizationIdsToCache(String organizationId, List<String> ancestorOrganizationIds,
@@ -603,10 +625,19 @@ public class CacheBackedOrganizationManagementDAO implements OrganizationManagem
 
         OrganizationDetailsCacheEntry cacheEntry = new OrganizationDetailsCacheEntry.Builder()
                 .setAncestorOrganizationIds(ancestorOrganizationIds).build();
-        addOrganizationDetailsToCache(organizationId, cacheEntry, tenantDomain);
+        addOrganizationDetailsToCacheOnRead(organizationId, cacheEntry, tenantDomain);
     }
 
     private void addOrganizationDetailsToCache(String organizationId,
+                                               OrganizationDetailsCacheEntry organizationDetailsCacheEntry,
+                                               String tenantDomain) {
+
+        OrganizationIdCacheKey cacheKey = new OrganizationIdCacheKey(organizationId);
+        OrganizationDetailsCacheByOrgId.getInstance()
+                .addToCache(cacheKey, organizationDetailsCacheEntry, tenantDomain);
+    }
+
+    private void addOrganizationDetailsToCacheOnRead(String organizationId,
                                                OrganizationDetailsCacheEntry organizationDetailsCacheEntry,
                                                String tenantDomain) {
 
