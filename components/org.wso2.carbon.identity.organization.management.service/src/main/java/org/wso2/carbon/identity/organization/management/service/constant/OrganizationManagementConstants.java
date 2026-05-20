@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2022-2026, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -63,6 +63,7 @@ public class OrganizationManagementConstants {
     public static final String PATCH_PATH_ORG_ATTRIBUTES = "/attributes/";
     public static final String PARENT_ID_FIELD = "parentId";
     public static final String ORGANIZATION_NAME_FIELD = "name";
+    public static final String ORGANIZATION_HANDLE_FIELD = "orgHandle";
     public static final String ORGANIZATION_ID_FIELD = "id";
     public static final String ORGANIZATION_ID_PROPERTY = "ORGANIZATION_ID";
     public static final String ORGANIZATION_DESCRIPTION_FIELD = "description";
@@ -201,6 +202,7 @@ public class OrganizationManagementConstants {
     static {
 
         attributeColumnMap.put(ORGANIZATION_NAME_FIELD, VIEW_NAME_COLUMN);
+        attributeColumnMap.put(ORGANIZATION_HANDLE_FIELD, "UM_TENANT." + VIEW_TENANT_DOMAIN_COLUMN);
         attributeColumnMap.put(ORGANIZATION_ID_FIELD, "UM_ORG." + VIEW_ID_COLUMN);
         attributeColumnMap.put(ORGANIZATION_DESCRIPTION_FIELD, VIEW_DESCRIPTION_COLUMN);
         attributeColumnMap.put(ORGANIZATION_CREATED_TIME_FIELD, VIEW_CREATED_TIME_COLUMN);
