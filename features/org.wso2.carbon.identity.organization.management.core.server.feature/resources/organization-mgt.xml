@@ -109,6 +109,9 @@
         <SharedApplications>
             <Enable>false</Enable>
         </SharedApplications>
+        <OrgGovernance>
+            <Enable>false</Enable>
+        </OrgGovernance>
     </AdaptiveAuth>
 
     <EnhancedOrganizationAuthentication>
