@@ -55,6 +55,7 @@ import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ADAPTIVE_AUTH_ENABLE_CONFIG_FOR_ORG_GOVERNANCE;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ADAPTIVE_AUTH_ENABLE_CONFIG_FOR_SHARED_APPS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.B2B_APPLICATION_ROLE_SUPPORT_ENABLED;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_DISCOVERY_DEFAULT_PARAM;
@@ -834,6 +835,17 @@ public class Utils {
 
         return Boolean.parseBoolean(
                 OrganizationManagementConfigUtil.getProperty(ADAPTIVE_AUTH_ENABLE_CONFIG_FOR_SHARED_APPS));
+    }
+
+    /**
+     * Returns whether org governance enabled for adaptive auth feature.
+     *
+     * @return True if org governance enabled for adaptive auth feature.
+     */
+    public static boolean isAdaptiveAuthEnabledForOrgGovernance() {
+
+        return Boolean.parseBoolean(
+                OrganizationManagementConfigUtil.getProperty(ADAPTIVE_AUTH_ENABLE_CONFIG_FOR_ORG_GOVERNANCE));
     }
 
     /**
