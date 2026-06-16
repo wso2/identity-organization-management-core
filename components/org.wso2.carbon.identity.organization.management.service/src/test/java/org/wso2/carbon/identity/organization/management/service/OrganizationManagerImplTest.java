@@ -446,6 +446,7 @@ public class OrganizationManagerImplTest {
 
     @Test
     public void testGetOrganizationWithChildren() throws Exception {
+
         Organization organization = organizationManager.getOrganization(ORG1_ID, true, false);
         assertEquals(organization.getName(), ORG1_NAME);
         assertEquals(organization.getParent().getId(), SUPER_ORG_ID);
