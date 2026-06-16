@@ -565,7 +565,36 @@ public class OrganizationManagerImpl implements OrganizationManager {
     @Override
     public Organization patchOrganization(String organizationId, List<PatchOperation> patchOperations) throws
             OrganizationManagementException {
+        for (PatchOperation operation : patchOperations) {
 
+            if (StringUtils.isNotEmpty(operation.getPath()) &&
+                    operation.getPath().contains(CREATOR_ID)
+            ) {
+                String creatorId = operation.getValue();
+
+                if (StringUtils.isNotEmpty(creatorId)) {
+
+                    int tenantId =
+                            PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
+
+                    try {
+                        AbstractUserStoreManager userStoreManager =
+                                Utils.getUserStoreManager(tenantId);
+
+                        if (!userStoreManager.isExistingUserWithID(creatorId)) {
+                            throw handleClientException(
+                                    ERROR_CODE_ORGANIZATION_OWNER_NOT_EXIST,
+                                    String.valueOf(tenantId));
+                        }
+                    } catch (UserStoreException e) {
+                        throw handleServerException(
+                                ERROR_CODE_ERROR_VALIDATING_ORGANIZATION_OWNER,
+                                e,
+                                organizationId);
+                    }
+                }
+            }
+        }
         if (StringUtils.isBlank(organizationId)) {
             throw handleClientException(ERROR_CODE_ORGANIZATION_ID_UNDEFINED);
         }
