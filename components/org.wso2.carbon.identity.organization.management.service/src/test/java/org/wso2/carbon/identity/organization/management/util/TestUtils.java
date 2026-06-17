@@ -48,6 +48,9 @@ import static org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_ID;
 import static org.wso2.carbon.identity.organization.management.service.util.Utils.generateUniqueID;
 import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
 
+/**
+ * Utility methods used by tests.
+ */
 public class TestUtils {
 
     public static final String DB_NAME = "testOrgMgt_db";
