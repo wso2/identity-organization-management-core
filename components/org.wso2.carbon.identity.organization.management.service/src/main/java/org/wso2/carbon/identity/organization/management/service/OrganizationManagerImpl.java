@@ -559,8 +559,14 @@ public class OrganizationManagerImpl implements OrganizationManager {
             }
         }
         int organizationDepthInHierarchy = organizationManagementDAO.getOrganizationDepthInHierarchy(organizationId);
+        /*
+         The organization handle is not populated by the DAO, and neither the handle nor the organization itself can
+         be resolved once the organization is removed. Hence, the handle is resolved here and the complete
+         organization is passed on to the listener.
+        */
+        organization.setOrganizationHandle(resolveTenantDomain(organizationId));
         organizationManagementDAO.deleteOrganization(organizationId);
-        getListener().postDeleteOrganization(organizationId, organizationDepthInHierarchy);
+        getListener().postDeleteOrganization(organizationId, organization, organizationDepthInHierarchy);
     }
 
     @Override
@@ -612,6 +618,11 @@ public class OrganizationManagerImpl implements OrganizationManager {
         updateLastModifiedTime(organization);
 
         getListener().preUpdateOrganization(organizationId, organization);
+        /*
+         The organization is resolved before the update, since the values changed by a PUT can only be determined by
+         comparing the organization against its previous state.
+        */
+        Organization previousOrganization = organizationManagementDAO.getOrganization(organizationId);
         organizationManagementDAO.updateOrganization(organizationId, organization);
 
         Organization updatedOrganization = organizationManagementDAO.getOrganization(organizationId);
@@ -621,7 +632,7 @@ public class OrganizationManagerImpl implements OrganizationManager {
         if (StringUtils.equals(TENANT.toString(), organization.getType())) {
             updateTenantStatus(organization.getStatus(), organizationId);
         }
-        getListener().postUpdateOrganization(organizationId, organization);
+        getListener().postUpdateOrganization(organizationId, organization, previousOrganization);
         return updatedOrganization;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2022-2026, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -49,6 +49,21 @@ public interface OrganizationManagerListener {
         // This method is not implemented.
     }
 
+    /**
+     * Invoked after an organization is deleted, carrying the details of the deleted organization, since they can no
+     * longer be retrieved once the deletion is complete.
+     *
+     * @param organizationId                ID of the deleted organization.
+     * @param organization                  Details of the deleted organization, as they were before the deletion.
+     * @param organizationDepthInHierarchy  Depth of the deleted organization in the hierarchy.
+     * @throws OrganizationManagementException If an error occurs while handling the event.
+     */
+    default void postDeleteOrganization(String organizationId, Organization organization,
+                                        int organizationDepthInHierarchy) throws OrganizationManagementException {
+
+        postDeleteOrganization(organizationId, organizationDepthInHierarchy);
+    }
+
     void prePatchOrganization(String organizationId, List<PatchOperation> patchOperations) throws
             OrganizationManagementException;
 
@@ -60,4 +75,19 @@ public interface OrganizationManagerListener {
 
     void postUpdateOrganization(String organizationId, Organization organization) throws
             OrganizationManagementException;
+
+    /**
+     * Invoked after an organization is updated, carrying the organization as it was before the update, so that the
+     * values changed by the update can be resolved.
+     *
+     * @param organizationId        ID of the updated organization.
+     * @param organization          Organization details carried by the update request.
+     * @param previousOrganization  Details of the organization as they were before the update.
+     * @throws OrganizationManagementException If an error occurs while handling the event.
+     */
+    default void postUpdateOrganization(String organizationId, Organization organization,
+                                        Organization previousOrganization) throws OrganizationManagementException {
+
+        postUpdateOrganization(organizationId, organization);
+    }
 }
