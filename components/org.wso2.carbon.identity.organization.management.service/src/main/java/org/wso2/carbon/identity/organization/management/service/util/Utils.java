@@ -68,6 +68,7 @@ import static org.wso2.carbon.identity.organization.management.service.constant.
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_CARBON_ROLE_VALIDATION_ENABLED_FOR_LEVEL_ONE_ORGS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_ORG_QUALIFIED_URLS_SUPPORTED_FOR_LEVEL_ONE_ORGS;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.IS_SUPER_ORG_NAME_SUPPORTED_IN_NOTIFICATION_TEMPLATES;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.MAIN_APPLICATION_ID_FOR_SHARED_APPS_ENABLE_CONFIG;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationVersion.ORG_VERSION_DELIMITER_REGEX;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.OrganizationVersion.ORG_VERSION_PREFIX;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.PATH_SEPARATOR;
@@ -857,5 +858,16 @@ public class Utils {
 
         return Boolean.parseBoolean(
                 OrganizationManagementConfigUtil.getProperty(ENHANCED_ORG_AUTH_ENABLED_BY_DEFAULT_FOR_NEW_APPS));
+    }
+
+    /**
+     * Returns whether the main application ID is returned as a service provider property of shared applications.
+     *
+     * @return True if the main application ID is returned for shared applications.
+     */
+    public static boolean isMainApplicationIdEnabledForSharedApps() {
+
+        return Boolean.parseBoolean(
+                OrganizationManagementConfigUtil.getProperty(MAIN_APPLICATION_ID_FOR_SHARED_APPS_ENABLE_CONFIG));
     }
 }
