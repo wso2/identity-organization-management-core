@@ -153,6 +153,8 @@ public class OrganizationManagementConstants {
     public static final String ADAPTIVE_AUTH_ENABLE_CONFIG_FOR_ORG_GOVERNANCE = "AdaptiveAuth.OrgGovernance.Enable";
     public static final String ENHANCED_ORG_AUTH_ENABLED_BY_DEFAULT_FOR_NEW_APPS =
             "EnhancedOrganizationAuthentication.EnabledByDefaultForNewApps";
+    public static final String MAIN_APPLICATION_ID_FOR_SHARED_APPS_ENABLE_CONFIG =
+            "SharedApplications.MainApplicationId.Enable";
 
     /**
      * Contains constants related to organization versioning.

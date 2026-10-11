@@ -117,4 +117,14 @@
     <EnhancedOrganizationAuthentication>
         <EnabledByDefaultForNewApps>true</EnabledByDefaultForNewApps>
     </EnhancedOrganizationAuthentication>
+
+    <!--
+        Set this to 'true' to return the ID of the main application as the service provider property
+        'mainApplicationId' of a shared application.
+    -->
+    <SharedApplications>
+        <MainApplicationId>
+            <Enable>false</Enable>
+        </MainApplicationId>
+    </SharedApplications>
 </OrganizationManagement>

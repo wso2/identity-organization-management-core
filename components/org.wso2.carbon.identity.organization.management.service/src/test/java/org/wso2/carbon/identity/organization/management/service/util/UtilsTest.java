@@ -37,6 +37,7 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.DEFAULT_DISCOVERY_DEFAULT_PARAM;
 import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.ENHANCED_ORG_AUTH_ENABLED_BY_DEFAULT_FOR_NEW_APPS;
+import static org.wso2.carbon.identity.organization.management.service.constant.OrganizationManagementConstants.MAIN_APPLICATION_ID_FOR_SHARED_APPS_ENABLE_CONFIG;
 
 /**
  * Unit tests for Utils class.
@@ -187,5 +188,29 @@ public class UtilsTest {
                 eq(ENHANCED_ORG_AUTH_ENABLED_BY_DEFAULT_FOR_NEW_APPS))).thenReturn(configuredValue);
 
         assertEquals(Utils.isEnhancedOrgAuthEnabledByDefaultForNewApps(), expectedValue);
+    }
+
+    @DataProvider(name = "mainApplicationIdEnabledForSharedAppsProvider")
+    public Object[][] mainApplicationIdEnabledForSharedAppsProvider() {
+
+        return new Object[][] {
+                { "true", true },
+                { "TRUE", true },
+                { "false", false },
+                { "invalid", false },
+                { "", false },
+                { null, false }
+        };
+    }
+
+    @Test(dataProvider = "mainApplicationIdEnabledForSharedAppsProvider",
+            description = "This test verifies whether the `isMainApplicationIdEnabledForSharedApps` method "
+                    + "returns the correct boolean value based on the configured property.")
+    public void testIsMainApplicationIdEnabledForSharedApps(String configuredValue, boolean expectedValue) {
+
+        organizationManagementConfigUtil.when(() -> OrganizationManagementConfigUtil.getProperty(
+                eq(MAIN_APPLICATION_ID_FOR_SHARED_APPS_ENABLE_CONFIG))).thenReturn(configuredValue);
+
+        assertEquals(Utils.isMainApplicationIdEnabledForSharedApps(), expectedValue);
     }
  }
