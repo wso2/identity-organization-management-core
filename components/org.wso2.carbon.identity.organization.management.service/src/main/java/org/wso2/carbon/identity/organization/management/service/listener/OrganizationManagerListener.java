@@ -70,6 +70,21 @@ public interface OrganizationManagerListener {
     void postPatchOrganization(String organizationId, List<PatchOperation> patchOperations) throws
             OrganizationManagementException;
 
+    /**
+     * Invoked after an organization is patched, carrying the organization as it was before the patch, so that the
+     * values changed by the patch can be resolved.
+     *
+     * @param organizationId        ID of the patched organization.
+     * @param patchOperations       Patch operations carried by the patch request.
+     * @param previousOrganization  Details of the organization as they were before the patch.
+     * @throws OrganizationManagementException If an error occurs while handling the event.
+     */
+    default void postPatchOrganization(String organizationId, List<PatchOperation> patchOperations,
+                                       Organization previousOrganization) throws OrganizationManagementException {
+
+        postPatchOrganization(organizationId, patchOperations);
+    }
+
     void preUpdateOrganization(String organizationId, Organization organization) throws
             OrganizationManagementException;
 
