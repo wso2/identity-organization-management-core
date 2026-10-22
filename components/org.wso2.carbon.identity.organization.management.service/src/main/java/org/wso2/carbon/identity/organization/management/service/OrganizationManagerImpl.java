@@ -585,10 +585,15 @@ public class OrganizationManagerImpl implements OrganizationManager {
         validateOrganizationPatchOperations(patchOperations, organizationId, false);
 
         getListener().prePatchOrganization(organizationId, patchOperations);
+        /*
+         The organization is resolved before the patch, since the values changed by a patch can only be determined
+         by comparing the patched values against the state the organization was in.
+        */
+        Organization previousOrganization = organizationManagementDAO.getOrganization(organizationId);
         organizationManagementDAO.patchOrganization(organizationId, Instant.now(), patchOperations);
         patchTenantStatus(patchOperations, organizationId);
 
-        getListener().postPatchOrganization(organizationId, patchOperations);
+        getListener().postPatchOrganization(organizationId, patchOperations, previousOrganization);
 
         Organization organization = organizationManagementDAO.getOrganization(organizationId);
         organization.setOrganizationHandle(resolveTenantDomain(organization.getId()));
@@ -854,10 +859,15 @@ public class OrganizationManagerImpl implements OrganizationManager {
         validateOrganizationPatchOperations(patchOperations, organizationId, true);
 
         getListener().prePatchOrganization(organizationId, patchOperations);
+        /*
+         The organization is resolved before the patch, since the values changed by a patch can only be determined
+         by comparing the patched values against the state the organization was in.
+        */
+        Organization previousOrganization = organizationManagementDAO.getOrganization(organizationId);
         organizationManagementDAO.patchOrganization(organizationId, Instant.now(), patchOperations);
         patchTenantStatus(patchOperations, organizationId);
 
-        getListener().postPatchOrganization(organizationId, patchOperations);
+        getListener().postPatchOrganization(organizationId, patchOperations, previousOrganization);
 
         Organization organization = organizationManagementDAO.getOrganization(organizationId);
         organization.setOrganizationHandle(resolveTenantDomain(organization.getId()));
